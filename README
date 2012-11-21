@@ -1,0 +1,8 @@
+LayMan - Layer Manager
+======================
+
+This client/server application should make possible to upload files and create
+web services on top of them.
+
+Client: JavaScript (ExtJS, OpenLayers)
+Server: Python
