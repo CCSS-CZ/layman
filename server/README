@@ -1,0 +1,41 @@
+For testing at the command line:
+
+    1. make copy of layman.cfg-template
+    2. export LAYMAN_CFG env variable
+    3. make copy of layman.py-template
+    4. run python layman.py
+
+    Alternative way:
+
+    1. leave it as it is (if you know, defaults.cfg containtes proper values)
+    2. run python layman.py-template
+
+    You can now access the service from
+
+        http://localhost:8080/layman/
+
+For running on the server:
+
+    1. configure layman.cfg and layman.py to your needs
+    2. make link from cgi-bin to layman.py, e.g.:
+        
+        ln -s ./layman.py /usr/lib/cgi-bin/layman.py
+
+    3. You can now access the service directly from
+
+        http://localhost/cgi-bin/layman.py/layman/
+
+For using the test suite
+    
+    1. Change directory to tests
+
+        cd tests
+
+    2. run layman.py
+
+        python layman.py
+
+    3. In case, only particular test suite is needed, pickup one file and use it
+
+        python fileman.py
+
