@@ -4,7 +4,6 @@ import ConfigParser
 
 TEST_DIR = os.path.dirname(os.path.abspath(__file__))
 INSTALL_DIR = os.path.abspath(os.path.join(TEST_DIR,".."))
-
 sys.path.append(os.path.join(INSTALL_DIR))
 
 from layman.fileman import FileMan
@@ -20,7 +19,7 @@ class FileManTestCase(unittest.TestCase):
         cfg.set("FileMan","testdir",TEST_DIR)
         self.fm = FileMan(cfg)
 
-    def testGetDir(self):
+    def test_getDir(self):
         """Test dir"""
 
         workdir = os.path.abspath(os.path.join(TEST_DIR,"workdir","data"))
@@ -28,7 +27,7 @@ class FileManTestCase(unittest.TestCase):
         self.assertTrue(os.path.samefile(workdir, self.fm.config.get("FileMan","targetdir")),
             "Make sure, that configuration works and that the data dir was found")
 
-    def testGetFiles(self):
+    def test_getFiles(self):
         """Test get files request"""
 
         # example of expected json response:
@@ -51,7 +50,7 @@ class FileManTestCase(unittest.TestCase):
         self.assertEquals(type(files), type([]), "List is an array")
         self.assertEquals(len(files), len(os.listdir(workdir)), "Number of files match")
         self.assertEquals(files[0].keys(),["name","size","prj","mimetype"],"File attributes are existing")
-        
+
 
 if __name__ == "__main__":
    suite = unittest.TestLoader().loadTestsFromTestCase(FileManTestCase)
