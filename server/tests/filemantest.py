@@ -37,6 +37,7 @@ class FileManTestCase(unittest.TestCase):
         #       name: "file.shp",
         #       size: 1000000,
         #       prj: "epsg:4326",
+        #       date: "2012-04-05 05:43",
         #       mimetype: "application/x-zipped-shp" 
         #   },
         #   ...
