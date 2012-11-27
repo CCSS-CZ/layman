@@ -59,7 +59,7 @@ class LayMan:
             from auth import LaymanAuthLiferay
             self.auth = LaymanAuthLiferay()
         elif service == "hsrs":
-            from auth import LaymanAuthLiferay
+            from auth import LaymanAuthHSRS
             self.auth = LaymanAuthHSRS()
         # NOTE: everybody can do anything by default
         # should be probabely fixed in the future
