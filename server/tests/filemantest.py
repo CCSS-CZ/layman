@@ -35,9 +35,8 @@ class FileManTestCase(unittest.TestCase):
         #   {
         #       name: "file.shp",
         #       size: 1000000,
-        #       prj: "epsg:4326",
         #       date: "2012-04-05 05:43",
-        #       mimetype: "application/x-zipped-shp" 
+        #       mimetype: "application/x-esri-shp" || "application/octet-stream"
         #   },
         #   ...
         # ]
@@ -49,7 +48,46 @@ class FileManTestCase(unittest.TestCase):
         files = self.fm.getfiles()
         self.assertEquals(type(files), type([]), "List is an array")
         self.assertEquals(len(files), len(os.listdir(workdir)), "Number of files match")
-        self.assertEquals(files[0].keys(),["name","size","prj","mimetype"],"File attributes are existing")
+        self.assertEquals(files[0].keys(),["name","size","mimetype"],"File attributes are existing")
+
+    def test_getFileDetails(self):
+        """Test get file detail request"""
+
+        # example of expected json response:
+        # {
+        #     name: "file.shp",
+        #     size: 1000000,
+        #     date: "2012-04-05 05:43",
+        #     mimetype: "application/x-esri-shp" || "application/octet-stream"
+        #     prj: "epsg:4326",
+        #     features: 150,
+        #     geomtype: "line",
+        #     extent: [10,50,15,55],
+        #     attributes: {
+        #           "cat": "real",
+        #           "rgntyp": "string",
+        #           kod": "string",
+        #           nazev": "string",
+        #           smer": "string",
+        #           poityp": "string",
+        #           kod_popis": "string"
+        #     }
+        # },
+        # ...
+        
+        # NOTE: mimetypes should be handled according to https://portal.opengeospatial.org/files/?artifact_id=47860
+        # NOTE: shapefile does not have one ... maybe octet-stream
+
+        workdir = os.path.abspath(os.path.join(TEST_DIR,"workdir","data"))
+
+        filed = self.fm.getfiledetails("line_crs.shp")
+        self.assertEquals(filed["name"], "line_crs.shp","File name")
+        self.assertEquals(filed["size"], 404,"File size")
+        self.assertEquals(filed["mimetype"], "application/octet-stream","Mime type")
+        self.assertEquals(filed["prj"], "epsg:4326","Projection")
+        self.assertEquals(filed["geomtype"], "line","Geometry type")
+        self.assertListEqual(filed["extent"], [-1.029182,-0.618030,0.805390,0.748141],"File extent")
+        self.assertDictEqual(filed["attributes"], {"id":"integer"},"Attributes")
 
 
 if __name__ == "__main__":
