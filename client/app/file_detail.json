@@ -1,0 +1,11 @@
+{
+    "name":"line_crs.shp",
+    "size":404,
+    "mimetype":"application/octet-stream",
+    "prj":"epsg:4326",
+    "geomtype":"line",
+    "features":2,
+    "date": "2012-04-05 05:43",
+    "extent":[-1.029182,-0.618030,0.805390,0.748141],
+    "attributes":{"id":"integer"}
+}

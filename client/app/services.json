@@ -1,0 +1,41 @@
+[
+    {
+        "name":"file",
+        "mimetype":"application/x-zipped-shp",
+        "size": 10000,
+        "prj": "epsg:4326",
+        "date": "2012-04-11 04:44"
+    },
+    {
+        "name":"file.shx",
+        "mimetype":"",
+        "size": 20000,
+        "prj": "epsg:4326",
+        "date": "2012-04-11 04:44"
+    },
+    {
+        "name":"file.dbf",
+        "mimetype":"application/dbase",
+        "size": 1000,
+        "prj": "epsg:4326",
+        "date": "2012-04-11 04:44"
+    },
+    {
+        "name":"file2.shp",
+        "mimetype":"application/x-zipped-shp",
+        "size": 10000,
+        "date": "2012-04-11 04:44"
+    },
+    {
+        "name":"file2.shx",
+        "mimetype":"",
+        "size": 20000,
+        "date": "2012-04-11 04:44"
+    },
+    {
+        "name":"file2.dbf",
+        "mimetype":"application/dbase",
+        "size": 1000,
+        "date": "2012-04-11 04:44"
+    }
+]
