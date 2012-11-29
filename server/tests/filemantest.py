@@ -48,7 +48,7 @@ class FileManTestCase(unittest.TestCase):
         files = self.fm.getfiles()
         self.assertEquals(type(files), type([]), "List is an array")
         self.assertEquals(len(files), len(os.listdir(workdir)), "Number of files match")
-        self.assertEquals(files[0].keys(),["name","size","mimetype"],"File attributes are existing")
+        self.assertListEqual(files[0].keys(),["name","size","date","mimetype"],"File attributes are existing")
 
     def test_getFileDetails(self):
         """Test get file detail request"""
