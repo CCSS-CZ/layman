@@ -84,6 +84,7 @@ class FileManTestCase(unittest.TestCase):
         self.assertEquals(filed["name"], "line_crs.shp","File name")
         self.assertEquals(filed["size"], 404,"File size")
         self.assertEquals(filed["mimetype"], "application/octet-stream","Mime type")
+        self.assertEquals(filed["features"],2,"Number of features")
         self.assertEquals(filed["prj"], "epsg:4326","Projection")
         self.assertEquals(filed["geomtype"], "line","Geometry type")
         self.assertListEqual(filed["extent"], [-1.029182,-0.618030,0.805390,0.748141],"File extent")
