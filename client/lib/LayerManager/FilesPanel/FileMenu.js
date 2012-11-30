@@ -7,7 +7,7 @@ Ext4.define("HSRS.LayerManager.FilesPanel.FileMenu", {
     
     extend: "Ext4.menu.Menu",
 
-    requires:["HSRS.LayerManager.UploadForm"],
+    requires:["HSRS.LayerManager.PublishForm"],
 
     file: undefined,
     data: undefined, 
@@ -62,6 +62,8 @@ Ext4.define("HSRS.LayerManager.FilesPanel.FileMenu", {
         ];
 
         this.callParent(arguments);
+
+        this.addEvents("filepublished");
     },
 
     /**
@@ -77,17 +79,37 @@ Ext4.define("HSRS.LayerManager.FilesPanel.FileMenu", {
      * @private
      */
     _onUploadClicked: function() {
-        var uploadForm = Ext4.create("HSRS.LayerManager.UploadForm", {
+        var publishForm = Ext4.create("HSRS.LayerManager.PublishForm", {
             name: this.data.name,
             type: this.data.type,
             prj: this.data.prj,
+            extent: this.data.extent,
             attributes: this.data.attributes,
             geomtype: this.data.geomtype
         });
-        uploadForm._win = Ext4.create("Ext4.window.Window", {
+        publishForm._win = Ext4.create("Ext4.window.Window", {
             title: "Upload and publish file to GeoServer",
-            items: [uploadForm]
+            items: [publishForm]
         });
-        uploadForm._win.show();
+
+        publishForm.on("canceled",publishForm._win.close,publishForm._win);
+        publishForm.on("published",
+            function(e){
+                this.publishForm._win.close();
+                this.menu._onFilePublished.apply(this.menu,arguments);
+            },
+            {menu:this,publishForm: publishForm}
+        );
+        publishForm._win.show();
+    },
+
+    /**
+     * on file published
+     * @private
+     * @function
+     */
+    _onFilePublished: function(data) {
+
+        this.fireEvent("filepublished",data);
     }
 });

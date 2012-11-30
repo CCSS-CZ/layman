@@ -15,7 +15,8 @@ Ext4.define("HSRS.LayerManager.FilesPanel", {
      * @constructor
      */
     constructor: function(config) {
-        config.tbar = Ext4.create("Ext4.toolbar.Toolbar", {
+        myconfig = {};
+        myconfig.tbar = Ext4.create("Ext4.toolbar.Toolbar", {
             items: [
                 {
                     //text: 'Refresh',
@@ -56,7 +57,7 @@ Ext4.define("HSRS.LayerManager.FilesPanel", {
                 ]
         }); 
         
-        config.store = Ext4.create("Ext4.data.JsonStore", {
+        myconfig.store = Ext4.create("Ext4.data.JsonStore", {
             model: 'HSRS.LayerManager.FilesPanel.Model',
             //autoLoad: true,
             //autoSync: true,
@@ -69,14 +70,14 @@ Ext4.define("HSRS.LayerManager.FilesPanel", {
                 }
             }
         });
-        config.store.load();
+        myconfig.store.load();
 
-        config.multiSelect = true;
+        myconfig.multiSelect = true;
 
-        config.autoScroll =  true;
-        config.anchor = "100%";
+        myconfig.autoScroll =  true;
+        myconfig.anchor = "100%";
 
-        config.columns = [ 
+        myconfig.columns = [ 
             // icon column
             {
                 xtype: 'templatecolumn',
@@ -155,20 +156,27 @@ Ext4.define("HSRS.LayerManager.FilesPanel", {
             }
         ];
 
-        config.listeners = {
-            scope: this,
-            itemcontextmenu: function(view, record, elem, idx, e, opts) {
+        config = Ext.Object.merge(myconfig, config);
+        console.log(config);
+        this.callParent([config]);
+        this.addEvents("filepublished");
+
+        this.on("itemcontextmenu",function(view, record, elem, idx, e, opts) {
                 this.getFileDetail(record.get("name"),function(r) {
                     var menu = Ext4.create("HSRS.LayerManager.FilesPanel.FileMenu", {
-                        data: Ext4.JSON.decode(r.responseText)
+                        data: Ext4.JSON.decode(r.responseText),
+                        listeners: {
+                            "filepublished": this._onFilePublished,
+                            scope: this
+                        }
                 });
                 
                 menu.showAt(e.xy[0],e.xy[1],elem);
                 }, this);
                 Ext4.EventManager.stopEvent(e);
-            }
-        };
-        this.callParent(arguments);
+            },
+            this
+        );
     },
 
     /**
@@ -237,5 +245,14 @@ Ext4.define("HSRS.LayerManager.FilesPanel", {
                     "Are you sure, you want to remove selected files? <br />"+
                     records.map(function(r){return r.get("name");}).join("<br />"));
         }
+    },
+
+    /**
+     * file published handler
+     * @private
+     * @function
+     */
+    _onFilePublished: function(data) {
+        this.fireEvent("filepublished",data);
     }
 });

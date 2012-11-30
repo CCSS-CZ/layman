@@ -32,7 +32,10 @@ Ext4.define("HSRS.LayerManager", {
 
         this.filesPanel = Ext4.create("HSRS.LayerManager.FilesPanel", {
             url: config.url,
-            
+            listeners: {
+                scope:this,
+                "filepublished": this._onFilePublished
+            },
             flex: 1
         });
         this.layersPanel = Ext4.create("HSRS.LayerManager.LayersPanel", {
@@ -42,5 +45,16 @@ Ext4.define("HSRS.LayerManager", {
         config.items = [this.filesPanel, this.layersPanel];
 
         this.callParent(arguments);
+    },
+    
+    /**
+     * handler
+     * @private
+     * @function
+     */
+    _onFilePublished: function(data) {
+        alert("files published, events fired, "); //TODO
+        console.log("#########",data);
     }
+
 });
