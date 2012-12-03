@@ -24,7 +24,7 @@ class ClientTestCase(unittest.TestCase):
         cfg.read((os.path.join(TEST_DIR,"tests.cfg")))
         cfg.set("FileMan","testdir",TEST_DIR)
     
-        # star the server
+        # start the server
         # FIXME not sure, if this is a good start
         self.laymanapp = app(("/layman/(.*)","LayMan"), globals())
 
