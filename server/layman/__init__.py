@@ -28,12 +28,25 @@ class LayMan:
     # REST methods
     #
     def GET(self,name=None):
-        """Dispatch client request"""
+        """Dispatch client request
+           Supported calls:
+                fileman/getfiles.json
+                fileman/getfiledetails.json 
+        """
 
-        from fileman import FileMan
-        fm = FileMan()
-        return "Hallo world! GET"
-        pass
+        if name == "fileman/getfiles.json":
+            from fileman import FileMan
+            fm = FileMan()
+            retval = fm.getFiles()
+            return retval
+        elif name == "fileman/getfiledetails.json":
+            from fileman import FileMan
+            fm = FileMan()
+            # TODO: how to get the filename? 
+            retval = fm.getFileDetails("filename")
+            return retval
+        else:
+            return "Call not supported. I'm sorry, mate..."
 
     def PUT(self, name=None):
         return "Hallo world! PUT"
