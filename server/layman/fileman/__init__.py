@@ -18,7 +18,7 @@ class FileMan:
 
     def getFiles(self, dir="."):
         """Get the list of files
-            Returns: 
+            Should return: 
             [
                {
                   name: "file.shp",
@@ -30,18 +30,8 @@ class FileMan:
              ]
             """
         # TODO: how to get the proper directory? 
-
-        
-        # Open a file
-        # path = "/var/www/html/"
-        # dirs = os.listdir( path )
-
-        # This would print all the files and directories
-        # for file in dirs:
-        #   print file
-
-
-        return "Will provide the list of files as soon as will know it"
+        files = os.listdir(dir)
+        return files
 
     def getFileDetails(self, filename):
         """Get the details for the given file
