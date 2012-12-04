@@ -2,6 +2,9 @@
 # authors: Michal, Jachym
 
 import os, sys
+#import glob
+import mimetypes
+import json
 
 class FileMan:
     """File manager of LayMan
@@ -30,8 +33,28 @@ class FileMan:
              ]
             """
         # TODO: how to get the proper directory? 
-        files = os.listdir(dir)
-        return files
+
+        # ls options
+        # http://www.saltycrane.com/blog/2010/04/monitoring-filesystem-python-and-pyinotify/
+        #
+        # files = os.listdir(dir) # file names only
+        # files = os.walk(dir) # file names only, recursive
+        # files = glob.glob("/home/mis/layman/server/layman/fileman/*py") # file names only, allows wildcards
+        # or run `ls` as a subprocess (platform dependent)
+
+        files_list = []
+
+        filenames = os.listdir(dir) # file names only
+        for file in filenames:
+            filesize = os.path.getsize(dir+'/'+file)
+            filedate = os.path.getmtime(dir+'/'+file) # TODO: convert time format
+            filetype = mimetypes.guess_type("file://"+dir+'/'+file)
+            file_dict = {"name":file,"size":filesize,"date":filedate,"mimetype":filetype[0]}           
+            files_list.append(file_dict)
+                
+        files_json = json.dumps(files_list)
+
+        return files_json
 
     def getFileDetails(self, filename):
         """Get the details for the given file
