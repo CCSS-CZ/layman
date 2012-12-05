@@ -3,7 +3,7 @@
 
 import os, sys
 #import glob
-import mimetypes
+import mimetypes, time
 import json
 
 class FileMan:
@@ -47,9 +47,11 @@ class FileMan:
         filenames = os.listdir(dir) # file names only
         for file in filenames:
             filesize = os.path.getsize(dir+'/'+file)
-            filedate = os.path.getmtime(dir+'/'+file) # TODO: convert time format
+            time_sec = os.path.getmtime(dir+'/'+file) 
+            time_struct = time.localtime(time_sec)
+            filetime = time.strftime("%Y-%m-%d %H:%M",time_struct)
             filetype = mimetypes.guess_type("file://"+dir+'/'+file)
-            file_dict = {"name":file,"size":filesize,"date":filedate,"mimetype":filetype[0]}           
+            file_dict = {"name":file,"size":filesize,"date":filetime,"mimetype":filetype[0]}           
             files_list.append(file_dict)
                 
         files_json = json.dumps(files_list)
