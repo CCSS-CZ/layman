@@ -33,20 +33,24 @@ class LayMan:
                 fileman/getfiles.json
                 fileman/getfiledetails.json 
         """
-
-        if name == "fileman/getfiles.json":
+        # GET "http://localhost:8080/layman/fileman/"
+        if name == "fileman" or name == "fileman/":
             from fileman import FileMan
             fm = FileMan()
             retval = fm.getFiles()
             return retval
-        elif name == "fileman/getfiledetails.json":
+        # GET "http://localhost:8080/layman/fileman/file.shp"
+        elif name == "fileman/getfiledetails.json": # TODO: should be "fileman/file.shp", split the string and check it
             from fileman import FileMan
             fm = FileMan()
-            # TODO: how to get the filename? 
             retval = fm.getFileDetails("filename")
             return retval
         else:
             return "Call not supported. I'm sorry, mate..."
+
+    def POST(self, name=None):
+        return "Hallo world! POST"
+        pass
 
     def PUT(self, name=None):
         return "Hallo world! PUT"
@@ -54,10 +58,6 @@ class LayMan:
 
     def DELETE(self, name=None):
         return "Hallo world! DELETE"
-        pass
-
-    def POST(self, name=None):
-        return "Hallo world! POST"
         pass
 
     #
