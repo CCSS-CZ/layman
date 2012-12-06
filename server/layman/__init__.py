@@ -6,6 +6,7 @@
 
 import os,sys
 import ConfigParser
+import string
 
 # global variables
 INSTALL_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -30,8 +31,8 @@ class LayMan:
     def GET(self,name=None):
         """Dispatch client request
            Supported calls:
-                fileman/getfiles.json
-                fileman/getfiledetails.json 
+                fileman
+                fileman/<filename> 
         """
         # GET "http://localhost:8080/layman/fileman/"
         if name == "fileman" or name == "fileman/":
@@ -40,17 +41,26 @@ class LayMan:
             retval = fm.getFiles()
             return retval
         # GET "http://localhost:8080/layman/fileman/file.shp"
-        elif name == "fileman/getfiledetails.json": # TODO: should be "fileman/file.shp", split the string and check it
+        elif len(name) > 8 and name[:7] == "fileman" and name[7] == '/' and string.find(name, '/',8) == -1:
             from fileman import FileMan
             fm = FileMan()
-            retval = fm.getFileDetails("filename")
-            return retval
+            fileName = name[8:]
+            retval = fm.getFileDetails(fileName)
+            return retval 
         else:
-            return "Call not supported. I'm sorry, mate..."
+            return "Call not supported. I'm sorry, mate..." #TODO: return 404
 
     def POST(self, name=None):
-        return "Hallo world! POST"
-        pass
+        # POST "http://localhost:8080/layman/fileman/file.shp"
+        if len(name) > 8 and name[:7] == "fileman" and name[7] == '/' and string.find(name,'/',8) == -1:
+            from fileman import FileMan
+            fm = FileMan()
+            fileName = name[8:]
+            data = web.data
+            retval = fm.postFile(fileName, data)
+            return retval # TODO: return  201 or 409
+        else:
+            return "Call not supported. I'm sorry, mate..."
 
     def PUT(self, name=None):
         return "Hallo world! PUT"

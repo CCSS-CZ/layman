@@ -19,6 +19,10 @@ class FileMan:
         ## get configuration parser
         self._setConfig(config)
 
+    #
+    # GET methods
+    #
+
     # TODO: Get the proper directory
     # This will be somehow related to the authentication module, 
     # where we need several things specified for every user, 
@@ -84,7 +88,14 @@ class FileMan:
              }
          }
         """
-        return "Will provide the file details as soon as will know it"
+        return "Will provide the file details of " + filename + " as soon as will know it"
+
+    #
+    # POST methods
+    #
+
+    def postFile(self,fileName,data):
+        return "Will save the file "+fileName+" as soon as I will learn it"
 
     def _setConfig(self,config):
         """Get and set configuration files parser
