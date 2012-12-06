@@ -19,7 +19,11 @@ class FileMan:
         ## get configuration parser
         self._setConfig(config)
 
-    def getFiles(self, dir="."):
+    # TODO: Get the proper directory
+    # This will be somehow related to the authentication module, 
+    # where we need several things specified for every user, 
+    # such as FS working directory, GS workspace(s) and DB schema(s) 
+    def getFiles(self, dir="tests/workdir/data/"):
         """Get the list of files
             Should return: 
             [
@@ -32,7 +36,6 @@ class FileMan:
                ...
              ]
             """
-        # TODO: how to get the proper directory? 
 
         # ls options
         # http://www.saltycrane.com/blog/2010/04/monitoring-filesystem-python-and-pyinotify/
