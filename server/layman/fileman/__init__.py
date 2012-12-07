@@ -128,6 +128,11 @@ class FileMan:
         # TODO: test the file
         return "OK"
 
+    def deleteFile(self,fileName):
+        """Delete the file"""
+        os.remove(fileName) #TODO: test the success
+        return "OK"
+
     def _setConfig(self,config):
         """Get and set configuration files parser
         """
