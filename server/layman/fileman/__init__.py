@@ -95,7 +95,38 @@ class FileMan:
     #
 
     def postFile(self,fileName,data):
-        return "Will save the file "+fileName+" as soon as I will learn it"
+        """Create a file and return 201 Created.
+           Should the file already exist, do nothing and return 409 Conflict
+        """
+        # is the file already there?
+        try:
+           with open(fileName) as f: 
+               isThere = True
+               f.close()
+        except IOError as e:
+           isThere = False
+
+        # it is there, DO NOT overwrite
+        if isThere:
+            return "Sorry, the file already exists, use PUT method if you wish to overwrite it" 
+
+        # it is not there, create it
+        else:
+            f = open(fileName, "wb")
+            f.write(data)
+            f.close
+            # TODO: test the file
+            return "OK"
+
+    def putFile(self,fileName,data):
+        """Update an existing file. 
+           If it does not exist, create it.
+        """
+        f = open(fileName, "wb")
+        f.write(data)
+        f.close
+        # TODO: test the file
+        return "OK"
 
     def _setConfig(self,config):
         """Get and set configuration files parser

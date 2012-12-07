@@ -7,6 +7,7 @@
 import os,sys
 import ConfigParser
 import string
+import web
 
 # global variables
 INSTALL_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -56,15 +57,23 @@ class LayMan:
             from fileman import FileMan
             fm = FileMan()
             fileName = name[8:]
-            data = web.data
-            retval = fm.postFile(fileName, data)
+            data = web.data()
+            retval = fm.postFile(fileName, data) 
             return retval # TODO: return  201 or 409
         else:
             return "Call not supported. I'm sorry, mate..."
 
     def PUT(self, name=None):
-        return "Hallo world! PUT"
-        pass
+        # PUT "http://localhost:8080/layman/fileman/file.shp"
+        if len(name) > 8 and name[:7] == "fileman" and name[7] == '/' and string.find(name,'/',8) == -1:
+            from fileman import FileMan
+            fm = FileMan()
+            fileName = name[8:]
+            data = web.data()
+            retval = fm.putFile(fileName, data) 
+            return retval # TODO: return  200
+        else:
+            return "Call not supported. I'm sorry, mate..."
 
     def DELETE(self, name=None):
         return "Hallo world! DELETE"
