@@ -5,6 +5,7 @@ import os, sys
 #import glob
 import mimetypes, time
 import json
+import web
 
 class FileMan:
     """File manager of LayMan
@@ -63,6 +64,7 @@ class FileMan:
                 
         files_json = json.dumps(files_list)
 
+        web.ok() # 200
         return files_json
 
     def getFileDetails(self, filename):
@@ -88,6 +90,7 @@ class FileMan:
              }
          }
         """
+        web.ok() # 200
         return "Will provide the file details of " + filename + " as soon as will know it"
 
     #
@@ -108,6 +111,7 @@ class FileMan:
 
         # it is there, DO NOT overwrite
         if isThere:
+            web.conflict() # 409
             return "Sorry, the file already exists, use PUT method if you wish to overwrite it" 
 
         # it is not there, create it
@@ -116,7 +120,8 @@ class FileMan:
             f.write(data)
             f.close
             # TODO: test the file
-            return "OK"
+            web.created() # 201
+            return "Created"
 
     def putFile(self,fileName,data):
         """Update an existing file. 
@@ -125,12 +130,14 @@ class FileMan:
         f = open(fileName, "wb")
         f.write(data)
         f.close
-        # TODO: test the file
+        # TODO: test the fiale
+        web.ok() # 200
         return "OK"
 
     def deleteFile(self,fileName):
         """Delete the file"""
         os.remove(fileName) #TODO: test the success
+        web.ok() # 200
         return "OK"
 
     def _setConfig(self,config):

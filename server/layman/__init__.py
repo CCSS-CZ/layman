@@ -49,7 +49,8 @@ class LayMan:
             retval = fm.getFileDetails(fileName)
             return retval 
         else:
-            return "Call not supported. I'm sorry, mate..." #TODO: return 404
+            web.notfound() # 404
+            return "Call not supported. I'm sorry, mate..." 
 
     def POST(self, name=None):
         # POST "http://localhost:8080/layman/fileman/file.shp"
@@ -59,8 +60,9 @@ class LayMan:
             fileName = name[8:]
             data = web.data()
             retval = fm.postFile(fileName, data) 
-            return retval # TODO: return  201 or 409
+            return retval 
         else:
+            web.notfound()
             return "Call not supported. I'm sorry, mate..."
 
     def PUT(self, name=None):
@@ -71,8 +73,9 @@ class LayMan:
             fileName = name[8:]
             data = web.data()
             retval = fm.putFile(fileName, data) 
-            return retval # TODO: return  200
+            return retval
         else:
+            web.notfound()
             return "Call not supported. I'm sorry, mate..."
 
     def DELETE(self, name=None):
@@ -82,8 +85,9 @@ class LayMan:
             fm = FileMan()
             fileName = name[8:]
             retval = fm.deleteFile(fileName) 
-            return retval # TODO: return  200
+            return retval 
         else:
+            web.notfound()
             return "Call not supported. I'm sorry, mate..."
 
     #
