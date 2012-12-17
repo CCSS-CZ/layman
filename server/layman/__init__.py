@@ -23,9 +23,6 @@ class LayMan:
     # Either LaymanAuthLiferay or LaymanAuthHSRS
     auth = None
 
-    # "liferay" or "hsrs"
-    # service = None
-
     def __init__(self):
         """Constructor
         """
