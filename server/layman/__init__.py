@@ -106,7 +106,6 @@ class LayMan:
         """Get and set authorization
         """
         service = config.get("Authorization","service")
-        # self.service = service
 
         if service == "liferay":
             from auth import LaymanAuthLiferay
