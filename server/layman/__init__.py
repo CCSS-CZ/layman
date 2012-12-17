@@ -19,6 +19,13 @@ class LayMan:
 
     request = None
 
+    # LaymanAuth
+    # Either LaymanAuthLiferay or LaymanAuthHSRS
+    auth = None
+
+    # "liferay" or "hsrs"
+    # service = None
+
     def __init__(self):
         """Constructor
         """
@@ -46,6 +53,11 @@ class LayMan:
             from fileman import FileMan
             fm = FileMan()
             fileName = name[8:]
+
+            # uncomment once ready
+            # dir = self.auth.getFSDir()
+            # retval = fm.getFileDetails(fileName, dir)           
+
             retval = fm.getFileDetails(fileName)
             return retval 
         else:
@@ -97,10 +109,12 @@ class LayMan:
         """Get and set authorization
         """
         service = config.get("Authorization","service")
+        # self.service = service
 
         if service == "liferay":
             from auth import LaymanAuthLiferay
-            self.auth = LaymanAuthLiferay()
+            JSESSIONID = web.cookies().get("JSESSIONID")
+            self.auth = LaymanAuthLiferay(JSESSIONID) 
         elif service == "hsrs":
             from auth import LaymanAuthHSRS
             self.auth = LaymanAuthHSRS()
