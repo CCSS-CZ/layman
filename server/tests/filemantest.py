@@ -57,7 +57,7 @@ class FileManTestCase(unittest.TestCase):
         self.assertListEqual(files[0].keys(),["date","mimetype", "name", "size"],"File attributes are not as expected")
 
     def test_postFile(self):
-        """ Test post file function"""
+        """ Test post file function """
 
         file_path = self.workdir + "punk.sk"
 
@@ -83,6 +83,32 @@ class FileManTestCase(unittest.TestCase):
         # clean up
         os.remove(file_path)
 
+    def test_putFile(self):
+        """ Test put file function """
+
+        file_path = self.workdir + "punk.sk"
+
+        #make sure the testing file does not exist
+        import os
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        
+        """ Test the creation when the file does not exist """
+        self.assertEquals(os.path.exists(file_path), False, "The file already exists")
+        self.fm.putFile(file_path, "Slobodna Europa")
+        self.assertEquals(os.path.exists(file_path), True, "The file was not created")
+        f = open(file_path, "rb")
+        self.assertEquals(f.read(), "Slobodna Europa", "The file has different content")
+        f.close
+
+        """ Test that putFile() does overwrite the file """
+        self.assertEquals(os.path.exists(file_path), True, "The file is not there for the second test")
+        self.fm.putFile(file_path, "Zona A")
+        f = open(file_path, "rb")
+        self.assertEquals(f.read(), "Zona A", "The file was not overwritten by putFile()")
+
+        # clean up
+        os.remove(file_path)
 
 #    def test_getFileDetails(self):
 #        """Test get file detail request"""
