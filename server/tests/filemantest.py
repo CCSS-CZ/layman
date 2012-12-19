@@ -6,7 +6,7 @@ TEST_DIR = os.path.dirname(os.path.abspath(__file__))
 INSTALL_DIR = os.path.abspath(os.path.join(TEST_DIR,".."))
 sys.path.append(os.path.join(INSTALL_DIR))
 
-# TODO: add tests for postFile, putFile, deleteFile
+# TODO: add tests for putFile, deleteFile
 # TODO: add tests for testing http GET, POST... methods beside the fm.getFiles()... functions
 # TODO: uncomment & fix the test for getFileDetails once the function is ready
 
@@ -16,6 +16,7 @@ class FileManTestCase(unittest.TestCase):
     """Test of the file manager"""
 
     fm = None
+    workdir = None
 
     def setUp(self):
         cfg = ConfigParser.SafeConfigParser()
@@ -23,16 +24,16 @@ class FileManTestCase(unittest.TestCase):
         cfg.set("FileMan","testdir",TEST_DIR)
         self.fm = FileMan(cfg)
 
+        self.workdir = os.path.abspath(os.path.join(TEST_DIR,"workdir","data"))
+
     def test_getDir(self):
         """Test dir"""
 
-        workdir = os.path.abspath(os.path.join(TEST_DIR,"workdir","data"))
-
-        self.assertTrue(os.path.samefile(workdir, self.fm.config.get("FileMan","targetdir")),
+        self.assertTrue(os.path.samefile(self.workdir, self.fm.config.get("FileMan","targetdir")),
             "Make sure, that configuration works and that the data dir was found")
 
     def test_getFiles(self):
-        """Test get files request"""
+        """Test get files function"""
 
         # example of expected json response:
         # [
@@ -47,14 +48,41 @@ class FileManTestCase(unittest.TestCase):
         
         # NOTE: mimetypes should be handled according to https://portal.opengeospatial.org/files/?artifact_id=47860
 
-        workdir = os.path.abspath(os.path.join(TEST_DIR,"workdir","data"))
-        files_json = self.fm.getFiles(workdir)
+        files_json = self.fm.getFiles(self.workdir)
         import json
         files = json.loads(files_json)
 
-        self.assertEquals(type(files), type([]), "List is an array")
-        self.assertEquals(len(files), len(os.listdir(workdir)), "Number of files match")
-        self.assertListEqual(files[0].keys(),["date","mimetype", "name", "size"],"File attributes are existing")
+        self.assertEquals(type(files), type([]), "List is not an array")
+        self.assertEquals(len(files), len(os.listdir(self.workdir)), "Number of files does not match")
+        self.assertListEqual(files[0].keys(),["date","mimetype", "name", "size"],"File attributes are not as expected")
+
+    def test_postFile(self):
+        """ Test post file function"""
+
+        file_path = self.workdir + "punk.sk"
+
+        #make sure the testing file does not exist
+        import os
+        if os.path.exists(file_path):
+            os.remove(file_path)
+
+        """ Test the creation when the file does not exist """
+        self.assertEquals(os.path.exists(file_path), False, "The file already exists")
+        self.fm.postFile(file_path, "Slobodna Europa")
+        self.assertEquals(os.path.exists(file_path), True, "The file was not created")
+        f = open(file_path, "rb")
+        self.assertEquals(f.read(), "Slobodna Europa", "The file has different content")
+        f.close
+
+        """ Test that postFile() does not overwrite the file """
+        self.assertEquals(os.path.exists(file_path), True, "The file is not there for the second test")
+        self.fm.postFile(file_path, "Zona A")
+        f = open(file_path, "rb")
+        self.assertEquals(f.read(), "Slobodna Europa", "The file was overwritten by postFile()")
+
+        # clean up
+        os.remove(file_path)
+
 
 #    def test_getFileDetails(self):
 #        """Test get file detail request"""
