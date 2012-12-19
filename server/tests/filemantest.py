@@ -6,7 +6,6 @@ TEST_DIR = os.path.dirname(os.path.abspath(__file__))
 INSTALL_DIR = os.path.abspath(os.path.join(TEST_DIR,".."))
 sys.path.append(os.path.join(INSTALL_DIR))
 
-# TODO: add tests for putFile, deleteFile
 # TODO: add tests for testing http GET, POST... methods beside the fm.getFiles()... functions
 # TODO: uncomment & fix the test for getFileDetails once the function is ready
 
