@@ -64,6 +64,7 @@ class FileMan:
                 
         files_json = json.dumps(files_list)
 
+        web.header('Content-Type', 'text/html')
         web.ok() # 200
         return files_json
 

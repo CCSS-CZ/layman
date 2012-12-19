@@ -15,10 +15,11 @@
             var lm;
 
             HSRS.IMAGE_LOCATION = "../lib/imgs/";
+            HSRS.ProxyHost = "/cgi-bin/hsproxy.cgi?url=";
 
             var init = function() {
                 lm = Ext4.create("HSRS.LayerManager",{
-                    url: "files.json",
+                    url: "http://localhost:8080/layman/",
                     height: 200,
                     renderTo: "data"
                 });

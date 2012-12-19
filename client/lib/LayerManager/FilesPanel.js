@@ -51,7 +51,7 @@ Ext4.define("HSRS.LayerManager.FilesPanel", {
                 fields: [
                     {name: 'name',     type: 'string'},
                     {name: 'size',     type: 'integer'},
-                    {name: 'prj',      type: 'string'},
+                    //{name: 'prj',      type: 'string'},
                     {name: 'date',      type: 'string'},
                     {name: 'mimetype', type: 'string'}
                 ]
@@ -157,7 +157,6 @@ Ext4.define("HSRS.LayerManager.FilesPanel", {
         ];
 
         config = Ext.Object.merge(myconfig, config);
-        console.log(config);
         this.callParent([config]);
         this.addEvents("filepublished");
 
