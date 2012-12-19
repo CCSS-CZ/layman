@@ -110,6 +110,16 @@ class FileManTestCase(unittest.TestCase):
         # clean up
         os.remove(file_path)
 
+    def test_deleteFile(self):
+        """ Test delete file function """
+
+        file_path = self.workdir + "punk.sk"
+        open(file_path, "a").close()
+
+        self.assertEquals(os.path.exists(file_path), True, "The testing file does not exist")
+        self.fm.deleteFile(file_path)
+        self.assertEquals(os.path.exists(file_path), False, "The file was not deleted")
+
 #    def test_getFileDetails(self):
 #        """Test get file detail request"""
 
