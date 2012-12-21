@@ -28,7 +28,7 @@ class FileMan:
     # This will be somehow related to the authentication module, 
     # where we need several things specified for every user, 
     # such as FS working directory, GS workspace(s) and DB schema(s) 
-    def getFiles(self, dir="tests/workdir/data/"):
+    def getFiles(self,targetDir):
         """Get the list of files
             Should return: 
             [
@@ -40,6 +40,8 @@ class FileMan:
                },
                ...
              ]
+
+            based on working directory, given by interal authorization
             """
 
         # ls options
@@ -52,14 +54,17 @@ class FileMan:
 
         files_list = []
 
-        filenames = os.listdir(dir) # file names only
-        for file in filenames:
-            filesize = os.path.getsize(dir+'/'+file)
-            time_sec = os.path.getmtime(dir+'/'+file) 
+        filenames = os.listdir(targetDir) # file names only
+
+        for fn in filenames: # NOTE: do not use 'file' variable name - it is
+                               # python function
+                               # do note use 'dir' - it is another function
+            filesize = os.path.getsize(targetDir+'/'+fn)
+            time_sec = os.path.getmtime(targetDir+'/'+fn) 
             time_struct = time.localtime(time_sec)
             filetime = time.strftime("%Y-%m-%d %H:%M",time_struct)
-            filetype = mimetypes.guess_type("file://"+dir+'/'+file)
-            file_dict = {"name":file,"size":filesize,"date":filetime,"mimetype":filetype[0]}           
+            filetype = mimetypes.guess_type("file://"+targetDir+'/'+fn)
+            file_dict = {"name":fn,"size":filesize,"date":filetime,"mimetype":filetype[0]}           
             files_list.append(file_dict)
                 
         files_json = json.dumps(files_list)
@@ -68,7 +73,14 @@ class FileMan:
         web.ok() # 200
         return files_json
 
-    def getFileDetails(self, filename):
+    def getFile(self,fileName):
+        """Return file itself
+        """
+
+        # TODO: set propper Content/type
+        return open(fileName).read()
+
+    def getFileDetails(self, fileName):
         """Get the details for the given file
             Returns:
             {
@@ -92,26 +104,35 @@ class FileMan:
          }
         """
         web.ok() # 200
-        return "Will provide the file details of " + filename + " as soon as will know it"
+
+        time_sec = os.path.getmtime(fileName) 
+        time_struct = time.localtime(time_sec)
+        filetime = time.strftime("%Y-%m-%d %H:%M",time_struct)
+
+        details = {}
+        details["name"] = os.path.split(fileName)[1]
+        details["size"] = os.path.getsize(fileName)
+        details["date"] = str(filetime)
+        details["mimetype"] = mimetypes.guess_type("file://"+fileName)[0]
+        # TODO: more to be done
+
+        files_json = json.dumps(details)
+        web.header('Content-Type', 'text/html')
+
+        return files_json
 
     #
     # POST methods
     #
 
-    def postFile(self,fileName,data):
+    def postFile(self,data,fileName=None):
         """Create a file and return 201 Created.
            Should the file already exist, do nothing and return 409 Conflict
         """
-        # is the file already there?
-        try:
-           with open(fileName) as f: 
-               isThere = True
-               f.close()
-        except IOError as e:
-           isThere = False
 
         # it is there, DO NOT overwrite
-        if isThere:
+        print >>sys.stderr, fileName
+        if os.path.exists(fileName):
             web.conflict() # 409
             return "Sorry, the file already exists, use PUT method if you wish to overwrite it" 
 
@@ -119,7 +140,7 @@ class FileMan:
         else:
             f = open(fileName, "wb")
             f.write(data)
-            f.close
+            f.close()
             # TODO: test the file
             web.created() # 201
             return "Created"
@@ -128,6 +149,7 @@ class FileMan:
         """Update an existing file. 
            If it does not exist, create it.
         """
+
         f = open(fileName, "wb")
         f.write(data)
         f.close
@@ -137,6 +159,7 @@ class FileMan:
 
     def deleteFile(self,fileName):
         """Delete the file"""
+
         os.remove(fileName) #TODO: test the success
         web.ok() # 200
         return "OK"
@@ -149,4 +172,3 @@ class FileMan:
         else:
             from layman import config
             self.config =  config
-
