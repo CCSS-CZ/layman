@@ -37,38 +37,53 @@ class LayMan:
         """Dispatch client request
            Supported calls:
                 fileman
+                fileman/detail/<filename> 
                 fileman/<filename> 
         """
+        retval = None
+
         # GET "http://localhost:8080/layman/fileman/"
-        if name == "fileman" or name == "fileman/":
+        path = [d for d in name.split(os.path.sep) if d]
+        print >>sys.stderr, path
+        if path[0] == "fileman":
+
+            
             from fileman import FileMan
             fm = FileMan()
-            retval = fm.getFiles()
-            return retval
-        # GET "http://localhost:8080/layman/fileman/file.shp"
-        elif len(name) > 8 and name[:7] == "fileman" and name[7] == '/' and string.find(name, '/',8) == -1:
-            from fileman import FileMan
-            fm = FileMan()
-            fileName = name[8:]
 
-            # uncomment once ready
-            # dir = self.auth.getFSDir()
-            # retval = fm.getFileDetails(fileName, dir)           
+            # /fileman
+            if len(path) == 1:
+                retval = fm.getFiles(self.auth.getFSDir())
 
-            retval = fm.getFileDetails(fileName)
-            return retval 
+            # /fileman/file.shp
+            elif len(path) == 2:
+                retval = fm.getFile(self._getTargetFile(path[1]))
+
+            # /fileman/detail/file.shp
+            elif len(path) == 3 and\
+                path[1] == "detail":
+                retval = fm.getFileDetails(self._getTargetFile(path[2]))
+
+        # default handler
         else:
             web.notfound() # 404
-            return "Call not supported. I'm sorry, mate..." 
+            retval = "Call [%s] not supported. I'm sorry, mate..." % name
+
+        return retval
 
     def POST(self, name=None):
         # POST "http://localhost:8080/layman/fileman/file.shp"
-        if len(name) > 8 and name[:7] == "fileman" and name[7] == '/' and string.find(name,'/',8) == -1:
+        name = os.path.split(name)
+        if len(name) > 0 and name[0] == "fileman":
             from fileman import FileMan
             fm = FileMan()
-            fileName = name[8:]
-            data = web.data()
-            retval = fm.postFile(fileName, data) 
+            inpt = web.input(filename={}, newfilename="")
+            newFilename = inpt["newfilename"]
+            if not newFilename: 
+                newFilename = inpt["filename"].filename
+            newFilename = self._getTargetFile(newFilename)
+            retval = fm.postFile(inpt["filename"].file.read(),newFilename)  # FIXME Security: we
+                                                             # shoudl read file size up to X megabytes
             return retval 
         else:
             web.notfound()
@@ -81,7 +96,7 @@ class LayMan:
             fm = FileMan()
             fileName = name[8:]
             data = web.data()
-            retval = fm.putFile(fileName, data) 
+            retval = fm.putFile(self._getTargetFile(fileName),data)
             return retval
         else:
             web.notfound()
@@ -93,7 +108,7 @@ class LayMan:
             from fileman import FileMan
             fm = FileMan()
             fileName = name[8:]
-            retval = fm.deleteFile(fileName) 
+            retval = fm.deleteFile(self._getTargetFile(fileName)) 
             return retval 
         else:
             web.notfound()
@@ -149,3 +164,22 @@ class LayMan:
         config = ConfigParser.SafeConfigParser()
         config.readfp(open(os.path.join(INSTALL_DIR,"defaults.cfg")))
         config.read(cfgfiles)
+
+    def _getTargetFile(self,fileName,asFile=False):
+        """Return desired file absolute path
+
+        :param: fileName file name
+
+        :param: asFile return file object or just string
+
+        :returns: string real path or file object
+        """
+
+        targetname = os.path.realpath( os.path.join(
+                            self.auth.getFSDir(),fileName)
+                    )
+
+        if asFile:
+            return open(targetname)
+        else:
+            return targetname
