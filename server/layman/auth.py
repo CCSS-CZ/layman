@@ -6,6 +6,8 @@
 # * Finish LaymanAuthHSRS
 # * License
 
+import os
+
 class LaymanAuth: 
 
     config = None
@@ -40,7 +42,34 @@ class LaymanAuth:
     # User/Group configuration methods #
 
     def getFSDir(self):
-        pass
+        """Returns full abs path to target file manager directory according to
+        configuration value and user
+
+        NOTE: this method is to be overwritten according to specified
+        Authorization method. This default method returns path to working
+        directory, regardless, which user is logged in.
+
+        :returns: path absolute path to target dir
+        """
+        
+        # target dir configuration value
+        dirname = os.path.abspath(
+                self.config.get("fileman","targetdir")
+                )
+
+        # exists or not - create
+        if not os.path.isdir(dirname):
+            try:
+                os.mkdir(dirname)
+            except OSError,e:
+                return LayMan.AuthError("Could not create target directory [%s]:%s"%\
+                        (dirname, e))
+
+        # check directory permission
+        if os.access(dirname, 7):
+            LayMan.AuthError("Write access denied for target directory [%s]"% (dirname))
+
+        return dirname
 
     def getDBSchema(self):
         pass
