@@ -11,6 +11,7 @@ Ext4.define("HSRS.LayerManager.FilesPanel.FileMenu", {
 
     file: undefined,
     data: undefined, 
+    url: undefined,
     
     /**
      * @constructor
@@ -19,6 +20,9 @@ Ext4.define("HSRS.LayerManager.FilesPanel.FileMenu", {
         config.title = config.data.name;
         config.width = 200;
         config.plain = true;
+
+        this.url = config.url.replace(/\/$/,"");
+
         config.items = [
             {
                 plain: true,
@@ -43,6 +47,14 @@ Ext4.define("HSRS.LayerManager.FilesPanel.FileMenu", {
             {
                 plain: true,
                 text: "Geometry: "+config.data.geomtype
+            },
+            {
+                xtype: "menuseparator"
+            },
+            {
+                text: "Download",
+                href: this.url + "/" + config.data.name,
+                hrefTarget: "_blank"
             },
             {
                 xtype: "menuseparator"

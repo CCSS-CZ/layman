@@ -47,14 +47,14 @@ Ext4.define("HSRS.LayerManager.FilesPanel", {
          * model and store
          */
         Ext4.define('HSRS.LayerManager.FilesPanel.Model', {
-                extend: 'Ext4.data.Model',
-                fields: [
-                    {name: 'name',     type: 'string'},
-                    {name: 'size',     type: 'integer'},
-                    //{name: 'prj',      type: 'string'},
-                    {name: 'date',      type: 'string'},
-                    {name: 'mimetype', type: 'string'}
-                ]
+            extend: 'Ext4.data.Model',
+            fields: [
+                {name: 'name',     type: 'string'},
+                {name: 'size',     type: 'integer'},
+                //{name: 'prj',      type: 'string'},
+                {name: 'date',      type: 'string'},
+                {name: 'mimetype', type: 'string'}
+            ]
         }); 
         
         myconfig.store = Ext4.create("Ext4.data.JsonStore", {
@@ -63,12 +63,12 @@ Ext4.define("HSRS.LayerManager.FilesPanel", {
             //autoSync: true,
             proxy: {
                 type: "ajax",
-                url: config.url,
+                url: (HSRS.ProxyHost ? HSRS.ProxyHost+escape(config.url):config.url),
                 reader: {
                     type: 'json',
                     idProperty: 'name'
                 }
-            }
+            },
         });
         myconfig.store.load();
 
@@ -159,23 +159,25 @@ Ext4.define("HSRS.LayerManager.FilesPanel", {
         config = Ext.Object.merge(myconfig, config);
         this.callParent([config]);
         this.addEvents("filepublished");
+        
+        var makeMenu = function(view, record, elem, idx, e, opts) {
+            this.getFileDetail(record.get("name"),function(r) {
+                var menu = Ext4.create("HSRS.LayerManager.FilesPanel.FileMenu", {
+                    url: this.url,
+                    data: Ext4.JSON.decode(r.responseText),
+                    listeners: {
+                        "filepublished": this._onFilePublished,
+                        scope: this
+                    }
+            });
+            
+            menu.showAt(e.xy[0],e.xy[1],elem);
+            }, this);
+            Ext4.EventManager.stopEvent(e);
+        };
 
-        this.on("itemcontextmenu",function(view, record, elem, idx, e, opts) {
-                this.getFileDetail(record.get("name"),function(r) {
-                    var menu = Ext4.create("HSRS.LayerManager.FilesPanel.FileMenu", {
-                        data: Ext4.JSON.decode(r.responseText),
-                        listeners: {
-                            "filepublished": this._onFilePublished,
-                            scope: this
-                        }
-                });
-                
-                menu.showAt(e.xy[0],e.xy[1],elem);
-                }, this);
-                Ext4.EventManager.stopEvent(e);
-            },
-            this
-        );
+        this.on("itemcontextmenu",makeMenu, this);
+        this.on("itemclick",makeMenu, this);
     },
 
     /**
@@ -187,11 +189,9 @@ Ext4.define("HSRS.LayerManager.FilesPanel", {
      * @param scope {Object}
      */
     getFileDetail: function(name, caller, scope) {
+        var url = this.url.replace(/\/$/,"")+"/detail/"+name;
         Ext4.Ajax.request({
-            url:"file_detail.json",
-            params: {
-                name: name
-            },
+            url: (HSRS.ProxyHost ? HSRS.ProxyHost+escape(url):url),
             success: caller,
             scope: scope
         });
@@ -211,12 +211,18 @@ Ext4.define("HSRS.LayerManager.FilesPanel", {
      */
      _onUploadClicked: function() {
         var fileUploader = Ext.create("HSRS.LayerManager.FilesPanel.FileUploader",{
-            url:"upload_file_exists.html",
+            url:this.url,
             listeners: {
                 scope: fileUploader,
-                "filesaved": function(){this._win.close();}
+                "filesaved": function(){
+                    this._win.close();
+                }
             }
         });
+
+        fileUploader.on("filesaved",function() {
+            this.store.load();
+        },this);
 
         fileUploader._win = Ext.create("Ext.window.Window", {
             title: "File upload",
