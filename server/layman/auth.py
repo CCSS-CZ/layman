@@ -54,7 +54,7 @@ class LaymanAuth:
         
         # target dir configuration value
         dirname = os.path.abspath(
-                self.config.get("fileman","targetdir")
+                self.config.get("FileMan","targetdir")
                 )
 
         # exists or not - create
@@ -62,12 +62,12 @@ class LaymanAuth:
             try:
                 os.mkdir(dirname)
             except OSError,e:
-                return LayMan.AuthError("Could not create target directory [%s]:%s"%\
+                raise AuthError("Could not create target directory [%s]:%s"%\
                         (dirname, e))
 
         # check directory permission
-        if os.access(dirname, 7):
-            LayMan.AuthError("Write access denied for target directory [%s]"% (dirname))
+        if not os.access(dirname, 7):
+            raise AuthError("Write access denied for target directory [%s]"% (dirname))
 
         return dirname
 
@@ -108,7 +108,7 @@ class LaymanAuthLiferay(LaymanAuth):
         """Download user rights from given service based on JSESSIONID
         """
 
-        url = self.config.get("authorization","url")
+        url = self.config.get("Authorization","url")
         # ... TODO
         
 
@@ -135,3 +135,7 @@ class LaymanAuthLiferay(LaymanAuth):
 
 class LaymanAuthHSRS(LaymanAuth):
     pass
+
+class AuthError(Exception): 
+    """Auhorization error class
+    """
