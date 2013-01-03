@@ -131,7 +131,6 @@ class FileMan:
         """
 
         # it is there, DO NOT overwrite
-        print >>sys.stderr, fileName
         if os.path.exists(fileName):
             web.conflict() # 409
             return "Sorry, the file already exists, use PUT method if you wish to overwrite it" 
