@@ -6,6 +6,8 @@ import os, sys
 import mimetypes, time
 import json
 import web
+from web.utils import threadeddict
+ctx = threadeddict()
 
 class FileMan:
     """File manager of LayMan
@@ -69,7 +71,8 @@ class FileMan:
                 
         files_json = json.dumps(files_list)
 
-        web.header('Content-Type', 'text/html')
+        if "headers" in dir(ctx):
+            web.header('Content-Type', 'text/html')
         web.ok() # 200
         return files_json
 
@@ -132,8 +135,9 @@ class FileMan:
 
         # it is there, DO NOT overwrite
         if os.path.exists(fileName):
-            web.conflict() # 409
-            return "Sorry, the file already exists, use PUT method if you wish to overwrite it" 
+            if "headers" in dir(ctx):
+                web.conflict() # 409
+                return "{'success':false, message:'Sorry, the file already exists, use PUT method if you wish to overwrite it'}" % fileName
 
         # it is not there, create it
         else:
@@ -142,7 +146,7 @@ class FileMan:
                 f.write(data)
                 f.close
                 web.created() # 201
-                return "Created"
+                return "{'success':'true', file:'%s'}" % fileName
             except Exception as e:
                 web.internalerror() #500
                 return e.message
@@ -156,7 +160,7 @@ class FileMan:
             f.write(data)
             f.close
             web.ok() # 200
-            return "Updated"
+            return "{'success':'true','action':'updated'}"
         except Exception as e:
             web.internalerror() #500
             return e.message
