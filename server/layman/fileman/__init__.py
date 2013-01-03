@@ -138,31 +138,44 @@ class FileMan:
 
         # it is not there, create it
         else:
-            f = open(fileName, "wb")
-            f.write(data)
-            f.close()
-            # TODO: test the file
-            web.created() # 201
-            return "Created"
+            try:
+                f = open(fileName, "wb")
+                f.write(data)
+                f.close
+                web.created() # 201
+                return "Created"
+            except Exception as e:
+                web.internalerror() #500
+                return e.message
 
     def putFile(self,fileName,data):
         """Update an existing file. 
            If it does not exist, create it.
         """
-
-        f = open(fileName, "wb")
-        f.write(data)
-        f.close
-        # TODO: test the fiale
-        web.ok() # 200
-        return "OK"
+        try: 
+            f = open(fileName, "wb")
+            f.write(data)
+            f.close
+            web.ok() # 200
+            return "Updated"
+        except Exception as e:
+            web.internalerror() #500
+            return e.message
 
     def deleteFile(self,fileName):
         """Delete the file"""
+        try:
+            os.remove(fileName)
+            retval = "Deleted"
+        except Exception as e:
+            retval = e.message
 
-        os.remove(fileName) #TODO: test the success
-        web.ok() # 200
-        return "OK"
+        if os.path.exists(fileName):
+            web.internalerror() # 500
+            return "Unable to delete file"
+        else:
+            web.ok() # 200
+            return retval
 
     def _setConfig(self,config):
         """Get and set configuration files parser

@@ -3,11 +3,18 @@ Ext4.define("HSRS.LayerManager.FilesPanel.FileUploader", {
     extend: "Ext4.form.Panel",
 
     /**
+     * already available files for later check for existing files
+     * @type [{String}]
+     */
+    filesnames: undefined,
+
+    /**
      * @constructor
      */
      constructor: function(config) {
 
         config.frame = true;
+        config.filesnames = config.filesnames || [];
         config.items = [{
             xtype: "textfield",
             id: 'file_name',
@@ -45,7 +52,9 @@ Ext4.define("HSRS.LayerManager.FilesPanel.FileUploader", {
             scope:this,
             handler: function(){
                 var form = this.getForm();
-                this._onBeforeSubmit();
+                if (this._onBeforeSubmit() === false) {
+                    return false;
+                }
                 if(form.isValid()){
                     form.submit({
                         scope: this,
@@ -81,8 +90,16 @@ Ext4.define("HSRS.LayerManager.FilesPanel.FileUploader", {
       * @function
       */
      _onBeforeSubmit: function() {
-         var form = this.getForm();
-         var values = form.getValues();
+        var form = this.getForm();
+        var values = form.getValues();
 
+        // make sure, file name does not exist yet
+        var filename = values.newfilename || this.items.get(1).value.replace("C:\\fakepath\\","");
+
+        if (this.filesnames.indexOf(filename) > -1) {
+            Ext4.MessageBox.alert("File name exists",
+                    "File name ["+filename+"] exists, choose different name.");
+            return false;
+        }
      }
 });

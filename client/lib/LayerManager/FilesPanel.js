@@ -211,6 +211,7 @@ Ext4.define("HSRS.LayerManager.FilesPanel", {
      */
      _onUploadClicked: function() {
         var fileUploader = Ext.create("HSRS.LayerManager.FilesPanel.FileUploader",{
+            filesnames: this.store.collect("name"),
             url:this.url,
             listeners: {
                 scope: fileUploader,
