@@ -128,7 +128,7 @@ class FileMan:
     # POST methods
     #
 
-    def postFile(self,data,fileName=None):
+    def postFile(self,fileName,data):
         """Create a file and return 201 Created.
            Should the file already exist, do nothing and return 409 Conflict
         """

@@ -67,7 +67,7 @@ class FileManTestCase(unittest.TestCase):
 
         """ Test the creation when the file does not exist """
         self.assertEquals(os.path.exists(file_path), False, "The file already exists")
-        self.fm.postFile("Slobodna Europa",file_path)
+        self.fm.postFile(file_path,"Slobodna Europa")
         self.assertEquals(os.path.exists(file_path), True, "The file was not created")
         f = open(file_path, "rb")
         self.assertEquals(f.read(), "Slobodna Europa", "The file has different content")
@@ -75,7 +75,7 @@ class FileManTestCase(unittest.TestCase):
 
         """ Test that postFile() does not overwrite the file """
         self.assertEquals(os.path.exists(file_path), True, "The file is not there for the second test")
-        self.fm.postFile("Zona A",file_path)
+        self.fm.postFile(file_path,"Zona A")
         f = open(file_path, "rb")
         self.assertEquals(f.read(), "Slobodna Europa", "The file was overwritten by postFile()")
 
