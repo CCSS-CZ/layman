@@ -1,0 +1,9 @@
+# configuration template
+# see also layman/defaults.cfg
+# make a copy and edit your own layman.cfg (not git-pushed)
+[Authorization]
+service=Liferay
+url=http://www.envirogrids.cz/g4i-portlet/service/sso/validate/
+
+[FileMan]
+homedir=/var/www/wwwlibs/layman/

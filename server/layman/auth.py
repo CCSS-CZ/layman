@@ -94,35 +94,68 @@ class LaymanAuthLiferay(LaymanAuth):
     # JSESSIONID from Liferay, provided by the Client
     JSESSIONID = None
 
+    # Has been succesfully authorised
+    authorised = False
+
+    # User info provided by Slavek's service depending on the JSESSIONID
+    name   = None  # User name
+    group  = None  # User group
+    time   = None  # Validity of the session
+    passwd = None  # User password, crypted
+
     def __init__(self,JSESSIONID=None):
         self.JSESSIONID = JSESSIONID
         self._getUserInfo()
     
     # Get the user info from Slavek's service
     # JSESSIONID => name, group, time, maybe passwd
-    def _getUserInfo():
-        pass # TODO
-
-    # ???
-    def _getrights(self):
+    def _getUserInfo(self):
         """Download user rights from given service based on JSESSIONID
         """
 
-        url = self.config.get("Authorization","url")
-        # ... TODO
-        
+        # Learn URL of Slavek's service
+        url = self.config.get("Authorization","url") + self.JSESSIONID
+    
+        # Request the authentication
+        import httplib2
+        h = httplib2.Http()
+        resp, content = h.request(url, "GET")
+
+        # Process the response
+        if content.resultCode = 0:
+            # FIXME: Fix according to the service response
+            name = content.name
+            group = content.group
+            time = content.time
+            passwd = content.passwd
+            self.authorised = True
+        else:
+            self.authorised = False
+            # TODO: do we want to propagate the content.resultMessage?        
 
     # User/Group configuration methods #
 
     def getFSDir(self):
-        pass #TODO: get the dir from the users configfile
+        # TODO: Where should we check the self.time ??
+        # TODO: Do we want to store the directory in the config file?
+        if self.authorised:
+            groupDir = self.config.get("FileMan","homedir") + self.group
+            # TODO: do some checks
+            return groupDir
+        else: 
+            return None
 
     def getDBSchema(self):
-        pass #TODO: get the schema from users configfile
+        if self.authorised:
+            return self.group
+        else:
+            return None
     
     def getGSWorkspace(self):
-        pass #TODO: get the ws from the users configfile
-
+        if self.authorised:
+            return self.group
+        else:
+            return None
 
     # Service Authorisation Methods #
 

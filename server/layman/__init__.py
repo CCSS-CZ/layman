@@ -123,6 +123,8 @@ class LayMan:
         service = config.get("Authorization","service")
 
         if service == "liferay":
+            # Get the JSESSIONID from Client's request
+            # and create LaymanAuth instance based on that
             from auth import LaymanAuthLiferay
             JSESSIONID = web.cookies().get("JSESSIONID")
             self.auth = LaymanAuthLiferay(JSESSIONID) 
