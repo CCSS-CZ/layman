@@ -51,6 +51,8 @@ class LayMan:
             from fileman import FileMan
             fm = FileMan()
 
+            # TODO: Where do we check the authorisation?
+
             # /fileman
             if len(path) == 1:
                 retval = fm.getFiles(self.auth.getFSDir())

@@ -7,6 +7,7 @@
 # * License
 
 import os
+import json
 
 class LaymanAuth: 
 
@@ -97,11 +98,27 @@ class LaymanAuthLiferay(LaymanAuth):
     # Has been succesfully authorised
     authorised = False
 
-    # User info provided by Slavek's service depending on the JSESSIONID
-    name   = None  # User name
-    group  = None  # User group
-    time   = None  # Validity of the session
-    passwd = None  # User password, crypted
+    # Json reply from Slavek's service to http://erra.ccss.cz/g4i-portlet/service/sso/validate/JSESSIONID request
+    # Example:
+    # {
+    #    resultCode: "0",
+    #    userInfo: {
+    #       lastName: "Doe",
+    #       email: "test@ccss.cz",
+    #       roles: [
+    #           { roleName: "Power User" },
+    #           { roleName: "User" },
+    #           { roleName: "ukraine_gis" }
+    #       ],
+    #       userId: 10432,
+    #       screenName: "test",
+    #       language: "en",
+    #       firstName: "John",
+    #       groups: [ ]
+    #   },
+    #   leaseInterval: 1800
+    # }
+    authJson = None
 
     def __init__(self,JSESSIONID=None):
         self.JSESSIONID = JSESSIONID
@@ -121,29 +138,36 @@ class LaymanAuthLiferay(LaymanAuth):
         h = httplib2.Http()
         resp, content = h.request(url, "GET")
 
+        # TODO: Do we want to check the header?
+
         # Process the response
-        if content.resultCode = 0:
-            # FIXME: Fix according to the service response
-            name = content.name
-            group = content.group
-            time = content.time
-            passwd = content.passwd
+        try: 
+            self.authJson = loads(content)
+        except ValueError,e:
+            raise AuthError("Cannot parse Liferay response [%s] as JSON:%s"% (content,e)) 
+
+        if self.authJson.resultCode and self.authJson.resultCode == 0:
             self.authorised = True
         else:
-            self.authorised = False
-            # TODO: do we want to propagate the content.resultMessage?        
+            raise AuthError("Authentication failed: Liferay does not recognise given JSESSIONID")
 
     # User/Group configuration methods #
 
     def getFSDir(self):
+        """Get user working directory. Dirname == screenName from Liferay
+        """
         # TODO: Where should we check the self.time ??
         # TODO: Do we want to store the directory in the config file?
-        if self.authorised:
-            groupDir = self.config.get("FileMan","homedir") + self.group
+        if not self.authorised:
+            raise AuthError("I am sorry, but you are not authorised")
+
+        if self.authJson.userInfo and self.authJson.userInfo.screenName
+            fsDir = self.config.get("FileMan","homedir") + self.authJson.userInfo.screenName
             # TODO: do some checks
-            return groupDir
+            # TODO: create if it does not exist
+            return fsDir
         else: 
-            return None
+            raise AuthError("Cannot determine the working directory - Liferay did not provide user's screenName")
 
     def getDBSchema(self):
         if self.authorised:
