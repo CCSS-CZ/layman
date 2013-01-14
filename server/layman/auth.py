@@ -120,18 +120,23 @@ class LaymanAuthLiferay(LaymanAuth):
     # }
     authJson = None
 
-    def __init__(self,JSESSIONID=None):
+    def __init__(self,config=None,JSESSIONID=None):
+        LaymanAuth.__init__(self,config)
+
+    # Authorise 
+    def authorise(self, JSESSIONID):
+        """ Authorise the given JSESSIONID against the Slavek's service:
+        call the service and process the response """
         self.JSESSIONID = JSESSIONID
-        self._getUserInfo()
+        content = self._getUserInfo(JSESSIONID)
+        self._parseUserInfo(content)
+        return self.authorised
     
     # Get the user info from Slavek's service
-    # JSESSIONID => name, group, time, maybe passwd
-    def _getUserInfo(self):
-        """Download user rights from given service based on JSESSIONID
-        """
+    def _getUserInfo(self,JSESSIONID):
 
         # Learn URL of Slavek's service
-        url = self.config.get("Authorization","url") + self.JSESSIONID
+        url = self.config.get("Authorization","url") + JSESSIONID
     
         # Request the authentication
         import httplib2
@@ -140,19 +145,19 @@ class LaymanAuthLiferay(LaymanAuth):
 
         # TODO: Do we want to check the header?
 
-        # Parse the response
-        self._parseUserInfo(content)
+        # Return the response
+        return content
 
     # Parsing in separate function makes it testable 
     def _parseUserInfo(self, content):
 
         # Process the response
-        try: 
-            self.authJson = loads(content)
+        try:
+            self.authJson = json.loads(content)
         except ValueError,e:
             raise AuthError("Cannot parse Liferay response [%s] as JSON:%s"% (content,e)) 
 
-        if self.authJson.resultCode and self.authJson.resultCode == 0:
+        if self.authJson["resultCode"] == "0":
             self.authorised = True
         else:
             raise AuthError("Authentication failed: Liferay does not recognise given JSESSIONID")
@@ -167,7 +172,7 @@ class LaymanAuthLiferay(LaymanAuth):
         if not self.authorised:
             raise AuthError("I am sorry, but you are not authorised")
 
-        if self.authJson.userInfo and self.authJson.userInfo.screenName
+        if self.authJson.userInfo and self.authJson.userInfo.screenName:
             fsDir = self.config.get("FileMan","homedir") + self.authJson.userInfo.screenName
             # TODO: do some checks
             # TODO: create if it does not exist

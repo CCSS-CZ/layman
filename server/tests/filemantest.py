@@ -159,7 +159,6 @@ class FileManTestCase(unittest.TestCase):
 #        self.assertListEqual(filed["extent"], [-1.029182,-0.618030,0.805390,0.748141],"File extent")
 #        self.assertDictEqual(filed["attributes"], {"id":"integer"},"Attributes")
 
-
 if __name__ == "__main__":
    suite = unittest.TestLoader().loadTestsFromTestCase(FileManTestCase)
    unittest.TextTestRunner(verbosity=2).run(suite)
