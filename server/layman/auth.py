@@ -140,6 +140,12 @@ class LaymanAuthLiferay(LaymanAuth):
 
         # TODO: Do we want to check the header?
 
+        # Parse the response
+        self._parseUserInfo(content)
+
+    # Parsing in separate function makes it testable 
+    def _parseUserInfo(self, content):
+
         # Process the response
         try: 
             self.authJson = loads(content)
