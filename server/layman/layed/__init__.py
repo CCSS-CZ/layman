@@ -1,6 +1,8 @@
 # Lincense: ...
 # authors: Michal, Jachym
 
+#TODO: class ServerMan, GeoServ, MapServ and DbMan
+
 class LayEd:
     """Layer editor and manager
     """
@@ -22,4 +24,52 @@ class LayEd:
         else:
             from layman import config
             self.config =  config
+
+    # Import
+
+    def importLayer(self,file_name): 
+        """import given file to database, 
+        and register layer to geoserver as datasource 
+        """
+        pass # TODO
+
+    # Layers
+
+    def getLayers(self): 
+        """returns list of layers"""
+        pass # TODO
+
+    def addLayer(self,name):  
+        """creates new dataset + configures new layer"""
+        pass # TODO
+
+    def deleteLayer(self): 
+        """removes layers from database + from mapping server"""
+        pass # TODO
+
+    def getLayerParams(self,layer_id): 
+        """returns informations about layer"""
+        pass # TODO
+
+    def setLayerParams(layer_id,{params}): 
+        """sets informations about layer, including service metadata (in cooperation with given catalogue service)"""
+        pass # TODO
+
+    # Workspaces
+
+    def getWorkspaces(self): 
+        """json of workspaces, eventually with layers"""
+        pass #TODO
+
+    def addWorkspace(self,name,attributes=None): 
+        """create workspace"""
+        pass #TODO
+
+    def removeWorkspace(self,name): 
+        """remove workspace"""
+        pass #TODO
+
+    def updateWorkspace(self, name,attributes=None): 
+        """updates existing worspace"""
+        pass #TODO
 

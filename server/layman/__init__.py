@@ -46,7 +46,6 @@ class LayMan:
         path = [d for d in name.split(os.path.sep) if d]
         print >>sys.stderr, path
         if path[0] == "fileman":
-
             
             from fileman import FileMan
             fm = FileMan()
@@ -57,14 +56,41 @@ class LayMan:
             if len(path) == 1:
                 retval = fm.getFiles(self.auth.getFSDir())
 
-            # /fileman/file.shp
+            # /fileman/<file>
             elif len(path) == 2:
                 retval = fm.getFile(self._getTargetFile(path[1]))
 
-            # /fileman/detail/file.shp
+            # /fileman/detail/<file>
             elif len(path) == 3 and\
                 path[1] == "detail":
                 retval = fm.getFileDetails(self._getTargetFile(path[2]))
+
+        if path[0] == 'layman':
+
+            from layed import LayEd
+            le = LayEd()
+
+            # TODO: Where do we check the authorisation?
+
+            # /layman
+            if len(path) == 1:
+                retval = le.getLayers()
+
+            elif len(path) == 2:               
+                # /layman/workspaces
+                if path[1] == "workspaces":
+                    retval = le.getWorkspaces()
+                # /layman/<layer>
+                else:                
+                    retval = le.getLayer(path[1])
+
+            elif len(path) == 3:
+                # /layman/detail/<layer>
+                if path[1] == "detail":
+                    retval = le.getLayerParams(path[2])
+                # /layman/workspaces/<ws>
+                if path[1] == "workspaces":
+                    retval = le.getWorkspace(path[2])
 
         # default handler
         else:
