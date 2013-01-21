@@ -81,11 +81,12 @@ class LayMan:
                 if path[1] == "workspaces":
                     retval = le.getWorkspaces()
                 # /layman/<layer>
-                else:                
-                    retval = le.getLayer(path[1])
+                # implement when needed
+                # else:                
+                #    retval = le.getLayer(path[1])
 
             elif len(path) == 3:
-                # /layman/detail/<layer>
+                # /layman/config/<layer>
                 if path[1] == "detail":
                     retval = le.getLayerParams(path[2])
                 # /layman/workspaces/<ws>
