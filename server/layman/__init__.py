@@ -106,6 +106,8 @@ class LayMan:
         if len(name) > 0 and name[0] == "fileman":
             from fileman import FileMan
             fm = FileMan()
+            # What we expect here to receive from the client?
+            # Where is it documented?
             inpt = web.input(filename={}, newfilename="")
             newFilename = inpt["newfilename"]
             if not newFilename: 
