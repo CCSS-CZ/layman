@@ -101,21 +101,31 @@ class LayMan:
         return retval
 
     def POST(self, name=None):
-        # POST "http://localhost:8080/layman/fileman/file.shp"
         name = os.path.split(name)
-        if len(name) > 0 and name[0] == "fileman":
-            from fileman import FileMan
-            fm = FileMan()
-            # What we expect here to receive from the client?
-            # Where is it documented?
-            inpt = web.input(filename={}, newfilename="")
-            newFilename = inpt["newfilename"]
-            if not newFilename: 
-                newFilename = inpt["filename"].filename
-            newFilename = self._getTargetFile(newFilename)
-            retval = fm.postFile(inpt["filename"].file.read(),newFilename)  # FIXME Security: we
-                                                             # shoudl read file size up to X megabytes
-            return retval 
+        if len(name) > 0:
+            # POST "http://localhost:8080/layman/fileman/file.shp"
+            if name[0] == "fileman":
+                from fileman import FileMan
+                fm = FileMan()
+                # Jachyme, what we expect here to receive from the client?
+                # Where is it documented?
+                inpt = web.input(filename={}, newfilename="")
+                newFilename = inpt["newfilename"]
+                if not newFilename: 
+                    newFilename = inpt["filename"].filename
+                newFilename = self._getTargetFile(newFilename)
+                retval = fm.postFile(inpt["filename"].file.read(),newFilename)  # FIXME Security: we
+                                                                 # shoudl read file size up to X megabytes
+                return retval 
+            # POST "http://localhost:8080/layman/layed?fileName=Rivers&layerName=Rivers"
+            if name[0] == "layman":
+                from layed import LayEd
+                le = LayEd()
+                inpt = web.input(dbName=None,layerName=None,layerParams=None)
+                if !inpt.fileName:
+                    pass #TODO - fileName required
+                retval = le.publish(inpt.fileName,inpt.dbName,inpt.layerName,inpt.layerParams)
+                return retval
         else:
             web.notfound()
             return "Call not supported. I'm sorry, mate..."

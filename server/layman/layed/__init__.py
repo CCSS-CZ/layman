@@ -25,9 +25,16 @@ class LayEd:
             from layman import config
             self.config =  config
 
+    def publish(self, fileName, dbName=None, layerName=None, layerParams=None):
+        datasourceName = importLayer(fileName,dbName)
+        if !datasourceName:
+            pass # TODO
+        retval = addLayer(datasourceName,layerName,layerParams)
+        return retval
+
     # Import
 
-    def importLayer(self,file_name): 
+    def importLayer(self,fileName,dbName=None): 
         """import given file to database, 
         and register layer to geoserver as datasource 
         """
@@ -39,7 +46,7 @@ class LayEd:
         """returns list of layers"""
         pass # TODO
 
-    def addLayer(self,name):  
+    def addLayer(self,datasourceName,layerName=None,layerParams=None):  
         """creates new dataset + configures new layer"""
         pass # TODO
 
