@@ -1,0 +1,23 @@
+#!/usr/bin/env python
+
+"""This is basic implementation of LayMan server component. You should be able
+to adjust it to your needs.
+"""
+from layman import LayMan
+from web import application as app
+
+import web
+import os
+
+
+DIR = os.path.dirname(os.path.abspath(__file__))
+web.config.debug = True
+
+os.environ["LAYMAN_CFG"] = os.path.join(DIR, "layman.cfg")
+
+#print os.environ["LAYMAN_CFG"]
+
+
+if __name__ == "__main__":
+    laymanapp = app(("/layman/(.*)","LayMan"),globals())
+    laymanapp.run()
