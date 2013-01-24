@@ -100,7 +100,7 @@ class LayMan:
         return retval
 
     def POST(self, name=None):
-        name = os.path.split(name)
+        name = [d for d in os.path.split(name) if d]
         if len(name) > 0:
             # POST "http://localhost:8080/layman/fileman/file.shp"
             if name[0] == "fileman":
@@ -112,12 +112,14 @@ class LayMan:
                 newFilename = inpt["newfilename"]
                 if not newFilename: 
                     newFilename = inpt["filename"].filename
-                newFilename = self._getTargetFile(newFilename)
-                retval = fm.postFile(inpt["filename"].file.read(),newFilename)  # FIXME Security: we
+                newFilename = self._getTargetFile(newFilename,False)
+                retval = fm.postFile(newFilename,inpt["filename"].file.read())  # FIXME Security: we
                                                                  # shoudl read file size up to X megabytes
+                web.header("Content-type", "text/html")
+                web.ok() # 200
                 return retval 
             # POST "http://localhost:8080/layman/layed?fileName=Rivers&layerName=Rivers"
-            if name[0] == "layman":
+            elif name[0] == "layman":
                 from layed import LayEd
                 le = LayEd()
                 inpt = web.input(dbName=None,layerName=None,layerParams=None)
