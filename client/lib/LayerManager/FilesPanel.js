@@ -68,7 +68,7 @@ Ext4.define("HSRS.LayerManager.FilesPanel", {
                     type: 'json',
                     idProperty: 'name'
                 }
-            },
+            }
         });
         myconfig.store.load();
 
