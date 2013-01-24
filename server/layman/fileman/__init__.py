@@ -128,28 +128,29 @@ class FileMan:
     # POST methods
     #
 
-    def postFile(self,fileName,data):
+    def postFile(self,filePath,data):
         """Create a file and return 201 Created.
            Should the file already exist, do nothing and return 409 Conflict
         """
+            
+        fileName = os.path.split(filePath)[-1]
 
         # it is there, DO NOT overwrite
-        if os.path.exists(fileName):
-            if "headers" in dir(ctx):
-                web.conflict() # 409
-                return "{'success':false, message:'Sorry, the file already exists, use PUT method if you wish to overwrite it'}" % fileName
+        if os.path.exists(filePath):
+            web.conflict() # 409
+            return "{success:false, message:'Sorry, the file [%s] already exists, use PUT method if you wish to overwrite it'}" % fileName
 
         # it is not there, create it
         else:
             try:
-                f = open(fileName, "wb")
+                f = open(filePath, "wb")
                 f.write(data)
                 f.close
                 web.created() # 201
-                return "{'success':'true', file:'%s'}" % fileName
+                return "{success:true, file:'%s'}" % fileName
             except Exception as e:
                 web.internalerror() #500
-                return e.message
+                return "{success: false, message: '%s'}" % e.strerror
 
     def putFile(self,fileName,data):
         """Update an existing file. 
@@ -163,7 +164,7 @@ class FileMan:
             return "{'success':'true','action':'updated'}"
         except Exception as e:
             web.internalerror() #500
-            return e.message
+            return "{success: false, message: '%s'}" % e.message
 
     def deleteFile(self,fileName):
         """Delete the file"""
