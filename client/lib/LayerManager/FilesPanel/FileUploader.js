@@ -38,13 +38,14 @@ Ext4.define("HSRS.LayerManager.FilesPanel.FileUploader", {
             emptyText: 'Select an file',
             fieldLabel: 'File',
             name: 'filename',
-            buttonText: '',
+            //buttonText: '',
             width: 350,
+            msgTarget: "side",
             labelWidth: 120,
-            allowBlank: false,
-            buttonConfig: {
-                icon: HSRS.IMAGE_LOCATION+"/page_add.png"
-            }
+            allowBlank: false
+            //buttonConfig: {
+            //    icon: HSRS.IMAGE_LOCATION+"/page_add.png"
+            //}
         }];
 
         config.buttons = [{
@@ -62,11 +63,14 @@ Ext4.define("HSRS.LayerManager.FilesPanel.FileUploader", {
                         waitMsg: "Uploading files to server ...",
                         success: function(form, action) {
                             this.fireEvent("filesaved",action);
-                            Ext.Msg.alert('Success', 'Processed file "' + action.result.file + '" on the server');
+                            if (action.result && action.result.file) {
+                                Ext.Msg.alert('Success', 
+                                    (action.result && action.result.file ? 'Processed file "' + action.result.file + '" on the server': "No Server response."));
+                            }
                         },
                         failure: function(form, action) {
                             this.fireEvent("filesaved",action);
-                            Ext.Msg.alert('Failed', action.result ? action.result.msg : 'No response');
+                            Ext.Msg.alert('Failed', action.result ? action.result.message : 'No response');
                         }
                     });
                 }
