@@ -44,7 +44,6 @@ class LayMan:
 
         # GET "http://localhost:8080/layman/fileman/"
         path = [d for d in name.split(os.path.sep) if d]
-        print >>sys.stderr, path
         if path[0] == "fileman":
             
             from fileman import FileMan
@@ -65,7 +64,7 @@ class LayMan:
                 path[1] == "detail":
                 retval = fm.getFileDetails(self._getTargetFile(path[2]))
 
-        if path[0] == 'layman':
+        elif path[0] == 'layman':
 
             from layed import LayEd
             le = LayEd()
