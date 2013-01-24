@@ -122,7 +122,7 @@ class LayMan:
                 from layed import LayEd
                 le = LayEd()
                 inpt = web.input(dbName=None,layerName=None,layerParams=None)
-                if !inpt.fileName:
+                if not inpt.fileName:
                     pass #TODO - fileName required
                 retval = le.publish(inpt.fileName,inpt.dbName,inpt.layerName,inpt.layerParams)
                 return retval
