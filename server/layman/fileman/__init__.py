@@ -58,6 +58,11 @@ class FileMan:
         for fn in filenames: # NOTE: do not use 'file' variable name - it is
                                # python function
                                # do note use 'dir' - it is another function
+            (name_root, suffix) = os.path.splitext(fn)
+            # filter shx, dbf and prj files
+            if suffix in (".shx",".dbf",".prj") and\
+                    name_root+".shp" in filenames:
+                continue
             filesize = os.path.getsize(targetDir+'/'+fn)
             time_sec = os.path.getmtime(targetDir+'/'+fn) 
             time_struct = time.localtime(time_sec)
