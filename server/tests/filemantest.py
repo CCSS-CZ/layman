@@ -47,7 +47,7 @@ class FileManTestCase(unittest.TestCase):
         
         # NOTE: mimetypes should be handled according to https://portal.opengeospatial.org/files/?artifact_id=47860
 
-        files_json = self.fm.getFiles(self.workdir)
+        (code, files_json) = self.fm.getFiles(self.workdir)
         import json
         files = json.loads(files_json)
 

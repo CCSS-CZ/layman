@@ -5,9 +5,6 @@ import os, sys
 #import glob
 import mimetypes, time
 import json
-import web
-from web.utils import threadeddict
-ctx = threadeddict()
 
 class FileMan:
     """File manager of LayMan
@@ -71,17 +68,17 @@ class FileMan:
                 
         files_json = json.dumps(files_list)
 
-        if "headers" in dir(ctx):
-            web.header('Content-Type', 'text/html')
-        web.ok() # 200
-        return files_json
+        return ("ok",files_json)
 
     def getFile(self,fileName):
         """Return file itself
         """
 
         # TODO: set propper Content/type
-        return open(fileName).read()
+        try:
+            return (200,open(fileName).read())
+        except:
+            return (500, None)
 
     def getFileDetails(self, fileName):
         """Get the details for the given file
@@ -105,8 +102,9 @@ class FileMan:
                    "kod_popis": "string"
              }
          }
+
+         :return: (status, json_structure)
         """
-        web.ok() # 200
 
         time_sec = os.path.getmtime(fileName) 
         time_struct = time.localtime(time_sec)
@@ -120,9 +118,8 @@ class FileMan:
         # TODO: more to be done
 
         files_json = json.dumps(details)
-        web.header('Content-Type', 'text/html')
 
-        return files_json
+        return ("ok",files_json)
 
     #
     # POST methods
@@ -131,40 +128,41 @@ class FileMan:
     def postFile(self,filePath,data):
         """Create a file and return 201 Created.
            Should the file already exist, do nothing and return 409 Conflict
+
+           :return: (status, response)
         """
             
         fileName = os.path.split(filePath)[-1]
 
         # it is there, DO NOT overwrite
         if os.path.exists(filePath):
-            web.conflict() # 409
-            return "{success:false, message:'Sorry, the file [%s] already exists, use PUT method if you wish to overwrite it'}" % fileName
+
+            return ("conflict",
+                    "{success:false, message:'Sorry, the file [%s] already exists, use PUT method if you wish to overwrite it'}" % fileName)
 
         # it is not there, create it
         else:
             try:
                 f = open(filePath, "wb")
                 f.write(data)
-                f.close
-                web.created() # 201
-                return "{success:true, file:'%s'}" % fileName
+                f.close()
+                return ("created","{'success':true, file:'%s'}" % fileName)
             except Exception as e:
-                web.internalerror() #500
-                return "{success: false, message: '%s'}" % e.strerror
+                return (internalerror,"{success: false, message: '%s'}" % e.strerror)
 
     def putFile(self,fileName,data):
         """Update an existing file. 
            If it does not exist, create it.
+
+           :return: (status, response)
         """
         try: 
             f = open(fileName, "wb")
             f.write(data)
             f.close
-            web.ok() # 200
-            return "{'success':'true','action':'updated'}"
+            return ("ok","{'success':'true','action':'updated'}")
         except Exception as e:
-            web.internalerror() #500
-            return "{success: false, message: '%s'}" % e.message
+            return (500, "{success: false, message: '%s'}" % e.message)
 
     def deleteFile(self,fileName):
         """Delete the file"""
@@ -175,11 +173,9 @@ class FileMan:
             retval = e.message
 
         if os.path.exists(fileName):
-            web.internalerror() # 500
-            return "Unable to delete file"
+            return (500, "{success: false, message: '%s'}" % "Unable to delete file")
         else:
-            web.ok() # 200
-            return retval
+            return ("ok",retval)
 
     def _setConfig(self,config):
         """Get and set configuration files parser

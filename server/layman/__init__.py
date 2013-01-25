@@ -41,6 +41,7 @@ class LayMan:
                 fileman/<filename> 
         """
         retval = None
+        code = None
 
         # GET "http://localhost:8080/layman/fileman/"
         path = [d for d in name.split(os.path.sep) if d]
@@ -53,16 +54,16 @@ class LayMan:
 
             # /fileman
             if len(path) == 1:
-                retval = fm.getFiles(self.auth.getFSDir())
+                (code, retval) = fm.getFiles(self.auth.getFSDir())
 
             # /fileman/<file>
             elif len(path) == 2:
-                retval = fm.getFile(self._getTargetFile(path[1]))
+                (code, retval) = fm.getFile(self._getTargetFile(path[1]))
 
             # /fileman/detail/<file>
             elif len(path) == 3 and\
                 path[1] == "detail":
-                retval = fm.getFileDetails(self._getTargetFile(path[2]))
+                (code, retval) = fm.getFileDetails(self._getTargetFile(path[2]))
 
         elif path[0] == 'layman':
 
@@ -94,13 +95,20 @@ class LayMan:
 
         # default handler
         else:
-            web.notfound() # 404
+            code = 404
             retval = "Call [%s] not supported. I'm sorry, mate..." % name
 
+        web.header("Content-type", "text/html")
+        self._setReturnCode(code)
         return retval
 
     def POST(self, name=None):
+
+        retval = None
+        code = None
+        
         name = [d for d in os.path.split(name) if d]
+
         if len(name) > 0:
             # POST "http://localhost:8080/layman/fileman/file.shp"
             if name[0] == "fileman":
@@ -113,7 +121,7 @@ class LayMan:
                 if not newFilename: 
                     newFilename = inpt["filename"].filename
                 newFilename = self._getTargetFile(newFilename,False)
-                retval = fm.postFile(newFilename,inpt["filename"].file.read())  # FIXME Security: we
+                (code, retval) = fm.postFile(newFilename,inpt["filename"].file.read())  # FIXME Security: we
                                                                  # shoudl read file size up to X megabytes
                 web.header("Content-type", "text/html")
                 web.ok() # 200
@@ -128,29 +136,39 @@ class LayMan:
                 retval = le.publish(inpt.fileName,inpt.dbName,inpt.layerName,inpt.layerParams)
                 return retval
         else:
-            web.notfound()
+            self._setReturnCode(404)
             return "Call not supported. I'm sorry, mate..."
 
     def PUT(self, name=None):
+
+        retval = None
+        code = None
+
         # PUT "http://localhost:8080/layman/fileman/file.shp"
         if len(name) > 8 and name[:7] == "fileman" and name[7] == '/' and string.find(name,'/',8) == -1:
             from fileman import FileMan
             fm = FileMan()
             fileName = name[8:]
             data = web.data()
-            retval = fm.putFile(self._getTargetFile(fileName),data)
+            (code, retval) = fm.putFile(self._getTargetFile(fileName),data)
+            self._setReturnCode(code)
             return retval
         else:
             web.notfound()
             return "Call not supported. I'm sorry, mate..."
 
     def DELETE(self, name=None):
+
+        retval = None
+        code = None
+
         # DELETE "http://localhost:8080/layman/fileman/file.shp"
         if len(name) > 8 and name[:7] == "fileman" and name[7] == '/' and string.find(name,'/',8) == -1:
             from fileman import FileMan
             fm = FileMan()
             fileName = name[8:]
-            retval = fm.deleteFile(self._getTargetFile(fileName)) 
+            (code, retval) = fm.deleteFile(self._getTargetFile(fileName)) 
+            self._setReturnCode(code)
             return retval 
         else:
             web.notfound()
@@ -228,3 +246,21 @@ class LayMan:
             return open(targetname)
         else:
             return targetname
+
+    def _setReturnCode(self, code):
+        """Set be return code
+
+        :param: code
+        :type code: integer or string
+        """
+
+        if code in (200, "ok"):
+            web.ok()
+        elif code in (409,"conflict"):
+            web.conflict()
+        elif code in (500, "internalerror"):
+            web.internalerror()
+        elif code in (201, "created"):
+            web.created()
+        elif code in (404, "notfound"):
+            web.notfound()
