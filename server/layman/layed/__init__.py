@@ -27,7 +27,7 @@ class LayEd:
 
     def publish(self, fileName, dbName=None, layerName=None, layerParams=None):
         datasourceName = importLayer(fileName,dbName)
-        if !datasourceName:
+        if not datasourceName:
             pass # TODO
         retval = addLayer(datasourceName,layerName,layerParams)
         return retval
@@ -58,7 +58,7 @@ class LayEd:
         """returns informations about layer"""
         pass # TODO
 
-    def setLayerParams(layer_id,{params}): 
+    def setLayerParams(layer_id,params=None): 
         """sets informations about layer, including service metadata (in cooperation with given catalogue service)"""
         pass # TODO
 
