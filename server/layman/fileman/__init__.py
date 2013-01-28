@@ -111,20 +111,23 @@ class FileMan:
          :return: (status, json_structure)
         """
 
-        time_sec = os.path.getmtime(fileName) 
-        time_struct = time.localtime(time_sec)
-        filetime = time.strftime("%Y-%m-%d %H:%M",time_struct)
+        if os.path.isfile(fileName): 
+            time_sec = os.path.getmtime(fileName) 
+            time_struct = time.localtime(time_sec)
+            filetime = time.strftime("%Y-%m-%d %H:%M",time_struct)
 
-        details = {}
-        details["name"] = os.path.split(fileName)[1]
-        details["size"] = os.path.getsize(fileName)
-        details["date"] = str(filetime)
-        details["mimetype"] = mimetypes.guess_type("file://"+fileName)[0]
-        # TODO: more to be done
+            details = {}
+            details["name"] = os.path.split(fileName)[1]
+            details["size"] = os.path.getsize(fileName)
+            details["date"] = str(filetime)
+            details["mimetype"] = mimetypes.guess_type("file://"+fileName)[0]
+            # TODO: more to be done
 
-        files_json = json.dumps(details)
+            layerfiles_json = json.dumps(details)
 
-        return ("ok",files_json)
+            return ("ok",files_json)
+        else:
+            return (404,"{success:false,message:'Requested file not found'}")
 
     #
     # POST methods
