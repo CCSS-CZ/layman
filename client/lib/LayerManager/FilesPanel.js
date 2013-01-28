@@ -162,12 +162,29 @@ Ext4.define("HSRS.LayerManager.FilesPanel", {
         
         var makeMenu = function(view, record, elem, idx, e, opts) {
             this.getFileDetail(record.get("name"),function(r) {
+
+                // display file menu
                 var menu = Ext4.create("HSRS.LayerManager.FilesPanel.FileMenu", {
                     url: this.url,
                     data: Ext4.JSON.decode(r.responseText),
+                    record: record,
                     listeners: {
+                        scope:this,
                         "filepublished": this._onFilePublished,
-                        scope: this
+
+                        // file deleted listener will popup confirmation window
+                        "filedeleted": function(record, evt) {
+                            Ext4.MessageBox.confirm("Really remove selected file?",
+                                    "Are you sure, you want to remove selected file? <br />"+
+                                    record.get("name"),
+                                    function(btn, x, msg){
+                                        if (btn == "yes") {
+                                            this.fm.deleteFile(this.record.get("name"));
+                                        }
+                                    },
+                                    {fm: this, record: record});
+
+                                }
                     }
             });
             

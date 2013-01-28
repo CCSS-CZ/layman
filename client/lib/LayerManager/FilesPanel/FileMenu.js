@@ -12,6 +12,7 @@ Ext4.define("HSRS.LayerManager.FilesPanel.FileMenu", {
     file: undefined,
     data: undefined, 
     url: undefined,
+    record: undefined,
     
     /**
      * @constructor
@@ -76,6 +77,7 @@ Ext4.define("HSRS.LayerManager.FilesPanel.FileMenu", {
         this.callParent(arguments);
 
         this.addEvents("filepublished");
+        this.addEvents("filedeleted");
     },
 
     /**
@@ -83,7 +85,7 @@ Ext4.define("HSRS.LayerManager.FilesPanel.FileMenu", {
      * @private
      */
     _onDeleteClicked: function() {
-        alert ("Deleting "+this.record.get("name")+". To be implemented");
+        this.fireEvent("filedeleted",this.record);
     },
 
     /**
