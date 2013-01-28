@@ -163,13 +163,20 @@ class LayMan:
         code = None
 
         # DELETE "http://localhost:8080/layman/fileman/file.shp"
-        if len(name) > 8 and name[:7] == "fileman" and name[7] == '/' and string.find(name,'/',8) == -1:
-            from fileman import FileMan
-            fm = FileMan()
-            fileName = name[8:]
-            (code, retval) = fm.deleteFile(self._getTargetFile(fileName)) 
-            self._setReturnCode(code)
-            return retval 
+        path = [d for d in name.split(os.path.sep) if d]
+        if len(name) > 0:
+
+            if path[0] == "fileman":
+                    from fileman import FileMan
+                    fm = FileMan()
+                    fileName = name[8:]
+                    (code, retval) = fm.deleteFile(self._getTargetFile(path[-1])) 
+                    self._setReturnCode(code)
+                    return retval 
+            else:
+                web.notfound()
+                return "{success: false, message: 'File [%s] not found '}" % path[-1]
+
         else:
             web.notfound()
             return "Call not supported. I'm sorry, mate..."

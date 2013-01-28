@@ -249,8 +249,37 @@ Ext4.define("HSRS.LayerManager.FilesPanel", {
         if (records.length > 0) {
             Ext4.MessageBox.confirm("Really remove selected files?",
                     "Are you sure, you want to remove selected files? <br />"+
-                    records.map(function(r){return r.get("name");}).join("<br />"));
+                    records.map(function(r){return r.get("name");}).join("<br />"),
+                    function(btn, x, msg){
+                        if (btn == "yes") {
+                            for (var i = 0, ilen = this.records.length ;i < ilen; i++) {
+                                this.fm.deleteFile(this.records[i].get("name"));
+                            }
+                        }
+                        /*this.deleteFile;*/
+                    },
+                    {fm: this, records: records});
         }
+    },
+
+    /**
+     * send delete request
+     *
+     * @function
+     * @param file {String}  file name
+     */
+    deleteFile: function(file) {
+        var url = this.url+file;
+        console.log(this.url);
+        Ext4.Ajax.request({
+            method: "DELETE",
+            url: (HSRS.ProxyHost ? HSRS.ProxyHost+escape(url):url),
+            success: function() {
+                console.log("####",arguments);
+            },
+            scope: this
+        });
+        this.store.load(); 
     },
 
     /**

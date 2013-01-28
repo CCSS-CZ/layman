@@ -123,7 +123,7 @@ class FileMan:
             details["mimetype"] = mimetypes.guess_type("file://"+fileName)[0]
             # TODO: more to be done
 
-            layerfiles_json = json.dumps(details)
+            files_json = json.dumps(details)
 
             return ("ok",files_json)
         else:
@@ -175,15 +175,33 @@ class FileMan:
     def deleteFile(self,fileName):
         """Delete the file"""
         try:
-            os.remove(fileName)
+            (name_root, suffix) = os.path.splitext(fileName)
+
+            if suffix == ".shp":
+                self._deleteShapeFile(fileName)
+            else:
+                os.remove(fileName)
+
             retval = "Deleted"
+            return (200, "{success: true, message: '%s'}" % "File deleted")
+
         except Exception as e:
             retval = e.message
 
-        if os.path.exists(fileName):
-            return (500, "{success: false, message: '%s'}" % "Unable to delete file")
+            if os.path.exists(fileName):
+                return (500, "{success: false, message: '%s'}" % "Unable to delete file")
         else:
             return ("ok",retval)
+
+    def _deleteShapeFile(self, fileName):
+        """Delete all files, belonging to this shapefile
+        """
+        (name_root, suffix) = os.path.splitext(fileName)
+        (d,root) = os.path.split(name_root)
+
+        for f in os.listdir(d):
+            if f.find(root) == 0:
+                os.remove(os.path.join(d, f))
 
     def _setConfig(self,config):
         """Get and set configuration files parser
