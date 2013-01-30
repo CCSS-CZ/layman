@@ -154,7 +154,17 @@ class FileMan:
                 f = open(filePath, "wb")
                 f.write(data)
                 f.close()
-                return ("created","{'success':true, file:'%s'}" % fileName)
+
+
+                # handle zip files
+                (root_name, suffix) = os.path.splitext(fileName)
+                msg = None
+                if suffix == ".zip":
+                    (fileName,msg) = self._unzipFile(fileName)
+                if fileName:
+                    return ("created","{'success':true, file:'%s'}" % fileName)
+                else:
+                    return (internalerror,"{success: false, message: '%s'}" % msg)
             except Exception as e:
                 return (internalerror,"{success: false, message: '%s'}" % e.strerror)
 
@@ -167,7 +177,7 @@ class FileMan:
         try: 
             f = open(fileName, "wb")
             f.write(data)
-            f.close
+            f.close()
             return ("ok","{'success':'true','action':'updated'}")
         except Exception as e:
             return (500, "{success: false, message: '%s'}" % e.message)
@@ -211,3 +221,28 @@ class FileMan:
         else:
             from layman import config
             self.config =  config
+
+    def _unzipFile(self, zipfile):
+        """Extract shapefiles from zipped file
+        """
+
+        import zipfile
+        target = os.path.split(zipfile)[0]
+        zf  = zipfile.ZipFile(zipfile)
+        zf.extractall(path=target)
+
+        files = zf.namelist()
+        fileName = None
+        for fn in files:
+            (root, suffix) = os.path.splitext(fn)
+            if suffix == ".shp":
+                fileName = fn
+
+        # check
+        if not fileName:
+            # clear
+            for fn in files:
+                os.remove(os.path.join(target, fn))
+            return (None, "No shapefile content")
+        else:
+            return (fileName, "%s unzipped" % zipfile)
