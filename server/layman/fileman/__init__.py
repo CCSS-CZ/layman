@@ -5,6 +5,7 @@ import os, sys
 #import glob
 import mimetypes, time
 import json
+import logging
 
 class FileMan:
     """File manager of LayMan
@@ -160,13 +161,16 @@ class FileMan:
                 (root_name, suffix) = os.path.splitext(fileName)
                 msg = None
                 if suffix == ".zip":
-                    (fileName,msg) = self._unzipFile(fileName)
+                    (fileName,msg) = self._unzipFile(filePath)
                 if fileName:
+                    logging.debug("File [%s] successfully uploaded"% fileName)
                     return ("created","{'success':true, file:'%s'}" % fileName)
                 else:
-                    return (internalerror,"{success: false, message: '%s'}" % msg)
+                    logging.error(msg)
+                    return ("internalerror","{success: false, message: '%s'}" % msg)
             except Exception as e:
-                return (internalerror,"{success: false, message: '%s'}" % e.strerror)
+                logging.error(e)
+                return ("internalerror","{success: false, message: '%s'}" % e)
 
     def putFile(self,fileName,data):
         """Update an existing file. 
@@ -192,16 +196,14 @@ class FileMan:
             else:
                 os.remove(fileName)
 
-            retval = "Deleted"
-            return (200, "{success: true, message: '%s'}" % "File deleted")
-
-        except Exception as e:
-            retval = e.message
-
             if os.path.exists(fileName):
                 return (500, "{success: false, message: '%s'}" % "Unable to delete file")
-        else:
-            return ("ok",retval)
+            else:
+                return (200, "{success: true, message: '%s'}" % "File deleted")
+
+        except Exception as e:
+            return (500, "{success: false, message: '%s'}" % e)
+
 
     def _deleteShapeFile(self, fileName):
         """Delete all files, belonging to this shapefile
@@ -222,13 +224,13 @@ class FileMan:
             from layman import config
             self.config =  config
 
-    def _unzipFile(self, zipfile):
+    def _unzipFile(self, zfile):
         """Extract shapefiles from zipped file
         """
 
         import zipfile
-        target = os.path.split(zipfile)[0]
-        zf  = zipfile.ZipFile(zipfile)
+        target = os.path.split(zfile)[0]
+        zf  = zipfile.ZipFile(zfile)
         zf.extractall(path=target)
 
         files = zf.namelist()
@@ -238,6 +240,8 @@ class FileMan:
             if suffix == ".shp":
                 fileName = fn
 
+        os.remove(zfile)
+
         # check
         if not fileName:
             # clear
@@ -245,4 +249,4 @@ class FileMan:
                 os.remove(os.path.join(target, fn))
             return (None, "No shapefile content")
         else:
-            return (fileName, "%s unzipped" % zipfile)
+            return (fileName, "%s unzipped" % zfile)
