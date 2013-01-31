@@ -129,11 +129,12 @@ class LayMan:
             # POST "http://localhost:8080/layman/layed?fileName=Rivers&layerName=Rivers"
             elif name[0] == "layman":
                 from layed import LayEd
-                le = LayEd()
-                inpt = web.input(dbName=None,layerName=None,layerParams=None)
+                le = LayEd(config)
+                inpt = web.input(layerName=None,layerParams=None)
                 if not inpt.fileName:
                     pass #TODO - fileName required
-                retval = le.publish(inpt.fileName,inpt.dbName,inpt.layerName,inpt.layerParams)
+                filePath = self._getTargetFile(inpt.fileName)
+                retval = le.publish(filePath, inpt.layerName, inpt.layerParams)
                 return retval
         else:
             self._setReturnCode(404)

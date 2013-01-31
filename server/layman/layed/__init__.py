@@ -25,19 +25,49 @@ class LayEd:
             from layman import config
             self.config =  config
 
-    def publish(self, fileName, dbName=None, layerName=None, layerParams=None):
-        datasourceName = importLayer(fileName,dbName)
-        if not datasourceName:
-            pass # TODO
+    def publish(self, filePath, layerName=None, layerParams=None):
+        tableName = importLayer(filePath) # TODO check the result
+        createDatasource(tableName) # TODO check the result
         retval = addLayer(datasourceName,layerName,layerParams)
         return retval
 
     # Import
 
-    def importLayer(self,fileName,dbName=None): 
+    def importLayer(self,filePath): 
         """import given file to database, 
         and register layer to geoserver as datasource 
         """
+        # shp2pgsql #
+
+        import subprocess
+        sqlBatch = subprocess.check_output(['shp2pgsql',filePath]) # TODO: check the errorrs
+
+        # import - run the batch through psycopg2 #
+
+        import psycopg2
+
+        # connect
+        dbname = config.get("LayEd","dbname")
+        dbuser = config.get("LayEd","dbuser")
+        dbhost = config.get("LayEd","dbhost")
+        dbpass = config.get("LayEd","dbpass")
+        try:
+            conn = psycopg2.connect("dbname='"+dbname+"' user='"+dbuser+"' host='"+dbhost+"' password='"+dbpass)
+        except:
+            print "I am unable to connect to the database"#TODO
+        
+        # execute
+        cur = conn.cursor()
+        cur.execute(sqlBatch) # TODO check the success
+        conn.commit()
+        
+        #close
+        cur.close()
+        conn.close()
+        
+        #TODO return table name
+
+    def createDatasource(self,tableName):
         pass # TODO
 
     # Layers
