@@ -25,13 +25,14 @@ class FileMan:
         """Put style into geoserver
         """
 
-        request = urllib2.Request(self.config.get("Geoserver","restapi"))
+        request = RequestWithMethod("PUT",self.config.get("Geoserver","restapi")+"/style",style)
         userpass=base64.encodestring('%s:%s' %\
-                (self.getconfig.get("Geoserver","user"), 
-                 self.getconfig.get("Geoserver","password")).replace('\n', '')
+                (self.config.get("Geoserver","user"), 
+                 self.config.get("Geoserver","password")).replace('\n', '')
         )
 
         request.add_header("Authorization","Basic %s" % userpass)
+        request.add_header("Content-type","application/vnd.ogc.sld+xml")
 
         # POST
         result = urllib2.urlopen(request)
@@ -39,5 +40,11 @@ class FileMan:
 
 
 
+class RequestWithMethod(urllib2.Request):
+  def __init__(self, method, *args, **kwargs):
+    self._method = method
+    urllib2.Request.__init__(self,*args, **kwargs)
+  def get_method(self):
+    return self._method
 
 
