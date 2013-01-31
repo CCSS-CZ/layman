@@ -52,7 +52,10 @@ class FileManTestCase(unittest.TestCase):
         files = json.loads(files_json)
 
         self.assertEquals(type(files), type([]), "List is not an array")
-        self.assertEquals(len(files), len(os.listdir(self.workdir)), "Number of files does not match")
+        self.assertEquals(
+            len(files),
+            len([a for a in os.listdir(self.workdir) if os.path.splitext(a)[1] not in [".shx",".dbf",".prj"]]),
+            "Number of files does not match")
         #self.assertEquals(len(files), 2, "Number of files does not match")
         self.assertListEqual(files[0].keys(),["date","mimetype", "name", "size"],"File attributes are not as expected")
 
