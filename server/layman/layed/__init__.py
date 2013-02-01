@@ -26,44 +26,53 @@ class LayEd:
             self.config =  config
 
     def publish(self, filePath, layerName=None, layerParams=None):
-        tableName = importLayer(filePath) # TODO check the result
+        tableName = importShapeFile(filePath) # TODO check the result
         createDatasource(tableName) # TODO check the result
         retval = addLayer(datasourceName,layerName,layerParams)
         return retval
 
     # Import
 
-    def importLayer(self,filePath): 
+    def importShapeFile(self,filePath): 
         """import given file to database, 
         and register layer to geoserver as datasource 
         """
         # shp2pgsql #
 
         import subprocess
-        sqlBatch = subprocess.check_output(['shp2pgsql',filePath]) # TODO: check the errorrs
-
+        try: 
+            sqlBatch = subprocess.check_output(['shp2pgsql',filePath])
+        except subprocess.CalledProcessError as e:
+            print "shp2pgsql error:"
+            print e
+            pass # TODO
+ 
         # import - run the batch through psycopg2 #
 
         import psycopg2
 
         # connect
-        dbname = config.get("LayEd","dbname")
-        dbuser = config.get("LayEd","dbuser")
-        dbhost = config.get("LayEd","dbhost")
-        dbpass = config.get("LayEd","dbpass")
+        dbname = self.config.get("LayEd","dbname")
+        dbuser = self.config.get("LayEd","dbuser")
+        dbhost = self.config.get("LayEd","dbhost")
+        dbpass = self.config.get("LayEd","dbpass")
+        connectionString = "dbname='"+dbname+"' user='"+dbuser+"' host='"+dbhost+"' password='"+dbpass+"'"
+        print connectionString # debug        
+
         try:
-            conn = psycopg2.connect("dbname='"+dbname+"' user='"+dbuser+"' host='"+dbhost+"' password='"+dbpass)
-        except:
-            print "I am unable to connect to the database"#TODO
+            conn = psycopg2.connect(connectionString)
         
-        # execute
-        cur = conn.cursor()
-        cur.execute(sqlBatch) # TODO check the success
-        conn.commit()
+            # execute
+            cur = conn.cursor()
+            cur.execute(sqlBatch) # TODO check the success
+            conn.commit()
         
-        #close
-        cur.close()
-        conn.close()
+            #close
+            cur.close()
+            conn.close()
+        except Exception as e:
+            print "Database error: " #TODO
+            print e
         
         #TODO return table name
 
