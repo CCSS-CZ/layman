@@ -15,9 +15,6 @@ web.config.debug = True
 
 os.environ["LAYMAN_CFG"] = os.path.join(DIR, "layman.cfg")
 
-#print os.environ["LAYMAN_CFG"]
-
-
 if __name__ == "__main__":
     laymanapp = app(("/layman/(.*)","LayMan"),globals())
     laymanapp.run()

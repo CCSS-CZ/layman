@@ -93,12 +93,21 @@ class LayMan:
                 if path[1] == "workspaces":
                     retval = le.getWorkspace(path[2])
 
+            web.header("Content-type", "text/html")
+        elif path[0] == "geoserver":
+            from geoserver import Geoserver
+            g = Geoserver()
+            code = 200
+
+            if path[1] == "style" and len(path) == 3:
+                retval = g.getStyle(path[2])
+                web.header("Content-type", "text/xml")
+            
         # default handler
         else:
             code = 404
             retval = "Call [%s] not supported. I'm sorry, mate..." % name
 
-        web.header("Content-type", "text/html")
         self._setReturnCode(code)
         return retval
 
@@ -145,15 +154,24 @@ class LayMan:
         retval = None
         code = None
 
+        path = [d for d in name.split(os.path.sep) if d]
+
         # PUT "http://localhost:8080/layman/fileman/file.shp"
-        if len(name) > 8 and name[:7] == "fileman" and name[7] == '/' and string.find(name,'/',8) == -1:
+        if path[0]  == "fileman":
             from fileman import FileMan
             fm = FileMan()
-            fileName = name[8:]
+            fileName = path[-1]
             data = web.data()
             (code, retval) = fm.putFile(self._getTargetFile(fileName),data)
             self._setReturnCode(code)
             return retval
+        elif path[0] == "geoserver":
+            from geoserver import Geoserver
+            gs = Geoserver()
+
+            # /geoserver/style/style_name
+            if path[1] == "style":
+                gs.putStyle(path[2],web.data())
         else:
             web.notfound()
             return "Call not supported. I'm sorry, mate..."

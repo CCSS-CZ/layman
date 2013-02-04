@@ -6,13 +6,15 @@ import os, sys
 import mimetypes, time
 import json
 import logging
-import urllib2, base64
 
-class FileMan:
-    """File manager of LayMan
+from geoserver.catalog import Catalog
+
+class Geoserver:
+    """Geoserver proxy in Layman
     """
 
     config = None
+    cat = None
 
     def __init__(self,config = None):
         """constructor
@@ -21,30 +23,38 @@ class FileMan:
         ## get configuration parser
         self._setConfig(config)
 
-    def putStyle(self, style):
-        """Put style into geoserver
+        self.cat = self._getConnection()
+
+    def getStyle(self, name):
+        """Get style from geoserver
         """
 
-        request = RequestWithMethod("PUT",self.config.get("Geoserver","restapi")+"/style",style)
-        userpass=base64.encodestring('%s:%s' %\
-                (self.config.get("Geoserver","user"), 
-                 self.config.get("Geoserver","password")).replace('\n', '')
-        )
+        (name, suff) = os.path.splitext(name)
+        style =  self.cat.get_style(name)
+        return style.sld_body
 
-        request.add_header("Authorization","Basic %s" % userpass)
-        request.add_header("Content-type","application/vnd.ogc.sld+xml")
+    def postStyle(self, name, style):
+        """Post new style into geoserver
+        """
 
-        # POST
-        result = urllib2.urlopen(request)
+        return self.cat.create_style(name,style,overwrite=False)
 
+    def putStyle(self, name, style):
+        """Put existing style into geoserver
+        """
 
+        return self.cat.create_style(name,style,overwrite=True)
 
+    def _getConnection(self):
+        return Catalog(self.config.get("Geoserver","url"),
+                self.config.get("Geoserver","user"), 
+                 self.config.get("Geoserver","password"))
 
-class RequestWithMethod(urllib2.Request):
-  def __init__(self, method, *args, **kwargs):
-    self._method = method
-    urllib2.Request.__init__(self,*args, **kwargs)
-  def get_method(self):
-    return self._method
-
-
+    def _setConfig(self,config):
+        """Get and set configuration files parser
+        """
+        if config:
+            self.config = config
+        else:
+            from layman import config
+            self.config =  config
