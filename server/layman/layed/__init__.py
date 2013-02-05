@@ -41,6 +41,7 @@ class LayEd:
 
         import subprocess
         try: 
+            # viz tez:http://www.moosechips.com/2010/07/python-subprocess-module-examples/
             sqlBatch = subprocess.check_output(['shp2pgsql',filePath])
         except subprocess.CalledProcessError as e:
             print "shp2pgsql error:"
@@ -57,11 +58,10 @@ class LayEd:
         dbhost = self.config.get("LayEd","dbhost")
         dbpass = self.config.get("LayEd","dbpass")
         connectionString = "dbname='"+dbname+"' user='"+dbuser+"' host='"+dbhost+"' password='"+dbpass+"'"
-        print connectionString # debug        
 
         try:
             conn = psycopg2.connect(connectionString)
-        
+ 
             # execute
             cur = conn.cursor()
             cur.execute(sqlBatch) # TODO check the success
