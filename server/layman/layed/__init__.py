@@ -52,7 +52,6 @@ class LayEd:
 
         import psycopg2
 
-        # connect
         dbname = self.config.get("LayEd","dbname")
         dbuser = self.config.get("LayEd","dbuser")
         dbhost = self.config.get("LayEd","dbhost")
@@ -60,6 +59,7 @@ class LayEd:
         connectionString = "dbname='"+dbname+"' user='"+dbuser+"' host='"+dbhost+"' password='"+dbpass+"'"
 
         try:
+            # connect
             conn = psycopg2.connect(connectionString)
  
             # execute
