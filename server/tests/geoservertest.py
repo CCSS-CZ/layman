@@ -6,19 +6,17 @@ TEST_DIR = os.path.dirname(os.path.abspath(__file__))
 INSTALL_DIR = os.path.abspath(os.path.join(TEST_DIR,".."))
 sys.path.append(os.path.join(INSTALL_DIR))
 
-# TODO: add tests for testing http GET, POST... methods beside the fm.getFiles()... functions
-# TODO: uncomment & fix the test for getFileDetails once the function is ready
+# TODO: add tests for testing http GET, POST... methods beside the gs.get_style... functions
 
 from layman.geoserver import Geoserver
 from geoserver.catalog import Catalog
 
 style="""<?xml version="1.0" encoding="UTF-8"?><sld:StyledLayerDescriptor xmlns="http://www.opengis.net/sld" xmlns:sld="http://www.opengis.net/sld" xmlns:ogc="http://www.opengis.net/ogc" xmlns:gml="http://www.opengis.net/gml" version="1.0.0"><sld:NamedLayer><sld:Name>tmp_polygon</sld:Name><sld:UserStyle><sld:Name>tmp_polygon</sld:Name><sld:Title>Default Polygon</sld:Title><sld:Abstract>A sample style that draws a polygon</sld:Abstract><sld:FeatureTypeStyle><sld:Name>name</sld:Name><sld:Rule><sld:Name>rule1</sld:Name><sld:Title>Gray Polygon with Black Outline</sld:Title><sld:Abstract>A polygon with a gray fill and a 1 pixel black outline</sld:Abstract><sld:PolygonSymbolizer><sld:Fill><sld:CssParameter name="fill">#CC3333</sld:CssParameter></sld:Fill><sld:Stroke/></sld:PolygonSymbolizer></sld:Rule></sld:FeatureTypeStyle></sld:UserStyle></sld:NamedLayer></sld:StyledLayerDescriptor>"""
 
-class FileManTestCase(unittest.TestCase):
+class GeoServerTestCase(unittest.TestCase):
     """Test of the file manager"""
 
-    fm = None
-    workdir = None
+    gs = None
 
     def setUp(self):
         cfg = ConfigParser.SafeConfigParser()
@@ -50,6 +48,7 @@ class FileManTestCase(unittest.TestCase):
 
         global style
         self.gs.postStyle("tmp_polygon",style)
+        # TODO: add test
 
     def test_putStyle(self):
         """Test get files function"""
@@ -57,8 +56,8 @@ class FileManTestCase(unittest.TestCase):
         global style
         self.gs.postStyle("tmp_polygon",style)
         self.gs.putStyle("tmp_polygon",style)
-
+        # TODO: add test
 
 if __name__ == "__main__":
-   suite = unittest.TestLoader().loadTestsFromTestCase(FileManTestCase)
+   suite = unittest.TestLoader().loadTestsFromTestCase(GeoServerTestCase)
    unittest.TextTestRunner(verbosity=2).run(suite)
