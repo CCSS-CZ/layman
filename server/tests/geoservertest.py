@@ -63,6 +63,7 @@ class GeoServerTestCase(unittest.TestCase):
         global style
         self.gs.postStyle("tmp_polygon",style)
         # TODO: add test
+        # FIXME: UploadError: SLD file styles/tmp_polygon.sld.sld already exists.
 
     def test_putStyle(self):
         """Test get files function"""
@@ -71,6 +72,7 @@ class GeoServerTestCase(unittest.TestCase):
         self.gs.postStyle("tmp_polygon",style)
         self.gs.putStyle("tmp_polygon",style)
         # TODO: add test
+        # FIXME: UploadError: SLD file styles/tmp_polygon.sld.sld already exists.
 
 if __name__ == "__main__":
    suite = unittest.TestLoader().loadTestsFromTestCase(GeoServerTestCase)
