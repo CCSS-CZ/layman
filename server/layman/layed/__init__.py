@@ -50,6 +50,8 @@ class LayEd:
  
         # import - run the batch through psycopg2 #
 
+        #TODO: USE PROPER DATABASE SCHEMA
+
         import psycopg2
 
         dbname = self.config.get("LayEd","dbname")
@@ -81,9 +83,16 @@ class LayEd:
 
     # Layers
 
-    def getLayers(self): 
+    def getLayers(self, workspace=None): 
         """returns list of layers"""
-        pass # TODO
+        from layman.geoserver import GeoServer
+        gs = GeoServer()
+
+        code = 200
+        layers =  gs.getLayers() # TODO: select only those from the given workspace
+        # NOTE: Do we want to get layers or feature types? (two different things in gs)
+
+        return (code,layers)
 
     def addLayer(self,datasourceName,layerName=None,layerParams=None):  
         """creates new dataset + configures new layer"""

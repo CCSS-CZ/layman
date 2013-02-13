@@ -78,7 +78,7 @@ class LayMan:
 
             # /layman
             if len(path) == 1:
-                retval = le.getLayers()
+                (code,retval) = le.getLayers(self.auth.getGSWorkspace())
 
             elif len(path) == 2:               
                 # /layman/workspaces
@@ -99,8 +99,8 @@ class LayMan:
 
             web.header("Content-type", "text/html")
         elif path[0] == "geoserver":
-            from geoserver import Geoserver
-            g = Geoserver()
+            from geoserver import GeoServer
+            g = GeoServer()
             code = 200
 
             if path[1] == "style" and len(path) == 3:
