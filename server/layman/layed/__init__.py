@@ -25,9 +25,24 @@ class LayEd:
             from layman import config
             self.config =  config
 
-    def publish(self, filePath, layerName=None, layerParams=None):
+    def publish(self, filePath, dbSchema, gsWorkspace, layerName):
+        """ Main publishing function. 
+            Group ~ db Schema ~ gs Data Store ~ gs Workspace
+        """
         tableName = importShapeFile(filePath) # TODO check the result
-        createDatasource(tableName) # TODO check the result
+
+        # TODO - check the GS workspace and create it if it does not exist 
+        # if...
+        #    createWorkspace(...)
+
+        # Here the Workspace should exist
+
+        # TODO - check the GS data store and create it if it does not exist 
+        # if...
+        #    createDataStore(...)
+
+        # Here the Data Store should exist
+
         retval = addLayer(datasourceName,layerName,layerParams)
         return retval
 
@@ -35,7 +50,6 @@ class LayEd:
 
     def importShapeFile(self,filePath): 
         """import given file to database, 
-        and register layer to geoserver as datasource 
         """
         # shp2pgsql #
 
@@ -50,7 +64,7 @@ class LayEd:
  
         # import - run the batch through psycopg2 #
 
-        #TODO: USE PROPER DATABASE SCHEMA
+        #TODO: USE PROPER DATABASE SCHEMA!!!
 
         import psycopg2
 
@@ -78,7 +92,7 @@ class LayEd:
         
         #TODO return table name
 
-    def createDatasource(self,tableName):
+    def createDataStore(self):
         pass # TODO
 
     # Layers
