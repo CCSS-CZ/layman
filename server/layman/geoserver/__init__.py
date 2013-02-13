@@ -9,8 +9,8 @@ import logging
 
 from geoserver.catalog import Catalog
 
-class Geoserver:
-    """Geoserver proxy in Layman
+class GeoServer:
+    """GeoServer proxy in Layman
     """
 
     config = None
@@ -24,6 +24,18 @@ class Geoserver:
         self._setConfig(config)
 
         self.cat = self._getConnection()
+
+    ### LAYERS ###
+
+    def getLayers(self):
+        layers = self.cat.get_layers()
+        return layers
+
+    def getLayer(self, layerName):
+        layer = self.cat.get_layer(layerName)
+        return layer
+
+    ### STYLE ###
 
     def getStyle(self, name):
         """Get style from geoserver
@@ -45,10 +57,12 @@ class Geoserver:
 
         return self.cat.create_style(name,style,overwrite=True)
 
+    ### Private ###
+
     def _getConnection(self):
-        return Catalog(self.config.get("Geoserver","url"),
-                self.config.get("Geoserver","user"), 
-                 self.config.get("Geoserver","password"))
+        return Catalog(self.config.get("GeoServer","url"),
+                self.config.get("GeoServer","user"), 
+                 self.config.get("GeoServer","password"))
 
     def _setConfig(self,config):
         """Get and set configuration files parser
