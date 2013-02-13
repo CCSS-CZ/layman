@@ -40,6 +40,10 @@ class LayMan:
                 fileman/detail/<filename> 
                 fileman/<filename> 
         """
+        if not self.auth.authorised:
+            self._setReturnCode(401) # Unauthorized 
+            return "Authorisation failed. You need to log-in into the Liferay first."    
+
         retval = None
         code = None
 
@@ -113,6 +117,10 @@ class LayMan:
 
     def POST(self, name=None):
 
+        if not self.auth.authorised:
+            self._setReturnCode(401) # Unauthorized 
+            return "Authorisation failed. You need to log-in into the Liferay first."    
+
         retval = None
         code = None
         
@@ -151,6 +159,10 @@ class LayMan:
 
     def PUT(self, name=None):
 
+        if not self.auth.authorised:
+            self._setReturnCode(401) # Unauthorized 
+            return "Authorisation failed. You need to log-in into the Liferay first."    
+
         retval = None
         code = None
 
@@ -177,6 +189,10 @@ class LayMan:
             return "Call not supported. I'm sorry, mate..."
 
     def DELETE(self, name=None):
+
+        if not self.auth.authorised:
+            self._setReturnCode(401) # Unauthorized 
+            return "Authorisation failed. You need to log-in into the Liferay first."    
 
         retval = None
         code = None
@@ -282,11 +298,13 @@ class LayMan:
 
         if code in (200, "ok"):
             web.ok()
+        elif code in (201, "created"):
+            web.created()
+        elif code in (401, "unauthorized"):
+            web.unauthorized()
+        elif code in (404, "notfound"):
+            web.notfound()
         elif code in (409,"conflict"):
             web.conflict()
         elif code in (500, "internalerror"):
             web.internalerror()
-        elif code in (201, "created"):
-            web.created()
-        elif code in (404, "notfound"):
-            web.notfound()
