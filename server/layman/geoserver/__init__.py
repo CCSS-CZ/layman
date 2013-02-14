@@ -35,6 +35,19 @@ class GeoServer:
         layer = self.cat.get_layer(layerName)
         return layer
 
+    ### FEATURE STORE ###
+
+    def createFeatureStore(self, fsDir, gsWorkspace, name):
+        """ Create "Feature store" in the gsconfig.py stle
+        """
+        from geoserver.util import shapefile_and_friends
+        shapefile_plus_sidecars = shapefile_and_friends(fsDir+"/"+name)
+    
+        ws = self.cat.get_workspace(gsWorkspace)
+        self.cat.create_featurestore(name, shapefile_plus_sidecars, ws)
+
+        return gsWorkspace+":"+name 
+
     ### STYLE ###
 
     def getStyle(self, name):

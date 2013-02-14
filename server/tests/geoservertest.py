@@ -17,12 +17,15 @@ class GeoServerTestCase(unittest.TestCase):
     """Test of the file manager"""
 
     gs = None
+    workdir = None
 
     def setUp(self):
         cfg = ConfigParser.SafeConfigParser()
         cfg.read((os.path.join(TEST_DIR,"tests.cfg")))
         self.gs = GeoServer(cfg)
-    
+
+        self.workdir = os.path.abspath(os.path.join(TEST_DIR,"workdir","data"))
+
         gsUrl = self.gs.config.get("GeoServer", "url")
         gsUser = self.gs.config.get("GeoServer", "user")
         gsPassword = self.gs.config.get("GeoServer", "password")
@@ -48,6 +51,19 @@ class GeoServerTestCase(unittest.TestCase):
         layer = self.gs.getLayer(layers[0].name)
         print layer
         # TODO: Add test
+
+    ### FEATURE STORE ###
+
+    def test_createFeatrueStore(self):
+        # TODO: make sure that source files exist
+        # TODO: remove the layer if exists
+
+        #self.assert_(self.cat.get_layer("states_test") is None)
+
+        self.gs.createFeatureStore(self.workdir,"TestWS","line_crs")
+
+        #TODO: add test
+        #self.assert_(self.cat.get_layer("states_test") is None)
 
     ### STYLES ###
 

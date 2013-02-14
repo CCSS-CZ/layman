@@ -25,10 +25,11 @@ class LayEd:
             from layman import config
             self.config =  config
 
-    def publish(self, filePath, dbSchema, gsWorkspace, layerName):
+    def publish(self, fsDir, dbSchema, gsWorkspace, name):
         """ Main publishing function. 
             Group ~ db Schema ~ gs Data Store ~ gs Workspace
         """
+        filePath = os.path.realpath( os.path.join(fsDir,name+".shp") )
         tableName = importShapeFile(filePath) # TODO check the result
 
         # TODO - check the GS workspace and create it if it does not exist 
@@ -40,10 +41,14 @@ class LayEd:
         # TODO - check the GS data store and create it if it does not exist 
         # if...
         #    createDataStore(...)
+        # NOTE: Well, this is not needed if we use gsconfig.py "create_featurestore()" 
+        # It would be needed for GS "POST FeatureType" request
 
         # Here the Data Store should exist
-
-        retval = addLayer(datasourceName,layerName,layerParams)
+    
+        from layman.geoserver import GeoServer
+        gs = GeoServer()
+        retval = gs.createFeatureStore(fsDir, gsWorkspace, name)
         return retval
 
     # Import
