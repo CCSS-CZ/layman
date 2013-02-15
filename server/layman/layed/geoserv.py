@@ -7,6 +7,7 @@ import json
 import logging
 
 import httplib2
+from urlparse import urlparse
 
 class GsRest:
     """GeoServer REST API
@@ -27,17 +28,20 @@ class GsRest:
     def getLayers(self):
 
         url = self.url + "/layers.json"
-        headers, response =  h.request(url,'GET')
+        headers, response =  self.h.request(url,'GET')
         return headers, response
 
     ### PRIVATE ###
 
     def _setHttp(self):
         self.h = httplib2.Http()
-        self.url = self.config.get("GeoServer","url"),
-        username = self.config.get("GeoServer","user"),
+        self.url = self.config.get("GeoServer","url")
+        username = self.config.get("GeoServer","user")
         password = self.config.get("GeoServer","password")
         self.h.add_credentials(username, password)
+        print self.url
+        print username
+        print password
         netloc = urlparse(self.url).netloc
         self.h.authorizations.append(
                 httplib2.BasicAuthentication(
