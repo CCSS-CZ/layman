@@ -56,14 +56,44 @@ class GeoServerTestCase(unittest.TestCase):
 
     def test_createFeatrueStore(self):
         # TODO: make sure that source files exist
-        # TODO: remove the layer if exists
 
-        #self.assert_(self.cat.get_layer("states_test") is None)
+        # check / delete layer
+        line_layer = self.direct_gs.get_layer("line_crs0")
+        if line_layer is not None:
+            self.direct_gs.delete(line_layer)
+
+        # check / delete feature type
+        #
+        # sorry - it is not possible to delete feature type with gsconfig.py
+        #
+        # example in test 
+        # https://github.com/dwins/gsconfig.py/blob/master/test/catalogtests.py#L424
+        # only shows how to disable it        
+        #
+        # FOR NOW, PLEASE REMOVE THE FEATURE TYPE "line_crs0" MANUALLY
+        #
+        #line_feature = self.direct_gs.get_featuretype("line_crs0") # this function does not exist
+        #if line_feature is not None:
+        #    self.direct_gs.delete(line_feature)
+
+        # TODO: remove the feature type using the gs rest api itself 
+
+        # check / delete data store
+        # line_store = self.direct_gs.get_store("line_crs")
+        # if line_store is not None:
+        #    self.direct_gs.delete(line_store)
+
+        self.assert_(self.direct_gs.get_layer("line_crs1") is None)
 
         self.gs.createFeatureStore(self.workdir,"TestWS","line_crs")
 
-        #TODO: add test
-        #self.assert_(self.cat.get_layer("states_test") is None)
+        # Another problem - gs.createFeatureStore DOES NOT return the resource URI
+        # - hence WE DON'T know the name of the created layer!
+
+        # TODO: use the gs rest api itself and find out the name of the created layer 
+        # - whether it is line_crs0, line_crs1 or what...
+
+        self.assert_(self.direct_gs.get_layer("line_crs1") is not None)
 
     ### STYLES ###
 
