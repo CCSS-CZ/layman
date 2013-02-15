@@ -45,7 +45,7 @@ class LayEd:
         # It would be needed for GS "POST FeatureType" request
 
         # Here the Data Store should exist
-    
+   
         from layman.geoserver import GeoServer
         gs = GeoServer()
         retval = gs.createFeatureStore(fsDir, gsWorkspace, name)
@@ -102,7 +102,7 @@ class LayEd:
 
     # Layers
 
-    def getLayers(self, workspace=None): 
+    def getLayersGsconfig(self, workspace=None): 
         """returns list of layers"""
         from layman.geoserver import GeoServer
         gs = GeoServer()
@@ -112,6 +112,15 @@ class LayEd:
         # NOTE: Do we want to get layers or feature types? (two different things in gs)
 
         return (code,layers)
+
+    def getLayers(self, workspace=None):
+        from geoserv import GsRest
+        gs = GsRest()
+
+        code = 200
+        layers = gs.getLayers()
+
+        return layers
 
     def addLayer(self,datasourceName,layerName=None,layerParams=None):  
         """creates new dataset + configures new layer"""
