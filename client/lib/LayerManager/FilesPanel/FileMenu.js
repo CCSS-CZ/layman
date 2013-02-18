@@ -95,6 +95,7 @@ Ext4.define("HSRS.LayerManager.FilesPanel.FileMenu", {
     _onUploadClicked: function() {
         var publishForm = Ext4.create("HSRS.LayerManager.PublishForm", {
             name: this.data.name,
+            url: this.url.replace("fileman","layed"),
             type: this.data.type,
             prj: this.data.prj,
             extent: this.data.extent,

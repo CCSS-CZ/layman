@@ -3,6 +3,7 @@ Ext4.define("HSRS.LayerManager.FilesPanel", {
     
     requires: [
         "Ext4.data.JsonStore",
+        "HSRS.LayerManager.FilesPanel.Model",
         "HSRS.LayerManager.FilesPanel.FileUploader",
         "HSRS.LayerManager.FilesPanel.FileMenu"
     ],
@@ -43,20 +44,6 @@ Ext4.define("HSRS.LayerManager.FilesPanel", {
             ]
         });
 
-        /*
-         * model and store
-         */
-        Ext4.define('HSRS.LayerManager.FilesPanel.Model', {
-            extend: 'Ext4.data.Model',
-            fields: [
-                {name: 'name',     type: 'string'},
-                {name: 'size',     type: 'integer'},
-                //{name: 'prj',      type: 'string'},
-                {name: 'date',      type: 'string'},
-                {name: 'mimetype', type: 'string'}
-            ]
-        }); 
-        
         myconfig.store = Ext4.create("Ext4.data.JsonStore", {
             model: 'HSRS.LayerManager.FilesPanel.Model',
             //autoLoad: true,

@@ -14,6 +14,7 @@ Ext4.define("HSRS.LayerManager.PublishForm", {
         config.items = this._initItems(config);
         config.layout = "anchor";
         config.frame = true;
+        config.url = config.url;
         config.buttons = [
             {
                 text:"Publish",
@@ -44,130 +45,136 @@ Ext4.define("HSRS.LayerManager.PublishForm", {
     _initItems: function(config) {
         var items = [
             {
-                name: "file",
-                xtype: "hidden",
-                anchor: '100%',
-                value: config.name
-            },
-            {
-                fieldLabel: "Title",
-                xtype: "textfield",
-                anchor: '100%',
-                name: "title",
-                value: config.name
-            },
-            {
-                fieldLabel: "Abstract",
-                xtype: "textfield",
-                anchor: '100%',
-                name: "abstract",
-                value: config.abstract
-            },
-            //{
-            //    fieldLabel: 'Keywords',
-            //    xtype: 'multiselect',
-            //    anchor: '100%',
-            //    msgTarget: 'side',
-            //    name: 'keywords',
-            //    allowBlank: true,
-            //    store: {
-            //        fields: [ 'keyword' ],
-            //        data: [["keyword1"]]
-            //    },
-            //    valueField: 'keyword',
-            //    displayField: 'keyword'
-            //},
-            {
-                fieldLabel: "Metadata link",
-                anchor:"100%",
-                xtype: "textfield",
-                name:"metadataurl",
-                value: config.metadataurl
-            },
-            {
-                title: "Coordinate Reference Systems",
-                anchor:"100%",
                 xtype: "fieldset",
-                layout: "anchor",
+                title: "Publish file '"+config.name+"'",
                 items: [
                     {
-                        fieldLabel: "Native SRS",
-                        anchor:"100%",
-                        xtype: "textfield",
-                        value: config.prj,
-                        name: "crs"
-                    }
-                ]
-            },
-            {
-                title:"Bounding Box",
-                xtype:"fieldset",
-                anchor:"100%",
-                items: [
-                    {
-                        fieldLabel:"Bounds",
-                        hideLabel: true,
-                        xtype: "fieldcontainer",
-                        name: "bbox",
-                        anchor: "100%",
-                        layout: {
-                            type: "table",
-                            columns: 3
-                        },
-                        defaults: {
-                            xtype: "container",
-                            width: 75
-                        },
-                        items: [
-                            { html :' ' },
-                            {
-                                name:"maxy",
-                                xtype: "textfield",
-                                value: config.extent[0]
-                            },
-                            { html :' ' },
-                            {
-                                name:"minx",
-                                xtype: "textfield",
-                                value: config.extent[1]
-                            },
-                            { html :' ' },
-                            {
-                                name:"maxx",
-                                xtype: "textfield",
-                                value: config.extent[2]
-                            },
-                            { html :' ' },
-                            {
-                                name:"miny",
-                                xtype: "textfield",
-                                value: config.extent[3]
-                            },
-                            { html :' ' }
-                        ]
-                    }
-                ]
-            },
-            {
-                title: "Attribution",
-                anchor:"100%",
-                xtype: "fieldset",
-                layout: "anchor",
-                items: [
-                    {
-                        fieldLabel: "Attribution text",
-                        anchor:"100%",
-                        xtype: "textfield",
-                        value: config.attribution ? config.attribution.text: "",
-                        name: "attribution_text"
+                        name: "fileName",
+                        xtype: "hidden",
+                        anchor: '100%',
+                        value: config.name
                     },
                     {
-                        fieldLabel: "Attribution link",
+                        fieldLabel: "Title",
+                        xtype: "textfield",
+                        anchor: '100%',
+                        name: "layerName",
+                        value: config.name || ""
+                    },
+                    {
+                        fieldLabel: "Abstract",
+                        xtype: "textfield",
+                        anchor: '100%',
+                        name: "abstract",
+                        value: config.abstract || ""
+                    },
+                    //{
+                    //    fieldLabel: 'Keywords',
+                    //    xtype: 'multiselect',
+                    //    anchor: '100%',
+                    //    msgTarget: 'side',
+                    //    name: 'keywords',
+                    //    allowBlank: true,
+                    //    store: {
+                    //        fields: [ 'keyword' ],
+                    //        data: [["keyword1"]]
+                    //    },
+                    //    valueField: 'keyword',
+                    //    displayField: 'keyword'
+                    //},
+                    {
+                        fieldLabel: "Metadata link",
                         anchor:"100%",
                         xtype: "textfield",
-                        emptyText: "http://",
-                        value: config.attribution ? config.attribution.link :"",
-                        name: "attribution_link"
+                        name:"metadataurl",
+                        value: config.metadataurl || ""
+                    },
+                    {
+                        title: "Coordinate Reference Systems",
+                        anchor:"100%",
+                        xtype: "fieldset",
+                        layout: "anchor",
+                        items: [
+                            {
+                                fieldLabel: "Native SRS",
+                                anchor:"100%",
+                                xtype: "textfield",
+                                value: config.prj || "",
+                                name: "crs"
+                            }
+                        ]
+                    },
+                    {
+                        title:"Bounding Box",
+                        xtype:"fieldset",
+                        anchor:"100%",
+                        items: [
+                            {
+                                fieldLabel:"Bounds",
+                                hideLabel: true,
+                                xtype: "fieldcontainer",
+                                name: "bbox",
+                                anchor: "100%",
+                                layout: {
+                                    type: "table",
+                                    columns: 3
+                                },
+                                defaults: {
+                                    xtype: "container",
+                                    width: 75
+                                },
+                                items: [
+                                    { html :' ' },
+                                    {
+                                        name:"maxy",
+                                        xtype: "textfield",
+                                        value: (config.extend ? config.extent[0] : "")
+                                    },
+                                    { html :' ' },
+                                    {
+                                        name:"minx",
+                                        xtype: "textfield",
+                                        value: (config.extent ? config.extent[1]: "")
+                                    },
+                                    { html :' ' },
+                                    {
+                                        name:"maxx",
+                                        xtype: "textfield",
+                                        value: (config.extent ? config.extent[2] :"")
+                                    },
+                                    { html :' ' },
+                                    {
+                                        name:"miny",
+                                        xtype: "textfield",
+                                        value: (config.extent ? config.extent[3] :"")
+                                    },
+                                    { html :' ' }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        title: "Attribution",
+                        anchor:"100%",
+                        xtype: "fieldset",
+                        layout: "anchor",
+                        items: [
+                            {
+                                fieldLabel: "Attribution text",
+                                anchor:"100%",
+                                xtype: "textfield",
+                                value: config.attribution ? config.attribution.text: "",
+                                name: "attribution_text"
+                            },
+                            {
+                                fieldLabel: "Attribution link",
+                                anchor:"100%",
+                                xtype: "textfield",
+                                emptyText: "http://",
+                                value: config.attribution ? config.attribution.link :"",
+                                name: "attribution_link"
+                            }
+                        ]
                     }
                 ]
             }
@@ -180,8 +187,20 @@ Ext4.define("HSRS.LayerManager.PublishForm", {
      * @private
      */
     _onPublishClicked: function() {
-        var data = this.getForm().getValues();
-        this.fireEvent("published",data);
+        var form = this.getForm();
+        var data = form.getValues();
+
+        if (form.isValid()) {
+            form.submit({
+                success: function(form,action) {
+                        this.fireEvent("published",data);
+                },
+                failure: function(form, action) {
+                    Ext.Msg.alert("Failed","Publishing file failed");
+                },
+                scope: this
+            });
+        }
         
     },
     /*

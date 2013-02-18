@@ -40,7 +40,11 @@ Ext4.define("HSRS.LayerManager", {
             },
             flex: 1
         });
+
+        url = config.url + (config.url[config.url.length-1] == "/" ? "" : "/") +"layed/"; 
+
         this.layersPanel = Ext4.create("HSRS.LayerManager.LayersPanel", {
+            url: url,
             flex: 1
         });
 
@@ -55,8 +59,8 @@ Ext4.define("HSRS.LayerManager", {
      * @function
      */
     _onFilePublished: function(data) {
+        console.log(data);
         alert("files published, events fired, "); //TODO
-        console.log("#########",data);
     }
 
 });

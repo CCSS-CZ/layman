@@ -39,9 +39,6 @@ class GsRest:
         username = self.config.get("GeoServer","user")
         password = self.config.get("GeoServer","password")
         self.h.add_credentials(username, password)
-        print self.url
-        print username
-        print password
         netloc = urlparse(self.url).netloc
         self.h.authorizations.append(
                 httplib2.BasicAuthentication(

@@ -18,6 +18,7 @@ class LaymanAuth:
     uname = None
     ugroup = None
     validityTime = None
+    authorised = True
     # passwd = None
 
     def __init__(self,config=None):

@@ -3,6 +3,8 @@
 
 #TODO: class ServerMan, GeoServ, MapServ and DbMan
 
+import os
+
 class LayEd:
     """Layer editor and manager
     """
@@ -25,12 +27,12 @@ class LayEd:
             from layman import config
             self.config =  config
 
-    def publish(self, fsDir, dbSchema, gsWorkspace, name):
+    def publish(self, filePath, dbSchema, gsWorkspace, name):
         """ Main publishing function. 
             Group ~ db Schema ~ gs Data Store ~ gs Workspace
         """
-        filePath = os.path.realpath( os.path.join(fsDir,name+".shp") )
-        tableName = importShapeFile(filePath) # TODO check the result
+        # filePath = os.path.realpath( os.path.join(fsDir,name+".shp") )
+        filePath = os.path.splitext(filePath)[0]
 
         # TODO - check the GS workspace and create it if it does not exist 
         # if...
@@ -48,7 +50,7 @@ class LayEd:
    
         from layman.geoserver import GeoServer
         gs = GeoServer()
-        retval = gs.createFeatureStore(fsDir, gsWorkspace, name)
+        retval = gs.createFeatureStore(filePath, gsWorkspace, name)
         return retval
 
     # Import
