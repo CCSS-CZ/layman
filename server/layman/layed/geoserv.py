@@ -31,6 +31,22 @@ class GsRest:
         headers, response =  self.h.request(url,'GET')
         return headers, response
 
+    def getLayer(self, workspace, name):
+        url = self.url + "/layers/" + workspace + ":" + name + ".json"
+        headers, response =  self.h.request(url,'GET')
+        return headers, response        
+
+    def getFeatureType(self, workspace, datastore, name):
+        url = self.url + "/workspaces/" + workspace + "/datasores/" + datastore + "/featuretypes/" + name + ".json"
+        headers, response =  self.h.request(url,'GET')
+        return headers, response        
+
+    def putLayer(self):
+        pass # TODO
+
+    def putFeatureType(self):
+        pass # TODO
+
     ### PRIVATE ###
 
     def _setHttp(self):

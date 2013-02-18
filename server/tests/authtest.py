@@ -13,28 +13,33 @@ class AuthTestCase(unittest.TestCase):
     """Test of the auth module"""
 
     au = None
+    slavek = None
 
     def setUp(self):
         cfg = ConfigParser.SafeConfigParser()
         cfg.read((os.path.join(TEST_DIR,"tests.cfg")))
         self.au = LaymanAuthLiferay(cfg)
 
+        self.slavek = '{"resultCode":"0","userInfo":{"lastName":"Doe","email":"test@ccss.cz","roles":[{"roleName":"Power User"},{"roleName":"User"},{"roleName":"ukraine_gis"}],"userId":10432,"screenName":"test","language":"en","firstName":"John","groups":[]},"leaseInterval":1800}'
+
+        self.au._parseUserInfo(self.slavek) # This should authorise user 'test'
+
     # TODO: add test for _getUserInfo() (real JSESSIONID needed)
 
     def test__parseUserInfo(self):
         """Test _parseUserInfo function """
-
-        # Prepare
-        slavek = '{"resultCode":"0","userInfo":{"lastName":"Doe","email":"test@ccss.cz","roles":[{"roleName":"Power User"},{"roleName":"User"},{"roleName":"ukraine_gis"}],"userId":10432,"screenName":"test","language":"en","firstName":"John","groups":[]},"leaseInterval":1800}'
-
-        self.au._parseUserInfo(slavek) # This should authorise user 'test'
-
         # Test
         self.assertEquals(self.au.authorised, True, "User is not authorised")
         self.assertEquals(type(self.au.authJson), type({}), "authJson is not an object")
         self.assertEquals(self.au.authJson["resultCode"], "0", "Result code is not a zero")
         self.assertEquals(self.au.authJson["userInfo"]["screenName"], "test", "Screen Name is not 'test'")
         self.assertEquals(self.au.authJson["userInfo"]["roles"][2]["roleName"], "ukraine_gis", "Cannot find 'ukraine_gis' role")
+
+    def test_getRole(self):
+
+        self.assertEquals( "Power User", self.au.getRole(), "Get role fails - 1" )
+        self.assertEquals( "ukraine_gis", self.au.getRole("ukraine_gis"), "Get role fails - 2" )
+        self.assertEquals( "Power User", self.au.getRole("NoSuchRole"), "Get role fails - 3" )
 
 if __name__ == "__main__":
    suite = unittest.TestLoader().loadTestsFromTestCase(AuthTestCase)

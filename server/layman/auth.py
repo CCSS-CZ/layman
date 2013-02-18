@@ -173,7 +173,7 @@ class LaymanAuthLiferay(LaymanAuth):
         if not self.authorised:
             raise AuthError("I am sorry, but you are not authorised")
 
-        if self.authJson.userInfo and self.authJson.userInfo.screenName:
+        if self.authJson["userInfo"] and self.authJson["userInfo"]["roles"]:
             fsDir = self.config.get("FileMan","homedir") + self.authJson.userInfo.screenName
             # TODO: do some checks
             # TODO: create if it does not exist
@@ -181,17 +181,37 @@ class LaymanAuthLiferay(LaymanAuth):
         else: 
             raise AuthError("Cannot determine the working directory - Liferay did not provide user's screenName")
 
-    def getDBSchema(self):
-        if self.authorised:
-            return self.group
-        else:
-            return None
+    def getDBSchema(self, desired):
+        """ Role ~ Schema. Uses getRole()
+        """
+        return self.getRole(desired)
     
-    def getGSWorkspace(self):
-        if self.authorised:
-            return self.group
-        else:
-            return None
+    def getGSWorkspace(self, desired=None):
+        """ Role ~ Workspace. Uses getRole()
+        """
+        return self.getRole(desired)
+
+    def getRole(self, desired=None):
+        """ Checks if the user is authorised.
+        Checks the roles. 
+        If the desired role is given and it is listed in the user's roles list, the desired role is returned.
+        The first role is returned otherwise. 
+        """
+        if not self.authorised:
+            raise AuthError("I am sorry, but you are not authorised")
+        if self.authJson["userInfo"] and self.authJson["userInfo"]["roles"]:
+            roles = self.authJson["userInfo"]["roles"]
+            if len(roles) < 1:
+                raise AuthError("Cannot determine the workspace - Liferay provided empty list of roles")            
+
+            theRole = roles[0]["roleName"]
+            for r in roles:
+                if desired == r["roleName"]:
+                    theRole = r["roleName"]
+
+            return theRole
+        else: 
+            raise AuthError("Cannot determine the workspace - Liferay did not provide user's roles")
 
     # Service Authorisation Methods #
 
