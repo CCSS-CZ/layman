@@ -143,19 +143,17 @@ class LayMan:
                 web.header("Content-type", "text/html")
                 web.ok() # 200
                 return retval 
-            # POST "http://localhost:8080/layman/layed?fileName=Rivers.shp&layerName=Rivers"
+            # POST "http://localhost:8080/layman/layed?name=Rivers&group=FireBrigade"
             elif name[0] == "layman":
                 from layed import LayEd
                 le = LayEd(config)
-                inpt = web.input()
-                if not inpt.fileName:
-                    pass #TODO - fileName required
-                if not inpt.layerName:
-                    pass #TODO - layerName required
-                filePath = self._getTargetFile(inpt.fileName)
-                dbSchema = self.auth.getDBSchema()
-                gsWorkspace = self.auth.getGSWorkspace()
-                retval = le.publish(filePath, dbSchema, gsWorkspace, inpt.layerName)
+                inpt = web.input(group=None)
+                if not inpt.name:
+                    pass #TODO - name required
+                fsDir       = self.auth.getFSDir()
+                dbSchema    = self.auth.getDBSchema()
+                gsWorkspace = self.auth.getGSWorkspace(inpt.group)
+                retval      = le.publish(fsDir, dbSchema, gsWorkspace, name)
                 return retval
         else:
             self._setReturnCode(404)
