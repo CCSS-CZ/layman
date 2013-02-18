@@ -69,31 +69,31 @@ class LayMan:
                 path[1] == "detail":
                 (code, retval) = fm.getFileDetails(self._getTargetFile(path[2]))
 
-        elif path[0] == 'layman':
+        elif path[0] == 'layed':
 
             from layed import LayEd
             le = LayEd()
 
             # TODO: Where do we check the authorisation?
 
-            # /layman
+            # /layed
             if len(path) == 1:
                 (code,retval) = le.getLayers(self.auth.getGSWorkspace())
 
             elif len(path) == 2:               
-                # /layman/workspaces
+                # /layed/workspaces
                 if path[1] == "workspaces":
                     retval = le.getWorkspaces()
-                # /layman/<layer>
+                # /layed/<layer>
                 # implement when needed
                 # else:                
                 #    retval = le.getLayer(path[1])
 
             elif len(path) == 3:
-                # /layman/config/<layer>
+                # /layed/config/<layer>
                 if path[1] == "detail":
                     retval = le.getLayerParams(path[2])
-                # /layman/workspaces/<ws>
+                # /layed/workspaces/<ws>
                 if path[1] == "workspaces":
                     retval = le.getWorkspace(path[2])
 
@@ -182,8 +182,8 @@ class LayMan:
             self._setReturnCode(code)
             return retval
         elif path[0] == "geoserver":
-            from geoserver import Geoserver
-            gs = Geoserver()
+            from geoserver import GeoServer
+            gs = GeoServer()
 
             # /geoserver/style/style_name
             if path[1] == "style":

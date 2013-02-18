@@ -31,6 +31,22 @@ class GsRest:
         headers, response =  self.h.request(url,'GET')
         return headers, response
 
+    def getLayer(self, workspace, name):
+        url = self.url + "/layers/" + workspace + ":" + name + ".json"
+        headers, response =  self.h.request(url,'GET')
+        return headers, response        
+
+    def getFeatureType(self, workspace, datastore, name):
+        url = self.url + "/workspaces/" + workspace + "/datasores/" + datastore + "/featuretypes/" + name + ".json"
+        headers, response =  self.h.request(url,'GET')
+        return headers, response        
+
+    def putLayer(self):
+        pass # TODO
+
+    def putFeatureType(self):
+        pass # TODO
+
     ### PRIVATE ###
 
     def _setHttp(self):
@@ -39,9 +55,6 @@ class GsRest:
         username = self.config.get("GeoServer","user")
         password = self.config.get("GeoServer","password")
         self.h.add_credentials(username, password)
-        print self.url
-        print username
-        print password
         netloc = urlparse(self.url).netloc
         self.h.authorizations.append(
                 httplib2.BasicAuthentication(

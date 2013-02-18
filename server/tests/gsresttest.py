@@ -34,6 +34,18 @@ class GsRestTestCase(unittest.TestCase):
         print layers
         # TODO: Add test
 
+    def test_getLayer(self):
+        # TODO: find out the ws & name automatically
+        layer = self.gs.getLayer("TestWS","line_crs1")
+        print layer
+        # TODO: Add test
+
+    def test_getFeatureType(self):
+        # TODO: find out the ws,ds & name automatically
+        ft = self.gs.getFeatureType("TestWS","line_crs","line_crs1")
+        print ft
+        # TODO: Add test
+
 if __name__ == "__main__":
    suite = unittest.TestLoader().loadTestsFromTestCase(GsRestTestCase)
    unittest.TextTestRunner(verbosity=2).run(suite)
