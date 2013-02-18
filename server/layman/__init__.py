@@ -143,7 +143,7 @@ class LayMan:
                 web.header("Content-type", "text/html")
                 web.ok() # 200
                 return retval 
-            # POST "http://localhost:8080/layman/layed?fileName=Rivers.shp&layerName=Rivers"
+            # POST "http://localhost:8080/layman/layed?name=Rivers&group=RescueRangers"
             elif name[0] == "layed":
                 from layed import LayEd
                 le = LayEd(config)

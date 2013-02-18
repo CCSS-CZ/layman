@@ -14,12 +14,7 @@ class LaymanAuth:
     config = None
     auth = None
 
-    # User info
-    uname = None
-    ugroup = None
-    validityTime = None
     authorised = True
-    # passwd = None
 
     def __init__(self,config=None):
         self._setConfig(config)
