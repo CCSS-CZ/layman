@@ -58,7 +58,7 @@ class GeoServerTestCase(unittest.TestCase):
         # TODO: make sure that source files exist
 
         # check / delete layer
-        line_layer = self.direct_gs.get_layer("line_crs0")
+        line_layer = self.direct_gs.get_layer("line_crs")
         if line_layer is not None:
             self.direct_gs.delete(line_layer)
 
@@ -83,9 +83,10 @@ class GeoServerTestCase(unittest.TestCase):
         # if line_store is not None:
         #    self.direct_gs.delete(line_store)
 
-        self.assert_(self.direct_gs.get_layer("line_crs1") is None)
+        self.assertEquals( True, None == self.direct_gs.get_layer("line_crs"), "The layer line_crs already exists. Please, remove it manually." )
+        self.assertEquals( True, None == self.direct_gs.get_store("line_crs"), "The store line_crs already exists. Please, remove it manually." )
 
-        self.gs.createFeatureStore(self.workdir,"TestWS","line_crs")
+        self.gs.createFeatureStore(self.workdir+"/line_crs","TestWS","line_crs")
 
         # Another problem - gs.createFeatureStore DOES NOT return the resource URI
         # - hence WE DON'T know the name of the created layer!
@@ -93,7 +94,7 @@ class GeoServerTestCase(unittest.TestCase):
         # TODO: use the gs rest api itself and find out the name of the created layer 
         # - whether it is line_crs0, line_crs1 or what...
 
-        self.assert_(self.direct_gs.get_layer("line_crs1") is not None)
+        self.assertEquals( False, None == self.direct_gs.get_layer("line_crs"), "The layer line_crs is not there. Was it created under another name?" )
 
     ### STYLES ###
 
