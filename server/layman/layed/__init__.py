@@ -31,11 +31,13 @@ class LayEd:
         """ Main publishing function. 
             Group ~ db Schema ~ gs Data Store ~ gs Workspace
         """
+        # /path/to/file.shp
         filePath = os.path.realpath( os.path.join( fsDir,fileName) )
 
-        # filePath = os.path.realpath( os.path.join(fsDir,name+".shp") )
+        # /path/to/file
         filePathNoExt = os.path.splitext(filePath)[0]
 
+        # file
         fileNameNoExt = os.path.splitext(fileName)[0]
 
         # TODO - check the GS workspace and create it if it does not exist 
@@ -54,8 +56,7 @@ class LayEd:
    
         from layman.geoserver import GeoServer
         gs = GeoServer()
-        retval = gs.createFeatureStore(fileNameNoExt, filePathNoExt, gsWorkspace)
-        return retval
+        gs.createFeatureStore(filePathNoExt, gsWorkspace, dataStoreName = fileNameNoExt)
 
     # Import
 

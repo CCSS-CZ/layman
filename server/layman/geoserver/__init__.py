@@ -37,20 +37,18 @@ class GeoServer:
 
     ### FEATURE STORE ###
 
-    def createFeatureStore(self, fileName, gsWorkspace, name):
+    def createFeatureStore(self, filePathNoExt, gsWorkspace, dataStoreName):
         """ Create "Feature store" in the gsconfig.py stle
         """
         from geoserver.util import shapefile_and_friends
-        shapefile_plus_sidecars = shapefile_and_friends(fileName)
+        shapefile_plus_sidecars = shapefile_and_friends(filePathNoExt)
 
         if not gsWorkspace:
             gsWorkspace = self.cat.get_default_workspace()
             ws = gsWorkspace.href
         else:
             ws = self.cat.get_workspace(gsWorkspace)
-        self.cat.create_featurestore(name, shapefile_plus_sidecars, ws)
-
-        return gsWorkspace+":"+name 
+        self.cat.create_featurestore(dataStoreName, shapefile_plus_sidecars, ws)
 
     ### STYLE ###
 
