@@ -196,7 +196,7 @@ Ext4.define("HSRS.LayerManager.PublishForm", {
                         this.fireEvent("published",data);
                 },
                 failure: function(form, action) {
-                    Ext.Msg.alert("Failed","Publishing file failed");
+                    Ext4.Msg.alert("Failed","Publishing file failed");
                 },
                 scope: this
             });
