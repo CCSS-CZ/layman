@@ -44,8 +44,7 @@ class GeoServer:
         shapefile_plus_sidecars = shapefile_and_friends(filePathNoExt)
 
         if not gsWorkspace:
-            gsWorkspace = self.cat.get_default_workspace()
-            ws = gsWorkspace.href
+            ws = self.cat.get_default_workspace()
         else:
             ws = self.cat.get_workspace(gsWorkspace)
         self.cat.create_featurestore(dataStoreName, shapefile_plus_sidecars, ws)
