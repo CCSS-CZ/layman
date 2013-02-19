@@ -15,6 +15,26 @@ Ext4.define("HSRS.LayerManager.LayersPanel", {
     constructor: function(config) {
 
         myconfig = {};
+
+        myconfig.tbar = Ext4.create("Ext4.toolbar.Toolbar", {
+            items: [
+                {
+                    //text: 'Refresh',
+                    scope: this,
+                    handler:  this._onRefreshClicked,
+                    cls: 'x-btn-icon',
+                    tooltip: 'Refresh file list',
+                    icon: HSRS.IMAGE_LOCATION+"/arrow_refresh.png"
+                },
+                {
+                    scope: this,
+                    handler:  this._onDeleteClicked,
+                    cls: 'x-btn-icon',
+                    tooltip: 'Delete file',
+                    icon: HSRS.IMAGE_LOCATION+"/delete.png"
+                }
+            ]
+        });
         
         myconfig.store = Ext4.create("Ext4.data.JsonStore", {
             model: 'HSRS.LayerManager.LayersPanel.Model',
@@ -102,6 +122,14 @@ Ext4.define("HSRS.LayerManager.LayersPanel", {
         });
         this.store.load(); 
     },
+
+    /**
+     * button refresh handler
+     * @private
+     */
+     _onRefreshClicked: function() {
+        this.store.load(); 
+     }
 
     /**
      * get file details
