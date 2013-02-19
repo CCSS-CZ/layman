@@ -58,7 +58,7 @@ Ext4.define("HSRS.LayerManager.PublishForm", {
                         fieldLabel: "Title",
                         xtype: "textfield",
                         anchor: '100%',
-                        name: "layerName",
+                        name: "title",
                         value: config.name || ""
                     },
                     {
