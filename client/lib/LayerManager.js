@@ -59,8 +59,8 @@ Ext4.define("HSRS.LayerManager", {
      * @function
      */
     _onFilePublished: function(data) {
-        console.log(data);
-        alert("files published, events fired, "); //TODO
+        Ext4.Msg.alert('Success',"File ["+data.fileName+"] published");
+        this.layersPanel.store.load();
     }
 
 });
