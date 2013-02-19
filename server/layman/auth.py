@@ -71,8 +71,8 @@ class LaymanAuth:
     def getDBSchema(self):
         pass
     
-    def getGSWorkspace(self):
-        pass
+    def getGSWorkspace(self,desired):
+        return desired
 
     # Private Methods #
 
