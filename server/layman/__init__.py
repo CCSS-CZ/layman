@@ -148,12 +148,12 @@ class LayMan:
                 from layed import LayEd
                 le = LayEd(config)
                 inpt = web.input(group=None)
-                if not inpt.name:
+                if not inpt.layerName:
                     pass #TODO - name required
                 fsDir       = self.auth.getFSDir()
                 dbSchema    = self.auth.getDBSchema()
                 gsWorkspace = self.auth.getGSWorkspace(inpt.group)
-                retval      = le.publish(fsDir, dbSchema, gsWorkspace, name)
+                retval      = le.publish(fsDir, dbSchema, gsWorkspace, layerName)
                 return retval
         else:
             self._setReturnCode(404)
