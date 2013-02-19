@@ -57,6 +57,7 @@ class LayEd:
         from layman.geoserver import GeoServer
         gs = GeoServer(self.config)
         gs.createFeatureStore(filePathNoExt, gsWorkspace, dataStoreName = fileNameNoExt)
+        return fileNameNoExt
 
     # Import
 

@@ -154,8 +154,9 @@ class LayMan:
                 fsDir       = self.auth.getFSDir()
                 dbSchema    = self.auth.getDBSchema()
                 gsWorkspace = self.auth.getGSWorkspace(inpt.group)
-                retval      = le.publish(fsDir, dbSchema, gsWorkspace, fileName)
-                return retval
+                layerName      = le.publish(fsDir, dbSchema, gsWorkspace, fileName)
+                return "{success: true, message: 'File [%s] published as layer [%s] published'}" %\
+                    (fileName, layerName)
         else:
             self._setReturnCode(404)
             return "Call not supported. I'm sorry, mate..."
