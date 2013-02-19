@@ -27,12 +27,16 @@ class LayEd:
             from layman import config
             self.config =  config
 
-    def publish(self, filePath, dbSchema, gsWorkspace, name):
+    def publish(self, fsDir, dbSchema, gsWorkspace, fileName):
         """ Main publishing function. 
             Group ~ db Schema ~ gs Data Store ~ gs Workspace
         """
+        filePath = os.path.realpath( os.path.join( fsDir,fileName) )
+
         # filePath = os.path.realpath( os.path.join(fsDir,name+".shp") )
-        filePath = os.path.splitext(filePath)[0]
+        filePathNoExt = os.path.splitext(filePath)[0]
+
+        fileNameNoExt = os.path.splitext(fileName)[0]
 
         # TODO - check the GS workspace and create it if it does not exist 
         # if...
@@ -50,7 +54,7 @@ class LayEd:
    
         from layman.geoserver import GeoServer
         gs = GeoServer()
-        retval = gs.createFeatureStore(filePath, gsWorkspace, name)
+        retval = gs.createFeatureStore(fileNameNoExt, filePathNoExt, gsWorkspace)
         return retval
 
     # Import
