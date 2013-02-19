@@ -13,11 +13,13 @@ class LayEdTestCase(unittest.TestCase):
 
     le = None # LayEd
     workdir = None
+    cfg = None
 
     def setUp(self):
         cfg = ConfigParser.SafeConfigParser()
         cfg.read((os.path.join(TEST_DIR,"tests.cfg")))
         self.le = LayEd(cfg)
+        self.cfg = cfg
 
         self.workdir = os.path.abspath(os.path.join(TEST_DIR,"workdir","data"))
 
@@ -82,6 +84,24 @@ class LayEdTestCase(unittest.TestCase):
             print "Database error (trying to select from the test table): " 
             print e
             raise e
+
+    def test_publish(self):
+        from geoserver.catalog import Catalog
+        gsUrl = self.cfg.get("GeoServer", "url")
+        gsUser = self.cfg.get("GeoServer", "user")
+        gsPassword = self.cfg.get("GeoServer", "password")
+        self.direct_gs = Catalog(gsUrl, gsUser, gsPassword)
+
+        # Intro
+        self.assertEquals( True, None == self.direct_gs.get_layer("line_crs"), "The layer line_crs already exists. Please, remove it manually." )
+        #self.assertEquals( True, None == self.direct_gs.get_store("line_crs"), "The store line_crs already exists. Please, remove it manually." )
+
+        # Action
+        self.le.publish(fsDir=self.workdir, dbSchema=None, gsWorkspace="TestWS", fileName="line_crs.shp")
+
+        # Test
+        self.assertEquals( False, None == self.direct_gs.get_layer("line_crs"), "The layer line_crs is not there. Was it created under another name?" )
+
 
 if __name__ == "__main__":
    suite = unittest.TestLoader().loadTestsFromTestCase(LayEdTestCase)
