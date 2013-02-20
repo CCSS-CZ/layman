@@ -72,6 +72,60 @@ class GsRest:
         headers, response =  self.h.request(url,'DELETE')
         return headers, response        
 
+    ### DATA STORES ###
+
+    def getDataStores(self, workspace):
+        url = self.url + "/workspaces/" + workspace + "/datasores.json"
+        headers, response =  self.h.request(url,'GET')
+        return headers, response        
+
+    def postDataStores(self, workspace, data):
+        url = self.url + "/workspaces/" + workspace + "/datasores.json"
+        headers, response =  self.h.request(url,'POST', data)
+        return headers, response        
+
+    def getDataStore(self, workspace, name):
+        url = self.url + "/workspaces/" + workspace + "/datasores/" +  name + ".json"
+        headers, response =  self.h.request(url,'GET')
+        return headers, response        
+
+    def putDataStore(self, workspace, name, data):
+        url = self.url + "/workspaces/" + workspace + "/datasores/" + name + ".json"
+        headers, response =  self.h.request(url,'PUT',data)
+        return headers, response        
+
+    def deleteDataStore(self, workspace, name):
+        url = self.url + "/workspaces/" + workspace + "/datasores/" + name + ".json"
+        headers, response =  self.h.request(url,'DELETE')
+        return headers, response        
+
+    ### WORKSPACES ###
+
+    def getWorkspaces(self):
+        url = self.url + "/workspaces.json"
+        headers, response =  self.h.request(url,'GET')
+        return headers, response        
+
+    def postWorkspaces(self, data):
+        url = self.url + "/workspaces.json"
+        headers, response =  self.h.request(url,'POST', data)
+        return headers, response        
+
+    def getWorkspace(self, name):
+        url = self.url + "/workspaces/" +  name + ".json"
+        headers, response =  self.h.request(url,'GET')
+        return headers, response        
+
+    def putWorkspace(self, name, data):
+        url = self.url + "/workspaces/" + name + ".json"
+        headers, response =  self.h.request(url,'PUT',data)
+        return headers, response        
+
+    def deleteDataStore(self, name):
+        url = self.url + "/workspaces/" + name + ".json"
+        headers, response =  self.h.request(url,'DELETE')
+        return headers, response        
+
     ### PRIVATE ###
 
     def _setHttp(self):
