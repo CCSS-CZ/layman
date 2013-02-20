@@ -68,7 +68,7 @@ class LaymanAuth:
 
         return dirname
 
-    def getDBSchema(self):
+    def getDBSchema(self, desired=None):
         pass
     
     def getGSWorkspace(self,desired=None):
@@ -176,7 +176,7 @@ class LaymanAuthLiferay(LaymanAuth):
         else: 
             raise AuthError("Cannot determine the working directory - Liferay did not provide user's screenName")
 
-    def getDBSchema(self, desired):
+    def getDBSchema(self, desired=None):
         """ Role ~ Schema. Uses getRole()
         """
         return self.getRole(desired)

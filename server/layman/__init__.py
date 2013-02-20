@@ -154,7 +154,7 @@ class LayMan:
                 fsDir       = self.auth.getFSDir()
                 dbSchema    = self.auth.getDBSchema()
                 gsWorkspace = self.auth.getGSWorkspace(inpt.group)
-                layerName      = le.publish(fsDir, dbSchema, gsWorkspace, fileName)
+                layerName   = le.publish(fsDir, dbSchema, gsWorkspace, fileName)
                 return "{success: true, message: 'File [%s] published as layer [%s] published'}" %\
                     (fileName, layerName)
         else:

@@ -26,7 +26,6 @@ class GsRest:
     ### LAYERS ###
 
     def getLayers(self):
-
         url = self.url + "/layers.json"
         headers, response =  self.h.request(url,'GET')
         return headers, response
@@ -36,16 +35,42 @@ class GsRest:
         headers, response =  self.h.request(url,'GET')
         return headers, response        
 
+    def putLayer(self, workspace, name, data):
+        url = self.url + "/layers/" + workspace + ":" + name + ".json"
+        headers, response =  self.h.request(url,'PUT', data)
+        return headers, response        
+
+    def deleteLayer(self, workspace, name):
+        url = self.url + "/layers/" + workspace + ":" + name + ".json"
+        headers, response =  self.h.request(url,'DELETE')
+        return headers, response        
+
+    ### FEATURE TYPES ###
+
+    def getFeatureTypes(self, workspace, datastore):
+        url = self.url + "/workspaces/" + workspace + "/datasores/" + datastore + "/featuretypes.json"
+        headers, response =  self.h.request(url,'GET')
+        return headers, response        
+
+    def postFeatureTypes(self, workspace, datastore, data):
+        url = self.url + "/workspaces/" + workspace + "/datasores/" + datastore + "/featuretypes.json"
+        headers, response =  self.h.request(url,'POST', data)
+        return headers, response        
+
     def getFeatureType(self, workspace, datastore, name):
         url = self.url + "/workspaces/" + workspace + "/datasores/" + datastore + "/featuretypes/" + name + ".json"
         headers, response =  self.h.request(url,'GET')
         return headers, response        
 
-    def putLayer(self):
-        pass # TODO
+    def putFeatureType(self, workspace, datastore, name, data):
+        url = self.url + "/workspaces/" + workspace + "/datasores/" + datastore + "/featuretypes/" + name + ".json"
+        headers, response =  self.h.request(url,'PUT',data)
+        return headers, response        
 
-    def putFeatureType(self):
-        pass # TODO
+    def deleteFeatureType(self, workspace, datastore, name):
+        url = self.url + "/workspaces/" + workspace + "/datasores/" + datastore + "/featuretypes/" + name + ".json"
+        headers, response =  self.h.request(url,'DELETE')
+        return headers, response        
 
     ### PRIVATE ###
 
