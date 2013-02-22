@@ -8,7 +8,7 @@ url=http://www.envirogrids.cz/g4i-portlet/service/sso/validate/
 [FileMan]
 homedir=/var/www/wwwlibs/layman/
 
-[LayEd]
+[DbMan]
 dbname=erra
 dbuser=erra
 dbhost=erra.ccss.cz
