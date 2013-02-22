@@ -28,6 +28,7 @@ Ext4.define("HSRS.LayerManager.FilesPanel.Preview", {
 
         this.callParent(arguments);
         this.on("afterlayout",this._onAfterLayout,this);
+        this.on("destroy",this._onDestroy,this);
     },
 
     _onAfterLayout: function() {
@@ -68,5 +69,10 @@ Ext4.define("HSRS.LayerManager.FilesPanel.Preview", {
             this.map.zoomToExtent(bounds);
         }
 
+    },
+
+    _onDestroy: function() {
+        this.map.destroy();
     }
+
 });
