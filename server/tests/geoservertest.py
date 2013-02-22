@@ -8,12 +8,12 @@ sys.path.append(os.path.join(INSTALL_DIR))
 
 # TODO: add tests for testing http GET, POST... methods beside the gs.get_style... functions
 
-from layman.geoserver import GeoServer
+from layman.geoserver import GsConfig
 from geoserver.catalog import Catalog
 
 style="""<?xml version="1.0" encoding="UTF-8"?><sld:StyledLayerDescriptor xmlns="http://www.opengis.net/sld" xmlns:sld="http://www.opengis.net/sld" xmlns:ogc="http://www.opengis.net/ogc" xmlns:gml="http://www.opengis.net/gml" version="1.0.0"><sld:NamedLayer><sld:Name>tmp_polygon</sld:Name><sld:UserStyle><sld:Name>tmp_polygon</sld:Name><sld:Title>Default Polygon</sld:Title><sld:Abstract>A sample style that draws a polygon</sld:Abstract><sld:FeatureTypeStyle><sld:Name>name</sld:Name><sld:Rule><sld:Name>rule1</sld:Name><sld:Title>Gray Polygon with Black Outline</sld:Title><sld:Abstract>A polygon with a gray fill and a 1 pixel black outline</sld:Abstract><sld:PolygonSymbolizer><sld:Fill><sld:CssParameter name="fill">#CC3333</sld:CssParameter></sld:Fill><sld:Stroke/></sld:PolygonSymbolizer></sld:Rule></sld:FeatureTypeStyle></sld:UserStyle></sld:NamedLayer></sld:StyledLayerDescriptor>"""
 
-class GeoServerTestCase(unittest.TestCase):
+class GsConfigTestCase(unittest.TestCase):
     """Test of the file manager"""
 
     gs = None
@@ -22,7 +22,7 @@ class GeoServerTestCase(unittest.TestCase):
     def setUp(self):
         cfg = ConfigParser.SafeConfigParser()
         cfg.read((os.path.join(TEST_DIR,"tests.cfg")))
-        self.gs = GeoServer(cfg)
+        self.gs = GsConfig(cfg)
 
         self.workdir = os.path.abspath(os.path.join(TEST_DIR,"workdir","data"))
 
@@ -122,5 +122,5 @@ class GeoServerTestCase(unittest.TestCase):
         # FIXME: UploadError: SLD file styles/tmp_polygon.sld.sld already exists.
 
 if __name__ == "__main__":
-   suite = unittest.TestLoader().loadTestsFromTestCase(GeoServerTestCase)
+   suite = unittest.TestLoader().loadTestsFromTestCase(GsConfigTestCase)
    unittest.TextTestRunner(verbosity=2).run(suite)

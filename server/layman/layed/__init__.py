@@ -54,8 +54,8 @@ class LayEd:
 
         # Here the Data Store should exist
    
-        from layman.geoserver import GeoServer
-        gs = GeoServer(self.config)
+        from layman.geoserver import GsConfig
+        gs = GsConfig(self.config)
         gs.createFeatureStore(filePathNoExt, gsWorkspace, dataStoreName = fileNameNoExt)
         return fileNameNoExt
 
@@ -112,8 +112,8 @@ class LayEd:
 
     def getLayersGsconfig(self, workspace=None): 
         """returns list of layers"""
-        from layman.geoserver import GeoServer
-        gs = GeoServer()
+        from layman.geoserver import GsConfig
+        gs = GsConfig()
 
         code = 200
         layers =  gs.getLayers() # TODO: select only those from the given workspace

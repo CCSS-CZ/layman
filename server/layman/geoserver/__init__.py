@@ -9,7 +9,7 @@ import logging
 
 from geoserver.catalog import Catalog
 
-class GeoServer:
+class GsConfig:
     """GeoServer proxy in Layman
     """
 
