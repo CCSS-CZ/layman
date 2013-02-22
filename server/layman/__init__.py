@@ -98,7 +98,7 @@ class LayMan:
                     retval = le.getWorkspace(path[2])
 
         elif path[0] == "geoserver":
-            from geoserver import GsConfig
+            from layed.gsconfig import GsConfig
             g = GsConfig()
             code = 200
 
@@ -182,7 +182,7 @@ class LayMan:
             self._setReturnCode(code)
             return retval
         elif path[0] == "geoserver":
-            from geoserver import GsConfig
+            from layed.gsconfig import GsConfig
             gs = GsConfig()
 
             # /geoserver/style/style_name
