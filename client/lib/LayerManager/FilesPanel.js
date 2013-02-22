@@ -66,28 +66,22 @@ Ext4.define("HSRS.LayerManager.FilesPanel", {
 
         myconfig.columns = [ 
             // icon column
-            {
-                xtype: 'templatecolumn',
-                text: ' ',
-                width: 22,
-                flex: 0,
-                sortable: true,
-                dataIndex: 'mimetype',
-                align: 'center',
-                //add in the custom tpl for the rows
-                tpl: Ext4.create('Ext4.XTemplate', '{mimetype:this.formatType}', {
-                    formatType: function(v) {
-                        var img = "type_file.png";
-                        switch(v) {
-                            case "application/x-zipped-shp":
-                                img = "type_shp.png";
-                            break;
-                        }
+            //{
+            //    xtype: 'templatecolumn',
+            //    text: ' ',
+            //    width: 22,
+            //    flex: 0,
+            //    sortable: true,
+            //    dataIndex: 'type',
+            //    align: 'center',
+            //    //add in the custom tpl for the rows
+            //    tpl: Ext4.create('Ext4.XTemplate', '{type:this.formatType}', {
+            //        formatType: function(v) {
 
-                        return '<img src="'+HSRS.IMAGE_LOCATION+img+'" />';
-                    }
-                })
-            },
+            //            return '<img src="'+HSRS.IMAGE_LOCATION+v+'-type.png" />';
+            //        }
+            //    })
+            //},
             // filename column
             {
                 text: "Name",
@@ -98,18 +92,23 @@ Ext4.define("HSRS.LayerManager.FilesPanel", {
             // file type
             {
                 xtype: 'templatecolumn',
-                width: 35,
+                width: 100,
                 text: "Type",
                 flex: 0,
                 sortable: true,
                 dataIndex: "mimetype",
                 tpl: Ext4.create('Ext4.XTemplate', '{mimetype:this.formatType}', {
                     formatType: function(v) {
+                        var type = "";
+
                         switch(v) {
                             case "application/x-zipped-shp":
-                                return  "SHP";
-                            break;
+                            case "application/x-qgis":
+                                type =   "ESRI Shapefile";
+                                break;
                         }
+                        return type;
+
                     }
                 })
             },
@@ -119,11 +118,11 @@ Ext4.define("HSRS.LayerManager.FilesPanel", {
                 text: "Size",
                 sortable: true,
                 flex: 0,
-                width: 45,
+                width: 75,
                 dataIndex: "size",
                 tpl: Ext4.create('Ext4.XTemplate', '{size:this.formatSize}', {
-                    formatSize: function(v) {
-                        return String(v);
+                    formatSize: function(filesize) {
+                        return HSRS.formatSize(filesize);
                     }
                 })
             },

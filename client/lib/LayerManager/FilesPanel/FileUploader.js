@@ -100,7 +100,8 @@ Ext4.define("HSRS.LayerManager.FilesPanel.FileUploader", {
         // make sure, file name does not exist yet
         var filename = values.newfilename || this.items.get(1).value.replace("C:\\fakepath\\","");
 
-        if (this.filesnames.indexOf(filename) > -1) {
+        if (this.filesnames.indexOf(filename) > -1 ||
+            this.filesnames.indexOf(filename+".shp") > -1) {
             Ext4.MessageBox.alert("File name exists",
                     "File name ["+filename+"] exists, choose different name.");
             return false;

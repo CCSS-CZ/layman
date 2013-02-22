@@ -7,12 +7,14 @@ Ext4.define("HSRS.LayerManager.FilesPanel.FileMenu", {
     
     extend: "Ext4.menu.Menu",
 
-    requires:["HSRS.LayerManager.PublishForm"],
+    requires:["HSRS.LayerManager.PublishForm",
+              "HSRS.LayerManager.FilesPanel.Preview"],
 
     file: undefined,
     data: undefined, 
     url: undefined,
     record: undefined,
+    prj: undefined,
     
     /**
      * @constructor
@@ -27,52 +29,69 @@ Ext4.define("HSRS.LayerManager.FilesPanel.FileMenu", {
         config.items = [
             {
                 plain: true,
-                text: "Size: "+config.data.size
+                text: HSRS.formatSize(config.data.size),
+                renderTpl: [ '<b>Size: </b>{text}' ]
             },
             {
                 plain: true,
-                text: "Projection: "+config.data.prj
+                text: config.data.prj,
+                renderTpl: [ '<b>Projection: </b>{text}' ]
             },
             {
                 plain: true,
-                text: "Date: "+config.data.date
+                text: config.data.date,
+                renderTpl: [ '<b>Date: </b>{text}' ]
             },
             {
                 plain: true,
-                text: "Type: "+config.data.mimetype
+                text: config.data.mimetype,
+                renderTpl: [ '<b>Type: </b>{text}' ]
             },
             {
                 plain: true,
-                text: "Features count: "+config.data.features
+                text: config.data.features_count,
+                renderTpl: [ '<b>Features count: </b>{text}' ]
             },
             {
                 plain: true,
-                text: "Geometry: "+config.data.geomtype
+                text: config.data.type,
+                renderTpl: [ '<b>Geometry type </b>{text}' ]
             },
             {
-                xtype: "menuseparator"
+                plain: true,
+                text: config.data.prj,
+                renderTpl: [ '<b>Projection: </b>{text}' ]
+            },
+            { xtype: "menuseparator" },
+            {
+                text: "Publish",
+                icon: HSRS.IMAGE_LOCATION+"/map_go.png",
+                scope: this,
+                handler: this._onUploadClicked
             },
             {
                 text: "Download",
+                icon: HSRS.IMAGE_LOCATION+"/download.png",
                 href: this.url + "/" + config.data.name,
                 hrefTarget: "_blank"
-            },
-            {
-                xtype: "menuseparator"
             },
             {
                 text: "Delete",
                 icon: HSRS.IMAGE_LOCATION+"/delete.png",
                 scope: this,
                 handler: this._onDeleteClicked
-            },
-            {
-                text: "Publish",
-                icon: HSRS.IMAGE_LOCATION+"/import.png",
-                scope: this,
-                handler: this._onUploadClicked
             }
         ];
+
+        if (window.OpenLayers) {
+            config.items.push( { xtype: "menuseparator" });
+            config.items.push( {
+                    text: "Preview",
+                    icon: HSRS.IMAGE_LOCATION+"/map.png",
+                    scope: this,
+                    handler: this._previewClicked
+                });
+        }
 
         this.callParent(arguments);
 
@@ -86,6 +105,27 @@ Ext4.define("HSRS.LayerManager.FilesPanel.FileMenu", {
      */
     _onDeleteClicked: function() {
         this.fireEvent("filedeleted",this.record);
+    },
+
+    /**
+     * preview data
+     * @private
+     */
+    _previewClicked: function() {
+        var preview = Ext4.create("HSRS.LayerManager.FilesPanel.Preview",
+                {
+                    data: this.data
+                });
+        preview._win = Ext4.create("Ext4.window.Window", {
+            title: "Preview of "+this.data.name+" extent",
+            height: 200,
+            width: 400,
+            layout: "fit",
+            items: [
+                preview
+            ]
+        });
+        preview._win.show();
     },
 
     /**
