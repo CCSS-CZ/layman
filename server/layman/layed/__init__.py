@@ -122,11 +122,11 @@ class LayEd:
         return (code,layers)
 
     def getLayers(self, workspace=None):
-        from geoserv import GsRest
-        gs = GsRest()
+        from gsrest import GsRest
+        gsr = GsRest()
 
         code = 200
-        layers = gs.getLayers()
+        layers = gsr.getLayers()
 
         return layers
 

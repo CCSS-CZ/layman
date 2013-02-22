@@ -8,7 +8,7 @@ sys.path.append(os.path.join(INSTALL_DIR))
 
 # TODO: add tests for testing http GET, POST... methods beside the function calls
 
-from layman.layed.geoserv import GsRest
+from layman.layed.gsrest import GsRest
 
 class GsRestTestCase(unittest.TestCase):
 
