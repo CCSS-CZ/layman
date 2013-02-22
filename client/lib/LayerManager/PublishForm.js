@@ -128,13 +128,13 @@ Ext4.define("HSRS.LayerManager.PublishForm", {
                                     {
                                         name:"maxy",
                                         xtype: "textfield",
-                                        value: (config.extend ? config.extent[0] : "")
+                                        value: (config.extent ? config.extent[3] : "")
                                     },
                                     { html :' ' },
                                     {
                                         name:"minx",
                                         xtype: "textfield",
-                                        value: (config.extent ? config.extent[1]: "")
+                                        value: (config.extent ? config.extent[0]: "")
                                     },
                                     { html :' ' },
                                     {
@@ -146,7 +146,7 @@ Ext4.define("HSRS.LayerManager.PublishForm", {
                                     {
                                         name:"miny",
                                         xtype: "textfield",
-                                        value: (config.extent ? config.extent[3] :"")
+                                        value: (config.extent ? config.extent[1] :"")
                                     },
                                     { html :' ' }
                                 ]

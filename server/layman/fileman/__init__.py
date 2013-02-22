@@ -6,12 +6,16 @@ import os, sys
 import mimetypes, time
 import json
 import logging
+import zipfile
+from osgeo import ogr
+from osgeo import gdal
 
 class FileMan:
     """File manager of LayMan
     """
 
     config = None
+    tempdir = None
 
     def __init__(self,config = None):
         """constructor
@@ -19,6 +23,12 @@ class FileMan:
 
         ## get configuration parser
         self._setConfig(config)
+
+        # create tempdir
+        self.tempdir = self.config.get("FileMan","tempdir")
+        if not os.path.exists(self.tempdir):
+            os.mkdir(self.tempdir)
+
 
     #
     # GET methods
@@ -123,6 +133,7 @@ class FileMan:
             details["date"] = str(filetime)
             details["mimetype"] = mimetypes.guess_type("file://"+fileName)[0]
             # TODO: more to be done
+            details = self.get_gis_attributes(fileName, details)
 
             files_json = json.dumps(details)
 
@@ -158,9 +169,8 @@ class FileMan:
 
 
                 # handle zip files
-                (root_name, suffix) = os.path.splitext(fileName)
                 msg = None
-                if suffix == ".zip":
+                if zipfile.is_zipfile(filePath):
                     (fileName,msg) = self._unzipFile(filePath)
                 if fileName:
                     logging.debug("File [%s] successfully uploaded"% fileName)
@@ -204,6 +214,68 @@ class FileMan:
         except Exception as e:
             return (500, "{success: false, message: '%s'}" % e)
 
+    def get_gis_attributes(self,fileName, attrs):
+        """Append more gis attributes of given file to attrs hash
+        """
+        
+        # try vector
+        ds = ogr.Open(fileName)
+        # opening vector success
+        if ds:
+            attrs = self._get_vector_attributes(ds,attrs)
+
+        # try raster
+        else:
+            ds = gdal.Open(os.path.join(sourceDir,fileName))
+
+            # opening raster success
+            if ds:
+                attrs = self._get_raster_attributes( ds,attrs)
+            # no gis data
+            else:
+                pass
+
+        return attrs
+
+    def _get_vector_attributes(self,ds,attrs):
+
+        layer = ds.GetLayer()
+
+        # extent
+        extent = layer.GetExtent()
+        attrs["extent"] = (extent[0],extent[2],extent[1],extent[3])
+
+        # features count
+        attrs["features_count"] = layer.GetFeatureCount()
+
+        # geom type
+        ftype = layer.GetGeomType()
+        if ftype == ogr.wkbPolygon:    #3
+            attrs["type"] = "polygon"
+        elif ftype == ogr.wkbPoint:    #1
+            attrs["type"] = "point"
+        elif ftype == ogr.wkbLineString:   #2
+            attrs["type"] = "line"
+        else: 
+            attrs["type"] = "none/unknown"  # 0 or anything else
+
+        # srs
+        sr = layer.GetSpatialRef()
+        sr.AutoIdentifyEPSG()
+
+        if sr.IsGeographic() == 1:  # this is a geographic srs
+            cstype = 'GEOGCS'
+        else:  # this is a projected srs
+            cstype = 'PROJCS'
+        an = sr.GetAuthorityName(cstype)
+        ac = sr.GetAuthorityCode(cstype)
+        attrs["prj"]="%s:%s"%(an,ac)
+
+        # Done
+        return attrs
+
+    def _get_raster_attributes(self,ds,attrs):
+        return attrs
 
     def _deleteShapeFile(self, fileName):
         """Delete all files, belonging to this shapefile
@@ -228,25 +300,41 @@ class FileMan:
         """Extract shapefiles from zipped file
         """
 
-        import zipfile
-        target = os.path.split(zfile)[0]
+        (target_dir,target_name) = os.path.split(zfile)
+        (target_root,target_suffix) = os.path.splitext(target_name)
         zf  = zipfile.ZipFile(zfile)
-        zf.extractall(path=target)
+
+        # exctarct zip into temporary location
+        zf.extractall(path=self.tempdir)
 
         files = zf.namelist()
+        tempfiles = []
         fileName = None
-        for fn in files:
-            (root, suffix) = os.path.splitext(fn)
-            if suffix == ".shp":
-                fileName = fn
 
+        # rename files to target location with new name
+        for shape_file_part in files:
+            (root, suffix) = os.path.splitext(shape_file_part)
+            # rename file as desired
+            os.rename(os.path.join(self.tempdir,shape_file_part),os.path.join(target_dir,target_root+suffix))
+            shape_file_part = target_root+suffix
+            tempfiles.append(shape_file_part)
+            if suffix == ".shp":
+                fileName = shape_file_part
+
+        # remote original zip
         os.remove(zfile)
 
         # check
+        for shape_file_part in files:
+            if os.path.exists(os.path.join(self.tempdir, shape_file_part)):
+                os.remove(os.path.join(self.tempdir, shape_file_part))
+
         if not fileName:
+            for file_name in tempfiles:
+                if os.path.exists(os.path.join(self.tempdir, file_name)):
+                    os.remove(os.path.join(self.tempdir, file_name))
             # clear
-            for fn in files:
-                os.remove(os.path.join(target, fn))
             return (None, "No shapefile content")
         else:
             return (fileName, "%s unzipped" % zfile)
+
