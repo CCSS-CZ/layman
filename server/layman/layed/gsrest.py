@@ -17,6 +17,11 @@ class GsRest:
     h = None        # Http()
     url = None      # http://erra.ccss.cz/geoserver/rest
 
+    jsonHeader = {
+        "Content-type": "application/json"#,
+        #"Accept": "application/json"
+    }
+
     def __init__(self,config = None):
         """constructor
         """
@@ -37,7 +42,7 @@ class GsRest:
 
     def putLayer(self, workspace, name, data):
         url = self.url + "/layers/" + workspace + ":" + name + ".json"
-        headers, response =  self.h.request(url,'PUT', data)
+        headers, response =  self.h.request(url,'PUT', data, self.jsonHeader)
         return headers, response        
 
     def deleteLayer(self, workspace, name):
@@ -54,7 +59,7 @@ class GsRest:
 
     def postFeatureTypes(self, workspace, datastore, data):
         url = self.url + "/workspaces/" + workspace + "/datasores/" + datastore + "/featuretypes.json"
-        headers, response =  self.h.request(url,'POST', data)
+        headers, response =  self.h.request(url,'POST', data, self.jsonHeader)
         return headers, response        
 
     def getFeatureType(self, workspace, datastore, name):
@@ -64,7 +69,7 @@ class GsRest:
 
     def putFeatureType(self, workspace, datastore, name, data):
         url = self.url + "/workspaces/" + workspace + "/datasores/" + datastore + "/featuretypes/" + name + ".json"
-        headers, response =  self.h.request(url,'PUT',data)
+        headers, response =  self.h.request(url,'PUT',data, self.jsonHeader)
         return headers, response        
 
     def deleteFeatureType(self, workspace, datastore, name):
@@ -81,7 +86,7 @@ class GsRest:
 
     def postDataStores(self, workspace, data):
         url = self.url + "/workspaces/" + workspace + "/datasores.json"
-        headers, response =  self.h.request(url,'POST', data)
+        headers, response =  self.h.request(url,'POST', data, self.jsonHeader)
         return headers, response        
 
     def getDataStore(self, workspace, name):
@@ -91,7 +96,7 @@ class GsRest:
 
     def putDataStore(self, workspace, name, data):
         url = self.url + "/workspaces/" + workspace + "/datasores/" + name + ".json"
-        headers, response =  self.h.request(url,'PUT',data)
+        headers, response =  self.h.request(url,'PUT',data, self.jsonHeader)
         return headers, response        
 
     def deleteDataStore(self, workspace, name):
@@ -108,7 +113,7 @@ class GsRest:
 
     def postWorkspaces(self, data):
         url = self.url + "/workspaces.json"
-        headers, response =  self.h.request(url,'POST', data)
+        headers, response =  self.h.request(url,'POST', data, self.jsonHeader)
         return headers, response        
 
     def getWorkspace(self, name):
@@ -118,11 +123,33 @@ class GsRest:
 
     def putWorkspace(self, name, data):
         url = self.url + "/workspaces/" + name + ".json"
-        headers, response =  self.h.request(url,'PUT',data)
+        headers, response =  self.h.request(url,'PUT',data, self.jsonHeader)
         return headers, response        
 
     def deleteDataStore(self, name):
         url = self.url + "/workspaces/" + name + ".json"
+        headers, response =  self.h.request(url,'DELETE')
+        return headers, response        
+
+    ### GENERAL ###
+
+    def getUrl(self, url):
+        """ Get given url, authenticated."""
+        headers, response =  self.h.request(url,'GET')
+        return headers, response        
+
+    def postUrl(self, url, data):
+        """ Post given url, authenticated."""
+        headers, response =  self.h.request(url,'POST', data, self.jsonHeader)
+        return headers, response        
+
+    def putUrl(self, url, data):
+        """ Put given url, authenticated."""
+        headers, response =  self.h.request(url,'PUT', data, self.jsonHeader)
+        return headers, response        
+
+    def deleteUrl(self, url):
+        """ Delete given url, authenticated."""
         headers, response =  self.h.request(url,'DELETE')
         return headers, response        
 

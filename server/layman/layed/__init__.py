@@ -4,6 +4,8 @@
 #TODO: class ServerMan, GeoServ, MapServ and DbMan
 
 import os
+import json
+from gsrest import GsRest
 
 class LayEd:
     """Layer editor and manager
@@ -26,6 +28,8 @@ class LayEd:
         else:
             from layman import config
             self.config =  config
+
+    ### LAYERS ###
 
     def publish(self, fsDir, dbSchema, gsWorkspace, fileName):
         """ Main publishing function. 
@@ -59,59 +63,9 @@ class LayEd:
         gs.createFeatureStore(filePathNoExt, gsWorkspace, dataStoreName = fileNameNoExt)
         return fileNameNoExt
 
-    # Import
-
-    def importShapeFile(self,filePath): 
-        """import given file to database, 
-        """
-        # shp2pgsql #
-
-        import subprocess
-        try: 
-            # viz tez:http://www.moosechips.com/2010/07/python-subprocess-module-examples/
-            sqlBatch = subprocess.check_output(['shp2pgsql',filePath])
-        except subprocess.CalledProcessError as e:
-            print "shp2pgsql error:"
-            print e
-            pass # TODO
- 
-        # import - run the batch through psycopg2 #
-
-        #TODO: USE PROPER DATABASE SCHEMA!!!
-
-        import psycopg2
-
-        dbname = self.config.get("LayEd","dbname")
-        dbuser = self.config.get("LayEd","dbuser")
-        dbhost = self.config.get("LayEd","dbhost")
-        dbpass = self.config.get("LayEd","dbpass")
-        connectionString = "dbname='"+dbname+"' user='"+dbuser+"' host='"+dbhost+"' password='"+dbpass+"'"
-
-        try:
-            # connect
-            conn = psycopg2.connect(connectionString)
- 
-            # execute
-            cur = conn.cursor()
-            cur.execute(sqlBatch) # TODO check the success
-            conn.commit()
-        
-            #close
-            cur.close()
-            conn.close()
-        except Exception as e:
-            print "Database error: " #TODO
-            print e
-        
-        #TODO return table name
-
-    def createDataStore(self):
-        pass # TODO
-
-    # Layers
-
-    def getLayersGsconfig(self, workspace=None): 
+    def getLayersGsConfig(self, workspace=None): 
         """returns list of layers"""
+        # May be we can remove this one
         from gsconfig import GsConfig
         gs = GsConfig()
 
@@ -122,7 +76,6 @@ class LayEd:
         return (code,layers)
 
     def getLayers(self, workspace=None):
-        from gsrest import GsRest
         gsr = GsRest()
 
         code = 200
@@ -130,23 +83,88 @@ class LayEd:
 
         return layers
 
-    def addLayer(self,datasourceName,layerName=None,layerParams=None):  
-        """creates new dataset + configures new layer"""
-        pass # TODO
+    def deleteLayer(self, workspace, layer): 
+        """Delete the Layer and the Corresponding Feature Type
+        """
+        gsr = GsRest(self.config)
+        
+        # Find the Feature Type
+        headers, response = gsr.getLayer(workspace,layer)
+        # TODO: check the result
+        ftUrl = layerJson["layer"]["resource"]["href"]
 
-    def deleteLayer(self): 
-        """removes layers from database + from mapping server"""
-        pass # TODO
+        # Delete Layer
+        headers, response = gsr.deleteLayer(workspace,layer)
+        # TODO: check the result
 
-    def getLayerParams(self,layer_id): 
-        """returns informations about layer"""
-        pass # TODO
+        # Delete Feature Type
+        headers, response = gsr.deleteUrl(ftUrl)
+        # TODO: check the result and return st.
 
-    def setLayerParams(layer_id,params=None): 
-        """sets informations about layer, including service metadata (in cooperation with given catalogue service)"""
-        pass # TODO
+    ### LAYER CONFIG ###
 
-    # Workspaces
+    def getLayerConfig(self, workspace, layerName):
+        """ This function combines two things together:
+        {{Layer}{FeatureType}}, both in json. 
+        Type of the return value is string."""
+        gsr = GsRest(self.config)
+
+        # GET Layer
+        headers, response = gsr.getLayer(workspace, layerName)
+        # TODO: check the result
+        layerJson = json.loads(response)
+
+        # NOTE: here we assume Feature Type
+        # Needs to be extended for Coverages etc.
+
+        # GET Feature Type
+        ftUrl = layerJson["layer"]["resource"]["href"]
+        headers, response = gsr.getUrl(ftUrl)
+        #print "*** GET CONFIG***"
+        #print headers
+
+        # TODO: check the response
+        featureTypeJson = json.loads(response)
+
+        # Return
+        retval = {}
+        retval["layer"] = layerJson["layer"]
+        retval["featureType"] = featureTypeJson["featureType"]
+        retval = json.dumps(retval)
+        return retval
+
+    def putLayerConfig(self, workspace, layerName, data):
+        """ This function expects two things together:
+        {{Layer}{FeatureType}}, both in json.
+        Expected type of data is string."""        
+        gsr = GsRest(self.config)
+        data = json.loads(data)
+
+        # TODO: check, that layer.resource.href 
+        # is referrencing the proper feature type
+
+        # Feature Type
+        featureTypeJson = data["featureType"]
+        ftUrl = data["layer"]["resource"]["href"]
+        featureTypeString = json.dumps(featureTypeJson)
+        headers, response = gsr.putUrl(ftUrl, featureTypeString)
+        # TODO: check the reuslt
+
+        #print "$$$ FEATURE TYPE $$$"
+        #print headers
+        #print response
+
+        # Layer
+        layerJson = data["layer"]
+        layerString = json.dumps(layerJson)
+        headers, response = gsr.putLayer(workspace, layerName, layerString)
+        # TODO: check the reuslt and return st.
+
+        #print "### LAYER ###"
+        #print headers
+        #print response
+
+    ### WORKSPACES ###
 
     def getWorkspaces(self): 
         """json of workspaces, eventually with layers"""
