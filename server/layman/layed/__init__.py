@@ -138,31 +138,24 @@ class LayEd:
         {{Layer}{FeatureType}}, both in json.
         Expected type of data is string."""        
         gsr = GsRest(self.config)
-        data = json.loads(data)
+        data = json.loads(data) # string -> json
 
         # TODO: check, that layer.resource.href 
         # is referrencing the proper feature type
 
-        # Feature Type
-        featureTypeJson = data["featureType"]
-        ftUrl = data["layer"]["resource"]["href"]
-        featureTypeString = json.dumps(featureTypeJson)
-        headers, response = gsr.putUrl(ftUrl, featureTypeString)
+        # PUT Feature Type
+        featureTypeJson = {}
+        featureTypeJson["featureType"] = data["featureType"] # Extract Feature Type
+        ftUrl = data["layer"]["resource"]["href"]            # Extract Feature Type URL
+        featureTypeString = json.dumps(featureTypeJson)      # json -> string
+        headers, response = gsr.putUrl(ftUrl, featureTypeString) # PUT Feature Type
         # TODO: check the reuslt
 
-        #print "$$$ FEATURE TYPE $$$"
-        #print headers
-        #print response
-
-        # Layer
+        # PUT Layer
         layerJson = data["layer"]
         layerString = json.dumps(layerJson)
         headers, response = gsr.putLayer(workspace, layerName, layerString)
         # TODO: check the reuslt and return st.
-
-        #print "### LAYER ###"
-        #print headers
-        #print response
 
     ### WORKSPACES ###
 

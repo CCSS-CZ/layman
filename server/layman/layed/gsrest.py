@@ -135,7 +135,14 @@ class GsRest:
 
     def getUrl(self, url):
         """ Get given url, authenticated."""
+        #print "*** GSREST *** getUrl ***"
+        #print "*** url ***"
+        #print url
         headers, response =  self.h.request(url,'GET')
+        #print "*** headers ***"
+        #print headers
+        #print "*** response ***"
+        #print response
         return headers, response        
 
     def postUrl(self, url, data):
@@ -145,7 +152,16 @@ class GsRest:
 
     def putUrl(self, url, data):
         """ Put given url, authenticated."""
+        #print "*** GSREST *** putUrl ***"
+        #print "*** url ***"
+        #print url
+        #print "*** data ***"
+        #print data
         headers, response =  self.h.request(url,'PUT', data, self.jsonHeader)
+        #print "*** headers ***"
+        #print headers
+        #print "*** response ***"
+        #print response
         return headers, response        
 
     def deleteUrl(self, url):
