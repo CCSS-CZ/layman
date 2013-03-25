@@ -36,13 +36,29 @@ class GsRest:
         return headers, response
 
     def getLayer(self, workspace, name):
+        #print "*** GSREST *** getLayer ***"
         url = self.url + "/layers/" + workspace + ":" + name + ".json"
+        #print "*** url ***"
+        #print url
         headers, response =  self.h.request(url,'GET')
+        #print "*** headers ***"
+        #print headers
+        #print "*** response ***"
+        #print response
         return headers, response        
 
     def putLayer(self, workspace, name, data):
         url = self.url + "/layers/" + workspace + ":" + name + ".json"
+        #print "*** GSREST *** putLayer ***"
+        #print "*** url ***"
+        #print url
+        #print "*** data ***"
+        #print data
         headers, response =  self.h.request(url,'PUT', data, self.jsonHeader)
+        #print "*** headers ***"
+        #print headers
+        #print "*** response ***"
+        #print response
         return headers, response        
 
     def deleteLayer(self, workspace, name):
@@ -135,14 +151,14 @@ class GsRest:
 
     def getUrl(self, url):
         """ Get given url, authenticated."""
-        #print "*** GSREST *** getUrl ***"
-        #print "*** url ***"
-        #print url
+        ##print "*** GSREST *** getUrl ***"
+        ##print "*** url ***"
+        ##print url
         headers, response =  self.h.request(url,'GET')
-        #print "*** headers ***"
-        #print headers
-        #print "*** response ***"
-        #print response
+        ##print "*** headers ***"
+        ##print headers
+        ##print "*** response ***"
+        ##print response
         return headers, response        
 
     def postUrl(self, url, data):
@@ -153,10 +169,10 @@ class GsRest:
     def putUrl(self, url, data):
         """ Put given url, authenticated."""
         #print "*** GSREST *** putUrl ***"
-        #print "*** url ***"
-        #print url
-        #print "*** data ***"
-        #print data
+        ##print "*** url ***"
+        ##print url
+        ##print "*** data ***"
+        ##print data
         headers, response =  self.h.request(url,'PUT', data, self.jsonHeader)
         #print "*** headers ***"
         #print headers
