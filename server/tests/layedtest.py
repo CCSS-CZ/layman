@@ -43,6 +43,17 @@ class LayEdTestCase(unittest.TestCase):
         # Test
         self.assertEquals( False, None == self.direct_gs.get_layer("line_crs"), "The layer line_crs is not there. Was it created under another name?" )
 
+    def test_delete(self):
+        # TODO: make sure the layer exists
+
+        # uncomment to delete
+        # this deletes the feature type and layer
+        # however, this does not (and should not) delete the data store.
+        # if the layer is published as above, this is an issue, as it cannot be then published again.
+        #self.le.deleteLayer("TestWS", "line_crs")
+        pass
+
+        # TODO: test
 
 if __name__ == "__main__":
    suite = unittest.TestLoader().loadTestsFromTestCase(LayEdTestCase)

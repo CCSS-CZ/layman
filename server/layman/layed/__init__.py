@@ -91,6 +91,7 @@ class LayEd:
         # Find the Feature Type
         headers, response = gsr.getLayer(workspace,layer)
         # TODO: check the result
+        layerJson = json.loads(response)
         ftUrl = layerJson["layer"]["resource"]["href"]
 
         # Delete Layer

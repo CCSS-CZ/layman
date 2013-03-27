@@ -222,6 +222,13 @@ class LayMan:
                     (code, retval) = fm.deleteFile(self._getTargetFile(path[-1])) 
                     self._setReturnCode(code)
                     return retval 
+            # /layed/<layer>?group=FireBrigade
+            elif path[0] == "layed" and len(path) == 2:
+                layerName = path[1]
+                inpt = web.input(group=None)
+                gsWorkspace = self.auth.getGSWorkspace(inpt.group)
+                retval = le.deleteLayer(gsWorkspace, layerName)
+                return retval
             else:
                 web.notfound()
                 return "{success: false, message: 'File [%s] not found '}" % path[-1]
