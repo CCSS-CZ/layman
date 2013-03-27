@@ -43,42 +43,6 @@ class LayEdTestCase(unittest.TestCase):
         # Test
         self.assertEquals( False, None == self.direct_gs.get_layer("line_crs"), "The layer line_crs is not there. Was it created under another name?" )
 
-    def test_getLayerConfig(self):
-
-        retval = self.le.getLayerConfig("TestWS","line_crs")
-        retval = json.loads(retval)
-        self.assertEquals( "VECTOR", retval["layer"]["type"], "Layer is wrong" )
-        self.assertEquals( "TestWS", retval["featureType"]["namespace"]["name"], "Feature Type is wrong" )
-
-    def test_putLayerConfig(self):
-        ''' Get Layer and Feature Type
-        Layer -> Change 'Enabled' to 'False' 
-        Feature Type -> Change 'Abstract'
-        Test and change it back.
-        '''
-        # Prepare
-        layer = self.le.getLayerConfig("TestWS","line_crs") # GET Layer & Feature Type
-        layer = json.loads(layer)                           # string -> json
-        self.assertNotEquals( "false", layer["layer"]["enabled"], "Please enable the layer" ) # layer: enabled
-        self.assertNotEquals( "Abstract has changed", layer["featureType"]["abstract"], "Please change the abstract" ) # feature type: abstract
-
-        # Change
-        layer["layer"]["enabled"] = 'false'
-        layer["featureType"]["abstract"] = "Abstract has changed"
-        layer = json.dumps(layer)                         # string -> json
-        self.le.putLayerConfig("TestWS","line_crs",layer) # PUT Layer & Feature Type
-
-        # Test
-        layer = self.le.getLayerConfig("TestWS","line_crs")
-        layer = json.loads(layer)
-        self.assertEquals( "false", layer["layer"]["enabled"], "Layer change failed" )
-        self.assertEquals( "Abstract has changed", layer["featureType"]["abstract"], "Feature Type change failed" )
-
-        # Change it back
-        layer["layer"]["enabled"] = 'true'
-        layer["featureType"]["abstract"] = "Hello Dolly!"
-        layer.dumps(layer)
-        self.le.putLayerConfig("TestWS","line_crs",layer)
 
 if __name__ == "__main__":
    suite = unittest.TestLoader().loadTestsFromTestCase(LayEdTestCase)

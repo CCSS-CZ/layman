@@ -26,6 +26,13 @@ class LayEdTestCase(unittest.TestCase):
 
     # TODO: add tests for POST /layed?myLayer
 
+    def test_getLayerConfig(self):
+
+        retval = self.le.getLayerConfig("TestWS","line_crs")
+        retval = json.loads(retval)
+        self.assertEquals( "VECTOR", retval["layer"]["type"], "Layer is wrong" )
+        self.assertEquals( "TestWS", retval["featureType"]["namespace"]["name"], "Feature Type is wrong" )
+
     def test_putLayerConfig(self):
         ''' Get Layer and Feature Type
         Layer -> Change 'Enabled' to 'False' 
