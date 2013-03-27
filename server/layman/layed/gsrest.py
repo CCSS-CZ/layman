@@ -37,7 +37,10 @@ class GsRest:
 
     def getLayer(self, workspace, name):
         #print "*** GSREST *** getLayer ***"
-        url = self.url + "/layers/" + workspace + ":" + name + ".json"
+        if workspace == None or workspace == "":
+            url = self.url + "/layers/" + name + ".json"
+        else:
+            url = self.url + "/layers/" + workspace + ":" + name + ".json"
         #print "*** url ***"
         #print url
         headers, response =  self.h.request(url,'GET')

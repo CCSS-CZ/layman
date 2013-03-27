@@ -90,9 +90,12 @@ class LayMan:
                 #    retval = le.getLayer(path[1])
 
             elif len(path) == 3:
-                # /layed/config/<layer>
-                if path[1] == "detail":
-                    retval = le.getLayerParams(path[2])
+                # /layed/config/<layer>?group=FireBrigade
+                if path[1] == "config":
+                    layerName = path[2]
+                    inpt = web.input(group=None)
+                    gsWorkspace = self.auth.getGSWorkspace(inpt.group)
+                    retval = le.getLayerConfig(gsWorkspace, layerName)
                 # /layed/workspaces/<ws>
                 if path[1] == "workspaces":
                     retval = le.getWorkspace(path[2])
@@ -188,6 +191,13 @@ class LayMan:
             # /geoserver/style/style_name
             if path[1] == "style":
                 gs.putStyle(path[2],web.data())
+        # /layed/config/<layer>?group=FireBrigade
+        elif path[0] == "layed" and len(path) == 3:
+            layerName = path[2]
+            inpt = web.input(group=None)
+            gsWorkspace = self.auth.getGSWorkspace(inpt.group)
+            data = web.data()
+            retval = le.putLayerConfig(gsWorkspace, layerName, data)
         else:
             web.notfound()
             return "Call not supported. I'm sorry, mate..."
