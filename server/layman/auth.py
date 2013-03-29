@@ -208,6 +208,22 @@ class LaymanAuthLiferay(LaymanAuth):
         else: 
             raise AuthError("Cannot determine the workspace - Liferay did not provide user's roles")
 
+    def getRoles(self):
+        """ Returns list of roles: [role1, role2...]
+        """
+        if not self.authorised:
+            raise AuthError("I am sorry, but you are not authorised")
+        if self.authJson["userInfo"] and self.authJson["userInfo"]["roles"]:
+            roles = self.authJson["userInfo"]["roles"]
+            if len(roles) < 1:
+                raise AuthError("Cannot determine the workspace - Liferay provided empty list of roles")            
+            retval = []
+            for r in roles:
+                retval.append(r["roleName"])
+            return retval
+        else: 
+            raise AuthError("Cannot determine the workspace - Liferay did not provide user's roles")
+
     # Service Authorisation Methods #
 
     def canread(self):
