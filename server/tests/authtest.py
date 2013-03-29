@@ -41,6 +41,11 @@ class AuthTestCase(unittest.TestCase):
         self.assertEquals( "ukraine_gis", self.au.getRole("ukraine_gis"), "Get role fails - 2" )
         self.assertEquals( "Power User", self.au.getRole("NoSuchRole"), "Get role fails - 3" )
 
+    def test_getRoles(self):
+
+        result = self.au.getRoles()
+        self.assertEquals( ["Power User","User","ukraine_gis"], result, "getRoles() failed, returned: '" + ", ".join(result) + "'") 
+
 if __name__ == "__main__":
    suite = unittest.TestLoader().loadTestsFromTestCase(AuthTestCase)
    unittest.TextTestRunner(verbosity=2).run(suite)
