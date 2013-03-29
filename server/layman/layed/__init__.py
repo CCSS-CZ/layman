@@ -6,6 +6,7 @@
 import os
 import json
 from gsrest import GsRest
+from urlparse import urlparse
 
 class LayEd:
     """Layer editor and manager
@@ -75,13 +76,80 @@ class LayEd:
 
         return (code,layers)
 
-    def getLayers(self, workspace=None):
-        gsr = GsRest()
+    def getLayers(self, workspaces):
+        """ Get layers of the given workspaces.        
 
+        params: 
+            workspaces (list):
+            [ws1, ws2, ws3...]
+            (can be obtained from Auth.getRoles())
+
+        returns (json encoded as string):
+        {
+            ws1: [
+                {{Layer}{FeatureType}},
+                {{Layer}{FeatureType}},
+                ...
+            ],
+            ws2: [
+            ],
+            ...
+        }
+        """
+        gsr = GsRest(self.config)
         code = 200
-        layers = gsr.getLayers()
 
-        return layers
+        # GET Layers
+        (headers, response) = gsr.getLayers()
+        # TODO: check the result
+        # print "*** LAYED *** getLayers() ***"
+        # print 'gsr.getLayers()'
+        # print gsr.getLayers()
+
+        gsLayers = json.loads(response) # Layers from GS
+
+        # Filter ond organise the layers by workspaces
+        # For every Layer,
+        #   GET Layer,
+        #   Check the workspace,
+        #   GET FeatureType and
+        #   Return both
+
+        layers = {}   # Layers that will be returned
+        for ws in workspaces:
+            layers[ws] = []
+
+        # For every Layer        
+        for lay in gsLayers["layers"]["layer"]: 
+
+            # GET the Layer
+            (headers, response) = gsr.getUrl(lay["href"])
+            # TODO: check the response
+            layer = json.loads(response)  # Layer from GS
+
+            # Check the workspace
+            ftUrl = layer["layer"]["resource"]["href"] # URL of Feature Type
+            urlParsed = urlparse(ftUrl)                
+            path = urlParsed[2]                        # path
+            path = [d for d in path.split(os.path.sep) if d] # path parsed
+            if path[2] != "workspaces":                
+                pass # TODO                            # something is wrong
+            ws = path[3]   # workspace of the layer 
+            if ws in workspaces:
+
+                # GET FeatureType
+                (headers, response) = gsr.getUrl(ftUrl)
+                # TODO: chceck the result
+                ft = json.loads(response)   # Feature Type              
+
+                # Return both
+                bundle = {}   # Layer that will be returned
+                bundle["layer"] = layer["layer"]
+                bundle["featureType"] = ft["featureType"]
+                layers[ws].append(bundle)
+
+        layers = json.dumps(layers) # json -> string
+        return (code, layers)
 
     def deleteLayer(self, workspace, layer): 
         """Delete the Layer and the Corresponding Feature Type

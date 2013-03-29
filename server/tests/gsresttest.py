@@ -36,15 +36,20 @@ class GsRestTestCase(unittest.TestCase):
 
     def test_getLayer(self):
         # TODO: find out the ws & name automatically
-        layer = self.gs.getLayer("TestWS","line_crs1")
+        layer = self.gs.getLayer("TestWS","line_crs")
         print layer
         # TODO: Add test
 
     def test_getFeatureType(self):
         # TODO: find out the ws,ds & name automatically
-        ft = self.gs.getFeatureType("TestWS","line_crs","line_crs1")
+        ft = self.gs.getFeatureType("TestWS","line_crs","line_crs")
         print ft
         # TODO: Add test
+
+    def test_getUrl(self):
+        url = "http://erra.ccss.cz/geoserver/rest/workspaces/TestWS/datastores/line_crs/featuretypes/line_crs.json"
+        result = self.gs.getUrl(url)
+        print result
 
 if __name__ == "__main__":
    suite = unittest.TestLoader().loadTestsFromTestCase(GsRestTestCase)

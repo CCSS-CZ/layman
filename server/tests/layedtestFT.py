@@ -26,6 +26,20 @@ class LayEdTestCase(unittest.TestCase):
 
     # TODO: add tests for POST /layed?myLayer
 
+    def test_getLayers(self):
+        workspaces = ["TestWS","pprd"]
+        headers, response = self.le.getLayers(workspaces)
+        #print "*** TEST *** getLayers() ***"
+        #print headers
+        #print response
+
+        responseJson = json.loads(response)
+
+        self.assertEquals(True, responseJson["TestWS"][0]["featureType"]["enabled"], "TestWS FeatureType check failed")
+        self.assertEquals("VECTOR", responseJson["TestWS"][0]["layer"]["type"], "TestWS Layer check failed")
+        self.assertEquals(True, responseJson["pprd"][0]["featureType"]["enabled"], "pprd FeatureType check failed")
+        self.assertEquals("VECTOR", responseJson["pprd"][0]["layer"]["type"], "pprd Layer check failed")
+
     def test_getLayerConfig(self):
 
         retval = self.le.getLayerConfig("TestWS","line_crs")

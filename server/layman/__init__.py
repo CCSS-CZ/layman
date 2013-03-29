@@ -76,18 +76,29 @@ class LayMan:
 
             # TODO: Where do we check the authorisation?
 
-            # /layed
+            # /layed[?group=FireBrigade]
+            """ Get the json of the layers.
+            If workspace parameter is specified, only the layers 
+            of the given workspace are returned. 
+            Otherwise, the layers of all groups allowed are returned
+            in proprietary json, ordered by group (i.e. workspace)
+            """
             if len(path) == 1:
-                (code,retval) = le.getLayers(self.auth.getGSWorkspace())
+                inpt = web.input(group=None)
+                if inpt.group == None: # workspace not given, go for all
+                    groups = self.auth.getRoles()
+                else: # workspace given, go for one
+                    gsWorkspace = self.auth.getGSWorkspace(inpt.group)
+                    groups = [gsWorkspace]
+                (code,retval) = le.getLayers(workspaces=groups)
 
             elif len(path) == 2:               
                 # /layed/workspaces
                 if path[1] == "workspaces":
                     retval = le.getWorkspaces()
-                # /layed/<layer>
-                # implement when needed
-                # else:                
-                #    retval = le.getLayer(path[1])
+                # /layed/groups
+                if path[1] == "groups":
+                    retval = self.auth.getRoles()
 
             elif len(path) == 3:
                 # /layed/config/<layer>?group=FireBrigade
