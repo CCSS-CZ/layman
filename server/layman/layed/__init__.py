@@ -7,6 +7,7 @@ import os
 import json
 from gsrest import GsRest
 from urlparse import urlparse
+import logging
 
 class LayEd:
     """Layer editor and manager
@@ -96,11 +97,15 @@ class LayEd:
             ...
         }
         """
+        logging.debug("** LayEd ** getLayers **")
         gsr = GsRest(self.config)
         code = 200
 
         # GET Layers
         (headers, response) = gsr.getLayers()
+        logging.debug("** LayEd ** getLayers ** GS GET Layers response header: '%s'"% headers)
+        logging.debug("** LayEd ** getLayers ** GS GET Layers response content: '%s'"% response)
+        
         # TODO: check the result
         # print "*** LAYED *** getLayers() ***"
         # print 'gsr.getLayers()'
@@ -116,13 +121,16 @@ class LayEd:
         #   Return both
 
         layers = {}   # Layers that will be returned
+        logging.debug("** LayEd ** getLayers ** Requested workspaces:")
         for ws in workspaces:
+            logging.debug("** '%s'"% ws)
             layers[ws] = []
 
         # For every Layer        
         for lay in gsLayers["layers"]["layer"]: 
 
             # GET the Layer
+            logging.debug("** LayEd ** getLayers ** Trying layer '%s'"% lay["href"])
             (headers, response) = gsr.getUrl(lay["href"])
             # TODO: check the response
             layer = json.loads(response)  # Layer from GS
@@ -135,9 +143,11 @@ class LayEd:
             if path[2] != "workspaces":                
                 pass # TODO                            # something is wrong
             ws = path[3]   # workspace of the layer 
+            logging.debug("** LayEd ** getLayers ** Layer's workspace: '%s'"% ws)
             if ws in workspaces:
 
                 # GET FeatureType
+                logging.debug("** LayEd ** getLayers ** MATCH! Get Feature Type: '%s'"% ftUrl)
                 (headers, response) = gsr.getUrl(ftUrl)
                 # TODO: chceck the result
                 ft = json.loads(response)   # Feature Type              

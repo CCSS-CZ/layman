@@ -8,6 +8,7 @@ import os,sys
 import ConfigParser
 import string
 import web
+import logging
 
 # global variables
 INSTALL_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -76,14 +77,15 @@ class LayMan:
 
             # TODO: Where do we check the authorisation?
 
-            # /layed[?group=FireBrigade]
-            """ Get the json of the layers.
-            If workspace parameter is specified, only the layers 
-            of the given workspace are returned. 
-            Otherwise, the layers of all groups allowed are returned
-            in proprietary json, ordered by group (i.e. workspace)
-            """
             if len(path) == 1:
+                # /layed[?group=FireBrigade]
+                """ Get the json of the layers.
+                If workspace parameter is specified, only the layers 
+                of the given workspace are returned. 
+                Otherwise, the layers of all groups allowed are returned
+                in proprietary json, ordered by group (i.e. workspace)
+                """
+                logging.debug("** LayMan ** GET /layed **")
                 inpt = web.input(group=None)
                 if inpt.group == None: # workspace not given, go for all
                     groups = self.auth.getRoles()
