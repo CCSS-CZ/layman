@@ -76,9 +76,11 @@ class LaymanAuth:
         return desired
 
     def getRole(self, desired=None):
+        logging.debug("** LaymanAuth ** getRole **")
         return desired
 
     def getRoles(self):
+        logging.debug("** LaymanAuth ** getRoles **")
         return []
 
     # Private Methods #

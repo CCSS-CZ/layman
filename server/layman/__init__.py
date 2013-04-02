@@ -59,7 +59,7 @@ class LayMan:
 
             # /fileman
             if len(path) == 1:
-                logging.error("** LayMan ** GET /fileman **")
+                logging.info("** LayMan ** GET /fileman **")
                 (code, retval) = fm.getFiles(self.auth.getFSDir())
 
             # /fileman/<file>
@@ -86,7 +86,7 @@ class LayMan:
                 Otherwise, the layers of all groups allowed are returned
                 in proprietary json, ordered by group (i.e. workspace)
                 """
-                logging.error("** LayMan ** GET /layed **")
+                logging.info("** LayMan ** GET /layed **")
                 inpt = web.input(group=None)
                 if inpt.group == None: # workspace not given, go for all
                     groups = self.auth.getRoles()
