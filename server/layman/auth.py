@@ -74,6 +74,12 @@ class LaymanAuth:
     def getGSWorkspace(self,desired=None):
         return desired
 
+    def getRole(self, desired=None):
+        return desired
+
+    def getRoles(self):
+        return []
+
     # Private Methods #
 
     def _setConfig(self,config):
