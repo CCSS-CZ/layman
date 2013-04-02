@@ -59,6 +59,7 @@ class LayMan:
 
             # /fileman
             if len(path) == 1:
+                logging.debug("** LayMan ** GET /fileman **")
                 (code, retval) = fm.getFiles(self.auth.getFSDir())
 
             # /fileman/<file>
