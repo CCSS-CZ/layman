@@ -8,9 +8,11 @@ from web import application as app
 
 import web
 import os
+import logging
 
 DIR = os.path.dirname(os.path.abspath(__file__))
 web.config.debug = True
+logging.basicConfig(level=logging.DEBUG) # DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 os.environ["LAYMAN_CFG"] = os.path.join(DIR, "layman.cfg")
 
