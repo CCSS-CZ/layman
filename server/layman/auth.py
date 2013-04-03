@@ -187,8 +187,8 @@ class LaymanAuthLiferay(LaymanAuth):
         if not self.authorised:
             raise AuthError("I am sorry, but you are not authorised")
 
-        if self.authJson["userInfo"] and self.authJson["userInfo"]["roles"]:
-            fsDir = self.config.get("FileMan","homedir") + self.authJson.userInfo.screenName
+        if self.authJson["userInfo"] and self.authJson["userInfo"]["screenName"]:
+            fsDir = self.config.get("FileMan","homedir") + self.authJson["userInfo"]["screenName"]
             # TODO: do some checks
             # TODO: create if it does not exist
             return fsDir
