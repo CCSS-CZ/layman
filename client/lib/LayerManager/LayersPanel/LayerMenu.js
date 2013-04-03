@@ -23,14 +23,46 @@ Ext4.define("HSRS.LayerManager.LayersPanel.LayerMenu", {
 
         this.url = config.url.replace(/\/$/,config.record.get("name"));
 
-        config.items = [
-            {
+        config.title = config.record.get("featuretype").title;
+        config.items = [];
+
+        var separator = false;
+
+        if (HSRS && HSRS.VIEWURL) {
+            separator = true;
+            config.items.push(
+                {
+                    text: "View",
+                    icon: HSRS.IMAGE_LOCATION+"/map_go.png",
+                    scope: this,
+                    handler: this._onViewClicked
+                }
+            );
+
+        }
+
+        if (HSRS && HSRS.STYLERURL) {
+            separator = true;
+            config.items.push({
+                text: "Styler",
+                icon: HSRS.IMAGE_LOCATION+"/style.png",
+                scope: this,
+                handler: this._onStyleClicked
+            });
+        }
+
+        if (separator) {
+            config.items.push(
+                { xtype: "menuseparator" }
+            );
+        }
+
+        config.items.push({
                 text: "Delete",
                 icon: HSRS.IMAGE_LOCATION+"/delete.png",
                 scope: this,
                 handler: this._onDeleteClicked
-            }
-        ];
+            });
 
         this.callParent(arguments);
 
@@ -43,5 +75,23 @@ Ext4.define("HSRS.LayerManager.LayersPanel.LayerMenu", {
      */
     _onDeleteClicked: function() {
         this.fireEvent("layerdeleted",this.record);
+    },
+
+    /**
+     * style handler
+     * @private
+     */
+    _onStyleClicked: function() {
+    },
+
+    /**
+     * view handler
+     * @private
+     */
+    _onViewClicked: function() {
+        var t = new Ext4.XTemplate(HSRS.VIEWURL);
+        var url = t.apply(this.record.data);
+        window.open(url,'_newtab');
     }
+
 });

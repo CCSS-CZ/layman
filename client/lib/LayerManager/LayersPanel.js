@@ -30,23 +30,22 @@ Ext4.define("HSRS.LayerManager.LayersPanel", {
                     scope: this,
                     handler:  this._onDeleteClicked,
                     cls: 'x-btn-icon',
-                    tooltip: 'Delete file',
+                    tooltip: 'Delete layer',
                     icon: HSRS.IMAGE_LOCATION+"/delete.png"
                 }
             ]
         });
         
-        myconfig.store = Ext4.create("Ext4.data.JsonStore", {
+        myconfig.store = Ext4.create("Ext4.data.Store", {
             model: 'HSRS.LayerManager.LayersPanel.Model',
+            groupField: "workspace",
             //autoLoad: true,
             //autoSync: true,
             proxy: {
                 type: "ajax",
                 url: (HSRS.ProxyHost ? HSRS.ProxyHost+escape(config.url):config.url),
                 reader: {
-                    type: 'json',
-                    root: "layers.layer",
-                    idProperty: 'name'
+                    type: 'json'
                 }
             }
         });
@@ -56,17 +55,51 @@ Ext4.define("HSRS.LayerManager.LayersPanel", {
         myconfig.autoScroll =  true;
         myconfig.anchor = "100%";
 
+
         myconfig.columns = [ 
-            // layer column
+            // ws column
             {
-                text: "Name",
+                text: "Workspace",
                 sortable: true,
                 flex:1,
-                dataIndex: "name"
+                dataIndex: "workspace"
+            },
+            // icon column
+            {
+                xtype: 'templatecolumn',
+                text: ' ',
+                width: 22,
+                flex: 0,
+                sortable: true,
+                dataIndex: 'layer',
+                align: 'center',
+                //add in the custom tpl for the rows
+                tpl: Ext4.create('Ext4.XTemplate', '{layer:this.formatIcon}', {
+                    formatIcon: function(v) {
+
+                        return '<img src="'+HSRS.IMAGE_LOCATION+v.type.toLowerCase()+'-type.png" />';
+                    }
+                })
+            },
+            // layer column
+            {
+                text: "Layer",
+                xtype: "templatecolumn",
+                sortable: true,
+                flex:1,
+                dataIndex: "featureType",
+                tpl: "{featuretype.title}"
             }
         ];
 
+        // grouping according to workspaces
+         var groupingFeature = Ext4.create('Ext4.grid.feature.Grouping',{
+             groupHeaderTpl: '{name}',
+            hideGroupedHeader: true
+        });
+
         config = Ext.Object.merge(myconfig, config);
+        config.features = [groupingFeature];
 
         this.callParent(arguments);
 
@@ -83,10 +116,10 @@ Ext4.define("HSRS.LayerManager.LayersPanel", {
                         "layerdeleted": function(record, evt) {
                             Ext4.MessageBox.confirm("Really remove selected layer?",
                                     "Are you sure, you want to remove selected file? <br />"+
-                                    record.get("name"),
+                                    record.get("workspace"),
                                     function(btn, x, msg){
                                         if (btn == "yes") {
-                                            this.lm.deleteLayer(this.record.get("name"));
+                                            this.lm.deleteLayer(this.record.get("workspace"));
                                         }
                                     },
                                     {lm: this, record: record});
@@ -101,6 +134,8 @@ Ext4.define("HSRS.LayerManager.LayersPanel", {
 
         this.on("itemcontextmenu",makeMenu, this);
         this.on("itemclick",makeMenu, this);
+
+
     },
 
     /**
