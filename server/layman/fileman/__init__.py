@@ -226,7 +226,7 @@ class FileMan:
 
         # try raster
         else:
-            ds = gdal.Open(os.path.join(sourceDir,fileName))
+            ds = gdal.Open(fileName)
 
             # opening raster success
             if ds:
