@@ -82,6 +82,9 @@ Ext4.define("HSRS.LayerManager.LayersPanel.LayerMenu", {
      * @private
      */
     _onStyleClicked: function() {
+        var t = new Ext4.XTemplate(HSRS.STYLERURL);
+        var url = t.apply(this.record.data);
+        window.open(url,'_newtab');
     },
 
     /**
