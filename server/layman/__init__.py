@@ -269,6 +269,9 @@ class LayMan:
         elif service.lower() == "hsrs":
             from auth import LaymanAuthHSRS
             self.auth = LaymanAuthHSRS()
+        elif service.lower() == "open":
+            from auth import LaymanAuthOpen
+            self.auth = LaymanAuthOpen()
         # NOTE: everybody can do anything by default
         # should be probabely fixed in the future
         else:
