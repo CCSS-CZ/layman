@@ -120,11 +120,8 @@ class LayEd:
         #   GET FeatureType and
         #   Return both
 
-        layers = {}   # Layers that will be returned
+        layers = []   # Layers that will be returned
         logging.debug("[LayEd][getLayers] Requested workspaces:")
-        for ws in workspaces:
-            logging.debug("'%s'"% ws)
-            layers[ws] = []
 
         # For every Layer        
         for lay in gsLayers["layers"]["layer"]: 
@@ -154,9 +151,10 @@ class LayEd:
 
                 # Return both
                 bundle = {}   # Layer that will be returned
+                bundle["ws"] = ws
                 bundle["layer"] = layer["layer"]
                 bundle["featureType"] = ft["featureType"]
-                layers[ws].append(bundle)
+                layers.append(bundle)
 
         layers = json.dumps(layers) # json -> string
         return (code, layers)
