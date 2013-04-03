@@ -76,11 +76,11 @@ class LaymanAuth:
         return desired
 
     def getRole(self, desired=None):
-        logging.debug("** LaymanAuth ** getRole **")
+        logging.debug("[LaymanAuth][getRole]")
         return desired
 
     def getRoles(self):
-        logging.debug("** LaymanAuth ** getRoles **")
+        logging.debug("[LaymanAuth][getRoles]")
         return []
 
     # Private Methods #
@@ -132,7 +132,7 @@ class LaymanAuthLiferay(LaymanAuth):
     def authorise(self, JSESSIONID):
         """ Authorise the given JSESSIONID against the Slavek's service:
         call the service and process the response """
-        logging.debug("** LaymanAuthLiferay ** authorise ** %s"% JSESSIONID)
+        logging.debug("[LaymanAuthLiferay][authorise] %s"% JSESSIONID)
         self.JSESSIONID = JSESSIONID
         content = self._getUserInfo(JSESSIONID)
         self._parseUserInfo(content)
@@ -143,14 +143,14 @@ class LaymanAuthLiferay(LaymanAuth):
 
         # Learn URL of Slavek's service
         url = self.config.get("Authorization","url") + JSESSIONID
-        logging.debug("** LaymanAuthLiferay ** _getUserInfo ** Authorisation url: %s"% url)
+        logging.debug("[LaymanAuthLiferay][_getUserInfo] Authorisation url: %s"% url)
     
         # Request the authentication
         import httplib2
         h = httplib2.Http()
         header, content = h.request(url, "GET")
-        logging.debug("** LaymanAuthLiferay ** _getUserInfo ** response header: %s"% header)
-        logging.debug("** LaymanAuthLiferay ** _getUserInfo ** response content: %s"% content)
+        logging.debug("[LaymanAuthLiferay][_getUserInfo] response header: %s"% header)
+        logging.debug("[LaymanAuthLiferay][_getUserInfo] response content: %s"% content)
 
         # TODO: check the header
 
@@ -163,16 +163,16 @@ class LaymanAuthLiferay(LaymanAuth):
         # Process the response
         try:
             self.authJson = json.loads(content)
-            logging.debug("** LaymanAuthLiferay ** _parseUserInfo ** Liferay reply succesfully parsed")
+            logging.debug("[LaymanAuthLiferay][_parseUserInfo] Liferay reply succesfully parsed")
         except ValueError,e:
-            logging.error("** LaymanAuthLiferay ** _parseUserInfo ** Cannot parse Liferay reply: '%s'"% content)
+            logging.error("[LaymanAuthLiferay][_parseUserInfo] Cannot parse Liferay reply: '%s'"% content)
             raise AuthError("Cannot parse Liferay response [%s] as JSON:%s"% (content,e)) 
 
         if self.authJson["resultCode"] == "0":
             self.authorised = True
-            logging.debug("** LaymanAuthLiferay ** _parseUserInfo ** Authentication succesfull")
+            logging.debug("[LaymanAuthLiferay][_parseUserInfo] Authentication succesfull")
         else:
-            logging.error("** LaymanAuthLiferay ** _parseUserInfo ** Authentication failed: Liferay does not recognise given JSESSIONID")
+            logging.error("[LaymanAuthLiferay][_parseUserInfo] Authentication failed: Liferay does not recognise given JSESSIONID")
             raise AuthError("Authentication failed: Liferay does not recognise given JSESSIONID")
 
     # User/Group configuration methods #
@@ -209,14 +209,14 @@ class LaymanAuthLiferay(LaymanAuth):
         If the desired role is given and it is listed in the user's roles list, the desired role is returned.
         The first role is returned otherwise. 
         """
-        logging.debug("** LaymanAuthLiferay ** getRole **")
+        logging.debug("[LaymanAuthLiferay][getRole]")
         if not self.authorised:
-            logging.error("** LaymanAuthLiferay ** getRole ** The user is not authorised")
+            logging.error("[LaymanAuthLiferay][getRole] The user is not authorised")
             raise AuthError("I am sorry, but you are not authorised")
         if self.authJson["userInfo"] and self.authJson["userInfo"]["roles"]:
             roles = self.authJson["userInfo"]["roles"]
             if len(roles) < 1:
-                logging.error("** LaymanAuthLiferay ** getRole ** Cannot determine the workspace - Liferay provided empty list of roles")
+                logging.error("[LaymanAuthLiferay][getRole] Cannot determine the workspace - Liferay provided empty list of roles")
                 raise AuthError("Cannot determine the workspace - Liferay provided empty list of roles")            
 
             theRole = roles[0]["roleName"]
@@ -224,32 +224,32 @@ class LaymanAuthLiferay(LaymanAuth):
                 if desired == r["roleName"]:
                     theRole = r["roleName"]
 
-            logging.debug("** LaymanAuthLiferay ** getRole ** The role: '%s'"% theRole)
+            logging.debug("[LaymanAuthLiferay][getRole] The role: '%s'"% theRole)
             return theRole
         else: 
-            logging.error("** LaymanAuthLiferay ** getRole ** Cannot determine the workspace - Liferay did not provide user's roles")
+            logging.error("[LaymanAuthLiferay][getRole] Cannot determine the workspace - Liferay did not provide user's roles")
             raise AuthError("Cannot determine the workspace - Liferay did not provide user's roles")
 
     def getRoles(self):
         """ Returns list of roles: [role1, role2...]
         """
-        logging.debug("** LaymanAuthLiferay ** getRoles **")
+        logging.debug("[LaymanAuthLiferay][getRoles]")
         if not self.authorised:
-            logging.error("** LaymanAuthLiferay ** getRoles ** The user is not authorised")
+            logging.error("[LaymanAuthLiferay][getRoles] The user is not authorised")
             raise AuthError("I am sorry, but you are not authorised")
         if self.authJson["userInfo"] and self.authJson["userInfo"]["roles"]:
             roles = self.authJson["userInfo"]["roles"]
             if len(roles) < 1:
-                logging.error("** LaymanAuthLiferay ** getRoles ** Cannot determine the workspace - Liferay provided empty list of roles")
+                logging.error("[LaymanAuthLiferay][getRoles] Cannot determine the workspace - Liferay provided empty list of roles")
                 raise AuthError("Cannot determine the workspace - Liferay provided empty list of roles")            
             retval = []
             for r in roles:
                 retval.append(r["roleName"])
             rolesStr = ", ".join(retval)
-            logging.debug("** LaymanAuthLiferay ** getRoles ** The roles: '%s'"% rolesStr)
+            logging.debug("[LaymanAuthLiferay][getRoles] The roles: '%s'"% rolesStr)
             return retval
         else: 
-            logging.error("** LaymanAuthLiferay ** getRoles ** Cannot determine the workspace - Liferay did not provide user's roles")
+            logging.error("[LaymanAuthLiferay][getRoles] Cannot determine the workspace - Liferay did not provide user's roles")
             raise AuthError("Cannot determine the workspace - Liferay did not provide user's roles")
 
     # Service Authorisation Methods #
