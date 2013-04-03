@@ -27,14 +27,14 @@ class LaymanAuth:
 
             :returns: boolean
         """
-        return True # NOTE: by default is everything allowed
+        return False 
 
     def canwrite(self):
         """Can particular user write to the service?
 
             :returns: boolean
         """
-        return True # NOTE: by default is everything allowed
+        return False
 
 
     # User/Group configuration methods #
@@ -73,6 +73,8 @@ class LaymanAuth:
         pass
     
     def getGSWorkspace(self,desired=None):
+        """NOTE: This does not seem to be used
+        """
         return desired
 
     def getRole(self, desired=None):
@@ -263,6 +265,32 @@ class LaymanAuthLiferay(LaymanAuth):
 
 class LaymanAuthHSRS(LaymanAuth):
     pass
+
+class LaymanAuthOpen(LaymanAuth):
+    """Open system for authorization
+    Everybody can do everything (read/write access without
+    authentification/authorization
+
+    NOTE: Do not use, unless you know, what you are doing
+    """
+
+    def canread(self):
+        return True 
+
+    def canwrite(self):
+        return True
+
+    def getGSWorkspace(self,desired=None):
+        return self.config.get("Authorization","gsworkspace",self.getRole())
+
+    def getRole(self, desired=None):
+        """Take rule from configuration value"""
+        return self.config.get("Authorization","role")
+
+    def getRoles(self):
+        """Take rule from configuration value"""
+        return [self.getRole()]
+
 
 class AuthError(Exception): 
     """Auhorization error class
