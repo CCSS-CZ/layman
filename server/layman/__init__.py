@@ -79,19 +79,19 @@ class LayMan:
             # TODO: Where do we check the authorisation?
 
             if len(path) == 1:
-                # /layed[?group=FireBrigade]
+                # /layed[?usergroup=FireBrigade]
                 """ Get the json of the layers.
-                If workspace parameter is specified, only the layers 
-                of the given workspace are returned. 
+                If usergroup parameter is specified, only the layers 
+                of the corresponding workspace are returned. 
                 Otherwise, the layers of all groups allowed are returned
                 in proprietary json, ordered by group (i.e. workspace)
                 """
                 logging.info("[LayMan][GET /layed]")
-                inpt = web.input(group=None)
-                if inpt.group == None: # workspace not given, go for all
+                inpt = web.input(usergroup=None)
+                if inpt.usergroup == None: # workspace not given, go for all
                     groups = self.auth.getRoles()
                 else: # workspace given, go for one
-                    gsWorkspace = self.auth.getGSWorkspace(inpt.group)
+                    gsWorkspace = self.auth.getGSWorkspace(inpt.usergroup)
                     groups = [gsWorkspace]
                 (code,retval) = le.getLayers(workspaces=groups)
 
@@ -104,11 +104,11 @@ class LayMan:
                     retval = self.auth.getRoles()
 
             elif len(path) == 3:
-                # /layed/config/<layer>?group=FireBrigade
+                # /layed/config/<layer>?usergroup=FireBrigade
                 if path[1] == "config":
                     layerName = path[2]
-                    inpt = web.input(group=None)
-                    gsWorkspace = self.auth.getGSWorkspace(inpt.group)
+                    inpt = web.input(usergroup=None)
+                    gsWorkspace = self.auth.getGSWorkspace(inpt.usergroup)
                     retval = le.getLayerConfig(gsWorkspace, layerName)
                 # /layed/workspaces/<ws>
                 if path[1] == "workspaces":
@@ -160,17 +160,17 @@ class LayMan:
                 web.header("Content-type", "text/html")
                 web.ok() # 200
                 return retval 
-            # POST "http://localhost:8080/layman/layed?fileName=Rivers.shp&group=RescueRangers"
+            # POST "http://localhost:8080/layman/layed?fileName=Rivers.shp&usergroup=RescueRangers"
             elif name[0] == "layed":
                 from layed import LayEd
                 le = LayEd(config)
-                inpt = web.input(group=None)
+                inpt = web.input(usergroup=None)
                 if not inpt.fileName:
                     pass #TODO - name required
                 fileName = inpt.fileName
                 fsDir       = self.auth.getFSDir()
                 dbSchema    = self.auth.getDBSchema()
-                gsWorkspace = self.auth.getGSWorkspace(inpt.group)
+                gsWorkspace = self.auth.getGSWorkspace(inpt.usergroup)
                 layerName   = le.publish(fsDir, dbSchema, gsWorkspace, fileName)
                 return "{success: true, message: 'File [%s] published as layer [%s] published'}" %\
                     (fileName, layerName)
@@ -205,11 +205,11 @@ class LayMan:
             # /geoserver/style/style_name
             if path[1] == "style":
                 gs.putStyle(path[2],web.data())
-        # /layed/config/<layer>?group=FireBrigade
+        # /layed/config/<layer>?usergroup=FireBrigade
         elif path[0] == "layed" and len(path) == 3:
             layerName = path[2]
-            inpt = web.input(group=None)
-            gsWorkspace = self.auth.getGSWorkspace(inpt.group)
+            inpt = web.input(usergroup=None)
+            gsWorkspace = self.auth.getGSWorkspace(inpt.usergroup)
             data = web.data()
             retval = le.putLayerConfig(gsWorkspace, layerName, data)
         else:
@@ -236,11 +236,11 @@ class LayMan:
                     (code, retval) = fm.deleteFile(self._getTargetFile(path[-1])) 
                     self._setReturnCode(code)
                     return retval 
-            # /layed/<layer>?group=FireBrigade
+            # /layed/<layer>?usergroup=FireBrigade
             elif path[0] == "layed" and len(path) == 2:
                 layerName = path[1]
-                inpt = web.input(group=None)
-                gsWorkspace = self.auth.getGSWorkspace(inpt.group)
+                inpt = web.input(usergroup=None)
+                gsWorkspace = self.auth.getGSWorkspace(inpt.usergroup)
                 retval = le.deleteLayer(gsWorkspace, layerName)
                 return retval
             else:
