@@ -77,25 +77,33 @@ class LayEd:
 
         return (code,layers)
 
-    def getLayers(self, workspaces):
+    def getLayers(self, roles):
         """ Get layers of the given workspaces.        
 
         params: 
-            workspaces (list):
-            [ws1, ws2, ws3...]
+            roles (json):
+            [
+               {
+                   roleTitle: "User",
+                   roleName: "User"
+               },
+               {
+                   roleTitle: "pozarnaja",
+                   roleName: "hasici"
+               } 
+            ]
             (can be obtained from Auth.getRoles())
 
         returns (json encoded as string):
-        {
-            ws1: [
-                {{Layer}{FeatureType}},
-                {{Layer}{FeatureType}},
-                ...
-            ],
-            ws2: [
-            ],
+        [
+            {
+                workspace: "police"
+                roleTitle: "Policie Ceske republiky"
+                layer: {...}
+                featureType: {...}
+            },
             ...
-        }
+        ]
         """
         logging.debug("[LayEd][getLayers]")
         gsr = GsRest(self.config)
@@ -122,6 +130,12 @@ class LayEd:
 
         layers = []   # Layers that will be returned
         logging.debug("[LayEd][getLayers] Requested workspaces:")
+
+        workspaces = [] # list of workspaces
+        roleTitles = {} # roles reordered 
+        for r in roles:
+            workspaces.append(r["roleName"]) 
+            roleTitles[r["roleName"]] = r["roleTitle"]
 
         # For every Layer        
         for lay in gsLayers["layers"]["layer"]: 
@@ -152,6 +166,7 @@ class LayEd:
                 # Return both
                 bundle = {}   # Layer that will be returned
                 bundle["ws"] = ws
+                bundle["roleTitle"] = roleTitles[ws]
                 bundle["layer"] = layer["layer"]
                 bundle["featureType"] = ft["featureType"]
                 layers.append(bundle)

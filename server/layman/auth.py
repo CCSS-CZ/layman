@@ -75,11 +75,11 @@ class LaymanAuth:
     def getGSWorkspace(self,desired=None):
         """NOTE: This does not seem to be used
         """
-        return desired
+        return desired # TODO return None
 
     def getRole(self, desired=None):
         logging.debug("[LaymanAuth][getRole]")
-        return desired
+        return desired # TODO return None
 
     def getRoles(self):
         logging.debug("[LaymanAuth][getRoles]")
@@ -113,9 +113,14 @@ class LaymanAuthLiferay(LaymanAuth):
     #       lastName: "Doe",
     #       email: "test@ccss.cz",
     #       roles: [
-    #           { roleName: "Power User" },
-    #           { roleName: "User" },
-    #           { roleName: "ukraine_gis" }
+    #           {
+    #               roleTitle: "User",
+    #               roleName: "User"
+    #           },
+    #           {
+    #               roleTitle: "pozarnaja",
+    #               roleName: "hasici"
+    #           }, 
     #       ],
     #       userId: 10432,
     #       screenName: "test",
@@ -196,20 +201,25 @@ class LaymanAuthLiferay(LaymanAuth):
             raise AuthError("Cannot determine the working directory - Liferay did not provide user's screenName")
 
     def getDBSchema(self, desired=None):
-        """ Role ~ Schema. Uses getRole()
+        """ roleName ~ Schema. Uses getRole()
         """
-        return self.getRole(desired)
+        role = self.getRole(desired)
+        schema = role["roleName"]
+        return schema
     
     def getGSWorkspace(self, desired=None):
-        """ Role ~ Workspace. Uses getRole()
+        """ roleName ~ Workspace. Uses getRole()
         """
-        return self.getRole(desired)
+        role = self.getRole(desired)
+        ws = role["roleName"]
+        return ws
 
     def getRole(self, desired=None):
         """ Checks if the user is authorised.
         Checks the roles. 
-        If the desired role is given and it is listed in the user's roles list, the desired role is returned.
+        If the desired role name is given and it is listed in the user's roles list, the desired role is returned.
         The first role is returned otherwise. 
+        Returns json {roleName: "police", roleTitle: "Policie Ceske republiky"}
         """
         logging.debug("[LaymanAuthLiferay][getRole]")
         if not self.authorised:
@@ -221,19 +231,37 @@ class LaymanAuthLiferay(LaymanAuth):
                 logging.error("[LaymanAuthLiferay][getRole] Cannot determine the workspace - Liferay provided empty list of roles")
                 raise AuthError("Cannot determine the workspace - Liferay provided empty list of roles")            
 
-            theRole = roles[0]["roleName"]
+            theRole = roles[0]
             for r in roles:
                 if desired == r["roleName"]:
-                    theRole = r["roleName"]
+                    theRole = r
 
-            logging.debug("[LaymanAuthLiferay][getRole] The role: '%s'"% theRole)
+            roleName = theRole["roleName"]
+            logging.debug("[LaymanAuthLiferay][getRole] The role: '%s'"% roleName)
             return theRole
         else: 
             logging.error("[LaymanAuthLiferay][getRole] Cannot determine the workspace - Liferay did not provide user's roles")
             raise AuthError("Cannot determine the workspace - Liferay did not provide user's roles")
 
+    def getRoleStr(self, desired=None):
+        """ returns string representation of getRole()
+        """
+        roleJson = self.getRole(desired)
+        roleStr = json.dumps(roleJson)
+        return roleStr
+
     def getRoles(self):
-        """ Returns list of roles: [role1, role2...]
+        """ Returns list of roles: 
+            [
+               {
+                   roleTitle: "User",
+                   roleName: "User"
+               },
+               {
+                   roleTitle: "pozarnaja",
+                   roleName: "hasici"
+               } 
+           ]
         """
         logging.debug("[LaymanAuthLiferay][getRoles]")
         if not self.authorised:
@@ -244,15 +272,19 @@ class LaymanAuthLiferay(LaymanAuth):
             if len(roles) < 1:
                 logging.error("[LaymanAuthLiferay][getRoles] Cannot determine the workspace - Liferay provided empty list of roles")
                 raise AuthError("Cannot determine the workspace - Liferay provided empty list of roles")            
-            retval = []
-            for r in roles:
-                retval.append(r["roleName"])
-            rolesStr = ", ".join(retval)
+            rolesStr = json.dumps(roles)
             logging.debug("[LaymanAuthLiferay][getRoles] The roles: '%s'"% rolesStr)
-            return retval
+            return roles
         else: 
             logging.error("[LaymanAuthLiferay][getRoles] Cannot determine the workspace - Liferay did not provide user's roles")
             raise AuthError("Cannot determine the workspace - Liferay did not provide user's roles")
+
+    def getRolesStr(self):
+        """ returns string representation of getRoles() json
+        """
+        rolesJson = self.getRoles()
+        rolesStr = json.dumps(rolesJson)
+        return rolesStr
 
     # Service Authorisation Methods #
 
@@ -283,6 +315,7 @@ class LaymanAuthOpen(LaymanAuth):
     def getGSWorkspace(self,desired=None):
         return self.config.get("Authorization","gsworkspace",self.getRole())
 
+    # TODO: should return JSON
     def getRole(self, desired=None):
         """Take rule from configuration value"""
         return self.config.get("Authorization","role")

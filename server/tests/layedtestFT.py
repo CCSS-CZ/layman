@@ -27,18 +27,25 @@ class LayEdTestCase(unittest.TestCase):
     # TODO: add tests for POST /layed?myLayer
 
     def test_getLayers(self):
-        workspaces = ["TestWS","pprd"]
-        headers, response = self.le.getLayers(workspaces)
+        r1 = {}
+        r1["roleName"] = "hasici"
+        r1["roleTitle"] = "Hasici Markvarec"
+        r2 = {}
+        r2["roleName"] = "pprd"
+        r2["roleTitle"] = "PRD"
+        roles = [r1,r2]
+
+        headers, response = self.le.getLayers(roles)
         #print "*** TEST *** getLayers() ***"
         #print headers
         #print response
 
         responseJson = json.loads(response)
 
-        self.assertEquals(True, responseJson["TestWS"][0]["featureType"]["enabled"], "TestWS FeatureType check failed")
-        self.assertEquals("VECTOR", responseJson["TestWS"][0]["layer"]["type"], "TestWS Layer check failed")
-        self.assertEquals(True, responseJson["pprd"][0]["featureType"]["enabled"], "pprd FeatureType check failed")
-        self.assertEquals("VECTOR", responseJson["pprd"][0]["layer"]["type"], "pprd Layer check failed")
+        self.assertEquals(True, responseJson[0]["featureType"]["enabled"], "FeatureType check failed")
+        self.assertEquals("VECTOR", responseJson[0]["layer"]["type"], "Layer check failed")
+        self.assertEquals(True, responseJson[0]["ws"] in ["hasici","pprd"], "Workspace check failed")
+        self.assertEquals(True, responseJson[0]["roleTitle"] in ["Hasici Markvarec","PRD"], "roleTitle check failed")
 
     def test_getLayerConfig(self):
 

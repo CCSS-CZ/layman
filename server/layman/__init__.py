@@ -89,11 +89,11 @@ class LayMan:
                 logging.info("[LayMan][GET /layed]")
                 inpt = web.input(usergroup=None)
                 if inpt.usergroup == None: # workspace not given, go for all
-                    groups = self.auth.getRoles()
+                    roles = self.auth.getRoles()
                 else: # workspace given, go for one
-                    gsWorkspace = self.auth.getGSWorkspace(inpt.usergroup)
-                    groups = [gsWorkspace]
-                (code,retval) = le.getLayers(workspaces=groups)
+                    role = self.auth.getRole(inpt.usergroup)
+                    roles = [role]
+                (code,retval) = le.getLayers(roles)
 
             elif len(path) == 2:               
                 # /layed/workspaces
@@ -101,7 +101,7 @@ class LayMan:
                     retval = le.getWorkspaces()
                 # /layed/groups
                 if path[1] == "groups":
-                    retval = self.auth.getRoles()
+                    retval = self.auth.getRolesStr()
 
             elif len(path) == 3:
                 # /layed/config/<layer>?usergroup=FireBrigade

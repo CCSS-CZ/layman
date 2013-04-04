@@ -20,7 +20,7 @@ class AuthTestCase(unittest.TestCase):
         cfg.read((os.path.join(TEST_DIR,"tests.cfg")))
         self.au = LaymanAuthLiferay(cfg)
 
-        self.slavek = '{"resultCode":"0","userInfo":{"lastName":"Doe","email":"test@ccss.cz","roles":[{"roleName":"Power User"},{"roleName":"User"},{"roleName":"ukraine_gis"}],"userId":10432,"screenName":"test","language":"en","firstName":"John","groups":[]},"leaseInterval":1800}'
+        self.slavek = '{"resultCode":"0","userInfo":{"lastName":"Doe","email":"test@ccss.cz","roles":[{"roleName":"Power User","roleTitle":"Silny uzivatel"},{"roleName":"User","roleTitle":"uzivatel"},{"roleName":"ukraine_gis","roleTitle":"UA GIS"}],"userId":10432,"screenName":"test","language":"en","firstName":"John","groups":[]},"leaseInterval":1800}'
 
         self.au._parseUserInfo(self.slavek) # This should authorise user 'test'
 
@@ -33,18 +33,20 @@ class AuthTestCase(unittest.TestCase):
         self.assertEquals(type(self.au.authJson), type({}), "authJson is not an object")
         self.assertEquals(self.au.authJson["resultCode"], "0", "Result code is not a zero")
         self.assertEquals(self.au.authJson["userInfo"]["screenName"], "test", "Screen Name is not 'test'")
-        self.assertEquals(self.au.authJson["userInfo"]["roles"][2]["roleName"], "ukraine_gis", "Cannot find 'ukraine_gis' role")
+        self.assertEquals(self.au.authJson["userInfo"]["roles"][2]["roleName"], "ukraine_gis", "Cannot find 'ukraine_gis' roleName")
+        self.assertEquals(self.au.authJson["userInfo"]["roles"][2]["roleTitle"], "UA GIS", "Cannot find 'UA GIS' roleTitle")
 
     def test_getRole(self):
 
-        self.assertEquals( "Power User", self.au.getRole(), "Get role fails - 1" )
-        self.assertEquals( "ukraine_gis", self.au.getRole("ukraine_gis"), "Get role fails - 2" )
-        self.assertEquals( "Power User", self.au.getRole("NoSuchRole"), "Get role fails - 3" )
+        self.assertEquals( "Power User", self.au.getRole()["roleName"], "Get role fails - 1" )
+        self.assertEquals( "ukraine_gis", self.au.getRole("ukraine_gis")["roleName"], "Get role fails - 2a" )
+        self.assertEquals( "UA GIS", self.au.getRole("ukraine_gis")["roleTitle"], "Get role fails - 2b" )
+        self.assertEquals( "Power User", self.au.getRole("NoSuchRole")["roleName"], "Get role fails - 3" )
 
     def test_getRoles(self):
 
-        result = self.au.getRoles()
-        self.assertEquals( ["Power User","User","ukraine_gis"], result, "getRoles() failed, returned: '" + ", ".join(result) + "'") 
+        result = self.au.getRolesStr()
+        self.assertEquals( '[{"roleName": "Power User", "roleTitle": "Silny uzivatel"}, {"roleName": "User", "roleTitle": "uzivatel"}, {"roleName": "ukraine_gis", "roleTitle": "UA GIS"}]', result, "getRoles() failed, returned: '" + result + "'") 
 
 if __name__ == "__main__":
    suite = unittest.TestLoader().loadTestsFromTestCase(AuthTestCase)
