@@ -55,8 +55,6 @@ class LayMan:
             from fileman import FileMan
             fm = FileMan()
 
-            # TODO: Where do we check the authorisation?
-
             # /fileman
             if len(path) == 1:
                 logging.info("[LayMan][GET /fileman]")
@@ -76,10 +74,8 @@ class LayMan:
             from layed import LayEd
             le = LayEd()
 
-            # TODO: Where do we check the authorisation?
-
+            # /layed[?usergroup=FireBrigade]
             if len(path) == 1:
-                # /layed[?usergroup=FireBrigade]
                 """ Get the json of the layers.
                 If usergroup parameter is specified, only the layers 
                 of the corresponding workspace are returned. 
@@ -96,20 +92,24 @@ class LayMan:
                 (code,retval) = le.getLayers(roles)
 
             elif len(path) == 2:               
+
                 # /layed/workspaces
                 if path[1] == "workspaces":
                     retval = le.getWorkspaces()
+
                 # /layed/groups
                 if path[1] == "groups":
                     retval = self.auth.getRolesStr()
 
             elif len(path) == 3:
+
                 # /layed/config/<layer>?usergroup=FireBrigade
                 if path[1] == "config":
                     layerName = path[2]
                     inpt = web.input(usergroup=None)
                     gsWorkspace = self.auth.getGSWorkspace(inpt.usergroup)
                     retval = le.getLayerConfig(gsWorkspace, layerName)
+
                 # /layed/workspaces/<ws>
                 if path[1] == "workspaces":
                     retval = le.getWorkspace(path[2])
@@ -144,6 +144,7 @@ class LayMan:
         name = [d for d in os.path.split(name) if d]
 
         if len(name) > 0:
+
             # POST "http://localhost:8080/layman/fileman/file.shp"
             if name[0] == "fileman":
                 from fileman import FileMan
@@ -160,6 +161,7 @@ class LayMan:
                 web.header("Content-type", "text/html")
                 web.ok() # 200
                 return retval 
+
             # POST "http://localhost:8080/layman/layed?fileName=Rivers.shp&usergroup=RescueRangers"
             elif name[0] == "layed":
                 from layed import LayEd
@@ -198,6 +200,7 @@ class LayMan:
             (code, retval) = fm.putFile(self._getTargetFile(fileName),data)
             self._setReturnCode(code)
             return retval
+
         elif path[0] == "geoserver":
             from layed.gsconfig import GsConfig
             gs = GsConfig()
@@ -205,13 +208,17 @@ class LayMan:
             # /geoserver/style/style_name
             if path[1] == "style":
                 gs.putStyle(path[2],web.data())
+
         # /layed/config/<layer>?usergroup=FireBrigade
         elif path[0] == "layed" and len(path) == 3:
+            from layed import LayEd
+            le = LayEd()
             layerName = path[2]
             inpt = web.input(usergroup=None)
             gsWorkspace = self.auth.getGSWorkspace(inpt.usergroup)
             data = web.data()
             retval = le.putLayerConfig(gsWorkspace, layerName, data)
+
         else:
             web.notfound()
             return "Call not supported. I'm sorry, mate..."
@@ -236,17 +243,20 @@ class LayMan:
                     (code, retval) = fm.deleteFile(self._getTargetFile(path[-1])) 
                     self._setReturnCode(code)
                     return retval 
+
             # /layed/<layer>?usergroup=FireBrigade
             elif path[0] == "layed" and len(path) == 2:
+                from layed import LayEd
+                le = LayEd()
                 layerName = path[1]
                 inpt = web.input(usergroup=None)
                 gsWorkspace = self.auth.getGSWorkspace(inpt.usergroup)
                 retval = le.deleteLayer(gsWorkspace, layerName)
                 return retval
+
             else:
                 web.notfound()
                 return "{success: false, message: 'File [%s] not found '}" % path[-1]
-
         else:
             web.notfound()
             return "Call not supported. I'm sorry, mate..."
