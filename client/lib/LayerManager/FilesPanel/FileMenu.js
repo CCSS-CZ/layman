@@ -15,6 +15,7 @@ Ext4.define("HSRS.LayerManager.FilesPanel.FileMenu", {
     url: undefined,
     record: undefined,
     prj: undefined,
+    groups: undefined,
     
     /**
      * @constructor
@@ -137,6 +138,7 @@ Ext4.define("HSRS.LayerManager.FilesPanel.FileMenu", {
             name: this.data.name,
             url: this.url.replace("fileman","layed"),
             type: this.data.type,
+            groups: this.groups,
             prj: this.data.prj,
             extent: this.data.extent,
             attributes: this.data.attributes,

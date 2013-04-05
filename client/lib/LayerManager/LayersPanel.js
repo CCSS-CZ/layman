@@ -49,7 +49,6 @@ Ext4.define("HSRS.LayerManager.LayersPanel", {
                 }
             }
         });
-        myconfig.store.load();
 
         myconfig.multiSelect = true;
         myconfig.autoScroll =  true;
@@ -135,6 +134,8 @@ Ext4.define("HSRS.LayerManager.LayersPanel", {
         this.on("itemcontextmenu",makeMenu, this);
         this.on("itemclick",makeMenu, this);
 
+        myconfig.store.load();
+
 
     },
 
@@ -164,7 +165,7 @@ Ext4.define("HSRS.LayerManager.LayersPanel", {
      */
      _onRefreshClicked: function() {
         this.store.load(); 
-     }
+     },
 
     /**
      * get file details

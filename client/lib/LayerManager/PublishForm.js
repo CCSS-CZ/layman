@@ -6,6 +6,7 @@
 Ext4.define("HSRS.LayerManager.PublishForm", {
     
     extend: "Ext4.form.Panel",
+    groups: undefined,
 
     /**
      * @constructor
@@ -34,6 +35,7 @@ Ext4.define("HSRS.LayerManager.PublishForm", {
         ];
 
         this.callParent(arguments);
+
 
         this.addEvents("published","canceled","reset");
     },
@@ -88,6 +90,19 @@ Ext4.define("HSRS.LayerManager.PublishForm", {
                         xtype: "textfield",
                         name:"metadataurl",
                         value: config.metadataurl || ""
+                    },
+                    {
+                        xtype: "combobox",
+                        name: "group",
+                        anchor: "100%",
+                        fieldLabel: "group",
+                        store: Ext4.create("Ext4.data.ArrayStore",{
+                            fields: ['title', 'name'],
+                            data: config.groups || []
+                        }),
+                        value: (config.groups && config.groups.length > 0 ? config.groups[0][0] : ""),
+                        displayField: 'title',
+                        valueField: 'name'
                     },
                     {
                         title: "Coordinate Reference Systems",

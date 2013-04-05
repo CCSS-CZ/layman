@@ -48,6 +48,8 @@ Ext4.define("HSRS.LayerManager", {
             flex: 1
         });
 
+        this.layersPanel.store.on("load",this._onLayersLoaded,this);
+
         config.items = [this.filesPanel, this.layersPanel];
 
         this.callParent(arguments);
@@ -61,6 +63,18 @@ Ext4.define("HSRS.LayerManager", {
     _onFilePublished: function(data) {
         Ext4.Msg.alert('Success',"File ["+data.fileName+"] published");
         this.layersPanel.store.load();
+    },
+
+    /**
+     * handler
+     * @private
+     * @function
+     */
+    _onLayersLoaded: function(){
+        var groups = this.layersPanel.store.getGroups().map(function(g){
+                return [g.children[0].get("workspace"), g.children[0].get("workspace")];
+        });
+        this.filesPanel.setGroups(groups);
     }
 
 });
