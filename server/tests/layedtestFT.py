@@ -50,17 +50,17 @@ class LayEdTestCase(unittest.TestCase):
 
     def test_cloneStyle(self):
         
-        self.le.cloneStyle(fromWorkspace=None, fromStyle="polygon", toWorkspace="pprd", toStyle="MyNewPolygon")
+        self.le.cloneStyle(fromWorkspace=None, fromStyle="polygon", toWorkspace="pprd", toStyle="MyNewPoly")
 
         gsr = GsRest(self.config)
-        (head, cont) = gsr.getStyleSld(workspace="pprd", styleName="MyNewPolygon")
+        (head, cont) = gsr.getStyleSld(workspace="pprd", styleName="MyNewPoly")
         print " *** TEST *** clone style 1 ***"
         print head
         print cont
 
-        self.le.cloneStyle(fromWorkspace="pprd", fromStyle="MyNewPolygon", toWorkspace=None, toStyle="YourNewPolygon")
+        self.le.cloneStyle(fromWorkspace="pprd", fromStyle="MyNewPoly", toWorkspace=None, toStyle="YourNewPoly")
 
-        (head, cont) = gsr.getStyleSld(workspace=None, styleName="YourNewPolygon")
+        (head, cont) = gsr.getStyleSld(workspace=None, styleName="YourNewPoly")
         print " *** TEST *** clone style 2 ***"
         print head
         print cont
