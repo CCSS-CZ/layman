@@ -93,11 +93,11 @@ Ext4.define("HSRS.LayerManager.PublishForm", {
                     },
                     {
                         xtype: "combobox",
-                        name: "group",
+                        name: "usergroup",
                         anchor: "100%",
-                        fieldLabel: "group",
+                        fieldLabel: "Group",
                         store: Ext4.create("Ext4.data.ArrayStore",{
-                            fields: ['title', 'name'],
+                            fields: ['name','title'],
                             data: config.groups || []
                         }),
                         value: (config.groups && config.groups.length > 0 ? config.groups[0][0] : ""),

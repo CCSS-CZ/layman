@@ -38,7 +38,7 @@ Ext4.define("HSRS.LayerManager.LayersPanel", {
         
         myconfig.store = Ext4.create("Ext4.data.Store", {
             model: 'HSRS.LayerManager.LayersPanel.Model',
-            groupField: "workspace",
+            groupField: "wstitle",
             //autoLoad: true,
             //autoSync: true,
             proxy: {
@@ -61,7 +61,7 @@ Ext4.define("HSRS.LayerManager.LayersPanel", {
                 text: "Workspace",
                 sortable: true,
                 flex:1,
-                dataIndex: "workspace"
+                dataIndex: "wstitle"
             },
             // icon column
             {

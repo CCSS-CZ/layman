@@ -61,6 +61,7 @@ Ext4.define('HSRS.LayerManager.LayersPanel.Model', {
         extend: 'Ext4.data.Model',
         fields: [
             {name: 'workspace', mapping: "ws",type: Ext4.data.Types.STRING},
+            {name: 'wstitle', mapping: "roleTitle",type: Ext4.data.Types.STRING},
             {name: 'layer', mapping: "layer",type: Ext4.data.Types.TYPELAYER},
             {name: 'featuretype', mapping: "featureType",type: Ext4.data.Types.TYPEFEATURETYPE}
         ]

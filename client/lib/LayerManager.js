@@ -72,7 +72,7 @@ Ext4.define("HSRS.LayerManager", {
      */
     _onLayersLoaded: function(){
         var groups = this.layersPanel.store.getGroups().map(function(g){
-                return [g.children[0].get("workspace"), g.children[0].get("workspace")];
+                return [g.children[0].get("workspace"), g.children[0].get("wstitle")];
         });
         this.filesPanel.setGroups(groups);
     }

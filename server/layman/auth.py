@@ -318,7 +318,8 @@ class LaymanAuthOpen(LaymanAuth):
     # TODO: should return JSON
     def getRole(self, desired=None):
         """Take rule from configuration value"""
-        return self.config.get("Authorization","role")
+        return {"roleName":self.config.get("Authorization","role"),
+                "roleTitle":"asdfkasdjf asjkdf kasdfh"}#self.config.get("Authorization","role")}
 
     def getRoles(self):
         """Take rule from configuration value"""
