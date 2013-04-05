@@ -136,6 +136,7 @@ class LayEd:
         for r in roles:
             workspaces.append(r["roleName"]) 
             roleTitles[r["roleName"]] = r["roleTitle"]
+            logging.debug("Workspace: %s"% r["roleName"])
 
         # For every Layer        
         for lay in gsLayers["layers"]["layer"]: 
