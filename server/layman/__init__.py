@@ -246,11 +246,13 @@ class LayMan:
 
             # /layed/<layer>?usergroup=FireBrigade
             elif path[0] == "layed" and len(path) == 2:
+                logging.info("[LayMan][DELETE /layed/<layer>]")
                 from layed import LayEd
                 le = LayEd()
                 layerName = path[1]
                 inpt = web.input(usergroup=None)
                 gsWorkspace = self.auth.getGSWorkspace(inpt.usergroup)
+                logging.info("[LayMan][Delete layer '%s' from workspace '%s'"% layerName, gsWorkspace)
                 retval = le.deleteLayer(gsWorkspace, layerName)
                 return retval
 

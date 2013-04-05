@@ -178,20 +178,28 @@ class LayEd:
     def deleteLayer(self, workspace, layer): 
         """Delete the Layer and the Corresponding Feature Type
         """
+        logging.debug("[LayEd][deleteLayer]")
         gsr = GsRest(self.config)
         
         # Find the Feature Type
         headers, response = gsr.getLayer(workspace,layer)
+        logging.debug("[LayEd][deleteLayer] GET Layer response headers: %s"% headers)
+        logging.debug("[LayEd][deleteLayer] GET Layer response content: %s"% response)
         # TODO: check the result
         layerJson = json.loads(response)
         ftUrl = layerJson["layer"]["resource"]["href"]
+        logging.debug("[LayEd][deleteLayer] Feature Type URL: %s"% ftUrl)
 
         # Delete Layer
         headers, response = gsr.deleteLayer(workspace,layer)
+        logging.debug("[LayEd][deleteLayer] DELETE Layer response headers: %s"% headers)
+        logging.debug("[LayEd][deleteLayer] DELETE Layer response content: %s"% response)
         # TODO: check the result
 
         # Delete Feature Type
         headers, response = gsr.deleteUrl(ftUrl)
+        logging.debug("[LayEd][deleteLayer] DELETE Feature Type response headers: %s"% headers)
+        logging.debug("[LayEd][deleteLayer] DELETE Feature Type response content: %s"% response)
         # TODO: check the result and return st.
 
     ### LAYER CONFIG ###
