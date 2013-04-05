@@ -8,19 +8,20 @@ sys.path.append(os.path.join(INSTALL_DIR))
 
 import json
 from layman.layed import LayEd
+from layman.layed import GsRest
 
 class LayEdTestCase(unittest.TestCase):
     """Test of the Layer Editor"""
 
     le = None # LayEd
     workdir = None
-    cfg = None
+    config = None
 
     def setUp(self):
         cfg = ConfigParser.SafeConfigParser()
         cfg.read((os.path.join(TEST_DIR,"tests.cfg")))
         self.le = LayEd(cfg)
-        self.cfg = cfg
+        self.config = cfg
 
         self.workdir = os.path.abspath(os.path.join(TEST_DIR,"workdir","data"))
 
@@ -46,6 +47,23 @@ class LayEdTestCase(unittest.TestCase):
         self.assertEquals("VECTOR", responseJson[0]["layer"]["type"], "Layer check failed")
         self.assertEquals(True, responseJson[0]["ws"] in ["hasici","pprd"], "Workspace check failed")
         self.assertEquals(True, responseJson[0]["roleTitle"] in ["Hasici Markvarec","PRD"], "roleTitle check failed")
+
+    def test_cloneStyle(self):
+        
+        self.le.cloneStyle(fromWorkspace=None, fromStyle="polygon", toWorkspace="pprd", toStyle="MyNewPolygon")
+
+        gsr = GsRest(self.config)
+        (head, cont) = gsr.getStyleSld(workspace="pprd", styleName="MyNewPolygon")
+        print " *** TEST *** clone style 1 ***"
+        print head
+        print cont
+
+        self.le.cloneStyle(fromWorkspace="pprd", fromStyle="MyNewPolygon", toWorkspace=None, toStyle="YourNewPolygon")
+
+        (head, cont) = gsr.getStyleSld(workspace=None, styleName="YourNewPolygon")
+        print " *** TEST *** clone style 2 ***"
+        print head
+        print cont
 
     def test_getLayerConfig(self):
 

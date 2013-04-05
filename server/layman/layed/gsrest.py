@@ -22,11 +22,44 @@ class GsRest:
         #"Accept": "application/json"
     }
 
+    sldHeader = {
+        "Content-type": "application/vnd.ogc.sld+xml"
+    }
+
     def __init__(self,config = None):
         """constructor
         """
         self._setConfig(config)
         self._setHttp()
+
+    ### STYLES ###
+
+    def getStyleSld(self, workspace, styleName):
+        """ Returns SLD of given style
+            Set workspace to None to get an unassigned style
+        """
+        if workspace == None:
+            url = self.url + "/styles/" + styleName + ".sld"
+        else:
+            url = self.url + "/workspaces/" + workspace + "/styles/" + styleName + ".sld"
+        headers, response =  self.h.request(url,'GET')
+        return headers, response
+
+    def postStyleSld(self, workspace, styleSld, styleName):
+        """ Creates new style from styleSld
+            Set workspace to None to create unassigned style
+        """
+        if workspace == None:
+            url = self.url + "/styles.sld?name=" + styleName
+        else:
+            url = self.url + "/workspaces/" + workspace + "/styles.sld?name=" + styleName
+        print "*** GsRest *** postStyleSld() "
+        print "url: " + url
+        hhhh = json.dumps(self.sldHeader)
+        print "header: " + hhhh
+
+        headers, response =  self.h.request(url, 'POST', styleSld, self.sldHeader)
+        return headers, response
 
     ### LAYERS ###
 

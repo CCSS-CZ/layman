@@ -259,6 +259,33 @@ class LayEd:
         headers, response = gsr.putLayer(workspace, layerName, layerString)
         # TODO: check the reuslt and return st.
 
+    ### STYLES ###
+
+    def cloneStyle(self, fromWorkspace, fromStyle, toWorkspace, toStyle):
+        """ Create a copy of a style
+            Set fromWorkspace to None to get unassigned style
+        """
+        gsr = GsRest(self.config)
+
+        # GET style .sld from GS
+        (headers, styleSld) = gsr.getStyleSld(fromWorkspace, fromStyle)
+        # TODO: check the reuslt
+        print "*** LayEd *** cloneStyle ** "
+        print "getStyleSld() fromStyle " + fromStyle
+        print "headers"
+        print headers
+        print "styleSld"
+        print styleSld
+
+        # Create new style from the sld
+        (headers, response) = gsr.postStyleSld(workspace=toWorkspace, styleSld=styleSld, styleName=toStyle)
+        # TODO: check the reuslt and return st.
+        print " ** postStyleSld() **"
+        print "headers"
+        print headers
+        print "response"
+        print response
+
     ### WORKSPACES ###
 
     def getWorkspaces(self): 
