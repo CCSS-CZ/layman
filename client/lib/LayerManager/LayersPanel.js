@@ -118,7 +118,8 @@ Ext4.define("HSRS.LayerManager.LayersPanel", {
                                     record.get("workspace"),
                                     function(btn, x, msg){
                                         if (btn == "yes") {
-                                            this.lm.deleteLayer(this.record.get("workspace"));
+                                            this.lm.deleteLayer(this.record.get("layer").name,
+                                                                this.record.get("workspace"));
                                         }
                                     },
                                     {lm: this, record: record});
@@ -144,9 +145,10 @@ Ext4.define("HSRS.LayerManager.LayersPanel", {
      *
      * @function
      * @param layer {String}  layer name
+     * @param layer {workspace} ws name
      */
-    deleteLayer: function(layer) {
-        var url = this.url+layer;
+    deleteLayer: function(layer,ws) {
+        var url = this.url+layer+"?usergroup="+ws;
         console.log(this.url);
         Ext4.Ajax.request({
             method: "DELETE",
