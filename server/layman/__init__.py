@@ -252,7 +252,7 @@ class LayMan:
                 layerName = path[1]
                 inpt = web.input(usergroup=None)
                 gsWorkspace = self.auth.getGSWorkspace(inpt.usergroup)
-                logging.info("[LayMan][Delete layer '%s' from workspace '%s'"% layerName, gsWorkspace)
+                logging.info("[LayMan][Delete layer '%s' from workspace '%s'"% layerName %gsWorkspace)
                 retval = le.deleteLayer(gsWorkspace, layerName)
                 return retval
 
