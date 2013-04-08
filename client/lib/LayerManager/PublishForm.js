@@ -3,9 +3,9 @@
  * @author: Jachym
  */
 
-Ext4.define("HSRS.LayerManager.PublishForm", {
-    
-    extend: "Ext4.form.Panel",
+Ext4.define('HSRS.LayerManager.PublishForm', {
+
+    extend: 'Ext4.form.Panel',
     groups: undefined,
 
     /**
@@ -13,22 +13,22 @@ Ext4.define("HSRS.LayerManager.PublishForm", {
      */
     constructor: function(config) {
         config.items = this._initItems(config);
-        config.layout = "anchor";
+        config.layout = 'anchor';
         config.frame = true;
         config.url = config.url;
         config.buttons = [
             {
-                text:"Publish",
+                text: 'Publish',
                 scope: this,
                 handler: this._onPublishClicked
             },
             {
-                text:"Reset",
+                text: 'Reset',
                 scope: this,
                 handler: this._onResetClicked
             },
             {
-                text:"Cancel",
+                text: 'Cancel',
                 scope: this,
                 handler: this._onCancelClicked
             }
@@ -37,7 +37,7 @@ Ext4.define("HSRS.LayerManager.PublishForm", {
         this.callParent(arguments);
 
 
-        this.addEvents("published","canceled","reset");
+        this.addEvents('published', 'canceled', 'reset');
     },
 
     /**
@@ -47,28 +47,28 @@ Ext4.define("HSRS.LayerManager.PublishForm", {
     _initItems: function(config) {
         var items = [
             {
-                xtype: "fieldset",
-                title: "Publish file '"+config.name+"'",
+                xtype: 'fieldset',
+                title: "Publish file '" + config.name + "'",
                 items: [
                     {
-                        name: "fileName",
-                        xtype: "hidden",
+                        name: 'fileName',
+                        xtype: 'hidden',
                         anchor: '100%',
                         value: config.name
                     },
                     {
-                        fieldLabel: "Title",
-                        xtype: "textfield",
+                        fieldLabel: 'Title',
+                        xtype: 'textfield',
                         anchor: '100%',
-                        name: "title",
-                        value: config.name || ""
+                        name: 'title',
+                        value: config.name || ''
                     },
                     {
-                        fieldLabel: "Abstract",
-                        xtype: "textfield",
+                        fieldLabel: 'Abstract',
+                        xtype: 'textfield',
                         anchor: '100%',
-                        name: "abstract",
-                        value: config.abstract || ""
+                        name: 'abstract',
+                        value: config.abstract || ''
                     },
                     //{
                     //    fieldLabel: 'Keywords',
@@ -85,109 +85,109 @@ Ext4.define("HSRS.LayerManager.PublishForm", {
                     //    displayField: 'keyword'
                     //},
                     {
-                        fieldLabel: "Metadata link",
-                        anchor:"100%",
-                        xtype: "textfield",
-                        name:"metadataurl",
-                        value: config.metadataurl || ""
+                        fieldLabel: 'Metadata link',
+                        anchor: '100%',
+                        xtype: 'textfield',
+                        name: 'metadataurl',
+                        value: config.metadataurl || ''
                     },
                     {
-                        xtype: "combobox",
-                        name: "usergroup",
-                        anchor: "100%",
-                        fieldLabel: "Group",
-                        store: Ext4.create("Ext4.data.ArrayStore",{
-                            fields: ['name','title'],
+                        xtype: 'combobox',
+                        name: 'usergroup',
+                        anchor: '100%',
+                        fieldLabel: 'Group',
+                        store: Ext4.create('Ext4.data.ArrayStore', {
+                            fields: ['name', 'title'],
                             data: config.groups || []
                         }),
-                        value: (config.groups && config.groups.length > 0 ? config.groups[0][0] : ""),
+                        value: (config.groups && config.groups.length > 0 ? config.groups[0][0] : ''),
                         displayField: 'title',
                         valueField: 'name'
                     },
                     {
-                        title: "Coordinate Reference Systems",
-                        anchor:"100%",
-                        xtype: "fieldset",
-                        layout: "anchor",
+                        title: 'Coordinate Reference Systems',
+                        anchor: '100%',
+                        xtype: 'fieldset',
+                        layout: 'anchor',
                         items: [
                             {
-                                fieldLabel: "Native SRS",
-                                anchor:"100%",
-                                xtype: "textfield",
-                                value: config.prj || "",
-                                name: "crs"
+                                fieldLabel: 'Native SRS',
+                                anchor: '100%',
+                                xtype: 'textfield',
+                                value: config.prj || '',
+                                name: 'crs'
                             }
                         ]
                     },
                     {
-                        title:"Bounding Box",
-                        xtype:"fieldset",
-                        anchor:"100%",
+                        title: 'Bounding Box',
+                        xtype: 'fieldset',
+                        anchor: '100%',
                         items: [
                             {
-                                fieldLabel:"Bounds",
+                                fieldLabel: 'Bounds',
                                 hideLabel: true,
-                                xtype: "fieldcontainer",
-                                name: "bbox",
-                                anchor: "100%",
+                                xtype: 'fieldcontainer',
+                                name: 'bbox',
+                                anchor: '100%',
                                 layout: {
-                                    type: "table",
+                                    type: 'table',
                                     columns: 3
                                 },
                                 defaults: {
-                                    xtype: "container",
+                                    xtype: 'container',
                                     width: 75
                                 },
                                 items: [
-                                    { html :' ' },
+                                    { html: ' ' },
                                     {
-                                        name:"maxy",
-                                        xtype: "textfield",
-                                        value: (config.extent ? config.extent[3] : "")
+                                        name: 'maxy',
+                                        xtype: 'textfield',
+                                        value: (config.extent ? config.extent[3] : '')
                                     },
-                                    { html :' ' },
+                                    { html: ' ' },
                                     {
-                                        name:"minx",
-                                        xtype: "textfield",
-                                        value: (config.extent ? config.extent[0]: "")
+                                        name: 'minx',
+                                        xtype: 'textfield',
+                                        value: (config.extent ? config.extent[0] : '')
                                     },
-                                    { html :' ' },
+                                    { html: ' ' },
                                     {
-                                        name:"maxx",
-                                        xtype: "textfield",
-                                        value: (config.extent ? config.extent[2] :"")
+                                        name: 'maxx',
+                                        xtype: 'textfield',
+                                        value: (config.extent ? config.extent[2] : '')
                                     },
-                                    { html :' ' },
+                                    { html: ' ' },
                                     {
-                                        name:"miny",
-                                        xtype: "textfield",
-                                        value: (config.extent ? config.extent[1] :"")
+                                        name: 'miny',
+                                        xtype: 'textfield',
+                                        value: (config.extent ? config.extent[1] : '')
                                     },
-                                    { html :' ' }
+                                    { html: ' ' }
                                 ]
                             }
                         ]
                     },
                     {
-                        title: "Attribution",
-                        anchor:"100%",
-                        xtype: "fieldset",
-                        layout: "anchor",
+                        title: 'Attribution',
+                        anchor: '100%',
+                        xtype: 'fieldset',
+                        layout: 'anchor',
                         items: [
                             {
-                                fieldLabel: "Attribution text",
-                                anchor:"100%",
-                                xtype: "textfield",
-                                value: config.attribution ? config.attribution.text: "",
-                                name: "attribution_text"
+                                fieldLabel: 'Attribution text',
+                                anchor: '100%',
+                                xtype: 'textfield',
+                                value: config.attribution ? config.attribution.text : '',
+                                name: 'attribution_text'
                             },
                             {
-                                fieldLabel: "Attribution link",
-                                anchor:"100%",
-                                xtype: "textfield",
-                                emptyText: "http://",
-                                value: config.attribution ? config.attribution.link :"",
-                                name: "attribution_link"
+                                fieldLabel: 'Attribution link',
+                                anchor: '100%',
+                                xtype: 'textfield',
+                                emptyText: 'http://',
+                                value: config.attribution ? config.attribution.link : '',
+                                name: 'attribution_link'
                             }
                         ]
                     }
@@ -208,21 +208,21 @@ Ext4.define("HSRS.LayerManager.PublishForm", {
         if (form.isValid()) {
             form.submit({
                 success: function(form,action) {
-                        this.fireEvent("published",data);
+                        this.fireEvent('published', data);
                 },
                 failure: function(form, action) {
-                    Ext4.Msg.alert("Failed","Publishing file failed");
+                    Ext4.Msg.alert('Failed', 'Publishing file failed');
                 },
                 scope: this
             });
         }
-        
+
     },
     /*
      * @private
      */
     _onResetClicked: function() {
-        this.fireEvent("reset");
+        this.fireEvent('reset');
         this.getForm().reset();
     },
 
@@ -230,6 +230,6 @@ Ext4.define("HSRS.LayerManager.PublishForm", {
      * @private
      */
     _onCancelClicked: function() {
-        this.fireEvent("canceled");
+        this.fireEvent('canceled');
     }
 });

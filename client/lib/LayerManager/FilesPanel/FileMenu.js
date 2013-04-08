@@ -3,20 +3,20 @@
  * @author: Jachym
  */
 
-Ext4.define("HSRS.LayerManager.FilesPanel.FileMenu", {
-    
-    extend: "Ext4.menu.Menu",
+Ext4.define('HSRS.LayerManager.FilesPanel.FileMenu', {
 
-    requires:["HSRS.LayerManager.PublishForm",
-              "HSRS.LayerManager.FilesPanel.Preview"],
+    extend: 'Ext4.menu.Menu',
+
+    requires: ['HSRS.LayerManager.PublishForm',
+              'HSRS.LayerManager.FilesPanel.Preview'],
 
     file: undefined,
-    data: undefined, 
+    data: undefined,
     url: undefined,
     record: undefined,
     prj: undefined,
     groups: undefined,
-    
+
     /**
      * @constructor
      */
@@ -25,70 +25,70 @@ Ext4.define("HSRS.LayerManager.FilesPanel.FileMenu", {
         config.width = 200;
         config.plain = true;
 
-        this.url = config.url.replace(/\/$/,"");
+        this.url = config.url.replace(/\/$/, '');
 
         config.items = [
             {
                 plain: true,
                 text: HSRS.formatSize(config.data.size),
-                renderTpl: [ '<b>Size: </b>{text}' ]
+                renderTpl: ['<b>Size: </b>{text}']
             },
             {
                 plain: true,
                 text: config.data.prj,
-                renderTpl: [ '<b>Projection: </b>{text}' ]
+                renderTpl: ['<b>Projection: </b>{text}']
             },
             {
                 plain: true,
                 text: config.data.date,
-                renderTpl: [ '<b>Date: </b>{text}' ]
+                renderTpl: ['<b>Date: </b>{text}']
             },
             {
                 plain: true,
                 text: config.data.mimetype,
-                renderTpl: [ '<b>Type: </b>{text}' ]
+                renderTpl: ['<b>Type: </b>{text}']
             },
             {
                 plain: true,
                 text: config.data.features_count,
-                renderTpl: [ '<b>Features count: </b>{text}' ]
+                renderTpl: ['<b>Features count: </b>{text}']
             },
             {
                 plain: true,
                 text: config.data.type,
-                renderTpl: [ '<b>Geometry type </b>{text}' ]
+                renderTpl: ['<b>Geometry type </b>{text}']
             },
             {
                 plain: true,
                 text: config.data.prj,
-                renderTpl: [ '<b>Projection: </b>{text}' ]
+                renderTpl: ['<b>Projection: </b>{text}']
             },
-            { xtype: "menuseparator" },
+            { xtype: 'menuseparator' },
             {
-                text: "Publish",
-                icon: HSRS.IMAGE_LOCATION+"/map_go.png",
+                text: 'Publish',
+                icon: HSRS.IMAGE_LOCATION + '/map_go.png',
                 scope: this,
                 handler: this._onUploadClicked
             },
             {
-                text: "Download",
-                icon: HSRS.IMAGE_LOCATION+"/download.png",
-                href: this.url + "/" + config.data.name,
-                hrefTarget: "_blank"
+                text: 'Download',
+                icon: HSRS.IMAGE_LOCATION + '/download.png',
+                href: this.url + '/' + config.data.name,
+                hrefTarget: '_blank'
             },
             {
-                text: "Delete",
-                icon: HSRS.IMAGE_LOCATION+"/delete.png",
+                text: 'Delete',
+                icon: HSRS.IMAGE_LOCATION + '/delete.png',
                 scope: this,
                 handler: this._onDeleteClicked
             }
         ];
 
         if (window.OpenLayers) {
-            config.items.push( { xtype: "menuseparator" });
-            config.items.push( {
-                    text: "Preview",
-                    icon: HSRS.IMAGE_LOCATION+"/map.png",
+            config.items.push({ xtype: 'menuseparator' });
+            config.items.push({
+                    text: 'Preview',
+                    icon: HSRS.IMAGE_LOCATION + '/map.png',
                     scope: this,
                     handler: this._previewClicked
                 });
@@ -96,8 +96,8 @@ Ext4.define("HSRS.LayerManager.FilesPanel.FileMenu", {
 
         this.callParent(arguments);
 
-        this.addEvents("filepublished");
-        this.addEvents("filedeleted");
+        this.addEvents('filepublished');
+        this.addEvents('filedeleted');
     },
 
     /**
@@ -105,7 +105,7 @@ Ext4.define("HSRS.LayerManager.FilesPanel.FileMenu", {
      * @private
      */
     _onDeleteClicked: function() {
-        this.fireEvent("filedeleted",this.record);
+        this.fireEvent('filedeleted', this.record);
     },
 
     /**
@@ -113,15 +113,15 @@ Ext4.define("HSRS.LayerManager.FilesPanel.FileMenu", {
      * @private
      */
     _previewClicked: function() {
-        var preview = Ext4.create("HSRS.LayerManager.FilesPanel.Preview",
+        var preview = Ext4.create('HSRS.LayerManager.FilesPanel.Preview',
                 {
                     data: this.data
                 });
-        preview._win = Ext4.create("Ext4.window.Window", {
-            title: "Preview of "+this.data.name+" extent",
+        preview._win = Ext4.create('Ext4.window.Window', {
+            title: 'Preview of '+ this.data.name + ' extent',
             height: 200,
             width: 400,
-            layout: "fit",
+            layout: 'fit',
             items: [
                 preview
             ]
@@ -134,9 +134,9 @@ Ext4.define("HSRS.LayerManager.FilesPanel.FileMenu", {
      * @private
      */
     _onUploadClicked: function() {
-        var publishForm = Ext4.create("HSRS.LayerManager.PublishForm", {
+        var publishForm = Ext4.create('HSRS.LayerManager.PublishForm', {
             name: this.data.name,
-            url: this.url.replace("fileman","layed"),
+            url: this.url.replace('fileman', 'layed'),
             type: this.data.type,
             groups: this.groups,
             prj: this.data.prj,
@@ -144,18 +144,18 @@ Ext4.define("HSRS.LayerManager.FilesPanel.FileMenu", {
             attributes: this.data.attributes,
             geomtype: this.data.geomtype
         });
-        publishForm._win = Ext4.create("Ext4.window.Window", {
-            title: "Upload and publish file to GeoServer",
+        publishForm._win = Ext4.create('Ext4.window.Window', {
+            title: 'Upload and publish file to GeoServer',
             items: [publishForm]
         });
 
-        publishForm.on("canceled",publishForm._win.close,publishForm._win);
-        publishForm.on("published",
-            function(e){
+        publishForm.on('canceled', publishForm._win.close, publishForm._win);
+        publishForm.on('published',
+            function(e) {
                 this.publishForm._win.close();
-                this.menu._onFilePublished.apply(this.menu,arguments);
+                this.menu._onFilePublished.apply(this.menu, arguments);
             },
-            {menu:this,publishForm: publishForm}
+            {menu: this, publishForm: publishForm}
         );
         publishForm._win.show();
     },
@@ -167,6 +167,6 @@ Ext4.define("HSRS.LayerManager.FilesPanel.FileMenu", {
      */
     _onFilePublished: function(data) {
 
-        this.fireEvent("filepublished",data);
+        this.fireEvent('filepublished', data);
     }
 });

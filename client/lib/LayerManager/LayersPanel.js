@@ -1,12 +1,12 @@
-Ext4.define("HSRS.LayerManager.LayersPanel", {
-    
-    extend: "Ext.grid.Panel",
-    title: "Layers",
+Ext4.define('HSRS.LayerManager.LayersPanel', {
+
+    extend: 'Ext4.grid.Panel',
+    title: 'Layers',
 
     requires: [
-        "Ext4.data.JsonStore",
-        "HSRS.LayerManager.LayersPanel.Model",
-        "HSRS.LayerManager.LayersPanel.LayerMenu"
+        'Ext4.data.JsonStore',
+        'HSRS.LayerManager.LayersPanel.Model',
+        'HSRS.LayerManager.LayersPanel.LayerMenu'
     ],
 
     /**
@@ -16,34 +16,34 @@ Ext4.define("HSRS.LayerManager.LayersPanel", {
 
         myconfig = {};
 
-        myconfig.tbar = Ext4.create("Ext4.toolbar.Toolbar", {
+        myconfig.tbar = Ext4.create('Ext4.toolbar.Toolbar', {
             items: [
                 {
                     //text: 'Refresh',
                     scope: this,
-                    handler:  this._onRefreshClicked,
+                    handler: this._onRefreshClicked,
                     cls: 'x-btn-icon',
                     tooltip: 'Refresh file list',
-                    icon: HSRS.IMAGE_LOCATION+"/arrow_refresh.png"
+                    icon: HSRS.IMAGE_LOCATION + '/arrow_refresh.png'
                 },
                 {
                     scope: this,
-                    handler:  this._onDeleteClicked,
+                    handler: this._onDeleteClicked,
                     cls: 'x-btn-icon',
                     tooltip: 'Delete layer',
-                    icon: HSRS.IMAGE_LOCATION+"/delete.png"
+                    icon: HSRS.IMAGE_LOCATION + '/delete.png'
                 }
             ]
         });
-        
-        myconfig.store = Ext4.create("Ext4.data.Store", {
+
+        myconfig.store = Ext4.create('Ext4.data.Store', {
             model: 'HSRS.LayerManager.LayersPanel.Model',
-            groupField: "wstitle",
+            groupField: 'wstitle',
             //autoLoad: true,
             //autoSync: true,
             proxy: {
-                type: "ajax",
-                url: (HSRS.ProxyHost ? HSRS.ProxyHost+escape(config.url):config.url),
+                type: 'ajax',
+                url: (HSRS.ProxyHost ? HSRS.ProxyHost + escape(config.url) : config.url),
                 reader: {
                     type: 'json'
                 }
@@ -51,17 +51,17 @@ Ext4.define("HSRS.LayerManager.LayersPanel", {
         });
 
         myconfig.multiSelect = true;
-        myconfig.autoScroll =  true;
-        myconfig.anchor = "100%";
+        myconfig.autoScroll = true;
+        myconfig.anchor = '100%';
 
 
-        myconfig.columns = [ 
+        myconfig.columns = [
             // ws column
             {
-                text: "Workspace",
+                text: 'Workspace',
                 sortable: true,
-                flex:1,
-                dataIndex: "wstitle"
+                flex: 1,
+                dataIndex: 'wstitle'
             },
             // icon column
             {
@@ -76,28 +76,28 @@ Ext4.define("HSRS.LayerManager.LayersPanel", {
                 tpl: Ext4.create('Ext4.XTemplate', '{layer:this.formatIcon}', {
                     formatIcon: function(v) {
 
-                        return '<img src="'+HSRS.IMAGE_LOCATION+v.type.toLowerCase()+'-type.png" />';
+                        return '<img src="' + HSRS.IMAGE_LOCATION + v.type.toLowerCase() + '-type.png" />';
                     }
                 })
             },
             // layer column
             {
-                text: "Layer",
-                xtype: "templatecolumn",
+                text: 'Layer',
+                xtype: 'templatecolumn',
                 sortable: true,
-                flex:1,
-                dataIndex: "featureType",
-                tpl: "{featuretype.title}"
+                flex: 1,
+                dataIndex: 'featureType',
+                tpl: '{featuretype.title}'
             }
         ];
 
         // grouping according to workspaces
-         var groupingFeature = Ext4.create('Ext4.grid.feature.Grouping',{
+         var groupingFeature = Ext4.create('Ext4.grid.feature.Grouping', {
              groupHeaderTpl: '{name}',
             hideGroupedHeader: true
         });
 
-        config = Ext.Object.merge(myconfig, config);
+        config = Ext4.Object.merge(myconfig, config);
         config.features = [groupingFeature];
 
         this.callParent(arguments);
@@ -105,21 +105,21 @@ Ext4.define("HSRS.LayerManager.LayersPanel", {
         var makeMenu = function(view, record, elem, idx, e, opts) {
 
                 // display file menu
-                var menu = Ext4.create("HSRS.LayerManager.LayersPanel.LayerMenu", {
+                var menu = Ext4.create('HSRS.LayerManager.LayersPanel.LayerMenu', {
                     url: this.url,
                     record: record,
                     listeners: {
-                        scope:this,
+                        scope: this,
 
                         // file deleted listener will popup confirmation window
-                        "layerdeleted": function(record, evt) {
-                            Ext4.MessageBox.confirm("Really remove selected layer?",
-                                    "Are you sure, you want to remove selected file? <br />"+
-                                    record.get("workspace"),
-                                    function(btn, x, msg){
-                                        if (btn == "yes") {
-                                            this.lm.deleteLayer(this.record.get("layer").name,
-                                                                this.record.get("workspace"));
+                        'layerdeleted': function(record, evt) {
+                            Ext4.MessageBox.confirm('Really remove selected layer?',
+                                    'Are you sure, you want to remove selected file? <br />'+
+                                    record.get('workspace'),
+                                    function(btn, x, msg) {
+                                        if (btn == 'yes') {
+                                            this.lm.deleteLayer(this.record.get('layer').name,
+                                                                this.record.get('workspace'));
                                         }
                                     },
                                     {lm: this, record: record});
@@ -127,13 +127,13 @@ Ext4.define("HSRS.LayerManager.LayersPanel", {
                                 }
                     }
             });
-            
-            menu.showAt(e.xy[0],e.xy[1],elem);
+
+            menu.showAt(e.xy[0], e.xy[1], elem);
             Ext4.EventManager.stopEvent(e);
         };
 
-        this.on("itemcontextmenu",makeMenu, this);
-        this.on("itemclick",makeMenu, this);
+        this.on('itemcontextmenu', makeMenu, this);
+        this.on('itemclick', makeMenu, this);
 
         myconfig.store.load();
 
@@ -144,21 +144,21 @@ Ext4.define("HSRS.LayerManager.LayersPanel", {
      * send delete request
      *
      * @function
-     * @param layer {String}  layer name
-     * @param layer {workspace} ws name
+     * @param layer {String}  layer name.
+     * @param layer {workspace} ws name.
      */
     deleteLayer: function(layer,ws) {
-        var url = this.url+layer+"?usergroup="+ws;
+        var url = this.url + layer + '?usergroup='+ ws;
         console.log(this.url);
         Ext4.Ajax.request({
-            method: "DELETE",
-            url: (HSRS.ProxyHost ? HSRS.ProxyHost+escape(url):url),
+            method: 'DELETE',
+            url: (HSRS.ProxyHost ? HSRS.ProxyHost + escape(url) : url),
             success: function() {
-                console.log("####",arguments);
+                console.log('####', arguments);
             },
             scope: this
         });
-        this.store.load(); 
+        this.store.load();
     },
 
     /**
@@ -166,8 +166,8 @@ Ext4.define("HSRS.LayerManager.LayersPanel", {
      * @private
      */
      _onRefreshClicked: function() {
-        this.store.load(); 
-     },
+        this.store.load();
+     }
 
     /**
      * get file details

@@ -1,11 +1,11 @@
-Ext4.define("HSRS.LayerManager", {
+Ext4.define('HSRS.LayerManager', {
     /*
      * configuration
      */
-    extend: "Ext.panel.Panel",
+    extend: 'Ext.panel.Panel',
     requires: [
-        "HSRS.LayerManager.FilesPanel",
-        "HSRS.LayerManager.LayersPanel"
+        'HSRS.LayerManager.FilesPanel',
+        'HSRS.LayerManager.LayersPanel'
     ],
 
     /**
@@ -25,43 +25,43 @@ Ext4.define("HSRS.LayerManager", {
      */
     constructor: function(config) {
         config.layout = {
-            type:"hbox",
+            type: 'hbox',
             reserveScrollbar: true,
-            align: "stretch"
+            align: 'stretch'
         };
 
-        var url = config.url + (config.url[config.url.length-1] == "/" ? "" : "/") +"fileman/"; 
-        this.filesPanel = Ext4.create("HSRS.LayerManager.FilesPanel", {
+        var url = config.url + (config.url[config.url.length - 1] == '/' ? '' : '/') + 'fileman/';
+        this.filesPanel = Ext4.create('HSRS.LayerManager.FilesPanel', {
             //url: config.url,
             url: url,
             listeners: {
-                scope:this,
-                "filepublished": this._onFilePublished
+                scope: this,
+                'filepublished': this._onFilePublished
             },
             flex: 1
         });
 
-        url = config.url + (config.url[config.url.length-1] == "/" ? "" : "/") +"layed/"; 
+        url = config.url + (config.url[config.url.length - 1] == '/' ? '' : '/') + 'layed/';
 
-        this.layersPanel = Ext4.create("HSRS.LayerManager.LayersPanel", {
+        this.layersPanel = Ext4.create('HSRS.LayerManager.LayersPanel', {
             url: url,
             flex: 1
         });
 
-        this.layersPanel.store.on("load",this._onLayersLoaded,this);
+        this.layersPanel.store.on('load', this._onLayersLoaded, this);
 
         config.items = [this.filesPanel, this.layersPanel];
 
         this.callParent(arguments);
     },
-    
+
     /**
      * handler
      * @private
      * @function
      */
     _onFilePublished: function(data) {
-        Ext4.Msg.alert('Success',"File ["+data.fileName+"] published");
+        Ext4.Msg.alert('Success', 'File ['+ data.fileName + '] published');
         this.layersPanel.store.load();
     },
 
@@ -70,9 +70,9 @@ Ext4.define("HSRS.LayerManager", {
      * @private
      * @function
      */
-    _onLayersLoaded: function(){
-        var groups = this.layersPanel.store.getGroups().map(function(g){
-                return [g.children[0].get("workspace"), g.children[0].get("wstitle")];
+    _onLayersLoaded: function() {
+        var groups = this.layersPanel.store.getGroups().map(function(g) {
+                return [g.children[0].get('workspace'), g.children[0].get('wstitle')];
         });
         this.filesPanel.setGroups(groups);
     }

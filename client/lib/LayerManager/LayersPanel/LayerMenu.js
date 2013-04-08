@@ -3,27 +3,27 @@
  * @author: Jachym
  */
 
-Ext4.define("HSRS.LayerManager.LayersPanel.LayerMenu", {
-    
-    extend: "Ext4.menu.Menu",
+Ext4.define('HSRS.LayerManager.LayersPanel.LayerMenu', {
 
-    requires:[],
+    extend: 'Ext4.menu.Menu',
+
+    requires: [],
 
     layer: undefined,
     url: undefined,
     record: undefined,
-    
+
     /**
      * @constructor
      */
     constructor: function(config) {
-        config.title = config.record.get("name");
+        config.title = config.record.get('name');
         config.width = 200;
         config.plain = true;
 
-        this.url = config.url.replace(/\/$/,config.record.get("name"));
+        this.url = config.url.replace(/\/$/, config.record.get('name'));
 
-        config.title = config.record.get("featuretype").title;
+        config.title = config.record.get('featuretype').title;
         config.items = [];
 
         var separator = false;
@@ -32,8 +32,8 @@ Ext4.define("HSRS.LayerManager.LayersPanel.LayerMenu", {
             separator = true;
             config.items.push(
                 {
-                    text: "View",
-                    icon: HSRS.IMAGE_LOCATION+"/map_go.png",
+                    text: 'View',
+                    icon: HSRS.IMAGE_LOCATION + '/map_go.png',
                     scope: this,
                     handler: this._onViewClicked
                 }
@@ -44,8 +44,8 @@ Ext4.define("HSRS.LayerManager.LayersPanel.LayerMenu", {
         if (HSRS && HSRS.STYLERURL) {
             separator = true;
             config.items.push({
-                text: "Styler",
-                icon: HSRS.IMAGE_LOCATION+"/style.png",
+                text: 'Styler',
+                icon: HSRS.IMAGE_LOCATION + '/style.png',
                 scope: this,
                 handler: this._onStyleClicked
             });
@@ -53,20 +53,20 @@ Ext4.define("HSRS.LayerManager.LayersPanel.LayerMenu", {
 
         if (separator) {
             config.items.push(
-                { xtype: "menuseparator" }
+                { xtype: 'menuseparator' }
             );
         }
 
         config.items.push({
-                text: "Delete",
-                icon: HSRS.IMAGE_LOCATION+"/delete.png",
+                text: 'Delete',
+                icon: HSRS.IMAGE_LOCATION + '/delete.png',
                 scope: this,
                 handler: this._onDeleteClicked
             });
 
         this.callParent(arguments);
 
-        this.addEvents("layerdeleted");
+        this.addEvents('layerdeleted');
     },
 
     /**
@@ -74,7 +74,7 @@ Ext4.define("HSRS.LayerManager.LayersPanel.LayerMenu", {
      * @private
      */
     _onDeleteClicked: function() {
-        this.fireEvent("layerdeleted",this.record);
+        this.fireEvent('layerdeleted', this.record);
     },
 
     /**
@@ -84,7 +84,7 @@ Ext4.define("HSRS.LayerManager.LayersPanel.LayerMenu", {
     _onStyleClicked: function() {
         var t = new Ext4.XTemplate(HSRS.STYLERURL);
         var url = t.apply(this.record.data);
-        window.open(url,'_newtab');
+        window.open(url, '_newtab');
     },
 
     /**
@@ -94,7 +94,7 @@ Ext4.define("HSRS.LayerManager.LayersPanel.LayerMenu", {
     _onViewClicked: function() {
         var t = new Ext4.XTemplate(HSRS.VIEWURL);
         var url = t.apply(this.record.data);
-        window.open(url,'_newtab');
+        window.open(url, '_newtab');
     }
 
 });

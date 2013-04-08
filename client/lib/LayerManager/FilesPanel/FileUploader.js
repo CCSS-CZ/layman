@@ -1,10 +1,10 @@
-Ext4.define("HSRS.LayerManager.FilesPanel.FileUploader", {
-    
-    extend: "Ext4.form.Panel",
+Ext4.define('HSRS.LayerManager.FilesPanel.FileUploader', {
+
+    extend: 'Ext4.form.Panel',
 
     /**
      * already available files for later check for existing files
-     * @type [{String}]
+     * @type [ {String}]
      */
     filesnames: undefined,
 
@@ -16,7 +16,7 @@ Ext4.define("HSRS.LayerManager.FilesPanel.FileUploader", {
         config.frame = true;
         config.filesnames = config.filesnames || [];
         config.items = [{
-            xtype: "textfield",
+            xtype: 'textfield',
             id: 'file_name',
             //emptyText: '(leave blank for use file name)',
             fieldLabel: 'New file name',
@@ -40,7 +40,7 @@ Ext4.define("HSRS.LayerManager.FilesPanel.FileUploader", {
             name: 'filename',
             //buttonText: '',
             width: 350,
-            msgTarget: "side",
+            msgTarget: 'side',
             labelWidth: 120,
             allowBlank: false
             //buttonConfig: {
@@ -50,26 +50,26 @@ Ext4.define("HSRS.LayerManager.FilesPanel.FileUploader", {
 
         config.buttons = [{
             text: 'Save',
-            scope:this,
-            handler: function(){
+            scope: this,
+            handler: function() {
                 var form = this.getForm();
                 if (this._onBeforeSubmit() === false) {
                     return false;
                 }
-                if(form.isValid()){
+                if (form.isValid()) {
                     form.submit({
                         scope: this,
                         url: config.url,
-                        waitMsg: "Uploading files to server ...",
+                        waitMsg: 'Uploading files to server ...',
                         success: function(form, action) {
-                            this.fireEvent("filesaved",action);
+                            this.fireEvent('filesaved', action);
                             if (action.result && action.result.file) {
-                                Ext.Msg.alert('Success', 
-                                    (action.result && action.result.file ? 'Processed file "' + action.result.file + '" on the server': "No Server response."));
+                                Ext.Msg.alert('Success',
+                                    (action.result && action.result.file ? 'Processed file "' + action.result.file + '" on the server' : 'No Server response.'));
                             }
                         },
                         failure: function(form, action) {
-                            this.fireEvent("filesaved",action);
+                            this.fireEvent('filesaved', action);
                             Ext.Msg.alert('Failed', action.result ? action.result.message : 'No response');
                         }
                     });
@@ -83,8 +83,8 @@ Ext4.define("HSRS.LayerManager.FilesPanel.FileUploader", {
         }];
 
         this.callParent(arguments);
-        
-        this.addEvents("filesaved");
+
+        this.addEvents('filesaved');
 
      },
 
@@ -98,12 +98,12 @@ Ext4.define("HSRS.LayerManager.FilesPanel.FileUploader", {
         var values = form.getValues();
 
         // make sure, file name does not exist yet
-        var filename = values.newfilename || this.items.get(1).value.replace("C:\\fakepath\\","");
+        var filename = values.newfilename || this.items.get(1).value.replace('C:\\fakepath\\', '');
 
         if (this.filesnames.indexOf(filename) > -1 ||
-            this.filesnames.indexOf(filename+".shp") > -1) {
-            Ext4.MessageBox.alert("File name exists",
-                    "File name ["+filename+"] exists, choose different name.");
+            this.filesnames.indexOf(filename + '.shp') > -1) {
+            Ext4.MessageBox.alert('File name exists',
+                    'File name ['+ filename + '] exists, choose different name.');
             return false;
         }
      }
