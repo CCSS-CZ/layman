@@ -18,4 +18,4 @@ dbpass=erra135
 url=http://erra.ccss.cz:8080/geoserver/rest
 user=admin
 password=geoserver
-
+gsdir=/data/geoserver/

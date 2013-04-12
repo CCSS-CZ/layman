@@ -8,6 +8,7 @@ sys.path.append(os.path.join(INSTALL_DIR))
 
 import json
 from layman.layed import LayEd
+from layman.layed import GsRest
 
 class LayEdTestCase(unittest.TestCase):
     """Test of the auth module"""
@@ -20,40 +21,83 @@ class LayEdTestCase(unittest.TestCase):
         cfg = ConfigParser.SafeConfigParser()
         cfg.read((os.path.join(TEST_DIR,"tests.cfg")))
         self.le = LayEd(cfg)
-        self.cfg = cfg
-
+        self.gsr = GsRest(cfg)
+        self.config = cfg
         self.workdir = os.path.abspath(os.path.join(TEST_DIR,"workdir","data"))
 
     # TODO: add tests for POST /layed?myLayer
 
-    def test_publish(self):
-        from geoserver.catalog import Catalog
-        gsUrl = self.cfg.get("GeoServer", "url")
-        gsUser = self.cfg.get("GeoServer", "user")
-        gsPassword = self.cfg.get("GeoServer", "password")
-        self.direct_gs = Catalog(gsUrl, gsUser, gsPassword)
+    def test_01_publish(self):
+        
+        # Checks #
 
-        # Intro
-        self.assertEquals( True, None == self.direct_gs.get_layer("line_crs"), "The layer line_crs already exists. Please, remove it manually." )
-        #self.assertEquals( True, None == self.direct_gs.get_store("line_crs"), "The store line_crs already exists. Please, remove it manually." )
+        # Check if the layer is not already there
+        #(head, cont) = self.gsr.getLayer("dragouni", "line_crs")
+        #self.assertNotEquals("200", head["status"], "The layer line_crs already exists. Please, remove it manually." )
 
-        # Action
-        self.le.publish(fsDir=self.workdir, dbSchema=None, gsWorkspace="TestWS", fileName="line_crs.shp")
+        # Check if the style is not already there
+        #(head, cont) = self.gsr.getStyle("dragouni", "line_crs")
+        #self.assertNotEquals("200", head["status"], "The style line_crs already exists. Please, remove it manually." )
 
-        # Test
-        self.assertEquals( False, None == self.direct_gs.get_layer("line_crs"), "The layer line_crs is not there. Was it created under another name?" )
+        # Check if the data store is not already there
+        #(head, cont) = self.gsr.getDataStore("dragouni", "line_crs")
+        #print "*** Check if the data store is not already there ***"
+        #print 'getDataStore("dragouni", "line_crs")'
+        #print head
+        #print cont
+        #self.assertNotEquals(True, "dataStore" in cont, "The data store line_crs already exists. Please, remove it manually." )
+        #self.assertNotEquals("200", head["status"], "The data store line_crs already exists. Please, remove it manually." )
 
-    def test_delete(self):
-        # TODO: make sure the layer exists
+        # Publish #
 
-        # uncomment to delete
-        # this deletes the feature type and layer
-        # however, this does not (and should not) delete the data store.
-        # if the layer is published as above, this is an issue, as it cannot be then published again.
-        #self.le.deleteLayer("TestWS", "line_crs")
-        pass
+        # Publish line_crs in workspace dragouni
+        self.le.publish(fsDir=self.workdir, dbSchema=None, gsWorkspace="dragouni", fileName="line_crs.shp")
 
-        # TODO: test
+        # Test #
+
+        # Check if the layer is there
+        (head, cont) = self.gsr.getLayer("dragouni", "line_crs")
+        self.assertEquals("200", head["status"], "The layer line_crs is not there. Was it created under another name?")
+
+        # Check the style of the layer
+        layerJson = json.loads(cont)
+        styleName = layerJson["layer"]["defaultStyle"]["name"]
+        self.assertEquals("line_crs", styleName, "The layer is there, but it has wrong style assinged.")
+
+        # Check if the style is there
+        (head, cont) = self.gsr.getStyle("dragouni", "line_crs")
+        self.assertEquals("200", head["status"], "The style line_crs is not there." )
+
+    #def test_02_delete(self):
+
+        # Checks #
+
+        # Check that the layer is there
+        #(head, cont) = self.gsr.getLayer("dragouni", "line_crs")
+        #self.assertEquals("200", head["status"], "The layer line_crs is not there. Was it created under another name?")
+
+        # Check that the style is there
+        #(head, cont) = self.gsr.getStyle("dragouni", "line_crs")
+        #self.assertEquals("200", head["status"], "The style line_crs is not there." )
+
+        # Delete #
+
+        # Delete layer (including feature type, style and datastore)
+        #self.le.deleteLayer(workspace="dragouni", layer="line_crs", deleteStore=True)
+
+        # Test #
+
+        # Check that the layer is not there
+        #(head, cont) = self.gsr.getLayer("dragouni", "line_crs")
+        #self.assertNotEquals("200", head["status"], "The layer line_crs still exists, should be already deleted." )
+
+        # Check that the style is not there
+        #(head, cont) = self.gsr.getStyle("dragouni", "line_crs")
+        #self.assertNotEquals("200", head["status"], "The style line_crs already exists, should be already deleted." )
+
+        # Check that the data store is not there
+        #(head, cont) = self.gsr.getDataStore("dragouni", "line_crs")
+        #self.assertNotEquals("200", head["status"], "The data store line_crs already exists, should be already deleted." )
 
 if __name__ == "__main__":
    suite = unittest.TestLoader().loadTestsFromTestCase(LayEdTestCase)

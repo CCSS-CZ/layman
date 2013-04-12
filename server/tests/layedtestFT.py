@@ -50,7 +50,7 @@ class LayEdTestCase(unittest.TestCase):
 
     def test_cloneStyle(self):
         
-        self.le.cloneStyle(fromWorkspace=None, fromStyle="polygon", toWorkspace="pprd", toStyle="MyNewPoly")
+        self.le.cloneStyle(fromStyleUrl="http://erra.ccss.cz/geoserver/rest/styles/polygon.json", toWorkspace="pprd", toStyle="MyNewPoly")
 
         gsr = GsRest(self.config)
         (head, cont) = gsr.getStyleSld(workspace="pprd", styleName="MyNewPoly")

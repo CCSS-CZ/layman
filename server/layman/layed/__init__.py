@@ -59,10 +59,59 @@ class LayEd:
         # It would be needed for GS "POST FeatureType" request
 
         # Here the Data Store should exist
-   
+  
+        # publish with gsconfig.py
         from gsconfig import GsConfig
-        gs = GsConfig(self.config)
-        gs.createFeatureStore(filePathNoExt, gsWorkspace, dataStoreName = fileNameNoExt)
+        gsc = GsConfig(self.config)
+        gsc.createFeatureStore(filePathNoExt, gsWorkspace, dataStoreName = fileNameNoExt)
+        logging.info("[LayEd][publish] published layer '%s'"% fileNameNoExt)
+        logging.info("[LayEd][publish] in workspace '%s'"% gsWorkspace)
+
+        # Create new style for the layer
+
+        # get the current style
+        gsr = GsRest(self.config)
+        (head, layer) = gsr.getLayer(gsWorkspace, name=fileNameNoExt) # GET Layer
+        # FIXME: we don't really KNOW the name of the layer. it is not returned by gsconfig and needs to be reworked.
+        # TODO: check the result
+        layerJson = json.loads(layer)
+        currentStyleUrl = layerJson["layer"]["defaultStyle"]["href"]
+
+        # create new style      
+        newStyleUrl = self.cloneStyle(fromStyleUrl=currentStyleUrl, toWorkspace=gsWorkspace, toStyle=fileNameNoExt) # POST Style
+        logging.info("[LayEd][publish] created style '%s'"% fileNameNoExt)
+        logging.info("[LayEd][publish] in workspace '%s'"% gsWorkspace)
+        # TODO: check the result
+       
+        # assign newstyle with gsxml
+        from gsxml import GsXml
+        gsx = GsXml(self.config) 
+        gsx.setLayerStyle(layerWorkspace=gsWorkspace, dataStoreName=fileNameNoExt, layerName=fileNameNoExt, \
+                          styleWorkspace=gsWorkspace, styleName=fileNameNoExt)
+        logging.info("[LayEd][publish] assigned style '%s'"% fileNameNoExt)
+        logging.info("[LayEd][publish] to layer '%s'"% fileNameNoExt)
+        logging.info("[LayEd][publish] in workspace '%s'"% gsWorkspace)
+        # TODO: check the result
+
+        # assign new style
+        #layerJson["layer"]["defaultStyle"]["name"] = fileNameNoExt
+        #layerJson["layer"]["defaultStyle"]["href"] = "http://erra.ccss.cz:8080/geoserver/rest/workspaces/dragouni/styles/line_crs.json" #newStyleUrl
+        #layerJson["layer"]["enabled"] = "false"
+        #layerJson["layer"]["advertised"] = "false"
+        #layerJson["layer"]["queryable"] = "false"
+        #layerJson["layer"]["attribution"]["logoWidth"] = "33"
+        #layerJson["layer"]["attribution"]["logoHeight"] = "44"
+        #layerStr = json.dumps(layerJson)
+        #print "Changing layer - layerStr:"
+        #print layerStr
+        #(head, cont) = gsr.putLayer(gsWorkspace, name=fileNameNoExt, data=layerStr) # PUT Layer
+        #print "*** LayEd - Layer changed ***"
+        #print "head"
+        #print head
+        #print "cont"
+        #print cont
+        # TODO: check the result
+
         return fileNameNoExt
 
     def getLayersGsConfig(self, workspace=None): 
@@ -115,9 +164,9 @@ class LayEd:
         logging.debug("[LayEd][getLayers] GS GET Layers response content: '%s'"% response)
         
         # TODO: check the result
-        # print "*** LAYED]* getLayers() ***"
-        # print 'gsr.getLayers()'
-        # print gsr.getLayers()
+        # #print "*** LAYED]* getLayers() ***"
+        # #print 'gsr.getLayers()'
+        # #print gsr.getLayers()
 
         gsLayers = json.loads(response) # Layers from GS
 
@@ -175,8 +224,9 @@ class LayEd:
         layers = json.dumps(layers) # json -> string
         return (code, layers)
 
-    def deleteLayer(self, workspace, layer): 
+    def deleteLayer(self, workspace, layer, deleteStore=False): 
         """Delete the Layer and the Corresponding Feature Type
+           deleteStore = whether to delete the underlying data store as well
         """
         logging.debug("[LayEd][deleteLayer]")
         gsr = GsRest(self.config)
@@ -200,7 +250,22 @@ class LayEd:
         headers, response = gsr.deleteUrl(ftUrl)
         logging.debug("[LayEd][deleteLayer] DELETE Feature Type response headers: %s"% headers)
         logging.debug("[LayEd][deleteLayer] DELETE Feature Type response content: %s"% response)
-        # TODO: check the result and return st.
+        # TODO: check the result
+
+        # Delete Style (we have created it when publishing)
+        headers, response = gsr.deleteStyle(workspace, styleName=layer, purge="true")
+        # TODO: check the result 
+
+        # Delete Data Store 
+        # (this is usefull when dedicated datastore was created when publishing)
+        #print "$$$ layer: $$$ " + layer 
+        #if deleteStore == True:
+        #    headers, response = gsr.deleteDataStore(workspace,layer)
+        # FIXME: tohle zlobi nevim proc        
+
+        # TODO: check the result
+
+        # TODO: return st.
 
     ### LAYER CONFIG ###
 
@@ -221,8 +286,8 @@ class LayEd:
         # GET Feature Type
         ftUrl = layerJson["layer"]["resource"]["href"]
         headers, response = gsr.getUrl(ftUrl)
-        #print "*** GET CONFIG***"
-        #print headers
+        ##print "*** GET CONFIG***"
+        ##print headers
 
         # TODO: check the response
         featureTypeJson = json.loads(response)
@@ -261,30 +326,46 @@ class LayEd:
 
     ### STYLES ###
 
-    def cloneStyle(self, fromWorkspace, fromStyle, toWorkspace, toStyle):
+    def cloneStyle(self, fromStyleUrl, toWorkspace, toStyle):
         """ Create a copy of a style
-            Set fromWorkspace to None to get unassigned style
+            returns url (json) of new style
         """
         gsr = GsRest(self.config)
 
+        # ~.json -> ~.sld
+        dotPos = fromStyleUrl.rfind(".") 
+        sldUrl = fromStyleUrl[0:dotPos+1] + "sld"
+        #print "*** LayEd *** cloneStyle ** "
+        #print "sldUrl:"
+        #print sldUrl
+
         # GET style .sld from GS
-        (headers, styleSld) = gsr.getStyleSld(fromWorkspace, fromStyle)
+        (headers, styleSld) = gsr.getUrl(sldUrl)
         # TODO: check the reuslt
-        print "*** LayEd *** cloneStyle ** "
-        print "getStyleSld() fromStyle " + fromStyle
-        print "headers"
-        print headers
-        print "styleSld"
-        print styleSld
+        #print "*** LayEd *** getUrl(sldUrl) reply:"
+        #print "headers:"
+        #print headers
+        #print "styleSld:"
+        #print styleSld
 
         # Create new style from the sld
         (headers, response) = gsr.postStyleSld(workspace=toWorkspace, styleSld=styleSld, styleName=toStyle)
-        # TODO: check the reuslt and return st.
-        print " ** postStyleSld() **"
-        print "headers"
-        print headers
-        print "response"
-        print response
+        # TODO: check the reuslt 
+        #print " *** LayEd *** postStyleSld() ***"
+        #print "headers"
+        #print headers
+        #print "response"
+        #print response
+
+        # return uri of the new style
+        location = headers["location"]
+        # GS returns 'http://erra.ccss.cz:8080/geoserver/rest/workspaces/hotari/styles.sld/line_crs'
+        # fix geoserver mismatch
+        sldPos = location.rfind(".sld")
+        location = location[0:sldPos] + location[sldPos+4:] + ".json"
+        #print "### LOCATION ###"
+        #print location
+        return location
 
     ### WORKSPACES ###
 

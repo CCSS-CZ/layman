@@ -1,0 +1,78 @@
+<featureType>
+  <id>FeatureTypeInfoImpl--30928351:13cee220ec2:-7fd2</id>
+  <name>ARM_roads</name>
+  <nativeName>ARM_roads</nativeName>
+  <namespace>
+    <id>NamespaceInfoImpl--30928351:13cee220ec2:-7fdd</id>
+  </namespace>
+  <title>Roads</title>
+  <description>Contents of file</description>
+  <keywords>
+    <string>ARM_roads</string>
+    <string>features</string>
+  </keywords>
+  <nativeCRS class="projected">PROJCS[&quot;WGS_1984_UTM_Zone_38N&quot;, 
+  GEOGCS[&quot;GCS_WGS_1984&quot;, 
+    DATUM[&quot;D_WGS_1984&quot;, 
+      SPHEROID[&quot;WGS_1984&quot;, 6378137.0, 298.257223563]], 
+    PRIMEM[&quot;Greenwich&quot;, 0.0], 
+    UNIT[&quot;degree&quot;, 0.017453292519943295], 
+    AXIS[&quot;Longitude&quot;, EAST], 
+    AXIS[&quot;Latitude&quot;, NORTH]], 
+  PROJECTION[&quot;Transverse_Mercator&quot;], 
+  PARAMETER[&quot;central_meridian&quot;, 45.0], 
+  PARAMETER[&quot;latitude_of_origin&quot;, 0.0], 
+  PARAMETER[&quot;scale_factor&quot;, 0.9996], 
+  PARAMETER[&quot;false_easting&quot;, 500000.0], 
+  PARAMETER[&quot;false_northing&quot;, 0.0], 
+  UNIT[&quot;m&quot;, 1.0], 
+  AXIS[&quot;x&quot;, EAST], 
+  AXIS[&quot;y&quot;, NORTH]]</nativeCRS>
+  <srs>EPSG:32638</srs>
+  <nativeBoundingBox>
+    <minx>380265.2946714014</minx>
+    <maxx>664506.0996271074</maxx>
+    <miny>4299780.129251391</miny>
+    <maxy>4571512.310269341</maxy>
+    <crs class="projected">PROJCS[&quot;WGS_1984_UTM_Zone_38N&quot;, 
+  GEOGCS[&quot;GCS_WGS_1984&quot;, 
+    DATUM[&quot;D_WGS_1984&quot;, 
+      SPHEROID[&quot;WGS_1984&quot;, 6378137.0, 298.257223563]], 
+    PRIMEM[&quot;Greenwich&quot;, 0.0], 
+    UNIT[&quot;degree&quot;, 0.017453292519943295], 
+    AXIS[&quot;Longitude&quot;, EAST], 
+    AXIS[&quot;Latitude&quot;, NORTH]], 
+  PROJECTION[&quot;Transverse_Mercator&quot;], 
+  PARAMETER[&quot;central_meridian&quot;, 45.0], 
+  PARAMETER[&quot;latitude_of_origin&quot;, 0.0], 
+  PARAMETER[&quot;scale_factor&quot;, 0.9996], 
+  PARAMETER[&quot;false_easting&quot;, 500000.0], 
+  PARAMETER[&quot;false_northing&quot;, 0.0], 
+  UNIT[&quot;m&quot;, 1.0], 
+  AXIS[&quot;x&quot;, EAST], 
+  AXIS[&quot;y&quot;, NORTH]]</crs>
+  </nativeBoundingBox>
+  <latLonBoundingBox>
+    <minx>43.57012457120716</minx>
+    <maxx>46.96427661882814</maxx>
+    <miny>38.83145990388314</miny>
+    <maxy>41.29474903951445</maxy>
+    <crs>GEOGCS[&quot;WGS84(DD)&quot;, 
+  DATUM[&quot;WGS84&quot;, 
+    SPHEROID[&quot;WGS84&quot;, 6378137.0, 298.257223563]], 
+  PRIMEM[&quot;Greenwich&quot;, 0.0], 
+  UNIT[&quot;degree&quot;, 0.017453292519943295], 
+  AXIS[&quot;Geodetic longitude&quot;, EAST], 
+  AXIS[&quot;Geodetic latitude&quot;, NORTH]]</crs>
+  </latLonBoundingBox>
+  <projectionPolicy>FORCE_DECLARED</projectionPolicy>
+  <enabled>true</enabled>
+  <metadata>
+    <entry key="cachingEnabled">false</entry>
+  </metadata>
+  <store class="dataStore">
+    <id>DataStoreInfoImpl--30928351:13cee220ec2:-7fdc</id>
+  </store>
+  <maxFeatures>0</maxFeatures>
+  <numDecimals>0</numDecimals>
+</featureType>

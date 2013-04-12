@@ -53,12 +53,36 @@ class GsRest:
             url = self.url + "/styles.sld?name=" + styleName
         else:
             url = self.url + "/workspaces/" + workspace + "/styles.sld?name=" + styleName
-        print "*** GsRest *** postStyleSld() "
-        print "url: " + url
-        hhhh = json.dumps(self.sldHeader)
-        print "header: " + hhhh
-
+        print " *** GsRest *** postStyleSld() ***"
+        print "url:"
+        print url
         headers, response =  self.h.request(url, 'POST', styleSld, self.sldHeader)
+        print "headers:"
+        print headers
+        print "response:"
+        print response
+        return headers, response
+
+    def getStyle(self, workspace, styleName):
+        """ Returns JSON of given style
+            Set workspace to None to get an unassigned style
+        """
+        if workspace == None:
+            url = self.url + "/styles/" + styleName + ".json"
+        else:
+            url = self.url + "/workspaces/" + workspace + "/styles/" + styleName + ".json"
+        headers, response =  self.h.request(url,'GET')
+        return headers, response
+
+    def deleteStyle(self, workspace, styleName, purge="true"):
+        """ Delete style
+            purge - whether the underlying .sld file should be deleted. default: true.
+        """
+        if workspace == None:
+            url = self.url + "/styles/" + styleName + ".json?purge=" + purge
+        else:
+            url = self.url + "/workspaces/" + workspace + "/styles/" + styleName + ".json?purge=" + purge
+        headers, response =  self.h.request(url,'DELETE')
         return headers, response
 
     ### LAYERS ###
@@ -69,37 +93,39 @@ class GsRest:
         return headers, response
 
     def getLayer(self, workspace, name):
-        #print "*** GSREST *** getLayer ***"
+        print "*** GSREST *** getLayer ***"
         if workspace == None or workspace == "":
             url = self.url + "/layers/" + name + ".json"
         else:
             url = self.url + "/layers/" + workspace + ":" + name + ".json"
-        #print "*** url ***"
-        #print url
+        print "*** url ***"
+        print url
         headers, response =  self.h.request(url,'GET')
-        #print "*** headers ***"
-        #print headers
-        #print "*** response ***"
-        #print response
+        print "*** headers ***"
+        print headers
+        print "*** response ***"
+        print response
         return headers, response        
 
     def putLayer(self, workspace, name, data):
         url = self.url + "/layers/" + workspace + ":" + name + ".json"
-        ##print "*** GSREST *** putLayer ***"
-        ##print "*** url ***"
-        ##print url
-        ##print "*** data ***"
-        ##print data
+        print "*** GSREST *** putLayer ***"
+        print "*** url ***"
+        print url
+        print "*** data ***"
+        print data
         headers, response =  self.h.request(url,'PUT', data, self.jsonHeader)
-        ##print "*** headers ***"
-        ##print headers
-        ##print "*** response ***"
-        ##print response
+        print "*** headers ***"
+        print headers
+        print "*** response ***"
+        print response
         return headers, response        
 
-    def deleteLayer(self, workspace, name):
+    def deleteLayer(self, workspace, name, recurse="false"):
+        """ recurse - whether to delete referrenced styles. default: false
+        """
         #print "*** GSREST *** deleteLayer ***"
-        url = self.url + "/layers/" + workspace + ":" + name + ".json"
+        url = self.url + "/layers/" + workspace + ":" + name + ".json?recurse=" + recurse
         #print "*** url ***"
         #print url
         headers, response =  self.h.request(url,'DELETE')
@@ -112,54 +138,54 @@ class GsRest:
     ### FEATURE TYPES ###
 
     def getFeatureTypes(self, workspace, datastore):
-        url = self.url + "/workspaces/" + workspace + "/datasores/" + datastore + "/featuretypes.json"
+        url = self.url + "/workspaces/" + workspace + "/datastores/" + datastore + "/featuretypes.json"
         headers, response =  self.h.request(url,'GET')
         return headers, response        
 
     def postFeatureTypes(self, workspace, datastore, data):
-        url = self.url + "/workspaces/" + workspace + "/datasores/" + datastore + "/featuretypes.json"
+        url = self.url + "/workspaces/" + workspace + "/datastores/" + datastore + "/featuretypes.json"
         headers, response =  self.h.request(url,'POST', data, self.jsonHeader)
         return headers, response        
 
     def getFeatureType(self, workspace, datastore, name):
-        url = self.url + "/workspaces/" + workspace + "/datasores/" + datastore + "/featuretypes/" + name + ".json"
+        url = self.url + "/workspaces/" + workspace + "/datastores/" + datastore + "/featuretypes/" + name + ".json"
         headers, response =  self.h.request(url,'GET')
         return headers, response        
 
     def putFeatureType(self, workspace, datastore, name, data):
-        url = self.url + "/workspaces/" + workspace + "/datasores/" + datastore + "/featuretypes/" + name + ".json"
+        url = self.url + "/workspaces/" + workspace + "/datastores/" + datastore + "/featuretypes/" + name + ".json"
         headers, response =  self.h.request(url,'PUT',data, self.jsonHeader)
         return headers, response        
 
     def deleteFeatureType(self, workspace, datastore, name):
-        url = self.url + "/workspaces/" + workspace + "/datasores/" + datastore + "/featuretypes/" + name + ".json"
+        url = self.url + "/workspaces/" + workspace + "/datastores/" + datastore + "/featuretypes/" + name + ".json"
         headers, response =  self.h.request(url,'DELETE')
         return headers, response        
 
     ### DATA STORES ###
 
     def getDataStores(self, workspace):
-        url = self.url + "/workspaces/" + workspace + "/datasores.json"
+        url = self.url + "/workspaces/" + workspace + "/datastores.json"
         headers, response =  self.h.request(url,'GET')
         return headers, response        
 
     def postDataStores(self, workspace, data):
-        url = self.url + "/workspaces/" + workspace + "/datasores.json"
+        url = self.url + "/workspaces/" + workspace + "/datastores.json"
         headers, response =  self.h.request(url,'POST', data, self.jsonHeader)
         return headers, response        
 
     def getDataStore(self, workspace, name):
-        url = self.url + "/workspaces/" + workspace + "/datasores/" +  name + ".json"
+        url = self.url + "/workspaces/" + workspace + "/datastores/" +  name + ".json"
         headers, response =  self.h.request(url,'GET')
         return headers, response        
 
     def putDataStore(self, workspace, name, data):
-        url = self.url + "/workspaces/" + workspace + "/datasores/" + name + ".json"
+        url = self.url + "/workspaces/" + workspace + "/datastores/" + name + ".json"
         headers, response =  self.h.request(url,'PUT',data, self.jsonHeader)
         return headers, response        
 
     def deleteDataStore(self, workspace, name):
-        url = self.url + "/workspaces/" + workspace + "/datasores/" + name + ".json"
+        url = self.url + "/workspaces/" + workspace + "/datastores/" + name + ".json"
         headers, response =  self.h.request(url,'DELETE')
         return headers, response        
 

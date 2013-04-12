@@ -254,7 +254,7 @@ class LayMan:
                 gsWorkspace = self.auth.getGSWorkspace(inpt.usergroup)
                 logging.info("[LayMan]Delete layer '%s'"% layerName )
                 logging.info("[LayMan]Delete from workspace '%s'"% gsWorkspace)
-                retval = le.deleteLayer(gsWorkspace, layerName)
+                retval = le.deleteLayer(gsWorkspace, layerName, deleteStore=True)
                 return retval
 
             else:
