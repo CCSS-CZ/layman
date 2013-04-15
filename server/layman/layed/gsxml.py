@@ -66,6 +66,11 @@ class GsXml:
             path = self.gsDir + "data/workspaces/" + styleWorkspace + "/styles/" + styleName + ".xml"
         return path
 
+    def reloadConfig(self):
+        from gsrest import GsRest
+        gsr = GsRest(self.config)
+        gsr.putReload()
+
     ### PRIVATE ###
 
     def _setConfig(self,config):

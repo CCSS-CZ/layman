@@ -93,6 +93,9 @@ class LayEd:
         logging.info("[LayEd][publish] in workspace '%s'"% gsWorkspace)
         # TODO: check the result
 
+        # Tell GS to reload the configuration
+        gsr.putReload()
+
         # assign new style
         #layerJson["layer"]["defaultStyle"]["name"] = fileNameNoExt
         #layerJson["layer"]["defaultStyle"]["href"] = "http://erra.ccss.cz:8080/geoserver/rest/workspaces/dragouni/styles/line_crs.json" #newStyleUrl

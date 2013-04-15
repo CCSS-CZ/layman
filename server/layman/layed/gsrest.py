@@ -216,6 +216,18 @@ class GsRest:
         headers, response =  self.h.request(url,'DELETE')
         return headers, response        
 
+    ### CONFIGURATION ###
+
+    def putReload(self):
+        url = self.url + "/reload"
+        headers, response = self.h.request(url,'PUT')
+        return headers, response        
+
+    def postReload(self):
+        url = self.url + "/reload"
+        headers, response = self.h.request(url,'POST')
+        return headers, response        
+
     ### GENERAL ###
 
     def getUrl(self, url):
