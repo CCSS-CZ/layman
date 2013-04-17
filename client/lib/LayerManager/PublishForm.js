@@ -45,6 +45,20 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
      * @private
      */
     _initItems: function(config) {
+
+
+        Ext4.define('HSRS.LayerManager.PublishForm.GroupModel', {
+            extend:"Ext4.data.Model",
+            fields: [{
+                name: "name",
+                mapping: "roleName"
+            },
+            {
+                name: "title",
+                mapping: "roleTitle"
+            }]
+        });
+        
         var items = [
             {
                 xtype: 'fieldset',
@@ -96,11 +110,18 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                         name: 'usergroup',
                         anchor: '100%',
                         fieldLabel: 'Group',
-                        store: Ext4.create('Ext4.data.ArrayStore', {
-                            fields: ['name', 'title'],
-                            data: config.groups || []
+                        store: Ext4.create('Ext4.data.JsonStore', {
+                            proxy: {
+                                type: "ajax",
+                                url: config.url+"groups",
+                                model: 'HSRS.LayerManager.PublishForm.GroupModel',
+                                reader: {
+                                    type: "json",
+                                    idProperty: "name"
+                                }
+                            },
+                            fields: ['name', 'title']
                         }),
-                        value: (config.groups && config.groups.length > 0 ? config.groups[0][0] : ''),
                         displayField: 'title',
                         valueField: 'name'
                     },

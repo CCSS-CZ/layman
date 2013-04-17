@@ -325,6 +325,13 @@ class LaymanAuthOpen(LaymanAuth):
         """Take rule from configuration value"""
         return [self.getRole()]
 
+    def getRolesStr(self):
+        """ returns string representation of getRoles() json
+        """
+        rolesJson = self.getRoles()
+        rolesStr = json.dumps(rolesJson)
+        return rolesStr
+
 
 class AuthError(Exception): 
     """Auhorization error class
