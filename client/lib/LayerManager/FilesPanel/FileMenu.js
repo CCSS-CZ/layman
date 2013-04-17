@@ -87,7 +87,7 @@ Ext4.define('HSRS.LayerManager.FilesPanel.FileMenu', {
         if (window.OpenLayers) {
             config.items.push({ xtype: 'menuseparator' });
             config.items.push({
-                    text: 'Preview',
+                    text: 'Show extent',
                     icon: HSRS.IMAGE_LOCATION + '/map.png',
                     scope: this,
                     handler: this._previewClicked
