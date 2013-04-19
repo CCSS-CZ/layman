@@ -122,6 +122,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                             },
                             fields: ['name', 'title']
                         }),
+                        editable: false,
                         displayField: 'title',
                         valueField: 'name'
                     },
