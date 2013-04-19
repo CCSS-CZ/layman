@@ -173,10 +173,10 @@ Ext4.define('HSRS.LayerManager.FilesPanel', {
                                     {fm: this, record: record});
 
                                 }
-                    }
-            });
+                        }
+                });
 
-            menu.showAt(e.xy[0], e.xy[1], elem);
+                menu.showAt(e.xy[0], e.xy[1], elem);
             }, this);
             Ext4.EventManager.stopEvent(e);
         };

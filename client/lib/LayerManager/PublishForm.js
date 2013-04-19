@@ -58,7 +58,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                 mapping: "roleTitle"
             }]
         });
-        
+
         var items = [
             {
                 xtype: 'fieldset',
