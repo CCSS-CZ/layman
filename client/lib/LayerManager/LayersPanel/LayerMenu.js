@@ -32,7 +32,7 @@ Ext4.define('HSRS.LayerManager.LayersPanel.LayerMenu', {
             separator = true;
             config.items.push(
                 {
-                    text: 'View',
+                    text: 'Add to map',
                     icon: HSRS.IMAGE_LOCATION + '/map_go.png',
                     scope: this,
                     handler: this._onViewClicked
