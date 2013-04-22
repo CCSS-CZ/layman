@@ -21,8 +21,8 @@ Ext4.define('HSRS.LayerManager.FilesPanel.Preview', {
 
         this.map = new OpenLayers.Map({
             layers: [
-                new OpenLayers.Layer.OSM('OpenStreetMap'),
-                new OpenLayers.Layer.Boxes('Bounds')
+                new OpenLayers.Layer.OSM('OpenStreetMap',undefined, {isBaseLayer: true}),
+                new OpenLayers.Layer.Boxes('Bounds',{isBaseLayer: false})
             ]
         });
 
