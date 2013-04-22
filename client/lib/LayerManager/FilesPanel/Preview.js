@@ -34,7 +34,7 @@ Ext4.define('HSRS.LayerManager.FilesPanel.Preview', {
     _onAfterLayout: function() {
         if (this.maprendered) { return; }
 
-        this.map.render(this.body.dom);
+        this.map.render(this.body.dom.firstChild.firstChild);
 
 
         this.from = new OpenLayers.Projection(this.data.prj);
@@ -55,6 +55,19 @@ Ext4.define('HSRS.LayerManager.FilesPanel.Preview', {
         // all projection loaded, add bounds, zoom the map
         else {
 
+            // fix the region - whole world does not work properly
+            if (this.data.extent[0] <= -179) {
+                this.data.extent[0] = -179;
+            }
+            if (this.data.extent[1] <= -89) {
+                this.data.extent[1] = -89;
+            }
+            if (this.data.extent[2] >= 179) {
+                this.data.extent[2] = 179;
+            }
+            if (this.data.extent[3] >= 89) {
+                this.data.extent[3] = 89;
+            }
             var bounds = new OpenLayers.Bounds(
                 this.data.extent[0],
                 this.data.extent[1],
