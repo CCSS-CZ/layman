@@ -84,7 +84,7 @@ Ext4.define('HSRS.LayerManager.FilesPanel.FileMenu', {
             }
         ];
 
-        if (window.OpenLayers && this.data.extent) {
+        if (window.OpenLayers && config.data.extent) {
             config.items.push({ xtype: 'menuseparator' });
             config.items.push({
                     text: 'Show extent',
