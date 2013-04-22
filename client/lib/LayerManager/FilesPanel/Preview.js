@@ -19,7 +19,9 @@ Ext4.define('HSRS.LayerManager.FilesPanel.Preview', {
      */
     constructor: function(config) {
 
+        OpenLayers.DOTS_PER_INCH = 90.714236728598;
         this.map = new OpenLayers.Map({
+            numZoomLevels: 22,
             layers: [
                 new OpenLayers.Layer.OSM('OpenStreetMap',undefined, {isBaseLayer: true}),
                 new OpenLayers.Layer.Boxes('Bounds',{isBaseLayer: false})
