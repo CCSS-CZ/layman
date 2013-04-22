@@ -119,8 +119,8 @@ Ext4.define('HSRS.LayerManager.FilesPanel.FileMenu', {
                 });
         preview._win = Ext4.create('Ext4.window.Window', {
             title: 'Preview of '+ this.data.name + ' extent',
-            height: 400,
-            width: 600,
+            width: 512,
+            height: 300,
             layout: 'fit',
             items: [
                 preview

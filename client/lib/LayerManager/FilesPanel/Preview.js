@@ -3,7 +3,6 @@
  * License: ...
  * @author: Jachym
  */
-
 Ext4.define('HSRS.LayerManager.FilesPanel.Preview', {
 
     extend: 'Ext4.panel.Panel',
@@ -19,12 +18,10 @@ Ext4.define('HSRS.LayerManager.FilesPanel.Preview', {
      */
     constructor: function(config) {
 
-        OpenLayers.DOTS_PER_INCH = 90.714236728598;
         this.map = new OpenLayers.Map({
-            numZoomLevels: 22,
             layers: [
-                new OpenLayers.Layer.OSM('OpenStreetMap',undefined, {isBaseLayer: true}),
-                new OpenLayers.Layer.Boxes('Bounds',{isBaseLayer: false})
+                new OpenLayers.Layer.OSM('OpenStreetMap',undefined),
+                new OpenLayers.Layer.Boxes('Bounds')
             ]
         });
 
@@ -58,17 +55,17 @@ Ext4.define('HSRS.LayerManager.FilesPanel.Preview', {
         else {
 
             // fix the region - whole world does not work properly
-            if (this.data.extent[0] <= -179) {
-                this.data.extent[0] = -179;
+            if (this.data.extent[0] <= -168.75) {
+                this.data.extent[0] = -168.75;
             }
-            if (this.data.extent[1] <= -89) {
-                this.data.extent[1] = -89;
+            if (this.data.extent[1] <= -57) {
+                this.data.extent[1] = -57;
             }
-            if (this.data.extent[2] >= 179) {
-                this.data.extent[2] = 179;
+            if (this.data.extent[2] >= 178.6) {
+                this.data.extent[2] = 178.6;
             }
-            if (this.data.extent[3] >= 89) {
-                this.data.extent[3] = 89;
+            if (this.data.extent[3] >= 75.3) {
+                this.data.extent[3] = 75.3;
             }
             var bounds = new OpenLayers.Bounds(
                 this.data.extent[0],
