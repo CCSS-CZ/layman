@@ -67,7 +67,7 @@ class LayEd:
         logging.info("[LayEd][publish] published layer '%s'"% fileNameNoExt)
         logging.info("[LayEd][publish] in workspace '%s'"% gsWorkspace)
 
-        return self.createStyleForLayer(workspace=gsWorkspace, dataStore=fileNameNoExt, layer=fileNameNoExt)
+        return self.createStyleForLayer(workspace=gsWorkspace, dataStore=fileNameNoExt, layerName=fileNameNoExt)
 
     def createStyleForLayer(self, workspace, dataStore, layerName):
 
