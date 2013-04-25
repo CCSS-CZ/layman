@@ -67,37 +67,40 @@ class LayEd:
         logging.info("[LayEd][publish] published layer '%s'"% fileNameNoExt)
         logging.info("[LayEd][publish] in workspace '%s'"% gsWorkspace)
 
+        return self.createStyleForLayer(workspace=gsWorkspace, dataStore=fileNameNoExt, layer=fileNameNoExt)
+
+    def createStyleForLayer(self, workspace, dataStore, layerName):
+
         # Create new style for the layer
-        # This does not work properly yet
 
         # get the current style
-        #gsr = GsRest(self.config)
-        #(head, layer) = gsr.getLayer(gsWorkspace, name=fileNameNoExt) # GET Layer
+        gsr = GsRest(self.config)
+        (head, cont) = gsr.getLayer(workspace, name=layerName) # GET Layer
         # FIXME: we don't really KNOW the name of the layer. it is not returned by gsconfig and needs to be reworked.
         # TODO: check the result
-        #layerJson = json.loads(layer)
-        #currentStyleUrl = layerJson["layer"]["defaultStyle"]["href"]
+        layerJson = json.loads(cont)
+        currentStyleUrl = layerJson["layer"]["defaultStyle"]["href"]
 
         # create new style      
-        #newStyleUrl = self.cloneStyle(fromStyleUrl=currentStyleUrl, toWorkspace=gsWorkspace, toStyle=fileNameNoExt) # POST Style
-        #logging.info("[LayEd][publish] created style '%s'"% fileNameNoExt)
-        #logging.info("[LayEd][publish] in workspace '%s'"% gsWorkspace)
+        newStyleUrl = self.cloneStyle(fromStyleUrl=currentStyleUrl, toWorkspace=workspace, toStyle=layerName) # POST Style
+        logging.info("[LayEd][publish] created style '%s'"% layerName)
+        logging.info("[LayEd][publish] in workspace '%s'"% workspace)
         # TODO: check the result
        
         # assign newstyle with gsxml
-        #from gsxml import GsXml
-        #gsx = GsXml(self.config) 
-        #gsx.setLayerStyle(layerWorkspace=gsWorkspace, dataStoreName=fileNameNoExt, layerName=fileNameNoExt, \
-        #                  styleWorkspace=gsWorkspace, styleName=fileNameNoExt)
-        #logging.info("[LayEd][publish] assigned style '%s'"% fileNameNoExt)
-        #logging.info("[LayEd][publish] to layer '%s'"% fileNameNoExt)
-        #logging.info("[LayEd][publish] in workspace '%s'"% gsWorkspace)
+        from gsxml import GsXml
+        gsx = GsXml(self.config) 
+        gsx.setLayerStyle(layerWorkspace=workspace, dataStoreName=dataStore, layerName=layerName, \
+                          styleWorkspace=workspace, styleName=layerName)
+        logging.info("[LayEd][publish] assigned style '%s'"% layerName)
+        logging.info("[LayEd][publish] to layer '%s'"% layerName)
+        logging.info("[LayEd][publish] in workspace '%s'"% workspace)
         # TODO: check the result
 
         # Tell GS to reload the configuration
-        #gsr.putReload()
+        gsr.putReload()
 
-        # assign new style
+        # assign new style - does not work, GS bug
         #layerJson["layer"]["defaultStyle"]["name"] = fileNameNoExt
         #layerJson["layer"]["defaultStyle"]["href"] = "http://erra.ccss.cz:8080/geoserver/rest/workspaces/dragouni/styles/line_crs.json" #newStyleUrl
         #layerJson["layer"]["enabled"] = "false"
@@ -116,7 +119,7 @@ class LayEd:
         #print cont
         # TODO: check the result
 
-        return fileNameNoExt
+        return layerName
 
     def getLayersGsConfig(self, workspace=None): 
         """returns list of layers"""
@@ -336,7 +339,7 @@ class LayEd:
         """
         gsr = GsRest(self.config)
 
-        # ~.json -> ~.sld
+        # url.json -> url.sld
         dotPos = fromStyleUrl.rfind(".") 
         sldUrl = fromStyleUrl[0:dotPos+1] + "sld"
         #print "*** LayEd *** cloneStyle ** "

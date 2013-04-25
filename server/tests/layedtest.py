@@ -51,22 +51,27 @@ class LayEdTestCase(unittest.TestCase):
         # Publish #
 
         # Publish line_crs in workspace dragouni
-        self.le.publish(fsDir=self.workdir, dbSchema=None, gsWorkspace="dragouni", fileName="line_crs.shp")
+        # self.le.publish(fsDir=self.workdir, dbSchema=None, gsWorkspace="dragouni", fileName="line_crs.shp")
+        ws = "topp"
+        ds = "taz_shapes"
+        ll = "tasmania_cities"
+        st = ll
+        self.le.createStyleForLayer(ws, ds, ll)
 
         # Test #
 
         # Check if the layer is there
-        (head, cont) = self.gsr.getLayer("dragouni", "line_crs")
-        self.assertEquals("200", head["status"], "The layer line_crs is not there. Was it created under another name?")
+        (head, cont) = self.gsr.getLayer(ws, ll)
+        self.assertEquals("200", head["status"], "The layer is not there. Was it created under another name?")
 
         # Check the style of the layer
         layerJson = json.loads(cont)
         styleName = layerJson["layer"]["defaultStyle"]["name"]
-        self.assertEquals("line_crs", styleName, "The layer is there, but it has wrong style assinged.")
+        self.assertEquals(st, styleName, "The layer is there, but it has wrong style assinged.")
 
         # Check if the style is there
-        (head, cont) = self.gsr.getStyle("dragouni", "line_crs")
-        self.assertEquals("200", head["status"], "The style line_crs is not there." )
+        (head, cont) = self.gsr.getStyle(ws, st)
+        self.assertEquals("200", head["status"], "The style is not there." )
 
     #def test_02_delete(self):
 
