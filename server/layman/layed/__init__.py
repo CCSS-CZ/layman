@@ -121,6 +121,34 @@ class LayEd:
 
         return layerName
 
+    def createFtFromDb(self, workspace, dataStore, layerName):
+        """ Create Feature Type from PostGIS database
+            Given dataStore must exist in GS, connected to PG schema.
+            layerName corresponds to table name in the schema.
+        """
+
+        # create ft json 
+        # TODO - read this from template file
+        ftJson = {}
+        ftJson["featureType"] = {}
+        ftJson["featureType"]["name"] = layerName
+
+        # SRS
+        from layman.fileman import FileMan
+        fm = FileMan(self.config)
+        filePath = "/home/mis/layman/server/tests/workdir/data/" + layerName + ".shp"
+        gisAttribs = fm.get_gis_attributes(filePath, {})    
+        srs = gisAttribs["prj"]
+        print "SRS: " + srs  
+        ftJson["featureType"]["srs"] = srs
+    
+        ftStr = json.dumps(ftJson)
+
+        # PUT Feature Type        
+        gsr = GsRest(self.config)
+        (head, cont) = gsr.postFeatureTypes(workspace, dataStore, data=ftStr)
+        return (head, cont)
+
     def getLayersGsConfig(self, workspace=None): 
         """returns list of layers"""
         # May be we can remove this one
