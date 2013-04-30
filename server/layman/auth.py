@@ -70,19 +70,19 @@ class LaymanAuth:
         return dirname
 
     def getDBSchema(self, desired=None):
-        pass
+        logging.warning("[LaymanAuth][getDBSchema] Call of Authorisation class ancestor. Was it intended? No authorisation will be granted here. Try descendants - e.g. LaymanAuthLiferay or LaymanAuthOpen.")
+        return None
     
     def getGSWorkspace(self,desired=None):
-        """NOTE: This does not seem to be used
-        """
-        return desired # TODO return None
+        logging.warning("[LaymanAuth][getGSWorkspace] Call of Authorisation class ancestor. Was it intended? No authorisation will be granted here. Try descendants - e.g. LaymanAuthLiferay or LaymanAuthOpen.")
+        return None
 
     def getRole(self, desired=None):
-        logging.debug("[LaymanAuth][getRole]")
-        return desired # TODO return None
+        logging.warning("[LaymanAuth][getRole] Call of Authorisation class ancestor. Was it intended? No authorisation will be granted here. Try descendants - e.g. LaymanAuthLiferay or LaymanAuthOpen.")
+        return None
 
     def getRoles(self):
-        logging.debug("[LaymanAuth][getRoles]")
+        logging.warning("[LaymanAuth][getRoles] Call of Authorisation class ancestor. Was it intended? No authorisation will be granted here. Try descendants - e.g. LaymanAuthLiferay or LaymanAuthOpen.")
         return []
 
     # Private Methods #
