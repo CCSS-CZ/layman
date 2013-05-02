@@ -44,6 +44,7 @@ class LayMan:
         if not self.auth.authorised:
             self._setReturnCode(401) # Unauthorized 
             return "Authorisation failed. You need to log-in into the Liferay first."    
+        # TODO: Do we need to check some session timeout?
 
         retval = None
         code = None
@@ -58,7 +59,7 @@ class LayMan:
             # /fileman
             if len(path) == 1:
                 logging.info("[LayMan][GET /fileman]")
-                (code, retval) = fm.getFiles(self.auth.getFSDir())
+                (code, retval) = fm.getFiles(self.auth.getFSUserDir())
 
             # /fileman/<file>
             elif len(path) == 2:
@@ -141,7 +142,7 @@ class LayMan:
         global config
         if not self.auth.authorised:
             self._setReturnCode(401) # Unauthorized 
-            return "Authorisation failed. You need to log-in into the Liferay first."    
+            return "Authorisation failed. You need to log-in into the Liferay first." 
 
         retval = None
         code = None
@@ -175,10 +176,11 @@ class LayMan:
                 if not inpt.fileName:
                     pass #TODO - name required
                 fileName = inpt.fileName
-                fsDir       = self.auth.getFSDir()
+                fsUserDir   = self.auth.getFSUserDir()
+                fsGroupDir  = self.auth.getFSGroupDir()
                 dbSchema    = self.auth.getDBSchema()
                 gsWorkspace = self.auth.getGSWorkspace(inpt.usergroup)
-                layerName   = le.publish(fsDir, dbSchema, gsWorkspace, fileName)
+                layerName   = le.publish(fsUserDir, fsGroupDir, dbSchema, gsWorkspace, fileName)
                 return "{success: true, message: 'File [%s] published as layer [%s] published'}" %\
                     (fileName, layerName)
         else:
@@ -342,7 +344,7 @@ class LayMan:
         """
 
         targetname = os.path.realpath( os.path.join(
-                            self.auth.getFSDir(),fileName)
+                            self.auth.getFSUserDir(),fileName)
                     )
 
         if asFile:

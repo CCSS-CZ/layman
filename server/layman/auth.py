@@ -15,7 +15,7 @@ class LaymanAuth:
     config = None
     auth = None
 
-    authorised = True
+    authorised = False
 
     def __init__(self,config=None):
         self._setConfig(config)
@@ -164,6 +164,7 @@ class LaymanAuthLiferay(LaymanAuth):
         # Return the response
         return content
 
+    # Parse the reply from Slavek's service
     # Parsing in separate function makes it testable 
     def _parseUserInfo(self, content):
 
@@ -177,29 +178,32 @@ class LaymanAuthLiferay(LaymanAuth):
 
         if self.authJson["resultCode"] == "0":
             self.authorised = True
-            logging.debug("[LaymanAuthLiferay][_parseUserInfo] Authentication succesfull")
+            logging.info("[LaymanAuthLiferay][_parseUserInfo] Authentication succesfull")
         else:
             logging.error("[LaymanAuthLiferay][_parseUserInfo] Authentication failed: Liferay does not recognise given JSESSIONID")
             raise AuthError("Authentication failed: Liferay does not recognise given JSESSIONID")
 
     # User/Group configuration methods #
 
-    def getFSDir(self):
+    def getFSUserDir(self):
         """Get user working directory. Dirname == screenName from Liferay
         """
-        # TODO: Where should we check the self.time ??
-        # TODO: Do we want to store the directory in the config file?
         if not self.authorised:
             raise AuthError("I am sorry, but you are not authorised")
 
         if self.authJson["userInfo"] and self.authJson["userInfo"]["screenName"]:
             fsDir = self.config.get("FileMan","homedir") + self.authJson["userInfo"]["screenName"]
-            # TODO: do some checks
-            # TODO: create if it does not exist
             return fsDir
         else: 
             raise AuthError("Cannot determine the working directory - Liferay did not provide user's screenName")
 
+    def getFSGroupDir(self, desired=None):
+        """ roleName ~ Group Dir. Uses getRole()
+        """
+        role = self.getRole(desired)
+        groupDir = self.config.get("FileMan","homedir") + role["roleName"]
+        return groupDir
+    
     def getDBSchema(self, desired=None):
         """ roleName ~ Schema. Uses getRole()
         """
@@ -305,6 +309,8 @@ class LaymanAuthOpen(LaymanAuth):
 
     NOTE: Do not use, unless you know, what you are doing
     """
+
+    authorised = True
 
     def canread(self):
         return True 
