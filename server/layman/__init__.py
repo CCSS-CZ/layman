@@ -10,6 +10,8 @@ import string
 import web
 import logging
 
+from auth import AuthError
+
 # global variables
 INSTALL_DIR = os.path.dirname(os.path.abspath(__file__))
 config = None
@@ -137,55 +139,63 @@ class LayMan:
         self._setReturnCode(code)
         return retval
 
-    def POST(self, name=None):
+    def POST(self, origName=None):
 
-        global config
-        if not self.auth.authorised:
-            self._setReturnCode(401) # Unauthorized 
-            return "Authorisation failed. You need to log-in into the Liferay first." 
+        try:
+                global config
+                if not self.auth.authorised:
+                    logging.error("[LayMan][POST] Unauthorised")
+                    raise AuthError(401, "Authorisation failed. Are you logged-in?")
 
-        retval = None
-        code = None
-        
-        name = [d for d in os.path.split(name) if d]
+                code = None             
+                message = None
+                name = [d for d in os.path.split(origName) if d]
 
-        if len(name) > 0:
+                if len(name) > 0:
 
-            # POST "http://localhost:8080/layman/fileman/file.shp"
-            if name[0] == "fileman":
-                from fileman import FileMan
-                fm = FileMan()
-                # Jachyme, what we expect here to receive from the client?
-                # Where is it documented?
-                inpt = web.input(filename={}, newfilename="")
-                newFilename = inpt["newfilename"]
-                if not newFilename: 
-                    newFilename = inpt["filename"].filename
-                newFilename = self._getTargetFile(newFilename,False)
-                (code, retval) = fm.postFile(newFilename,inpt["filename"].file.read())  # FIXME Security: we
-                                                                 # shoudl read file size up to X megabytes
-                web.header("Content-type", "text/html")
-                web.ok() # 200
-                return retval 
+                    # POST "http://localhost:8080/layman/fileman/file.shp"
+                    if name[0] == "fileman":
+                        from fileman import FileMan
+                        fm = FileMan()
+                        # Jachyme, what we expect here to receive from the client?
+                        # Where is it documented?
+                        inpt = web.input(filename={}, newfilename="")
+                        newFilename = inpt["newfilename"]
+                        if not newFilename: 
+                            newFilename = inpt["filename"].filename
+                        newFilename = self._getTargetFile(newFilename,False)
+                        (code, message) = fm.postFile(newFilename, inpt["filename"].file.read())  # FIXME Security: we
+                                                                         # shoudl read file size up to X megabytes
+                        web.header("Content-type", "text/html")
 
-            # POST "http://localhost:8080/layman/layed?fileName=Rivers.shp&usergroup=RescueRangers"
-            elif name[0] == "layed":
-                from layed import LayEd
-                le = LayEd(config)
-                inpt = web.input(usergroup=None)
-                if not inpt.fileName:
-                    pass #TODO - name required
-                fileName = inpt.fileName
-                fsUserDir   = self.auth.getFSUserDir()
-                fsGroupDir  = self.auth.getFSGroupDir()
-                dbSchema    = self.auth.getDBSchema()
-                gsWorkspace = self.auth.getGSWorkspace(inpt.usergroup)
-                layerName   = le.publish(fsUserDir, fsGroupDir, dbSchema, gsWorkspace, fileName)
-                return "{success: true, message: 'File [%s] published as layer [%s] published'}" %\
-                    (fileName, layerName)
-        else:
-            self._setReturnCode(404)
-            return "Call not supported. I'm sorry, mate..."
+                    # POST "http://localhost:8080/layman/layed?fileName=Rivers.shp&usergroup=RescueRangers"
+                    elif name[0] == "layed":
+                        logging.info("[LayMan][POST] %s" origName)
+                        from layed import LayEd
+                        le = LayEd(config)
+                        inpt = web.input(usergroup=None)
+                        if not inpt.fileName:
+                            raise LaymanError(400, "fileName parameter missing")
+                        fileName    = inpt.fileName
+                        fsUserDir   = self.auth.getFSUserDir()
+                        fsGroupDir  = self.auth.getFSGroupDir()
+                        dbSchema    = self.auth.getDBSchema()
+                        gsWorkspace = self.auth.getGSWorkspace(inpt.usergroup)
+                        (code, message) = le.publish(fsUserDir, fsGroupDir, dbSchema, gsWorkspace, fileName)
+                        #retval = "{success: true, message: 'File "+fileName+" published as layer "+layerName+"'}" 
+
+                else:
+                    (code, message) = self._callNotSupported(restMethod="POST", call=origName)
+
+            self._setReturnCode(code) 
+            retval = self._jsonReply(code, message)
+            return retval
+
+        except LaymanError as le:
+            return self._handleLaymanError(le)
+
+        except Exception as e:
+            return self._handleException(e)
 
     def PUT(self, name=None):
 
@@ -352,6 +362,13 @@ class LayMan:
         else:
             return targetname
 
+    def _callNotSupported(self, restMethod, call):
+        logMes = "[LayMan]["+restMethod+"] Call not supported: " + call
+        logging.error(logMes)
+        code = 404
+        retval = "Call not supported. Please check the API doc or report a bug if appropriate."
+        return (code, retval)
+
     def _setReturnCode(self, code):
         """Set be return code
 
@@ -359,15 +376,61 @@ class LayMan:
         :type code: integer or string
         """
 
-        if code in (200, "ok"):
+        if code in (200, "200", "ok"):
             web.ok()
-        elif code in (201, "created"):
+        elif code in (201, "201", "created"):
             web.created()
-        elif code in (401, "unauthorized"):
+        elif code in (400, "400", "badrequest"):
+            web.badrequest()
+        elif code in (401, "401", "unauthorized"):
             web.unauthorized()
-        elif code in (404, "notfound"):
+        elif code in (404, "404", "notfound"):
             web.notfound()
-        elif code in (409,"conflict"):
+        elif code in (409, "409", "conflict"):
             web.conflict()
-        elif code in (500, "internalerror"):
+        elif code in (500, "500", "internalerror"):
             web.internalerror()
+
+    def _jsonReply(self, code, message):
+
+        jsonReply = {}
+        if code in (200, 201, "200", "201", "ok", "created"):     
+            jsonReply["success"] = True
+        else:
+            jsonReply["success"] = False
+        jsonReply["message"] = message
+
+        retval = json.dumps(jsonReply)
+        return retval
+
+    def _handleLaymanError(self, laymanErr):
+        """ Handle LaymanError exception
+        """
+        message = str(laymanErr)
+        logging.error("[LayMan][_handleLaymanError] Layman Error exception: '%s'"% retval)
+        self._setReturnCode(laymanErr.code)    
+        retval = self._jsonReply(laymanErr.code, message)
+        return retval
+
+    def _handleException(self, ex):
+        """ Handle unexpected Exception
+        """
+        message = str(ex)
+        logging.error("[LayMan][_handleException] Unexpected exception: '%s'"% retval)
+        self._setReturnCode(500)    
+        retval = self._jsonReply(500, message)
+        return retval
+
+class LaymanError(Exception):
+    """Layman error class
+    """
+    code = 500
+    message = "Layman exception: "
+
+    def __init__(self, code, message):
+        self.code = code
+        self.message += message
+
+    def __str__(self):
+        return repr(self.code) + ": " + self.message
+

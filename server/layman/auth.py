@@ -338,7 +338,9 @@ class LaymanAuthOpen(LaymanAuth):
         rolesStr = json.dumps(rolesJson)
         return rolesStr
 
+from layman import LaymanException
 
-class AuthError(Exception): 
-    """Auhorization error class
+class AuthError(LaymanException): 
+    """Auth error class
     """
+    message = "Auth Error: "
