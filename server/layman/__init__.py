@@ -10,7 +10,7 @@ import string
 import web
 import logging
 
-from auth import AuthError
+import errors
 
 # global variables
 INSTALL_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -139,9 +139,10 @@ class LayMan:
         self._setReturnCode(code)
         return retval
 
-    def POST(self, origName=None):
+    def POST(self, name=None):
 
         try:
+                logging.info("[LayMan][POST] %s"% name)
                 global config
                 if not self.auth.authorised:
                     logging.error("[LayMan][POST] Unauthorised")
@@ -149,6 +150,7 @@ class LayMan:
 
                 code = None             
                 message = None
+                origName = name
                 name = [d for d in os.path.split(origName) if d]
 
                 if len(name) > 0:
@@ -170,12 +172,11 @@ class LayMan:
 
                     # POST "http://localhost:8080/layman/layed?fileName=Rivers.shp&usergroup=RescueRangers"
                     elif name[0] == "layed":
-                        logging.info("[LayMan][POST] %s" origName)
                         from layed import LayEd
                         le = LayEd(config)
                         inpt = web.input(usergroup=None)
                         if not inpt.fileName:
-                            raise LaymanError(400, "fileName parameter missing")
+                            raise LaymanError(400, "'fileName' parameter missing")
                         fileName    = inpt.fileName
                         fsUserDir   = self.auth.getFSUserDir()
                         fsGroupDir  = self.auth.getFSGroupDir()
@@ -187,9 +188,9 @@ class LayMan:
                 else:
                     (code, message) = self._callNotSupported(restMethod="POST", call=origName)
 
-            self._setReturnCode(code) 
-            retval = self._jsonReply(code, message)
-            return retval
+                self._setReturnCode(code) 
+                retval = self._jsonReply(code, message)
+                return retval
 
         except LaymanError as le:
             return self._handleLaymanError(le)
@@ -421,16 +422,16 @@ class LayMan:
         retval = self._jsonReply(500, message)
         return retval
 
-class LaymanError(Exception):
-    """Layman error class
-    """
-    code = 500
-    message = "Layman exception: "
+#class LaymanError(Exception):
+#    """Layman error class
+#    """
+#    code = 500
+#    message = "Layman exception: "
 
-    def __init__(self, code, message):
-        self.code = code
-        self.message += message
+#    def __init__(self, code, message):
+#        self.code = code
+#        self.message += message
 
-    def __str__(self):
-        return repr(self.code) + ": " + self.message
+#    def __str__(self):
+#        return repr(self.code) + ": " + self.message
 

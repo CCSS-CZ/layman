@@ -10,6 +10,8 @@ import os
 import json
 import logging
 
+import errors
+
 class LaymanAuth: 
 
     config = None
@@ -338,9 +340,7 @@ class LaymanAuthOpen(LaymanAuth):
         rolesStr = json.dumps(rolesJson)
         return rolesStr
 
-from layman import LaymanException
-
-class AuthError(LaymanException): 
-    """Auth error class
-    """
-    message = "Auth Error: "
+#class AuthError(LaymanError): 
+#    """Auth error class
+#    """
+#    message = "Auth Error: "
