@@ -28,7 +28,7 @@ class DbMan:
 
     # Import
 
-    def importShapeFile(self,filePath): 
+    def importShapeFile(self, filePath, dbSchema): 
         """import given file to database, 
         """
         # shp2pgsql #
@@ -36,15 +36,13 @@ class DbMan:
         try: 
             # viz tez:http://www.moosechips.com/2010/07/python-subprocess-module-examples/
             sqlBatch = subprocess.check_output(['shp2pgsql',filePath])
+            print sqlBatch
         except subprocess.CalledProcessError as e:
             print "shp2pgsql error:"
             print e
             pass # TODO
  
         # import - run the batch through psycopg2 #
-
-        #TODO: USE PROPER DATABASE SCHEMA!!!
-
 
         dbname = self.config.get("DbMan","dbname")
         dbuser = self.config.get("DbMan","dbuser")
@@ -56,8 +54,12 @@ class DbMan:
             # connect
             conn = psycopg2.connect(connectionString)
  
+            # set schema
+            setSchemaSql = "SET search_path TO "+dbSchema+",public;"
+
             # execute
             cur = conn.cursor()
+            cur.execute(setSchemaSql) # TODO check the success
             cur.execute(sqlBatch) # TODO check the success
             conn.commit()
         

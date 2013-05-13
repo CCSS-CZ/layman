@@ -33,6 +33,7 @@ class DbManTestCase(unittest.TestCase):
 
         testFilePath = self.workdir+"/" + self.dbm.config.get("DbManTest","testfile")
         testTable = self.dbm.config.get("DbManTest","testtable")
+        testSchema = self.dbm.config.get("DbManTest","testschema")
 
         # Make sure that file exists        
         self.assertEquals(os.path.exists(testFilePath), True, "The testing file " + testFilePath + " cannot be found")
@@ -52,9 +53,9 @@ class DbManTestCase(unittest.TestCase):
             print "OK"
 
             # Drop table if exists
-            dropTable = "DROP TABLE IF EXISTS " + testTable + ";";
+            dropTable = "DROP TABLE IF EXISTS " + testSchema+"."+testTable + ";";
             cur = conn.cursor()
-            print "Trying to drop table if exists " + testTable + "..."
+            print "Trying to drop table if exists " + testSchema+"."+ testTable + "..."
             cur.execute(dropTable) 
             conn.commit()
             print "OK"
@@ -65,10 +66,10 @@ class DbManTestCase(unittest.TestCase):
             raise e
 
         # Import
-        self.dbm.importShapeFile(testFilePath)
+        self.dbm.importShapeFile(testFilePath,testSchema)
 
         # Select from the test table - test the result
-        selectFrom = "SELECT * FROM " + testTable + ";"
+        selectFrom = "SELECT * FROM " + testSchema+"."+ testTable + ";"
         try:
             cur.execute(selectFrom)
             result = cur.fetchone()
