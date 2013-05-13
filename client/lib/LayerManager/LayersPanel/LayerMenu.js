@@ -85,7 +85,7 @@ Ext4.define('HSRS.LayerManager.LayersPanel.LayerMenu', {
         var t = new Ext4.XTemplate(HSRS.STYLERURL);
         var url = t.apply(this.record.data);
         //window.open(url, '_newtab');
-        window.open(url);
+        window.location = url;
     },
 
     /**
@@ -96,7 +96,7 @@ Ext4.define('HSRS.LayerManager.LayersPanel.LayerMenu', {
         var t = new Ext4.XTemplate(HSRS.VIEWURL);
         var url = t.apply(this.record.data);
         //window.open(url, '_newtab');
-        window.open(url);
+        window.location = url;
     }
 
 });
