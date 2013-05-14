@@ -4,7 +4,7 @@
 import subprocess
 import psycopg2
 import logging
-import layman.errors
+from  layman.errors import LaymanError
 
 class DbMan:
     """PostGis db interface
@@ -34,8 +34,8 @@ class DbMan:
         """import given file to database, 
         """
         # shp2pgsql #
-        logStr = "filePath='"+filePath+"', dbSchema='"+dbSchema+"'"
-        logging.debug("[DbMan][importShapeFile] %s"% logStr)
+        logParam = "filePath='"+filePath+"', dbSchema='"+dbSchema+"'"
+        logging.debug("[DbMan][importShapeFile] %s"% logParam)
         try: 
             # viz tez:http://www.moosechips.com/2010/07/python-subprocess-module-examples/
             sqlBatch = subprocess.check_output(['shp2pgsql',filePath])
@@ -45,6 +45,8 @@ class DbMan:
             raise LaymanError(500, "DbMan: "+errStr)
  
         # import - run the batch through psycopg2 #
+
+        # TODO: create the schema if it does not exist
 
         dbname = self.config.get("DbMan","dbname")
         dbuser = self.config.get("DbMan","dbuser")

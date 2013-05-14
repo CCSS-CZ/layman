@@ -33,8 +33,8 @@ class LayEd:
 
     ### LAYERS ###
 
-    def publish(self, fsDir, dbSchema, gsWorkspace, fileName):
-        """ Main publishing function. 
+    def publishFromFile(self, fsDir, dbSchema, gsWorkspace, fileName):
+        """ Publish from file with GS Config 
             Group ~ db Schema ~ gs Data Store ~ gs Workspace
         """
         # /path/to/file.shp
@@ -69,29 +69,78 @@ class LayEd:
 
         return self.createStyleForLayer(workspace=gsWorkspace, dataStore=fileNameNoExt, layerName=fileNameNoExt)
 
+    def publish(self, fsUserDir, fsGroupDir, dbSchema, gsWorkspace, fileName):
+        """ Main publishing function. Import to PostreSQL and publish in GeoServer.
+            Group ~ db Schema ~ gs Data Store ~ gs Workspace
+        """
+        logParam = "fsUserDir="+fsUserDir+" fsGroupDir"+fsGroupDir+" dbSchema="+dbSchema+" gsWorkspace="+gsWorkspace+" fileName="+fileName
+        logging.debug("[LayEd][publish] Params: %s"% logParam)
+
+        # /path/to/file.shp
+        filePath = os.path.realpath( os.path.join( fsUserDir,fileName) )
+
+        # /path/to/file
+        filePathNoExt = os.path.splitext(filePath)[0]
+
+        # file
+        fileNameNoExt = os.path.splitext(fileName)[0]
+
+        # TODO - check the GS workspace and create it if it does not exist 
+        # if...
+        #    createWorkspace(...)
+
+        # Here the Workspace should exist
+
+        # TODO - check the GS data store and create it if it does not exist 
+        # if...
+        #    createDataStore(...)
+
+        # Here the Data Store should exist
+
+        # Import to DB
+        from layman.layed.dbman import DbMan
+        dbm = DbMan(self.config)
+        dbm.importShapeFile(filePath, dbSchema)
+        # TODO: check the result
+        logging.info("[LayEd][publish] Imported file '%s'"% filePath)
+        logging.info("[LayEd][publish] in schema '%s'"% dbSchema)
+
+        # Publish from DB to GS
+        self.createFtFromDb(workspace=gsWorkspace, dataStore=dbSchema, layerName=fileNameNoExt)
+        # TODO: check the result
+        logging.info("[LayEd][publish] Published layer '%s'"% fileNameNoExt)
+        logging.info("[LayEd][publish] in workspace '%s'"% gsWorkspace)
+
+        # Create and assgin new style
+        self.createStyleForLayer(workspace=gsWorkspace, dataStore=dbSchema, layerName=fileNameNoExt)
+        # TODO: check the result
+
+        return (201, "Layer published")
+
     def createStyleForLayer(self, workspace, dataStore, layerName):
+        """ Create and assign new style for layer. 
+        Old style of the layer is cloned into the layer's workspace
+        and is assigned to the layer.
+        """
 
-        # Create new style for the layer
-
-        # get the current style
+        # Get the current style
         gsr = GsRest(self.config)
         (head, cont) = gsr.getLayer(workspace, name=layerName) # GET Layer
-        # FIXME: we don't really KNOW the name of the layer. it is not returned by gsconfig and needs to be reworked.
+        # FIXME: we don't really KNOW the name of the layer. The layer of unsure name was automatically created upon POST FeatureType.
         # TODO: check the result
         layerJson = json.loads(cont)
         currentStyleUrl = layerJson["layer"]["defaultStyle"]["href"]
 
-        # create new style      
-        newStyleUrl = self.cloneStyle(fromStyleUrl=currentStyleUrl, toWorkspace=workspace, toStyle=layerName) # POST Style
-        logging.info("[LayEd][publish] created style '%s'"% layerName)
-        logging.info("[LayEd][publish] in workspace '%s'"% workspace)
+        # Create new style      
+        newStyleUrl = self.cloneStyle(fromStyleUrl=currentStyleUrl, toWorkspace=workspace, toStyle=layerName) 
+        logging.info("[LayEd][createStyleForLayer] created style '%s'"% layerName)
+        logging.info("[LayEd][createStyleForLayer] in workspace '%s'"% workspace)
         # TODO: check the result
        
-        # assign newstyle with gsxml
+        # Assign new style with gsxml
         from gsxml import GsXml
         gsx = GsXml(self.config) 
-        gsx.setLayerStyle(layerWorkspace=workspace, dataStoreName=dataStore, layerName=layerName, \
-                          styleWorkspace=workspace, styleName=layerName)
+        gsx.setLayerStyle(layerWorkspace=workspace, dataStoreName=dataStore, layerName=layerName, styleWorkspace=workspace, styleName=layerName)
         logging.info("[LayEd][publish] assigned style '%s'"% layerName)
         logging.info("[LayEd][publish] to layer '%s'"% layerName)
         logging.info("[LayEd][publish] in workspace '%s'"% workspace)
@@ -100,26 +149,13 @@ class LayEd:
         # Tell GS to reload the configuration
         gsr.putReload()
 
-        # assign new style - does not work, GS bug
+        # Assign new style with PUT Layer - does not work, GS bug
         #layerJson["layer"]["defaultStyle"]["name"] = fileNameNoExt
         #layerJson["layer"]["defaultStyle"]["href"] = "http://erra.ccss.cz:8080/geoserver/rest/workspaces/dragouni/styles/line_crs.json" #newStyleUrl
-        #layerJson["layer"]["enabled"] = "false"
-        #layerJson["layer"]["advertised"] = "false"
-        #layerJson["layer"]["queryable"] = "false"
-        #layerJson["layer"]["attribution"]["logoWidth"] = "33"
-        #layerJson["layer"]["attribution"]["logoHeight"] = "44"
         #layerStr = json.dumps(layerJson)
-        #print "Changing layer - layerStr:"
-        #print layerStr
         #(head, cont) = gsr.putLayer(gsWorkspace, name=fileNameNoExt, data=layerStr) # PUT Layer
-        #print "*** LayEd - Layer changed ***"
-        #print "head"
-        #print head
-        #print "cont"
-        #print cont
-        # TODO: check the result
 
-        return layerName
+        # TODO: return 
 
     def createFtFromDb(self, workspace, dataStore, layerName):
         """ Create Feature Type from PostGIS database
@@ -128,7 +164,6 @@ class LayEd:
         """
 
         # create ft json 
-        # TODO - read this from template file
         ftJson = {}
         ftJson["featureType"] = {}
         ftJson["featureType"]["name"] = layerName
@@ -139,14 +174,19 @@ class LayEd:
         filePath = "/home/mis/layman/server/tests/workdir/data/" + layerName + ".shp"
         gisAttribs = fm.get_gis_attributes(filePath, {})    
         srs = gisAttribs["prj"]
-        print "SRS: " + srs  
+        logging.debug("[LayEd][createFtFromDb] SRS: %s"% srs)
         ftJson["featureType"]["srs"] = srs
-    
+   
+        # dump json 
         ftStr = json.dumps(ftJson)
 
         # PUT Feature Type        
         gsr = GsRest(self.config)
+        logging.debug("[LayEd][createFtFromDb] Create Feature Type: '%s'"% ftStr)
         (head, cont) = gsr.postFeatureTypes(workspace, dataStore, data=ftStr)
+        logging.debug("[LayEd][createFtFromDb] Response header: '%s'"% head)
+        logging.debug("[LayEd][createFtFromDb] Response contents: '%s'"% cont)
+        # TODO: check the result
         return (head, cont)
 
     def getLayersGsConfig(self, workspace=None): 

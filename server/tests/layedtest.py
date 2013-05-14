@@ -20,6 +20,7 @@ class LayEdTestCase(unittest.TestCase):
     def setUp(self):
         cfg = ConfigParser.SafeConfigParser()
         cfg.read((os.path.join(TEST_DIR,"tests.cfg")))
+        cfg.set("FileMan","testdir",TEST_DIR)
         self.le = LayEd(cfg)
         self.gsr = GsRest(cfg)
         self.config = cfg
@@ -28,35 +29,27 @@ class LayEdTestCase(unittest.TestCase):
     # TODO: add tests for POST /layed?myLayer
 
     def test_01_publish(self):
-        
-        # Checks #
+
+        ff = "line_crs.shp" # file
+        ll = "line_crs" # layer
+        st = "line_crs" # style
+        ws = "mis" # workspace
+        ds = "testschema" # datastore
+        sch = "testschema" # schema        
+
+        # Check #
 
         # Check if the layer is not already there
-        #(head, cont) = self.gsr.getLayer("dragouni", "line_crs")
-        #self.assertNotEquals("200", head["status"], "The layer line_crs already exists. Please, remove it manually." )
+        (head, cont) = self.gsr.getLayer(ws, ll)
+        self.assertNotEquals("200", head["status"], "The layer already exists. Please, remove it manually." )
 
         # Check if the style is not already there
-        #(head, cont) = self.gsr.getStyle("dragouni", "line_crs")
-        #self.assertNotEquals("200", head["status"], "The style line_crs already exists. Please, remove it manually." )
-
-        # Check if the data store is not already there
-        #(head, cont) = self.gsr.getDataStore("dragouni", "line_crs")
-        #print "*** Check if the data store is not already there ***"
-        #print 'getDataStore("dragouni", "line_crs")'
-        #print head
-        #print cont
-        #self.assertNotEquals(True, "dataStore" in cont, "The data store line_crs already exists. Please, remove it manually." )
-        #self.assertNotEquals("200", head["status"], "The data store line_crs already exists. Please, remove it manually." )
+        (head, cont) = self.gsr.getStyle(ws, st)
+        self.assertNotEquals("200", head["status"], "The style already exists. Please, remove it manually." )
 
         # Publish #
 
-        # Publish line_crs in workspace dragouni
-        # self.le.publish(fsDir=self.workdir, dbSchema=None, gsWorkspace="dragouni", fileName="line_crs.shp")
-        ws = "topp"
-        ds = "taz_shapes"
-        ll = "tasmania_cities"
-        st = ll
-        self.le.createStyleForLayer(ws, ds, ll)
+        self.le.publish(fsUserDir=self.workdir, fsGroupDir="", dbSchema=ds, gsWorkspace=ws, fileName=ff)
 
         # Test #
 
