@@ -43,6 +43,7 @@ class LayMan:
                 fileman/detail/<filename> 
                 fileman/<filename> 
         """
+        logging.info("[LayMan][GET] %s"% name)
         if not self.auth.authorised:
             self._setReturnCode(401) # Unauthorized 
             return "Authorisation failed. You need to log-in into the Liferay first."    
@@ -200,6 +201,7 @@ class LayMan:
 
     def PUT(self, name=None):
 
+        logging.info("[LayMan][PUT] %s"% name)
         if not self.auth.authorised:
             self._setReturnCode(401) # Unauthorized 
             return "Authorisation failed. You need to log-in into the Liferay first."    
@@ -248,6 +250,7 @@ class LayMan:
 
     def DELETE(self, name=None):
 
+        logging.info("[LayMan][DELETE] %s"% name)
         if not self.auth.authorised:
             self._setReturnCode(401) # Unauthorized 
             return "Authorisation failed. You need to log-in into the Liferay first."    
