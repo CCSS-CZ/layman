@@ -15,13 +15,16 @@ class GsConfig:
 
     config = None
     cat = None
+    ws = None
 
-    def __init__(self,config = None):
+    def __init__(self,config = None, ws = None):
         """constructor
         """
 
         ## get configuration parser
         self._setConfig(config)
+
+        self.ws = ws
 
         self.cat = self._getConnection()
 
@@ -74,7 +77,16 @@ class GsConfig:
     ### Private ###
 
     def _getConnection(self):
-        return Catalog(self.config.get("GeoServer","url"),
+
+        url = self.config.get("GeoServer","url")
+        
+        if url[-1] == "/":
+            url = [:-1]
+
+        if self.ws:
+            url += "/workspaces/"+self.ws
+
+        return Catalog(url,
                 self.config.get("GeoServer","user"), 
                  self.config.get("GeoServer","password"))
 

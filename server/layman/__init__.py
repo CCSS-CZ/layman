@@ -115,12 +115,17 @@ class LayMan:
                     retval = le.getWorkspace(path[2])
 
         elif path[0] == "geoserver":
+            ws = None
+            g = None
+
             from layed.gsconfig import GsConfig
-            g = GsConfig()
             code = 200
 
-            if path[1] == "style" and len(path) == 3:
-                retval = g.getStyle(path[2])
+            if path[1] == "style" and len(path) >= 3:
+                if len(path) > 3:
+                    ws = path[-2]
+                g = GsConfig(ws = ws)
+                retval = g.getStyle(path[-1])
                 web.header("Content-type", "text/xml")
             
         # default handler
