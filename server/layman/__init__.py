@@ -10,7 +10,7 @@ import string
 import web
 import logging
 
-import errors
+from errors import LaymanError, AuthError
 
 # global variables
 INSTALL_DIR = os.path.dirname(os.path.abspath(__file__))
