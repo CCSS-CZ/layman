@@ -184,8 +184,8 @@ class LayMan:
                             raise LaymanError(400, "'fileName' parameter missing")
                         fileName    = inpt.fileName
                         fsUserDir   = self.auth.getFSUserDir()
-                        fsGroupDir  = self.auth.getFSGroupDir()
-                        dbSchema    = self.auth.getDBSchema()
+                        fsGroupDir  = self.auth.getFSGroupDir(inpt.usergroup)
+                        dbSchema    = self.auth.getDBSchema(inpt.usergroup)
                         gsWorkspace = self.auth.getGSWorkspace(inpt.usergroup)
                         (code, message) = le.publish(fsUserDir, fsGroupDir, dbSchema, gsWorkspace, fileName)
                         #retval = "{success: true, message: 'File "+fileName+" published as layer "+layerName+"'}" 
