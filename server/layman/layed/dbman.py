@@ -3,6 +3,7 @@
 
 import subprocess
 import psycopg2
+import logging
 
 class DbMan:
     """PostGis db interface
@@ -32,15 +33,15 @@ class DbMan:
         """import given file to database, 
         """
         # shp2pgsql #
-
+        logStr = "filePath='"+filePath+"', dbSchema='"+dbSchema+"'"
+        logging.debug("[DbMan][importShapeFile] %s"% logStr)
         try: 
             # viz tez:http://www.moosechips.com/2010/07/python-subprocess-module-examples/
             sqlBatch = subprocess.check_output(['shp2pgsql',filePath])
-            print sqlBatch
         except subprocess.CalledProcessError as e:
-            print "shp2pgsql error:"
-            print e
-            pass # TODO
+            errStr = "shp2pgsql error: '"+str(e)+"'"
+            logging.debug("[DbMan][importShapeFile] %s"% errStr)
+            raise LaymanError(500, "DbMan: "+errStr)
  
         # import - run the batch through psycopg2 #
 
@@ -49,6 +50,9 @@ class DbMan:
         dbhost = self.config.get("DbMan","dbhost")
         dbpass = self.config.get("DbMan","dbpass")
         connectionString = "dbname='"+dbname+"' user='"+dbuser+"' host='"+dbhost+"' password='"+dbpass+"'"
+        logStr = "dbname='"+dbname+"' user='"+dbuser+"' host='"+dbhost+"'"
+        logging.debug("[DbMan][importShapeFile] Connection details: %s"% logStr)
+
 
         try:
             # connect
@@ -59,7 +63,9 @@ class DbMan:
 
             # execute
             cur = conn.cursor()
+            logging.debug("[DbMan][importShapeFile] set schema: '%s'"% setSchemaSql)
             cur.execute(setSchemaSql) # TODO check the success
+            logging.debug("[DbMan][importShapeFile] sqlBatch: %s"% sqlBatch)
             cur.execute(sqlBatch) # TODO check the success
             conn.commit()
         
@@ -67,8 +73,9 @@ class DbMan:
             cur.close()
             conn.close()
         except Exception as e:
-            print "Database error: " #TODO
-            print e
+            errStr = "Database (psycopg2) error: '"+str(e)+"'"
+            logging.debug("[DbMan][importShapeFile] %s"% errStr)
+            raise LaymanError(500, "DbMan: "+errStr)
         
         #TODO return table name
 
