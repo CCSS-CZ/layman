@@ -81,7 +81,7 @@ class GsConfig:
         url = self.config.get("GeoServer","url")
         
         if url[-1] == "/":
-            url = [:-1]
+            url = url[:-1]
 
         if self.ws:
             url += "/workspaces/"+self.ws
