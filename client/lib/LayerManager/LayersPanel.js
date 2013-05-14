@@ -114,7 +114,7 @@ Ext4.define('HSRS.LayerManager.LayersPanel', {
                         // file deleted listener will popup confirmation window
                         'layerdeleted': function(record, evt) {
                             Ext4.MessageBox.confirm('Really remove selected layer?',
-                                    'Are you sure, you want to remove selected file? <br />'+
+                                    'Are you sure, you want to remove selected layer? <br />'+
                                     record.get('workspace'),
                                     function(btn, x, msg) {
                                         if (btn == 'yes') {
