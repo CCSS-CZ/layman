@@ -212,7 +212,12 @@ class LayMan:
 
             # /geoserver/style/style_name
             if path[1] == "style":
-                gs.putStyle(path[2],web.data())
+                # gs.putStyle(path[2],web.data())
+                ws = None
+                if len(path) > 3:
+                    ws = path[-2]
+                gs = GsConfig(ws = ws)
+                gs.putStyle(path[-1],web.data())
 
         # /layed/config/<layer>?usergroup=FireBrigade
         elif path[0] == "layed" and len(path) == 3:
