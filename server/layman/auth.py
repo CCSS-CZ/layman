@@ -10,7 +10,7 @@ import os
 import json
 import logging
 
-import errors
+from errors import LaymanError, AuthError
 
 class LaymanAuth: 
 
