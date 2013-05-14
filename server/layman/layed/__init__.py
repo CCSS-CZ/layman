@@ -331,6 +331,7 @@ class LayEd:
         # TODO: check the result 
 
         # Drop Table in PostreSQL
+        from layman.layed.dbman import DbMan
         dbm = DbMan(self.config)
         dbm.deleteTable(dbSchema=schema, tableName=layer)
 
