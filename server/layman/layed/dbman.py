@@ -4,6 +4,7 @@
 import subprocess
 import psycopg2
 import logging
+import layman.errors
 
 class DbMan:
     """PostGis db interface
