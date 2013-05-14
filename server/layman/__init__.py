@@ -411,7 +411,7 @@ class LayMan:
         """ Handle LaymanError exception
         """
         message = str(laymanErr)
-        logging.error("[LayMan][_handleLaymanError] Layman Error exception: '%s'"% retval)
+        logging.error("[LayMan][_handleLaymanError] Layman Error exception: '%s'"% message)
         self._setReturnCode(laymanErr.code)    
         retval = self._jsonReply(laymanErr.code, message)
         return retval
@@ -420,7 +420,7 @@ class LayMan:
         """ Handle unexpected Exception
         """
         message = str(ex)
-        logging.error("[LayMan][_handleException] Unexpected exception: '%s'"% retval)
+        logging.error("[LayMan][_handleException] Unexpected exception: '%s'"% message)
         self._setReturnCode(500)    
         retval = self._jsonReply(500, message)
         return retval
