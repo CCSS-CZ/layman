@@ -296,7 +296,7 @@ class LayEd:
         layers = json.dumps(layers) # json -> string
         return (code, layers)
 
-    def deleteLayer(self, workspace, layer, deleteStore=False): 
+    def deleteLayer(self, workspace, layer, schema, deleteStore=False): 
         """Delete the Layer and the Corresponding Feature Type
            deleteStore = whether to delete the underlying data store as well
         """
@@ -326,7 +326,13 @@ class LayEd:
 
         # Delete Style (we have created it when publishing)
         headers, response = gsr.deleteStyle(workspace, styleName=layer, purge="true")
+        logging.debug("[LayEd][deleteLayer] DELETE Style response headers: %s"% headers)
+        logging.debug("[LayEd][deleteLayer] DELETE Style  response content: %s"% response)
         # TODO: check the result 
+
+        # Drop Table in PostreSQL
+        dbm = DbMan(self.config)
+        dbm.deleteTable(dbSchema=schema, tableName=layer)
 
         # Delete Data Store 
         # (this is usefull when dedicated datastore was created when publishing)
