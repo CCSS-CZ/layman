@@ -140,11 +140,14 @@ class LayMan:
 
         self._setReturnCode(code)
         return retval
-
+    
     def POST(self, name=None):
 
         try:
                 logging.info("[LayMan][POST] %s"% name)
+                params = repr(web.input())
+                logging.info("[LayMan][POST] Parameters: %s"% params)
+                
                 global config
                 if not self.auth.authorised:
                     logging.error("[LayMan][POST] Unauthorised")
