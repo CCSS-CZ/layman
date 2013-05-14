@@ -73,7 +73,7 @@ class LayEd:
         """ Main publishing function. Import to PostreSQL and publish in GeoServer.
             Group ~ db Schema ~ gs Data Store ~ gs Workspace
         """
-        logParam = "fsUserDir="+fsUserDir+" fsGroupDir"+fsGroupDir+" dbSchema="+dbSchema+" gsWorkspace="+gsWorkspace+" fileName="+fileName
+        logParam = "fsUserDir="+fsUserDir+" fsGroupDir="+fsGroupDir+" dbSchema="+dbSchema+" gsWorkspace="+gsWorkspace+" fileName="+fileName
         logging.debug("[LayEd][publish] Params: %s"% logParam)
 
         # /path/to/file.shp
@@ -105,8 +105,15 @@ class LayEd:
         logging.info("[LayEd][publish] Imported file '%s'"% filePath)
         logging.info("[LayEd][publish] in schema '%s'"% dbSchema)
 
+        # SRS
+        from layman.fileman import FileMan
+        fm = FileMan(self.config)
+        gisAttribs = fm.get_gis_attributes(filePath, {})    
+        srs = gisAttribs["prj"]
+        logging.debug("[LayEd][publish] SRS: %s"% srs)
+
         # Publish from DB to GS
-        self.createFtFromDb(workspace=gsWorkspace, dataStore=dbSchema, layerName=fileNameNoExt)
+        self.createFtFromDb(workspace=gsWorkspace, dataStore=dbSchema, layerName=fileNameNoExt, srs=srs)
         # TODO: check the result
         logging.info("[LayEd][publish] Published layer '%s'"% fileNameNoExt)
         logging.info("[LayEd][publish] in workspace '%s'"% gsWorkspace)
@@ -157,27 +164,17 @@ class LayEd:
 
         # TODO: return 
 
-    def createFtFromDb(self, workspace, dataStore, layerName):
+    def createFtFromDb(self, workspace, dataStore, layerName, srs):
         """ Create Feature Type from PostGIS database
             Given dataStore must exist in GS, connected to PG schema.
             layerName corresponds to table name in the schema.
         """
 
-        # create ft json 
+        # Create ft json 
         ftJson = {}
         ftJson["featureType"] = {}
         ftJson["featureType"]["name"] = layerName
-
-        # SRS
-        from layman.fileman import FileMan
-        fm = FileMan(self.config)
-        filePath = "/home/mis/layman/server/tests/workdir/data/" + layerName + ".shp"
-        gisAttribs = fm.get_gis_attributes(filePath, {})    
-        srs = gisAttribs["prj"]
-        logging.debug("[LayEd][createFtFromDb] SRS: %s"% srs)
         ftJson["featureType"]["srs"] = srs
-   
-        # dump json 
         ftStr = json.dumps(ftJson)
 
         # PUT Feature Type        
