@@ -154,10 +154,10 @@ Ext4.define('HSRS.LayerManager.LayersPanel', {
             url: (HSRS.ProxyHost ? HSRS.ProxyHost + escape(url) : url),
             success: function() {
                 console.log('####', arguments);
+                this.store.load();
             },
             scope: this
         });
-        this.store.load();
     },
 
     /**
