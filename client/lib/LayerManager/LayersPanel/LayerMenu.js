@@ -20,16 +20,14 @@ Ext4.define('HSRS.LayerManager.LayersPanel.LayerMenu', {
         config.title = config.record.get('name');
         config.width = 200;
         config.plain = true;
+        config.layer = config.record.get('layer');
 
         this.url = config.url.replace(/\/$/, config.record.get('name'));
 
         config.title = config.record.get('featuretype').title;
         config.items = [];
 
-        var separator = false;
-
         if (HSRS && HSRS.VIEWURL) {
-            separator = true;
             config.items.push(
                 {
                     text: 'Add to map',
@@ -42,7 +40,6 @@ Ext4.define('HSRS.LayerManager.LayersPanel.LayerMenu', {
         }
 
         if (HSRS && HSRS.STYLERURL) {
-            separator = true;
             config.items.push({
                 text: 'Styler',
                 icon: HSRS.IMAGE_LOCATION + '/style.png',
@@ -51,11 +48,16 @@ Ext4.define('HSRS.LayerManager.LayersPanel.LayerMenu', {
             });
         }
 
-        if (separator) {
-            config.items.push(
-                { xtype: 'menuseparator' }
-            );
-        }
+        config.items.push({
+                text: 'Settings',
+                icon: HSRS.IMAGE_LOCATION + '/cog.png',
+                scope: this,
+                handler: this._onSettingsClicked
+            });
+
+        config.items.push(
+            { xtype: 'menuseparator' }
+        );
 
         config.items.push({
                 text: 'Delete',
@@ -86,6 +88,38 @@ Ext4.define('HSRS.LayerManager.LayersPanel.LayerMenu', {
         var url = t.apply(this.record.data);
         //window.open(url, '_newtab');
         window.location = url;
+    },
+
+    /**
+     * import handler
+     * @private
+     */
+    _onSettingsClicked: function() {
+
+        var publishForm = Ext4.create('HSRS.LayerManager.PublishForm', {
+            name: this.layer.name,
+            url: this.url.replace('fileman', 'layed'),
+            type: this.layer.type,
+            groups: this.groups,
+            prj: this.layer.prj,
+            extent: this.layer.extent,
+            attributes: this.layer.attributes,
+            geomtype: this.layer.geomtype
+        });
+        publishForm._win = Ext4.create('Ext4.window.Window', {
+            title: 'Edit layer attributes',
+            items: [publishForm]
+        });
+
+        publishForm.on('canceled', publishForm._win.close, publishForm._win);
+        publishForm.on('published',
+            function(e) {
+                this.publishForm._win.close();
+                this.menu._onFilePublished.apply(this.menu, arguments);
+            },
+            {menu: this, publishForm: publishForm}
+        );
+        publishForm._win.show();
     },
 
     /**
