@@ -45,7 +45,11 @@ Ext4.define('HSRS.LayerManager', {
 
         this.layersPanel = Ext4.create('HSRS.LayerManager.LayersPanel', {
             url: url,
-            flex: 1
+            flex: 1,
+            listeners: {
+                scope: this,
+                'layerupdated': this._onLayerUpdated
+            }
         });
 
         this.layersPanel.store.on('load', this._onLayersLoaded, this);
@@ -62,6 +66,16 @@ Ext4.define('HSRS.LayerManager', {
      */
     _onFilePublished: function(data) {
         Ext4.Msg.alert('Success', 'File ['+ data.fileName + '] published');
+        this.layersPanel.store.load();
+    },
+
+    /**
+     * handler
+     * @private
+     * @function
+     */
+    _onLayerUpdated: function(data) {
+        Ext4.Msg.alert('Success', 'Layer ['+ (data.title || data.name) + '] updated');
         this.layersPanel.store.load();
     },
 

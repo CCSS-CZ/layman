@@ -123,7 +123,8 @@ Ext4.define('HSRS.LayerManager.LayersPanel', {
                                     },
                                     {lm: this, record: record});
 
-                                }
+                                },
+                        "layerupdated":this._onLayerUpdated
                     }
             });
 
@@ -137,6 +138,7 @@ Ext4.define('HSRS.LayerManager.LayersPanel', {
         myconfig.store.load();
 
 
+        this.addEvents("layerupdated");
     },
 
     /**
@@ -148,16 +150,23 @@ Ext4.define('HSRS.LayerManager.LayersPanel', {
      */
     deleteLayer: function(layer,ws) {
         var url = this.url + layer + '?usergroup='+ ws;
-        console.log(this.url);
         Ext4.Ajax.request({
             method: 'DELETE',
             url: (HSRS.ProxyHost ? HSRS.ProxyHost + escape(url) : url),
             success: function() {
-                console.log('####', arguments);
                 this.store.load();
             },
             scope: this
         });
+    },
+
+    /**
+     * file published handler
+     * @private
+     * @function
+     */
+    _onLayerUpdated: function(data) {
+        this.fireEvent('layerupdated', data);
     },
 
     /**

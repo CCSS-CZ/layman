@@ -239,10 +239,10 @@ class LayMan:
                 gs.putStyle(path[-1],web.data())
 
         # /layed/config/<layer>?usergroup=FireBrigade
-        elif path[0] == "layed" and len(path) == 3:
+        elif path[0] == "layed" and len(path) == 2:
             from layed import LayEd
             le = LayEd()
-            layerName = path[2]
+            layerName = path[1]
             inpt = web.input(usergroup=None)
             gsWorkspace = self.auth.getGSWorkspace(inpt.usergroup)
             data = web.data()

@@ -7,6 +7,9 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
 
     extend: 'Ext4.form.Panel',
     groups: undefined,
+    isFeatureType: false,
+    featureType: undefined,
+    layer: undefined,
 
     /**
      * @constructor
@@ -15,10 +18,10 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
         config.items = this._initItems(config);
         config.layout = 'anchor';
         config.frame = true;
-        config.url = config.url;
+        config.url = config.isFeatureType ? config.url+config.name : config.url;
         config.buttons = [
             {
-                text: 'Publish',
+                text: config.isFeatureType ? "Update" : 'Publish',
                 scope: this,
                 handler: this._onPublishClicked
             },
@@ -34,10 +37,12 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
             }
         ];
 
+        config.title = undefined;
+
         this.callParent(arguments);
 
 
-        this.addEvents('published', 'canceled', 'reset');
+        this.addEvents('published', "updated",'canceled', 'reset');
     },
 
     /**
@@ -62,10 +67,10 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
         var items = [
             {
                 xtype: 'fieldset',
-                title: "Publish file '" + config.name + "'",
+                title: config.isFeatureType ? "Edit layer settings" : "Publish file '" + config.name + "'",
                 items: [
                     {
-                        name: 'fileName',
+                        name: config.isFeatureType ? "layerName" : 'fileName',
                         xtype: 'hidden',
                         anchor: '100%',
                         value: config.name
@@ -75,11 +80,11 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                         xtype: 'textfield',
                         anchor: '100%',
                         name: 'title',
-                        value: config.name || ''
+                        value: config.title
                     },
                     {
                         fieldLabel: 'Abstract',
-                        xtype: 'textfield',
+                        xtype: 'textarea',
                         anchor: '100%',
                         name: 'abstract',
                         value: config.abstract || ''
@@ -111,6 +116,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                         anchor: '100%',
                         fieldLabel: 'Group',
                         store: Ext4.create('Ext4.data.JsonStore', {
+                            autoLoad: true,
                             proxy: {
                                 type: "ajax",
                                 url: config.url+"groups",
@@ -119,6 +125,14 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                     type: "json",
                                     idProperty: "name"
                                 }
+                            },
+                            listeners: {
+                                load: function(combo, records, ok, opts) {
+                                    if (this.val) {
+                                        this.form.getForm().setValues({"usergroup": this.val});
+                                    }
+                                },
+                                scope: {form: this, val: config.group}
                             },
                             fields: ['name', 'title']
                         }),
@@ -228,15 +242,42 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
         var data = form.getValues();
 
         if (form.isValid()) {
-            form.submit({
-                success: function(form,action) {
-                        this.fireEvent('published', data);
-                },
-                failure: function(form, action) {
-                    Ext4.Msg.alert('Failed', 'Publishing file failed');
-                },
-                scope: this
-            });
+            // submit FeatureTypes using http PUT
+            if (this.isFeatureType) {
+                var vals = form.getValues();
+                //this.featureType.abstract = vals.abstract;
+                //this.featureType.title = vals.title;
+
+                Ext4.Ajax.request({
+                    url: this.url, 
+                    jsonData: {"featureType": {
+                        title: vals.title,
+                        abstract: vals.abstract
+                        },
+                        layer: this.layer
+                    },
+                    method: "PUT",
+                    success: function(form,action) {
+                            this.fireEvent("updated", data);
+                    },
+                    failure: function(form, action) {
+                        Ext4.Msg.alert('Failed', 'Publishing file failed');
+                    },
+                    scope: this
+                });
+            }
+            // submit new files using http POST
+            else {
+                form.submit({
+                    success: function(form,action) {
+                            this.fireEvent('published', data);
+                    },
+                    failure: function(form, action) {
+                        Ext4.Msg.alert('Failed', 'Publishing file failed');
+                    },
+                    scope: this
+                });
+            }
         }
 
     },

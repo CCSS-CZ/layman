@@ -68,6 +68,7 @@ Ext4.define('HSRS.LayerManager.FilesPanel.FileMenu', {
                 text: 'Publish',
                 icon: HSRS.IMAGE_LOCATION + '/map_go.png',
                 scope: this,
+                disabled: config.data.extent ? false : true,
                 handler: this._onUploadClicked
             },
             {

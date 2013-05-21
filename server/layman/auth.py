@@ -340,6 +340,16 @@ class LaymanAuthOpen(LaymanAuth):
         rolesStr = json.dumps(rolesJson)
         return rolesStr
 
+    def getFSUserDir(self):
+        """Get user working directory. 
+        """
+        fs = os.path.join(self.config.get("FileMan","homedir"), self.getRole()["roleName"])
+
+        if not os.path.exists(fs):
+            os.mkdir(fs)
+
+        return fs
+
 #class AuthError(LaymanError): 
 #    """Auth error class
 #    """

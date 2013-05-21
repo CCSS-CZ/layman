@@ -9,6 +9,7 @@ Ext4.define('HSRS.LayerManager.LayersPanel.LayerMenu', {
 
     requires: [],
 
+    featureType: undefined,
     layer: undefined,
     url: undefined,
     record: undefined,
@@ -21,6 +22,7 @@ Ext4.define('HSRS.LayerManager.LayersPanel.LayerMenu', {
         config.width = 200;
         config.plain = true;
         config.layer = config.record.get('layer');
+        config.featureType = config.record.get('featuretype');
 
         this.url = config.url.replace(/\/$/, config.record.get('name'));
 
@@ -69,6 +71,7 @@ Ext4.define('HSRS.LayerManager.LayersPanel.LayerMenu', {
         this.callParent(arguments);
 
         this.addEvents('layerdeleted');
+        this.addEvents("layerupdated");
     },
 
     /**
@@ -101,10 +104,19 @@ Ext4.define('HSRS.LayerManager.LayersPanel.LayerMenu', {
             url: this.url.replace('fileman', 'layed'),
             type: this.layer.type,
             groups: this.groups,
-            prj: this.layer.prj,
-            extent: this.layer.extent,
-            attributes: this.layer.attributes,
-            geomtype: this.layer.geomtype
+            abstract: this.featureType.abstract,
+            title: this.featureType.title,
+            group: this.record.get("workspace"),
+            isFeatureType: true,
+            prj: this.featureType.srs,
+            featureType: this.featureType,
+            layer: this.layer,
+            extent: [this.featureType.latLonBoundingBox.minx,
+                     this.featureType.latLonBoundingBox.miny,
+                     this.featureType.latLonBoundingBox.maxx,
+                     this.featureType.latLonBoundingBox.maxy],
+            attributes: this.featureType.attributes.attribute,
+            geomtype: this.layer.type
         });
         publishForm._win = Ext4.create('Ext4.window.Window', {
             title: 'Edit layer attributes',
@@ -112,14 +124,23 @@ Ext4.define('HSRS.LayerManager.LayersPanel.LayerMenu', {
         });
 
         publishForm.on('canceled', publishForm._win.close, publishForm._win);
-        publishForm.on('published',
+        publishForm.on('updated',
             function(e) {
                 this.publishForm._win.close();
-                this.menu._onFilePublished.apply(this.menu, arguments);
+                this.menu._onLayerUpdated.apply(this.menu, arguments);
             },
             {menu: this, publishForm: publishForm}
         );
         publishForm._win.show();
+    },
+
+    /**
+     * on file published
+     * @private
+     * @function
+     */
+    _onLayerUpdated: function(data) {
+        this.fireEvent('layerupdated', data);
     },
 
     /**
