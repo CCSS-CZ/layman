@@ -290,7 +290,7 @@ class LaymanAuthLiferay(LaymanAuth):
         """
         rolesJson = self.getRoles()
         rolesStr = json.dumps(rolesJson)
-        return rolesStr
+        return (200, rolesStr)
 
     # Service Authorisation Methods #
 

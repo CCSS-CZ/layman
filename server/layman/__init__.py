@@ -38,109 +38,127 @@ class LayMan:
     # REST methods
     #
     def GET(self,name=None):
-        """Dispatch client request
-           Supported calls:
-                fileman
-                fileman/detail/<filename> 
-                fileman/<filename> 
-        """
-        logging.info("[LayMan][GET] %s"% name)
-        if not self.auth.authorised:
-            self._setReturnCode(401) # Unauthorized 
-            return "Authorisation failed. You need to log-in into the Liferay first."    
-        # TODO: Do we need to check some session timeout?
 
-        retval = None
-        code = None
+        try:
+                logging.info("[LayMan][GET] %s"% name)
+                params = repr(web.input())
+                logging.info("[LayMan][GET] Parameters: %s"% params)
+                
+                if not self.auth.authorised:
+                    logging.error("[LayMan][GET] Unauthorised")
+                    raise AuthError(401, "Authorisation failed. Are you logged-in?")
 
-        # GET "http://localhost:8080/layman/fileman/"
-        path = [d for d in name.split(os.path.sep) if d]
-        if path[0] == "fileman":
-            
-            from fileman import FileMan
-            fm = FileMan()
+                code = None    # 200, 404...         
+                retval = None  # success: returned value. failure: error message.
+                origName = name
+                path = [d for d in name.split(os.path.sep) if d]
 
-            # /fileman
-            if len(path) == 1:
-                logging.info("[LayMan][GET /fileman]")
-                (code, retval) = fm.getFiles(self.auth.getFSUserDir())
+                # GET "http://localhost:8080/layman/fileman/"
+                if path[0] == "fileman":
+                    
+                    from fileman import FileMan
+                    fm = FileMan()
 
-            # /fileman/<file>
-            elif len(path) == 2:
-                (code, retval) = fm.getFile(self._getTargetFile(path[1]))
+                    # /fileman
+                    if len(path) == 1:
+                        logging.info("[LayMan][GET /fileman]")
+                        (code, retval) = fm.getFiles(self.auth.getFSUserDir())
 
-            # /fileman/detail/<file>
-            elif len(path) == 3 and\
-                path[1] == "detail":
-                (code, retval) = fm.getFileDetails(self._getTargetFile(path[2]))
+                    # /fileman/<file>
+                    elif len(path) == 2:
+                        (code, retval) = fm.getFile(self._getTargetFile(path[1]))
 
-        elif path[0] == 'layed':
+                    # /fileman/detail/<file>
+                    elif len(path) == 3 and\
+                        path[1] == "detail":
+                        (code, retval) = fm.getFileDetails(self._getTargetFile(path[2]))
 
-            from layed import LayEd
-            le = LayEd()
+                    else:
+                        (code, retval) = self._callNotSupported(restMethod="GET", call=origName)
 
-            # /layed[?usergroup=FireBrigade]
-            if len(path) == 1:
-                """ Get the json of the layers.
-                If usergroup parameter is specified, only the layers 
-                of the corresponding workspace are returned. 
-                Otherwise, the layers of all groups allowed are returned
-                in proprietary json, ordered by group (i.e. workspace)
-                """
-                logging.info("[LayMan][GET /layed]")
-                inpt = web.input(usergroup=None)
-                if inpt.usergroup == None: # workspace not given, go for all
-                    roles = self.auth.getRoles()
-                else: # workspace given, go for one
-                    role = self.auth.getRole(inpt.usergroup)
-                    roles = [role]
-                (code,retval) = le.getLayers(roles)
+                elif path[0] == 'layed':
 
-            elif len(path) == 2:               
+                    from layed import LayEd
+                    le = LayEd()
 
-                # /layed/workspaces
-                if path[1] == "workspaces":
-                    retval = le.getWorkspaces()
+                    # /layed[?usergroup=FireBrigade]
+                    if len(path) == 1:
+                        """ Get the json of the layers.
+                        If usergroup parameter is specified, only the layers 
+                        of the corresponding workspace are returned. 
+                        Otherwise, the layers of all groups allowed are returned
+                        in proprietary json, ordered by group (i.e. workspace)
+                        """
+                        logging.info("[LayMan][GET /layed]")
+                        inpt = web.input(usergroup=None)
+                        if inpt.usergroup == None: # workspace not given, go for all
+                            roles = self.auth.getRoles()
+                        else: # workspace given, go for one
+                            role = self.auth.getRole(inpt.usergroup)
+                            roles = [role]
+                        (code,retval) = le.getLayers(roles)
 
-                # /layed/groups
-                if path[1] == "groups":
-                    retval = self.auth.getRolesStr()
+                    elif len(path) == 2:               
 
-            elif len(path) == 3:
+                        # /layed/workspaces
+                        if path[1] == "workspaces":
+                            (code, retval) = le.getWorkspaces()
 
-                # /layed/config/<layer>?usergroup=FireBrigade
-                if path[1] == "config":
-                    layerName = path[2]
-                    inpt = web.input(usergroup=None)
-                    gsWorkspace = self.auth.getGSWorkspace(inpt.usergroup)
-                    retval = le.getLayerConfig(gsWorkspace, layerName)
+                        # /layed/groups
+                        elif path[1] == "groups":
+                            (code, retval) = self.auth.getRolesStr()
 
-                # /layed/workspaces/<ws>
-                if path[1] == "workspaces":
-                    retval = le.getWorkspace(path[2])
+                        else:
+                            (code, retval) = self._callNotSupported(restMethod="GET", call=origName)
 
-        elif path[0] == "geoserver":
-            ws = None
-            g = None
+                    elif len(path) == 3:
 
-            from layed.gsconfig import GsConfig
-            code = 200
+                        # /layed/config/<layer>?usergroup=FireBrigade
+                        if path[1] == "config":
+                            layerName = path[2]
+                            inpt = web.input(usergroup=None)
+                            gsWorkspace = self.auth.getGSWorkspace(inpt.usergroup)
+                            (code, retval) = le.getLayerConfig(gsWorkspace, layerName)
 
-            if path[1] == "style" and len(path) >= 3:
-                if len(path) > 3:
-                    ws = path[-2]
-                g = GsConfig(ws = ws)
-                retval = g.getStyle(path[-1])
-                web.header("Content-type", "text/xml")
-            
-        # default handler
-        else:
-            code = 404
-            retval = "Call [%s] not supported. I'm sorry, mate..." % name
+                        # /layed/workspaces/<ws>
+                        elif path[1] == "workspaces":
+                            (code, retval) = le.getWorkspace(path[2])
 
-        self._setReturnCode(code)
-        return retval
-    
+                        else:
+                            (code, retval) = self._callNotSupported(restMethod="GET", call=origName)
+
+                    else:
+                        (code, retval) = self._callNotSupported(restMethod="GET", call=origName)
+
+                elif path[0] == "geoserver":
+                    ws = None
+                    g = None
+
+                    from layed.gsconfig import GsConfig
+                    code = 200
+
+                    if path[1] == "style" and len(path) >= 3:
+                        if len(path) > 3:
+                            ws = path[-2]
+                        g = GsConfig(ws = ws)
+                        retval = g.getStyle(path[-1])                
+                        web.header("Content-type", "text/xml")
+                    
+                else:
+                    (code, retval) = self._callNotSupported(restMethod="GET", call=origName)
+
+                success = self._setReturnCode(code)
+                if not success: 
+                    retval  = self._jsonReply(code, message=retval, success=success)
+                # else: we return the returned value directly
+                return retval
+
+        except LaymanError as le:
+            return self._handleLaymanError(le)
+
+        except Exception as e:
+            return self._handleException(e)
+
     def POST(self, name=None):
 
         try:
@@ -193,8 +211,8 @@ class LayMan:
                 else:
                     (code, message) = self._callNotSupported(restMethod="POST", call=origName)
 
-                self._setReturnCode(code) 
-                retval = self._jsonReply(code, message)
+                success = self._setReturnCode(code) 
+                retval  = self._jsonReply(code, message, success)
                 return retval
 
         except LaymanError as le:
@@ -379,16 +397,20 @@ class LayMan:
         return (code, retval)
 
     def _setReturnCode(self, code):
-        """Set be return code
+        """Set the return code
 
         :param: code
         :type code: integer or string
+        returns success: [True|False] 
         """
+        success = False
 
         if code in (200, "200", "ok"):
             web.ok()
+            success = True
         elif code in (201, "201", "created"):
             web.created()
+            success = True
         elif code in (400, "400", "badrequest"):
             web.badrequest()
         elif code in (401, "401", "unauthorized"):
@@ -400,15 +422,13 @@ class LayMan:
         elif code in (500, "500", "internalerror"):
             web.internalerror()
 
-    def _jsonReply(self, code, message):
+        return success
+
+    def _jsonReply(self, code, message, success):
 
         jsonReply = {}
-        if code in (200, 201, "200", "201", "ok", "created"):     
-            jsonReply["success"] = True
-        else:
-            jsonReply["success"] = False
+        jsonReply["success"] = success
         jsonReply["message"] = message
-
         retval = json.dumps(jsonReply)
         return retval
 
@@ -417,8 +437,8 @@ class LayMan:
         """
         message = str(laymanErr)
         logging.error("[LayMan][_handleLaymanError] Layman Error exception: '%s'"% message)
-        self._setReturnCode(laymanErr.code)    
-        retval = self._jsonReply(laymanErr.code, message)
+        success = self._setReturnCode(laymanErr.code)    
+        retval = self._jsonReply(laymanErr.code, message, success)
         return retval
 
     def _handleException(self, ex):
@@ -427,7 +447,7 @@ class LayMan:
         message = str(ex)
         logging.error("[LayMan][_handleException] Unexpected exception: '%s'"% message)
         self._setReturnCode(500)    
-        retval = self._jsonReply(500, message)
+        retval = self._jsonReply(500, message, success=False)
         return retval
 
 #class LaymanError(Exception):

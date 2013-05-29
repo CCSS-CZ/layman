@@ -10,6 +10,8 @@ import zipfile
 from osgeo import ogr
 from osgeo import gdal
 
+from layman.errors import LaymanError
+
 class FileMan:
     """File manager of LayMan
     """
@@ -84,7 +86,7 @@ class FileMan:
                 
         files_json = json.dumps(files_list)
 
-        return ("ok",files_json)
+        return (200, files_json)
 
     def getFile(self,fileName):
         """Return file itself
@@ -92,9 +94,11 @@ class FileMan:
 
         # TODO: set propper Content/type
         try:
-            return (200,open(fileName).read())
-        except:
-            return (500, None)
+            return (200, open(fileName).read())
+
+        except Exception as e:
+            message = "LayEd: getFile(): Unable to read from the file named '" + fileName + "'. Exception received: " + str(e)
+            raise LaymanError(500, message)
 
     def getFileDetails(self, fileName):
         """Get the details for the given file
@@ -137,9 +141,10 @@ class FileMan:
 
             files_json = json.dumps(details)
 
-            return ("ok",files_json)
+            return (200, files_json)
         else:
-            return (404,"{success:false,message:'Requested file not found'}")
+            message = "Requested file '" + fileName + "' not found"
+            return (404, message)
 
     #
     # POST methods

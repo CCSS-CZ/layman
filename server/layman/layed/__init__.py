@@ -302,8 +302,9 @@ class LayEd:
             urlParsed = urlparse(ftUrl)                
             path = urlParsed[2]                        # path
             path = [d for d in path.split(os.path.sep) if d] # path parsed
-            if path[2] != "workspaces":                
-                pass # TODO                            # something is wrong
+            if path[2] != "workspaces":                # something is wrong
+                logStr = repr(path)
+                logging.error("[LayEd][getLayers] Strange: path[2] != 'workspaces'. Path: %s"% logStr)
             ws = path[3]   # workspace of the layer 
             logging.debug("[LayEd][getLayers] Layer's workspace: '%s'"% ws)
             #print "layer's workspace"
@@ -331,6 +332,8 @@ class LayEd:
         #print duplicities 
         # For every duplicity
         for (dup, count) in duplicities.items():
+
+            logging.debug("[LayEd][getLayers] Trying duplicity '%s'"% dup)
             
             # For every requested workspace    
             for ws in workspaces:
@@ -349,6 +352,9 @@ class LayEd:
                 #print "head status"
                 #print head["status"]
                 if head["status"] == "200": # match          
+
+                    logging.debug("[LayEd][getLayers] Found in workspace '%s'"% ws)
+
                     ft = json.loads(resp) # Feature Type
                     # Fake layer - valid GS REST URI does not exist
                     layer = {}
@@ -445,7 +451,7 @@ class LayEd:
         retval["layer"] = layerJson["layer"]
         retval["featureType"] = featureTypeJson["featureType"]
         retval = json.dumps(retval)
-        return retval
+        return (200, retval)
 
     def putLayerConfig(self, workspace, layerName, data):
         """ This function expects two things together:
@@ -517,19 +523,19 @@ class LayEd:
 
     ### WORKSPACES ###
 
-    def getWorkspaces(self): 
-        """json of workspaces, eventually with layers"""
-        pass #TODO
+    def getWorkspaces(self): # TODO
+        """json of workspaces, eventually with layers"""        
+        return (501, "I am sorry, not implemented yet")        
 
     def addWorkspace(self,name,attributes=None): 
-        """create workspace"""
-        pass #TODO
+        """create workspace""" #TODO
+        return (501, "I am sorry, not implemented yet")        
 
     def removeWorkspace(self,name): 
-        """remove workspace"""
-        pass #TODO
+        """remove workspace""" #TODO
+        return (501, "I am sorry, not implemented yet")        
 
     def updateWorkspace(self, name,attributes=None): 
-        """updates existing worspace"""
-        pass #TODO
+        """updates existing worspace""" #TODO
+        return (501, "I am sorry, not implemented yet")        
 
