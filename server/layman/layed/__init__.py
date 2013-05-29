@@ -92,9 +92,8 @@ class LayEd:
 
         # Here the Workspace should exist
 
-        # TODO - check the GS data store and create it if it does not exist 
-        # if...
-        #    createDataStore(...)
+        # Check the GS data store and create it if it does not exist 
+        self.createDataStoreIfNotExists(dbSchema, gsWorkspace)
 
         # Here the Data Store should exist
 
@@ -153,6 +152,57 @@ class LayEd:
                 message = "LayEd: createWorkspaceIfNotExists(): Cannot create workspace " + workspace + ". Geoserver replied with " + headStr + " and said " + cont
                 raise LaymanError(500, message)
 
+    # Check the GS data store and create it if it does not exist 
+    # Database schema name is used as the name of the datastore
+    def createDataStoreIfNotExists(self, dbSchema, gsWorkspace):
+    
+        # Check the datastore
+        gsr = GsRest(self.config)
+        (head, cont) = gsr.getDataStore(workspace=gsWorkspace, name=dbSchema)
+        #print "GET Data Store"
+        #print head
+        #print cont
+
+        # If it does not exist, create it
+        if head["status"] != "200":           
+
+            # Connection parameters
+            host     = self.config.get("DbMan","dbhost")
+            port     = self.config.get("DbMan","dbport")
+            database = self.config.get("DbMan","dbname")
+            user     = self.config.get("DbMan","dbuser")
+            passwd   = self.config.get("DbMan","dbpass")
+            exposePK = self.config.get("DbMan","exposepk")
+
+            # DataStore JSON
+            ds = {}
+            ds["dataStore"] = {}
+            ds["dataStore"]["name"] = dbSchema # the same name as the schema
+            ds["dataStore"]["description"] = "Connection to " + dbSchema + " in the " + database + " PostGIS database."
+            ds["dataStore"]["type"] = "PostGIS"
+            ds["dataStore"]["connectionParameters"] = {}
+            entry = []
+            for ent in [ ("host",host), ("port",port), ("database",database), ("schema",dbSchema), ("user",user), ("passwd",passwd), ("Expose primary keys",exposePK), ("dbtype","postgis") ]:
+                e = {}
+                e["@key"] = ent[0]
+                e["$"] = ent[1]
+                entry.append(e)
+            ds["dataStore"]["connectionParameters"]["entry"] = entry
+
+            dsStr = json.dumps(ds)
+
+            # POST
+            (head, cont) = gsr.postDataStores(gsWorkspace, data=dsStr)
+            #print "POST Data store"
+            #print head
+            #print cont
+
+            # If the creation failed
+            if head["status"] != "201":
+                # Raise an exception
+                headStr = str(head)
+                message = "LayEd: createDataStoreIfNotExists(): Cannot create Data Store " + dbSchema + ". Geoserver replied with " + headStr + " and said " + cont
+                raise LaymanError(500, message)
 
     def createStyleForLayer(self, workspace, dataStore, layerName):
         """ Create and assign new style for layer. 

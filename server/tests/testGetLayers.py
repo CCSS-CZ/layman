@@ -27,9 +27,11 @@ class LayEdTestCase(unittest.TestCase):
 
     # TODO: add tests for POST /layed?myLayer
 
-    def test_wsCreate(self):
+    def test_wsDsCreate(self):
         self.le.createWorkspaceIfNotExists("DeltaDunaje")
         self.le.createWorkspaceIfNotExists("DeltaDunaje")
+
+        self.le.createDataStoreIfNotExists("hasici", "DeltaDunaje")
 
     def test_getLayers(self):
         r1 = {}
