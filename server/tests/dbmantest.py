@@ -32,7 +32,8 @@ class DbManTestCase(unittest.TestCase):
         Select from the test table to test the result. """
 
         testFilePath = self.workdir+"/" + self.dbm.config.get("DbManTest","testfile")
-        testTable = self.dbm.config.get("DbManTest","testtable")
+        #testTable = self.dbm.config.get("DbManTest","testtable")
+        testTable = "pest"
         testSchema = self.dbm.config.get("DbManTest","testschema")
 
         # Make sure that file exists        

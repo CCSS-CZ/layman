@@ -236,11 +236,12 @@ class LayEd:
         logging.debug("[LayEd][getLayers] GS GET Layers response content: '%s'"% response)
         
         # TODO: check the result
-        # #print "*** LAYED]* getLayers() ***"
-        # #print 'gsr.getLayers()'
-        # #print gsr.getLayers()
+        #print "head"
+        #print headers
+        #print "resp"
+        #print response
 
-        gsLayers = json.loads(response) # Layers from GS
+        gsLayers = json.loads(response) # Layers from GS    
 
         # Filter ond organise the layers by workspaces
         # For every Layer,
@@ -253,17 +254,45 @@ class LayEd:
         logging.debug("[LayEd][getLayers] Requested workspaces:")
 
         workspaces = [] # list of workspaces
-        roleTitles = {} # roles reordered 
+        roleTitles = {} # roles as dictionary with roleName key 
+        #print "roles: " + repr(roles)
         for r in roles:
+            #print "role: " + repr(r)
             workspaces.append(r["roleName"]) 
             roleTitles[r["roleName"]] = r["roleTitle"]
             logging.debug("Workspace: %s"% r["roleName"])
 
+        # We also need to check for the duplicities:
+        # GS REST is not able to provide list of layers from given workspace.
+        # The duplicities in the GET Layers response must be handled manually:
+        # 1. Identify the duplicities
+        # 2. Insert only once
+        # 3. Note all duplicities
+        # 4. At the end, come through all the requested workspaces and in every ws check, 
+        # if it contains the Feature Type of the same name. If yes, add it. 
+        # Note, that there may be five different layers of the same name in five workspaces
+        # and say three allowed for the current user.
+        layersDone = {}  # lay[href]: ws
+        duplicities = {} # lay[href]: count
+
         # For every Layer        
-        for lay in gsLayers["layers"]["layer"]: 
+        for lay in gsLayers["layers"]["layer"]:
+            logging.debug("[LayEd][getLayers] Trying layer '%s'"% lay["href"])
+            #print "Trying layer"
+            #print lay["href"]
+
+            # Check the duplicities
+            if lay["href"] in layersDone:
+                logging.debug("[LayEd][getLayers] Duplicity found: '%s'"% lay["href"])
+                if lay["href"] in duplicities:
+                    duplicities[ lay["href"] ] += 1
+                else:
+                    duplicities[ lay["href"] ] = 2
+                continue # dont store the same layer twice
+            else:
+                layersDone[ lay["href"] ] = ""
 
             # GET the Layer
-            logging.debug("[LayEd][getLayers] Trying layer '%s'"% lay["href"])
             (headers, response) = gsr.getUrl(lay["href"])
             # TODO: check the response
             layer = json.loads(response)  # Layer from GS
@@ -277,6 +306,9 @@ class LayEd:
                 pass # TODO                            # something is wrong
             ws = path[3]   # workspace of the layer 
             logging.debug("[LayEd][getLayers] Layer's workspace: '%s'"% ws)
+            #print "layer's workspace"
+            #print ws
+            layersDone[ lay["href"] ] = ws
             if ws in workspaces:
 
                 # GET FeatureType
@@ -292,6 +324,43 @@ class LayEd:
                 bundle["layer"] = layer["layer"]
                 bundle["featureType"] = ft["featureType"]
                 layers.append(bundle)
+    
+        # Now find the layers hidden by the duplicites
+   
+        #print "duplicities"
+        #print duplicities 
+        # For every duplicity
+        for (dup, count) in duplicities.items():
+            
+            # For every requested workspace    
+            for ws in workspaces:
+                if ws == layersDone[ dup ]:
+                    continue # this workspace is already done
+
+                # Extract the layer/feature type name
+                dotPos = dup.rfind(".") 
+                slashPos = dup.rfind("/")
+                name = dup[slashPos+1:dotPos]
+
+                # Try to get the Feature Type
+                # Here we go just for one datastore, the one representing the schema in the db
+                (head, resp) = gsr.getFeatureType(workspace=ws, datastore=ws, name=name)
+
+                #print "head status"
+                #print head["status"]
+                if head["status"] == "200": # match          
+                    ft = json.loads(resp) # Feature Type
+                    # Fake layer - valid GS REST URI does not exist
+                    layer = {}
+                    layer["name"] = name        
+        
+                    # Return both
+                    bundle = {}   # Layer that will be returned
+                    bundle["ws"] = ws
+                    bundle["roleTitle"] = roleTitles[ws]
+                    bundle["layer"] = layer
+                    bundle["featureType"] = ft["featureType"]
+                    layers.append(bundle)
 
         layers = json.dumps(layers) # json -> string
         return (code, layers)

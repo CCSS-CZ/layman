@@ -30,6 +30,12 @@ class LayEdTestCase(unittest.TestCase):
 
     def test_01_publish(self):
 
+#        ff = "world_cities_point.shp" # file
+#        ll = "world_cities_point" # layer
+#        st = "world_cities_point" # style
+#        ff = "pest.shp" # file
+#        ll = "pest" # layer
+#        st = "pest" # style
         ff = "line_crs.shp" # file
         ll = "line_crs" # layer
         st = "line_crs" # style
