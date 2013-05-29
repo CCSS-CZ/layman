@@ -9,6 +9,8 @@ from gsrest import GsRest
 from urlparse import urlparse
 import logging
 
+from layman.errors import LaymanError
+
 class LayEd:
     """Layer editor and manager
     """
@@ -85,9 +87,8 @@ class LayEd:
         # file
         fileNameNoExt = os.path.splitext(fileName)[0]
 
-        # TODO - check the GS workspace and create it if it does not exist 
-        # if...
-        #    createWorkspace(...)
+        # Check the GS workspace and create it if it does not exist 
+        self.createWorkspaceIfNotExists(gsWorkspace)
 
         # Here the Workspace should exist
 
@@ -123,6 +124,35 @@ class LayEd:
         # TODO: check the result
 
         return (201, "Layer published")
+
+    # Check the GS workspace and create it if it does not exist 
+    def createWorkspaceIfNotExists(self, workspace):
+
+        # Check the workspace
+        gsr = GsRest(self.config)
+        (head, cont) = gsr.getWorkspace(workspace)
+        #print head
+        #print cont
+
+        # If it does not exist
+        if head["status"] != "200":           
+
+            # Create it
+            ws = {}
+            ws["workspace"] = {}
+            ws["workspace"]["name"] = workspace
+            wsStr = json.dumps(ws)
+            (head, cont) = gsr.postWorkspaces(data=wsStr)
+            #print head
+            #print cont
+
+            # If the creation failed
+            if head["status"] != "201":
+                # Raise an exception
+                headStr = str(head)
+                message = "LayEd: createWorkspaceIfNotExists(): Cannot create workspace " + workspace + ". Geoserver replied with " + headStr + " and said " + cont
+                raise LaymanError(500, message)
+
 
     def createStyleForLayer(self, workspace, dataStore, layerName):
         """ Create and assign new style for layer. 

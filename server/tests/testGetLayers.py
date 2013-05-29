@@ -27,6 +27,10 @@ class LayEdTestCase(unittest.TestCase):
 
     # TODO: add tests for POST /layed?myLayer
 
+    def test_wsCreate(self):
+        self.le.createWorkspaceIfNotExists("DeltaDunaje")
+        self.le.createWorkspaceIfNotExists("DeltaDunaje")
+
     def test_getLayers(self):
         r1 = {}
         r1["roleName"] = "hasici"
@@ -37,9 +41,9 @@ class LayEdTestCase(unittest.TestCase):
         roles = [r1,r2]
 
         headers, response = self.le.getLayers(roles)
-        print "*** TEST *** getLayers() ***"
-        print headers
-        print response
+        #print "*** TEST *** getLayers() ***"
+        #print headers
+        #print response
 
         responseJson = json.loads(response)
 
