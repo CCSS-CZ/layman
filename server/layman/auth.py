@@ -350,6 +350,13 @@ class LaymanAuthOpen(LaymanAuth):
 
         return fs
 
+    def getFSGroupDir(self, desired=None):
+        """ roleName ~ Group Dir. Uses getRole()
+        """
+        role = self.getRole(desired)
+        groupDir = self.config.get("FileMan","homedir") + role["roleName"]
+        return groupDir
+
 #class AuthError(LaymanError): 
 #    """Auth error class
 #    """
