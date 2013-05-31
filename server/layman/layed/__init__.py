@@ -197,6 +197,7 @@ class LayEd:
             ds["dataStore"]["connectionParameters"]["user"] = user
             ds["dataStore"]["connectionParameters"]["passwd"] = passwd
             ds["dataStore"]["connectionParameters"]["dbtype"] = "postgis"
+            ds["dataStore"]["connectionParameters"]["schema"] = dbSchema
 
             dsStr = json.dumps(ds)
 
