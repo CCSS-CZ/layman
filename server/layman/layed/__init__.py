@@ -118,6 +118,8 @@ class LayEd:
         srs = gisAttribs["prj"]
         logging.debug("[LayEd][publish] SRS: %s"% srs)
 
+
+
         # Publish from DB to GS
         self.createFtFromDb(workspace=gsWorkspace, dataStore=dbSchema, layerName=fileNameNoExt, srs=srs)
         # TODO: check the result
@@ -189,13 +191,12 @@ class LayEd:
             ds["dataStore"]["description"] = "Connection to " + dbSchema + " in the " + database + " PostGIS database."
             ds["dataStore"]["type"] = "PostGIS"
             ds["dataStore"]["connectionParameters"] = {}
-            entry = []
-            for ent in [ ("host",host), ("port",port), ("database",database), ("schema",dbSchema), ("user",user), ("passwd",passwd), ("Expose primary keys",exposePK), ("dbtype","postgis") ]:
-                e = {}
-                e["@key"] = ent[0]
-                e["$"] = ent[1]
-                entry.append(e)
-            ds["dataStore"]["connectionParameters"]["entry"] = entry
+            ds["dataStore"]["connectionParameters"]["host"] = host
+            ds["dataStore"]["connectionParameters"]["port"] = port
+            ds["dataStore"]["connectionParameters"]["database"] = database
+            ds["dataStore"]["connectionParameters"]["user"] = user
+            ds["dataStore"]["connectionParameters"]["passwd"] = passwd
+            ds["dataStore"]["connectionParameters"]["dbtype"] = "postgis"
 
             dsStr = json.dumps(ds)
 
@@ -238,7 +239,6 @@ class LayEd:
         style_str["layer"] = {}
         style_str["layer"]["defaultStyle"] = {}
         style_str["layer"]["defaultStyle"]["name"] = layerName
-        style_str["layer"]["defaultStyle"]["workspace"] = workspace
         style_str["layer"]["defaultStyle"]["workspace"] = workspace
 
         headers, content = gsr.putLayer(workspace, layerName, json.dumps(style_str))
