@@ -215,31 +215,35 @@ Ext4.define('HSRS.LayerManager.FilesPanel', {
      * @private
      */
      _onUploadClicked: function() {
-        var fileUploader = Ext4.create('HSRS.LayerManager.FilesPanel.FileUploader', {
+        if (this.fileUploader) {
+            this.fileUploader._win.close();
+        }
+
+        this.fileUploader = Ext4.create('HSRS.LayerManager.FilesPanel.FileUploader', {
             filesnames: this.store.collect('name'),
             url: this.url,
             listeners: {
-                scope: fileUploader,
+                scope: this.fileUploader,
                 'filesaved': function() {
                     this._win.close();
                 }
             }
         });
 
-        fileUploader.on('filesaved', function() {
+        this.fileUploader.on('filesaved', function() {
             this.store.load();
         },this);
 
-        fileUploader._win = Ext4.create('Ext4.window.Window', {
+        this.fileUploader._win = Ext4.create('Ext4.window.Window', {
             title: 'File upload',
             height: 150,
             width: 400,
             layout: 'fit',
             items: [
-                fileUploader
+                this.fileUploader
             ]
         });
-        fileUploader._win.show();
+        this.fileUploader._win.show();
 
      },
 

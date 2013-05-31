@@ -49,18 +49,35 @@ class GsRest:
         """ Creates new style from styleSld
             Set workspace to None to create unassigned style
         """
+        headers = None
+        response = None
+
         if workspace == None:
             url = self.url + "/styles.sld?name=" + styleName
+
+            headers, response = self.h.request(url, "POST", url, self.sldHeader)
+
         else:
-            url = self.url + "/workspaces/" + workspace + "/styles.sld?name=" + styleName
-        #print " *** GsRest *** postStyleSld() ***"
-        #print "url:"
-        #print url
-        headers, response =  self.h.request(url, 'POST', styleSld, self.sldHeader)
-        #print "headers:"
-        #print headers
-        #print "response:"
-        #print response
+            url = self.url + "/workspaces/" + workspace + "/styles"
+
+            #print " *** GsRest *** postStyleSld() ***"
+            #print "url:"
+            #print url
+            headers, response =  self.h.request(url, 'POST',
+                    "<style><name>%s</name><filename>%s.sld</filename></style>" % (styleName,styleName), 
+                    {"Content-type": "text/xml"})
+
+            if headers["status"] == "201":
+                put_headers, put_response = self.h.request(url+"/"+styleName, "PUT", styleSld, self.sldHeader)
+
+                if put_headers["status"] != "200":
+                    headers = put_headers
+                    response = put_response
+
+            #print "headers:"
+            #print headers
+            #print "response:"
+            #print response
         return headers, response
 
     def getStyle(self, workspace, styleName):

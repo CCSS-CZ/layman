@@ -10,6 +10,7 @@ import string
 import web
 import logging
 import json
+import traceback
 
 from errors import LaymanError, AuthError
 
@@ -368,6 +369,7 @@ class LayMan:
             
         config = ConfigParser.SafeConfigParser()
         config.readfp(open(os.path.join(INSTALL_DIR,"defaults.cfg")))
+
         config.read(cfgfiles)
 
     def _getTargetFile(self,fileName,asFile=False):
@@ -435,6 +437,9 @@ class LayMan:
     def _handleLaymanError(self, laymanErr):
         """ Handle LaymanError exception
         """
+        tb = traceback.format_exc()
+        logging.debug(tb)
+
         message = str(laymanErr)
         logging.error("[LayMan][_handleLaymanError] Layman Error exception: '%s'"% message)
         success = self._setReturnCode(laymanErr.code)    
@@ -444,6 +449,9 @@ class LayMan:
     def _handleException(self, ex):
         """ Handle unexpected Exception
         """
+        tb = traceback.format_exc()
+        logging.debug(tb)
+
         message = str(ex)
         logging.error("[LayMan][_handleException] Unexpected exception: '%s'"% message)
         self._setReturnCode(500)    

@@ -8,8 +8,14 @@ import json
 from gsrest import GsRest
 from urlparse import urlparse
 import logging
+from lxml import etree
+from io import BytesIO
 
 from layman.errors import LaymanError
+
+namespaces = {
+            "sld":"http://www.opengis.net/sld"
+        }
 
 class LayEd:
     """Layer editor and manager
@@ -155,6 +161,8 @@ class LayEd:
     # Check the GS data store and create it if it does not exist 
     # Database schema name is used as the name of the datastore
     def createDataStoreIfNotExists(self, dbSchema, gsWorkspace):
+        """Create database connection
+        """
     
         # Check the datastore
         gsr = GsRest(self.config)
@@ -216,6 +224,7 @@ class LayEd:
         # FIXME: we don't really KNOW the name of the layer. The layer of unsure name was automatically created upon POST FeatureType.
         # TODO: check the result
         layerJson = json.loads(cont)
+
         currentStyleUrl = layerJson["layer"]["defaultStyle"]["href"]
 
         # Create new style      
@@ -225,9 +234,15 @@ class LayEd:
         # TODO: check the result
        
         # Assign new style with gsxml
-        from gsxml import GsXml
-        gsx = GsXml(self.config) 
-        gsx.setLayerStyle(layerWorkspace=workspace, dataStoreName=dataStore, layerName=layerName, styleWorkspace=workspace, styleName=layerName)
+        style_str = {}
+        style_str["layer"] = {}
+        style_str["layer"]["defaultStyle"] = {}
+        style_str["layer"]["defaultStyle"]["name"] = layerName
+        style_str["layer"]["defaultStyle"]["workspace"] = workspace
+        style_str["layer"]["defaultStyle"]["workspace"] = workspace
+
+        headers, content = gsr.putLayer(workspace, layerName, json.dumps(style_str))
+
         logging.info("[LayEd][publish] assigned style '%s'"% layerName)
         logging.info("[LayEd][publish] to layer '%s'"% layerName)
         logging.info("[LayEd][publish] in workspace '%s'"% workspace)
@@ -236,13 +251,6 @@ class LayEd:
         # Tell GS to reload the configuration
         gsr.putReload()
 
-        # Assign new style with PUT Layer - does not work, GS bug
-        #layerJson["layer"]["defaultStyle"]["name"] = fileNameNoExt
-        #layerJson["layer"]["defaultStyle"]["href"] = "http://erra.ccss.cz:8080/geoserver/rest/workspaces/dragouni/styles/line_crs.json" #newStyleUrl
-        #layerStr = json.dumps(layerJson)
-        #(head, cont) = gsr.putLayer(gsWorkspace, name=fileNameNoExt, data=layerStr) # PUT Layer
-
-        # TODO: return 
 
     def createFtFromDb(self, workspace, dataStore, layerName, srs):
         """ Create Feature Type from PostGIS database
@@ -263,7 +271,12 @@ class LayEd:
         (head, cont) = gsr.postFeatureTypes(workspace, dataStore, data=ftStr)
         logging.debug("[LayEd][createFtFromDb] Response header: '%s'"% head)
         logging.debug("[LayEd][createFtFromDb] Response contents: '%s'"% cont)
-        # TODO: check the result
+
+        if head["status"] != "201":
+            # Raise an exception
+            headStr = str(head)
+            message = "LayEd: createFtFromDb(): Cannot create FeatureType " + ftStr + ". Geoserver replied with " + headStr + " and said " + cont
+            raise LaymanError(500, message)
         return (head, cont)
 
     def getLayersGsConfig(self, workspace=None): 
@@ -575,23 +588,37 @@ class LayEd:
 
         # GET style .sld from GS
         (headers, styleSld) = gsr.getUrl(sldUrl)
-        # TODO: check the reuslt
-        #print "*** LayEd *** getUrl(sldUrl) reply:"
-        #print "headers:"
-        #print headers
-        #print "styleSld:"
-        #print styleSld
+
+        if headers["status"] != "200":
+            headStr = str(headers)
+            message = "LayEd: cloneStyle(): Cannot get style url " + sldUrl + ".  Geoserver replied with " + headStr + " and said " + styleSld
+            raise LaymanError(500, message)
+
+        # change style name and title
+        sld_as_file = BytesIO(styleSld)
+        tree = etree.parse(sld_as_file)
+        layer_name_elem = tree.xpath("//sld:NamedLayer/sld:Name",namespaces=namespaces)
+        if len(layer_name_elem) > 0:
+            layer_name_elem[0].text = "%s" % (toStyle)
+
+        style_name_elem = tree.xpath("//sld:NamedLayer/sld:UserStyle/sld:Name",namespaces=namespaces)
+        if len(style_name_elem) > 0:
+            style_name_elem[0].text = "%s" % (toStyle)
+            tree.xpath("//sld:NamedLayer/sld:UserStyle/sld:Title",namespaces=namespaces)[0].text =  "Style for layer %s:%s" %(toWorkspace, toStyle)
+
+        styleSld = etree.tostring(tree.getroot())
 
         # Create new style from the sld
         (headers, response) = gsr.postStyleSld(workspace=toWorkspace, styleSld=styleSld, styleName=toStyle)
-        # TODO: check the reuslt 
-        #print " *** LayEd *** postStyleSld() ***"
-        #print "headers"
-        #print headers
-        #print "response"
-        #print response
+
+        if not headers["status"] in ["201","200"]:
+            headStr = str(headers)
+            message = "LayEd: cloneStyle(): Cannot create style " + toStyle + ".  Geoserver replied with " + headStr + " and said " + response
+            raise LaymanError(500, message)
 
         # return uri of the new style
+        import sys
+        print >>sys.stderr, headers, response
         location = headers["location"]
         # GS returns 'http://erra.ccss.cz:8080/geoserver/rest/workspaces/hotari/styles.sld/line_crs'
         # fix geoserver mismatch

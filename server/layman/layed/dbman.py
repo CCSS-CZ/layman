@@ -62,7 +62,7 @@ class DbMan:
         try:
             # connect
             conn = psycopg2.connect(self.connectionString)
- 
+
             # set schema
             setSchemaSql = "SET search_path TO "+dbSchema+",public;"
 
@@ -70,7 +70,7 @@ class DbMan:
             cur = conn.cursor()
             logging.debug("[DbMan][importShapeFile] set schema: '%s'"% setSchemaSql)
             cur.execute(setSchemaSql) # TODO check the success
-            logging.debug("[DbMan][importShapeFile] sqlBatch: %s"% sqlBatch)
+            logging.debug("[DbMan][importShapeFile] sqlBatch: %s\n[...]\n%s"% (sqlBatch[:2000], sqlBatch[-500:]))
             cur.execute(sqlBatch) # TODO check the success
             conn.commit()
         

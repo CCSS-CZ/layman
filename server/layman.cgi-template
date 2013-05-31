@@ -5,6 +5,7 @@ to adjust it to your needs.
 """
 from layman import LayMan
 from web import application as app
+import logging
 
 import web
 import os
@@ -12,6 +13,7 @@ import os
 
 DIR = os.path.dirname(os.path.abspath(__file__))
 web.config.debug = True
+logging.basicConfig(level=logging.DEBUG) # DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 os.environ["LAYMAN_CFG"] = os.path.join(DIR, "layman.cfg")
 

@@ -71,6 +71,13 @@ class LaymanAuth:
 
         return dirname
 
+    def getFSGroupDir(self, desired=None):
+        """ roleName ~ Group Dir. Uses getRole()
+        """
+        role = self.getRole(desired)
+        groupDir = self.config.get("FileMan","homedir") + role["roleName"]
+        return groupDir
+
     def getDBSchema(self, desired=None):
         logging.warning("[LaymanAuth][getDBSchema] Call of Authorisation class ancestor. Was it intended? No authorisation will be granted here. Try descendants - e.g. LaymanAuthLiferay or LaymanAuthOpen.")
         return None
@@ -199,13 +206,6 @@ class LaymanAuthLiferay(LaymanAuth):
         else: 
             raise AuthError("Cannot determine the working directory - Liferay did not provide user's screenName")
 
-    def getFSGroupDir(self, desired=None):
-        """ roleName ~ Group Dir. Uses getRole()
-        """
-        role = self.getRole(desired)
-        groupDir = self.config.get("FileMan","homedir") + role["roleName"]
-        return groupDir
-    
     def getDBSchema(self, desired=None):
         """ roleName ~ Schema. Uses getRole()
         """
@@ -327,7 +327,7 @@ class LaymanAuthOpen(LaymanAuth):
     def getRole(self, desired=None):
         """Take rule from configuration value"""
         return {"roleName":self.config.get("Authorization","role"),
-                "roleTitle":"asdfkasdjf asjkdf kasdfh"}#self.config.get("Authorization","role")}
+                "roleTitle":"In-auth.py-set title"}#self.config.get("Authorization","role")}
 
     def getRoles(self):
         """Take rule from configuration value"""
@@ -341,23 +341,10 @@ class LaymanAuthOpen(LaymanAuth):
         return rolesStr
 
     def getFSUserDir(self):
-        """Get user working directory. 
+        """Get user working directory. Dirname == screenName from Liferay
         """
-        fs = os.path.join(self.config.get("FileMan","homedir"), self.getRole()["roleName"])
 
-        if not os.path.exists(fs):
-            os.mkdir(fs)
+        return self.config.get("FileMan","homedir") + self.getRole()["roleName"]
 
-        return fs
-
-    def getFSGroupDir(self, desired=None):
-        """ roleName ~ Group Dir. Uses getRole()
-        """
-        role = self.getRole(desired)
-        groupDir = self.config.get("FileMan","homedir") + role["roleName"]
-        return groupDir
-
-#class AuthError(LaymanError): 
-#    """Auth error class
-#    """
-#    message = "Auth Error: "
+    def getDBSchema(self, desired=None):
+        return self.config.get("Authorization","role")
