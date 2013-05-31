@@ -242,6 +242,7 @@ class LayEd:
         style_str["layer"]["defaultStyle"] = {}
         style_str["layer"]["defaultStyle"]["name"] = layerName
         style_str["layer"]["defaultStyle"]["workspace"] = workspace
+        style_str["layer"]["enabled"] = True
 
         headers, content = gsr.putLayer(workspace, layerName, json.dumps(style_str))
 
