@@ -458,16 +458,3 @@ class LayMan:
         retval = self._jsonReply(500, message, success=False)
         return retval
 
-#class LaymanError(Exception):
-#    """Layman error class
-#    """
-#    code = 500
-#    message = "Layman exception: "
-
-#    def __init__(self, code, message):
-#        self.code = code
-#        self.message += message
-
-#    def __str__(self):
-#        return repr(self.code) + ": " + self.message
-
