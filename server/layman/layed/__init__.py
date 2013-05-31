@@ -191,23 +191,14 @@ class LayEd:
             ds["dataStore"]["description"] = "Connection to " + dbSchema + " in the " + database + " PostGIS database."
             ds["dataStore"]["type"] = "PostGIS"
             ds["dataStore"]["connectionParameters"] = {}
-        
-            entry = []
-            for ent in [ ("host",host), ("port",port), ("database",database), ("schema",dbSchema), ("user",user), ("passwd",passwd), ("Expose primary keys",exposePK), ("dbtype","postgis") ]:
-                e = {}
-                e["@key"] = ent[0]
-                e["$"] = ent[1]
-                entry.append(e)
-            ds["dataStore"]["connectionParameters"]["entry"] = entry
-
-            #ds["dataStore"]["connectionParameters"]["host"] = host
-            #ds["dataStore"]["connectionParameters"]["port"] = port
-            #ds["dataStore"]["connectionParameters"]["database"] = database
-            #ds["dataStore"]["connectionParameters"]["user"] = user
-            #ds["dataStore"]["connectionParameters"]["passwd"] = passwd
-            #ds["dataStore"]["connectionParameters"]["dbtype"] = "postgis"
-            #ds["dataStore"]["connectionParameters"]["schema"] = dbSchema
-            #ds["dataStore"]["connectionParameters"]["Expose primary keys"] = exposePK
+            ds["dataStore"]["connectionParameters"]["host"] = host
+            ds["dataStore"]["connectionParameters"]["port"] = port
+            ds["dataStore"]["connectionParameters"]["database"] = database
+            ds["dataStore"]["connectionParameters"]["user"] = user
+            ds["dataStore"]["connectionParameters"]["passwd"] = passwd
+            ds["dataStore"]["connectionParameters"]["dbtype"] = "postgis"
+            ds["dataStore"]["connectionParameters"]["schema"] = dbSchema
+            ds["dataStore"]["connectionParameters"]["Expose primary keys"] = exposePK
 
             dsStr = json.dumps(ds)
 
