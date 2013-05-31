@@ -19,7 +19,6 @@ class DbMan:
 
         ## get configuration parser
         self._setConfig(config)
-        self._setConnectionString()
 
     def _setConfig(self,config):
         """Get and set configuration files parser
@@ -40,7 +39,7 @@ class DbMan:
 
         if ogr:
             return "PG: host=%s dbname=%s user=%s password=%s port=%s"%\
-                    (host, dbname,user,dbpass,port)
+                    (dbhost, dbname,dbuser,dbpass,"5432")
         else:
             return "dbname='"+dbname+"' user='"+dbuser+"' host='"+dbhost+"' password='"+dbpass+"'"
 
@@ -50,6 +49,9 @@ class DbMan:
         """import given file to database, ogr is used for data READING, psycopg2
         for data WRITING directly into PostGIS
         """
+        conn = psycopg2.connect(self.getConnectionString())
+        cur = conn.cursor()
+
         # shp2pgsql #
         logParam = "filePath='"+filePath+"', dbSchema='"+dbSchema+"'"
         logging.debug("[DbMan][importShapeFile] %s"% logParam)
@@ -67,7 +69,7 @@ class DbMan:
 
             # for each layer within the file
             # NOTE: in Shapefile, there is usually only one layer
-            for layer_in from file_in:
+            for layer_in in file_in:
                 name_out = layer_in.GetName()
                 # TODO: data exists, throw exception
                 if pg_out.GetLayerByName(name_out):
@@ -77,7 +79,7 @@ class DbMan:
                 sqlBatch += "SET search_path TO "+dbSchema+",public;\n"
                 sqlBatch += "SET CLIENT_ENCODING TO UTF8;\n"
                 sqlBatch += "SET STANDARD_CONFORMING_STRINGS TO ON;\n"
-                sqlBatch += 'CREATE TABLE "'+dbSchema+"."+name_out+'" (\n';
+                sqlBatch += 'CREATE TABLE '+dbSchema+"."+name_out+' (\n';
                 sqlBatch +="gid serial,\n"
 
                 # layer columns definition
@@ -90,16 +92,25 @@ class DbMan:
                 while j < fieldCount:
                     fieldDfn = dfn.GetFieldDefn(j)
                     fieldName = fieldDfn.GetName()
-                    sqlBatch += '"'+fieldName.lower()+"' "+ self._getSqlTypeFromType(fieldDfn.GetType())+",\n"
+                    comma = ",\n"
+                    if j+1 == fieldCount:
+                        comma = ""
+                    sqlBatch += '"'+fieldName.lower()+'" '+ self._getSqlTypeFromType(fieldDfn.GetType())+comma
                     fields.append(fieldName)
                     j += 1
                 sqlBatch += ");\n"
-                sqlBatch += 'ALTER TABLE "'+name_out+'" ADD PRIMARY KEY (gid);\n'
+                sqlBatch += 'ALTER TABLE '+dbSchema+"."+name_out+' ADD PRIMARY KEY (gid);\n'
 
                 # add geometry column
-                sqlBatch += "SELECT AddGeometryColumn('"+dbSchema+"."+name_out+"','"+
-                             name_out+"','geom','0','"+self._getGeomType(layer_in.GetGeomType())+"',2);\n"
+                sqlBatch += "".join(["SELECT AddGeometryColumn('",
+                                      dbSchema,
+                                      "','",
+                                      name_out,
+                                     "','geom','0','",
+                                     self._getGeomType(layer_in.GetGeomType()),
+                                     "',2);\n"])
                 fields.append("geom")
+
 
                 # create new table in database
                 cur.execute(sqlBatch) # TODO check the success
@@ -108,21 +119,32 @@ class DbMan:
                 # database prepared, feed it
                 sqlBatch = ""
                 feature = layer_in.GetNextFeature()
+                strfields = map(lambda field: '"%s"' % field, fields)
                 # insert each feature into database table
                 while feature:
-                    vals = map(lambda field: "'%s'" % f.GetField(field), fields[:-1])
-                    vals.append(f.GetGeometryRef().ExportToWkt())
+                    vals = map(lambda field: "'%s'" % feature.GetField(field), fields[:-1])
+                    geom = feature.GetGeometryRef().ExportToWkt()
 
-                    fields = map(lambda field: '"%s"' % field, fields)
+                    # we have to convert polygons to multipolygons
+                    if geom.find("POLYGON") == 0:
+                        geom = geom.replace("POLYGON","MULTIPOLYGON(")
+                        geom = geom+")"
 
-                    cur.execute('INSERT INTO "%(schema)s.%(table)s (%(columns)s) VALUES (%(values)s);' %\
+                    # add geometry to values
+                    vals.append("ST_AsText('"+geom+"')")
+
+                    insert_str = 'INSERT INTO %(schema)s.%(table)s (%(columns)s) VALUES (%(values)s);' %\
                             ({
                                 "schema":dbSchema,
                                 "table": name_out,
-                                "columns": ",".join(fields),
+                                "columns": ",".join(strfields).lower(),
                                 "values": ",".join(vals)
                             })
-
+                            
+                    import sys
+                    print >>sys.stderr, insert_str
+                    cur.execute(insert_str)
+                    feature = layer_in.GetNextFeature()
                 conn.commit()
             
             #close
@@ -192,10 +214,12 @@ class DbMan:
         data ogr
         """
 
-        if tp == ogr.wkbPolygon:
-            return "POLYGON"
-        elif tp == ogr.wkbPoint:
+        if geomtype == ogr.wkbPolygon:
+            return "MULTIPOLYGON"
+        elif geomtype == ogr.wkbMultiPolygon:
+            return "MULTIPOLYGON"
+        elif geomtype == ogr.wkbPoint:
             return "POINT"
-        elif tp == ogr.wkbLineString:
+        elif geomtype == ogr.wkbLineString:
             return "LINESTRING"
         # FIXME: add more
