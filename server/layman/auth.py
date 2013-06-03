@@ -254,7 +254,7 @@ class LaymanAuthLiferay(LaymanAuth):
         """
         roleJson = self.getRole(desired)
         roleStr = json.dumps(roleJson)
-        return roleStr
+        return (500,roleStr)
 
     def getRoles(self):
         """ Returns list of roles: 
@@ -338,7 +338,7 @@ class LaymanAuthOpen(LaymanAuth):
         """
         rolesJson = self.getRoles()
         rolesStr = json.dumps(rolesJson)
-        return rolesStr
+        return (200,rolesStr)
 
     def getFSUserDir(self):
         """Get user working directory. Dirname == screenName from Liferay
