@@ -93,16 +93,6 @@ class LayEd:
         # file
         fileNameNoExt = os.path.splitext(fileName)[0]
 
-        # Check the GS workspace and create it if it does not exist 
-        self.createWorkspaceIfNotExists(gsWorkspace)
-
-        # Here the Workspace should exist
-
-        # Check the GS data store and create it if it does not exist 
-        self.createDataStoreIfNotExists(dbSchema, gsWorkspace)
-
-        # Here the Data Store should exist
-
         # Import to DB
         from layman.layed.dbman import DbMan
         dbm = DbMan(self.config)
@@ -118,7 +108,13 @@ class LayEd:
         srs = gisAttribs["prj"]
         logging.debug("[LayEd][publish] SRS: %s"% srs)
 
+        # Check the GS workspace and create it if it does not exist 
+        self.createWorkspaceIfNotExists(gsWorkspace)
 
+        # Here the Workspace should exist
+
+        # Check the GS data store and create it if it does not exist 
+        self.createDataStoreIfNotExists(dbSchema, gsWorkspace)
 
         # Publish from DB to GS
         self.createFtFromDb(workspace=gsWorkspace, dataStore=dbSchema, layerName=fileNameNoExt, srs=srs)
