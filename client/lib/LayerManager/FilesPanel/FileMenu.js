@@ -58,11 +58,6 @@ Ext4.define('HSRS.LayerManager.FilesPanel.FileMenu', {
                 text: config.data.type,
                 renderTpl: ['<b>Geometry type </b>{text}']
             },
-            {
-                plain: true,
-                text: config.data.prj,
-                renderTpl: ['<b>Projection: </b>{text}']
-            },
             { xtype: 'menuseparator' },
             {
                 text: 'Publish',
