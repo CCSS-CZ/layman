@@ -39,12 +39,13 @@ class DbMan:
         dbuser = self.config.get("DbMan","dbuser")
         dbhost = self.config.get("DbMan","dbhost")
         dbpass = self.config.get("DbMan","dbpass")
+        dbport = self.config.get("DbMan","dbport")
         logStr = "dbname='"+dbname+"' user='"+dbuser+"' host='"+dbhost+"'"
         logging.debug("[DbMan][getConnectionString] Connection details: %s"% logStr)
 
         if ogr:
             return "PG: host=%s dbname=%s user=%s password=%s port=%s"%\
-                    (dbhost, dbname,dbuser,dbpass,"5432")
+                    (dbhost, dbname,dbuser,dbpass,dbport)
         else:
             return "dbname='"+dbname+"' user='"+dbuser+"' host='"+dbhost+"' password='"+dbpass+"'"
 
@@ -60,6 +61,7 @@ class DbMan:
         """import given file to database, ogr is used for data READING, psycopg2
         for data WRITING directly into PostGIS
         """
+        self.createSchemaIfNotExists(dbSchema)
         ds = ogr.Open(filePath)
 
         sqlBatch = None
@@ -216,8 +218,39 @@ class DbMan:
 
         
 
-    # Delete 
+    def createSchemaIfNotExists(self, dbSchema):
+        logParam = "dbSchema='"+dbSchema+"'"
+        logging.debug("[DbMan][createSchemaIfNotExists] %s"% logParam)
 
+        try: 
+            dbSchema = dbSchema.lower()
+
+            conn = psycopg2.connect(self.getConnectionString())
+            cur = conn.cursor()
+
+            SQL = "SELECT schema_name FROM information_schema.schemata WHERE schema_name = %s;"
+            params = (dbSchema, )
+            cur.execute(SQL, params) 
+            result = cur.fetchone()
+
+            created = False
+            if not result:
+                SQL = "CREATE SCHEMA "+dbSchema+";"
+                cur.execute(SQL) 
+                created = True            
+
+            conn.commit()
+            cur.close()
+            conn.close()
+            if created:
+                logging.info("[DbMan][createSchemaIfNotExists] Created schema %s"% dbSchema)
+
+        except Exception as e:
+            errStr = "Database (psycopg2) error: '"+str(e)+"'"
+            logging.debug("[DbMan][createSchemaIfNotExists] %s"% errStr)
+            raise LaymanError(500, "DbMan: "+errStr)
+
+    # Delete 
     def deleteTable(self, dbSchema, tableName): 
         logParam = "tableName='"+tableName+"', dbSchema='"+dbSchema+"'"
         logging.debug("[DbMan][deleteTable] %s"% logParam)
