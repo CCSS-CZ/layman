@@ -605,6 +605,7 @@ class LayEd:
         # TODO: check the result
         layerJson = json.loads(response)
         ftUrl = layerJson["layer"]["resource"]["href"]
+        layer_type = layerJson["layer"]["type"]
         logging.debug("[LayEd][deleteLayer] Feature Type URL: %s"% ftUrl)
 
         # Delete Layer
@@ -624,11 +625,19 @@ class LayEd:
         logging.debug("[LayEd][deleteLayer] DELETE Style response headers: %s"% headers)
         logging.debug("[LayEd][deleteLayer] DELETE Style  response content: %s"% response)
         # TODO: check the result 
+        # NOTE: if no style, it still should be ok (coverages do not have
+        # styles)
 
-        # Drop Table in PostreSQL
-        from layman.layed.dbman import DbMan
-        dbm = DbMan(self.config)
-        dbm.deleteTable(dbSchema=schema, tableName=layer)
+        # drop the data: coverage vs featuretype
+
+        if layer_type == "VECTOR":
+            # Drop Table in PostreSQL
+            from layman.layed.dbman import DbMan
+            dbm = DbMan(self.config)
+            dbm.deleteTable(dbSchema=schema, tableName=layer)
+        elif layer_type == "RASTER":
+            headers, response = gsr.deleteCoverageStore(workspace,layer)
+            # works
 
         # Delete Data Store 
         # (this is usefull when dedicated datastore was created when publishing)

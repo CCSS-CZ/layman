@@ -216,6 +216,11 @@ class GsRest:
         headers, response =  self.h.request(url,'DELETE')
         return headers, response        
 
+    def deleteCoverageStore(self, workspace, name):
+        url = self.url + "/workspaces/" + workspace + "/coveragestores/" + name + ".json"
+        headers, response =  self.h.request(url,'DELETE')
+        return headers, response        
+
     ### WORKSPACES ###
 
     def getWorkspaces(self):
@@ -238,7 +243,7 @@ class GsRest:
         headers, response =  self.h.request(url,'PUT',data, self.jsonHeader)
         return headers, response        
 
-    def deleteDataStore(self, name):
+    def xdeleteDataStore(self, name):
         url = self.url + "/workspaces/" + name + ".json"
         headers, response =  self.h.request(url,'DELETE')
         return headers, response        
