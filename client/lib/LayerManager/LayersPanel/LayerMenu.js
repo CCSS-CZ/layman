@@ -104,7 +104,7 @@ Ext4.define('HSRS.LayerManager.LayersPanel.LayerMenu', {
             url: this.url.replace('fileman', 'layed'),
             type: this.layer.type,
             groups: this.groups,
-            abstract: this.layerData.abstract,
+            abstract: this.layerData.description,
             title: this.layerData.title,
             group: this.record.get("workspace"),
             isFeatureType: true,

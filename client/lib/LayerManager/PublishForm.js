@@ -87,7 +87,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                         xtype: 'textarea',
                         anchor: '100%',
                         name: 'abstract',
-                        value: config.abstract || ''
+                        value: config.abstract || config.description || ''
                     },
                     //{
                     //    fieldLabel: 'Keywords',

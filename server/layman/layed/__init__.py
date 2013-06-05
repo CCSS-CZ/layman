@@ -78,13 +78,12 @@ class LayEd:
 
         return self.createStyleForLayer(workspace=gsWorkspace, dataStore=fileNameNoExt, layerName=fileNameNoExt)
 
-    def publish(self, fsUserDir, fsGroupDir, dbSchema, gsWorkspace, fileName,srs=None):
+    def publish(self, fsUserDir, fsGroupDir, dbSchema, gsWorkspace, fileName,srs=None,data=None):
         """ Main publishing function. Import to PostreSQL and publish in GeoServer.
             Group ~ db Schema ~ gs Data Store ~ gs Workspace
         """
         logParam = "fsUserDir="+fsUserDir+" fsGroupDir="+fsGroupDir+" dbSchema="+dbSchema+" gsWorkspace="+gsWorkspace+" fileName="+fileName
         logging.debug("[LayEd][publish] Params: %s"% logParam)
-
 
         # /path/to/file.shp
         filePath = os.path.realpath( os.path.join( fsUserDir,fileName) )
@@ -147,12 +146,12 @@ class LayEd:
 
         # Publish from DB to GS
         if data_type == "vector":
-            self.createFtFromDb(workspace=gsWorkspace, dataStore=dbSchema, layerName=fileNameNoExt, srs=srs)
+            self.createFtFromDb(workspace=gsWorkspace, dataStore=dbSchema, layerName=fileNameNoExt, srs=srs, data=data)
             # Create and assgin new style
             self.createStyleForLayer(workspace=gsWorkspace, dataStore=dbSchema, layerName=fileNameNoExt)
             # TODO: check the result
         elif data_type == "raster":
-            self.createCoverageFromFile(gsworkspace=gsWorkspace, store=fileNameNoExt, name=fileNameNoExt, srs=srs)
+            self.createCoverageFromFile(gsworkspace=gsWorkspace, store=fileNameNoExt, name=fileNameNoExt, srs=srs, data=data)
 
         # TODO: check the result
         logging.info("[LayEd][publish] Published layer '%s'"% fileNameNoExt)
@@ -208,7 +207,7 @@ class LayEd:
             message = "LayEd: createRasterDataStoreIfNotExists(): Cannot create CoverageStore " + final_name + ". Geoserver replied with " + headStr + " and said " + cont
             raise LaymanError(500, message)
 
-    def createCoverageFromFile(self, gsworkspace, store, name, srs):
+    def createCoverageFromFile(self, gsworkspace, store, name, srs, data=None):
 
         # Create ft json 
         ftJson = {
@@ -227,6 +226,12 @@ class LayEd:
                 }
             }
         }
+        
+        if hasattr(data,"title"):
+            ftJson["coverage"]["title"] = data["title"]
+        if hasattr(data,"abstract"):
+            ftJson["coverage"]["description"] = data["abstract"]
+
         ftStr = json.dumps(ftJson)
 
         # PUT Feature Type        
@@ -367,7 +372,7 @@ class LayEd:
         gsr.putReload()
 
 
-    def createFtFromDb(self, workspace, dataStore, layerName, srs):
+    def createFtFromDb(self, workspace, dataStore, layerName, srs, data=None):
         """ Create Feature Type from PostGIS database
             Given dataStore must exist in GS, connected to PG schema.
             layerName corresponds to table name in the schema.
@@ -378,6 +383,12 @@ class LayEd:
         ftJson["featureType"] = {}
         ftJson["featureType"]["name"] = layerName
         ftJson["featureType"]["srs"] = srs
+        
+        if hasattr(data,"title"):
+            ftJson["featureType"]["title"] = data["title"]
+        if hasattr(data,"abstract"):
+            ftJson["featureType"]["description"] = data["abstract"]
+
         ftStr = json.dumps(ftJson)
 
         # PUT Feature Type        
