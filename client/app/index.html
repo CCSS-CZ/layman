@@ -19,7 +19,7 @@
             HSRS.IMAGE_LOCATION = "../lib/imgs/";
             HSRS.ProxyHost = "/cgi-bin/hsproxy.cgi?url=";
             HSRS.STYLERURL = "/styler/?wms=http://localhost:8080/geoserver/{workspace}/ows/{workspace}&wmslayer={featuretype.name}";
-            HSRS.VIEWURL = "/wwwlibs/hslayers/examples/MapPortal.html?wms=http://localhost:8080/geoserver/{workspace}/ows/{workspace}&wmslayers={featuretype.name}";
+            HSRS.VIEWURL = "/wwwlibs/hslayers/examples/MapPortal.html?wms=http://localhost:8080/geoserver/{workspace}/ows/{workspace}&wmslayers={layerdata.name}";
 
             Ext4.onReady(function() {
                 lm = Ext4.create("HSRS.LayerManager",{

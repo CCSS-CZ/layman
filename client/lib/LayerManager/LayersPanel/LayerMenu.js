@@ -9,7 +9,7 @@ Ext4.define('HSRS.LayerManager.LayersPanel.LayerMenu', {
 
     requires: [],
 
-    featureType: undefined,
+    layerData: undefined,
     layer: undefined,
     url: undefined,
     record: undefined,
@@ -22,11 +22,11 @@ Ext4.define('HSRS.LayerManager.LayersPanel.LayerMenu', {
         config.width = 200;
         config.plain = true;
         config.layer = config.record.get('layer');
-        config.featureType = config.record.get('featuretype');
+        config.layerData = config.record.get('layerData');
 
         this.url = config.url.replace(/\/$/, config.record.get('name'));
 
-        config.title = config.record.get('featuretype').title;
+        config.title = config.record.get('layerData').title;
         config.items = [];
 
         if (HSRS && HSRS.VIEWURL) {
@@ -104,18 +104,18 @@ Ext4.define('HSRS.LayerManager.LayersPanel.LayerMenu', {
             url: this.url.replace('fileman', 'layed'),
             type: this.layer.type,
             groups: this.groups,
-            abstract: this.featureType.abstract,
-            title: this.featureType.title,
+            abstract: this.layerData.abstract,
+            title: this.layerData.title,
             group: this.record.get("workspace"),
             isFeatureType: true,
-            prj: this.featureType.srs,
-            featureType: this.featureType,
+            prj: this.layerData.srs,
+            layerData: this.layerData,
             layer: this.layer,
-            extent: [this.featureType.latLonBoundingBox.minx,
-                     this.featureType.latLonBoundingBox.miny,
-                     this.featureType.latLonBoundingBox.maxx,
-                     this.featureType.latLonBoundingBox.maxy],
-            attributes: this.featureType.attributes.attribute,
+            extent: [this.layerData.latLonBoundingBox.minx,
+                     this.layerData.latLonBoundingBox.miny,
+                     this.layerData.latLonBoundingBox.maxx,
+                     this.layerData.latLonBoundingBox.maxy],
+            //attributes: this.featureType.attributes.attribute,
             geomtype: this.layer.type
         });
         publishForm._win = Ext4.create('Ext4.window.Window', {
