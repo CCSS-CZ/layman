@@ -187,6 +187,9 @@ class LayEd:
                 "name": name,
                 "type": self._getGSRasterType(ds.GetDriver().ShortName),
                 "enabled":"true",
+                "workspace":{
+                    "name":gsworkspace
+                },
                 "url":"file:"+final_name,
                 "description": "Raster "+name
             }
