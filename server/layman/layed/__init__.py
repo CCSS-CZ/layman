@@ -167,9 +167,9 @@ class LayEd:
         # check for data_dir path
         data_dir = self.config.get("GeoServer","datadir")
         if not data_dir:
-            raise LaymanError("Configuration Geoserver/data_dir not set")
+            raise LaymanError("Configuration Geoserver/data_dir not set",500)
         if not os.path.exists(data_dir):
-            raise LaymanError("Configured Geoserver/data_dir %s does not exist" % data_dir)
+            raise LaymanError("Configured Geoserver/data_dir %s does not exist" % data_dir,500)
 
         # create 'data' directory in the workspace
         if not os.path.exists(ws_data_dir):
