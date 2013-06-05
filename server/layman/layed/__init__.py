@@ -171,7 +171,7 @@ class LayEd:
         if not os.path.exists(data_dir):
             raise LaymanError(500, "Configured Geoserver/data_dir %s does not exist" % data_dir)
 
-        ws_data_dir = os.path.join(data_dir, gsworkspace, "data")
+        ws_data_dir = os.path.join(data_dir, "workspaces",gsworkspace, "data")
         # create 'data' directory in the workspace
         if not os.path.exists(ws_data_dir):
             os.mkdir(ws_data_dir)
