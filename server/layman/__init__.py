@@ -43,7 +43,8 @@ class LayMan:
         try:
                 logging.info("[LayMan][GET] %s"% name)
                 params = repr(web.input())
-                logging.info("[LayMan][GET] Parameters: %s"% params)
+                logging.info("[LayMan][GET] Parameters: %s ... %s"%\
+                        (str(params)[:500], str(params)[-500:]))
                 
                 if not self.auth.authorised:
                     logging.error("[LayMan][GET] Unauthorised")
@@ -165,7 +166,8 @@ class LayMan:
         try:
                 logging.info("[LayMan][POST] %s"% name)
                 params = repr(web.input())
-                logging.info("[LayMan][POST] Parameters: %s"% params)
+                logging.info("[LayMan][POST] Parameters: %s ... %s"%\
+                        (str(params)[:500], str(params)[-500:]))
                 
                 global config
                 if not self.auth.authorised:
@@ -206,7 +208,8 @@ class LayMan:
                         fsGroupDir  = self.auth.getFSGroupDir(inpt.usergroup)
                         dbSchema    = self.auth.getDBSchema(inpt.usergroup)
                         gsWorkspace = self.auth.getGSWorkspace(inpt.usergroup)
-                        (code, message) = le.publish(fsUserDir, fsGroupDir, dbSchema, gsWorkspace, fileName)
+                        crs         = inpt.crs
+                        (code, message) = le.publish(fsUserDir, fsGroupDir, dbSchema, gsWorkspace, fileName,crs)
                         #retval = "{success: true, message: 'File "+fileName+" published as layer "+layerName+"'}" 
 
                 else:

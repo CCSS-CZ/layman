@@ -21,4 +21,5 @@ url=http://erra.ccss.cz:8080/geoserver/rest
 user=admin
 password=geoserver
 gsdir=/data/geoserver/
+datadir=/data/geoserver/data_dir
 #workspace=

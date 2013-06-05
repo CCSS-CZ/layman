@@ -9,6 +9,7 @@ import logging
 import zipfile
 from osgeo import ogr
 from osgeo import gdal
+from osgeo import osr
 
 from layman.errors import LaymanError
 
@@ -80,13 +81,29 @@ class FileMan:
             time_sec = os.path.getmtime(targetDir+'/'+fn) 
             time_struct = time.localtime(time_sec)
             filetime = time.strftime("%Y-%m-%d %H:%M",time_struct)
-            filetype = mimetypes.guess_type("file://"+targetDir+'/'+fn)
-            file_dict = {"name":fn,"size":filesize,"date":filetime,"mimetype":filetype[0]}           
+            filetype = self.guess_type(targetDir, fn)
+            file_dict = {"name":fn,"size":filesize,"date":filetime,"mimetype":filetype}           
             files_list.append(file_dict)
                 
         files_json = json.dumps(files_list)
 
         return (200, files_json)
+
+    def guess_type(self, target_dir, fn):
+        """Gues mimetype
+        """
+        filetype = mimetypes.guess_type("file://"+target_dir+'/'+fn)
+        if filetype[0]:
+            return filetype[0]
+        else:
+            ext = os.path.splitext(fn)[1].lower()
+
+            if ext == ".shp":
+                return "application/x-qgis"
+            elif ext == ".gml":
+                return "application/gml+xml"
+            elif ext == ".tiff":
+                return "image/tiff"
 
     def getFile(self,fileName):
         """Return file itself
@@ -261,12 +278,44 @@ class FileMan:
             attrs["type"] = "point"
         elif ftype == ogr.wkbLineString:   #2
             attrs["type"] = "line"
+        elif ftype == ogr.wkbPolygon25D:
+            attrs["type"] = "polygon"
         else: 
             attrs["type"] = "none/unknown"  # 0 or anything else
 
         # srs
         sr = layer.GetSpatialRef()
-        sr.AutoIdentifyEPSG()
+        if sr:
+            sr.AutoIdentifyEPSG()
+            attrs["prj"]= self._get_prj(sr)
+        else:
+            attrs["prj"] = "unknown"
+
+        # Done
+        return attrs
+
+    def _get_raster_attributes(self,ds,attrs):
+        """Collect raster attributes
+        """
+
+        attrs["type"] = "raster"
+
+        geotransform = ds.GetGeoTransform()
+        attrs["extent"] = (geotransform[0], 
+                           geotransform[3]+(geotransform[5]*ds.RasterYSize), 
+                           geotransform[0]+(geotransform[1]*ds.RasterXSize),
+                           geotransform[3])
+
+        sr = osr.SpatialReference()
+        sr.ImportFromWkt(ds.GetProjectionRef())
+        attrs["prj"] = self._get_prj(sr)
+
+        attrs["features_count"] = "%s raster, %dx%d cells" % \
+                (ds.RasterCount, ds.RasterXSize, ds.RasterYSize)
+
+        return attrs
+
+    def _get_prj(self,sr):
 
         if sr.IsGeographic() == 1:  # this is a geographic srs
             cstype = 'GEOGCS'
@@ -274,13 +323,9 @@ class FileMan:
             cstype = 'PROJCS'
         an = sr.GetAuthorityName(cstype)
         ac = sr.GetAuthorityCode(cstype)
-        attrs["prj"]="%s:%s"%(an,ac)
 
-        # Done
-        return attrs
+        return "%s:%s"%(an,ac)
 
-    def _get_raster_attributes(self,ds,attrs):
-        return attrs
 
     def _deleteShapeFile(self, fileName):
         """Delete all files, belonging to this shapefile

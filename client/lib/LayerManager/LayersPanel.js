@@ -75,7 +75,6 @@ Ext4.define('HSRS.LayerManager.LayersPanel', {
                 //add in the custom tpl for the rows
                 tpl: Ext4.create('Ext4.XTemplate', '{layer:this.formatIcon}', {
                     formatIcon: function(v) {
-
                         return '<img src="' + HSRS.IMAGE_LOCATION + v.type.toLowerCase() + '-type.png" />';
                     }
                 })
@@ -86,8 +85,12 @@ Ext4.define('HSRS.LayerManager.LayersPanel', {
                 xtype: 'templatecolumn',
                 sortable: true,
                 flex: 1,
-                dataIndex: 'featureType',
-                tpl: '{featuretype.title}'
+                dataIndex: 'layerData',
+                tpl: Ext4.create('Ext4.XTemplate', '{layerData:this.formatTitle}', {
+                    formatTitle: function(v) {
+                        return v.title;
+                    }
+                })
             }
         ];
 

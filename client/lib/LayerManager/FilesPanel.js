@@ -107,6 +107,12 @@ Ext4.define('HSRS.LayerManager.FilesPanel', {
                             case 'application/x-qgis':
                                 type = 'ESRI Shapefile';
                                 break;
+                            case 'image/tiff':
+                                type = '(Geo)TIFF';
+                                break;
+                            case 'application/gml+xml':
+                                type = 'OGC GML';
+                                break;
                         }
                         return type;
 
