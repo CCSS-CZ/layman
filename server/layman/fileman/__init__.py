@@ -176,21 +176,32 @@ class FileMan:
             
         logging.debug("FileMan.postFile() filePath: %s"% filePath)
 
-        fileName = os.path.split(filePath)[-1]
-
-        logging.debug("FileMan.postFile() fileName: %s"% fileName)
+        #fileName = os.path.split(filePath)[-1]
 
         pathParsed = os.path.split(filePath)
+        fileName = pathParsed[-1]
+        dirPath = pathParsed[-2]
 
         logging.debug("FileMan.postFile() pathParsed: %s"% str(pathParsed))
+        logging.debug("FileMan.postFile() fileName: %s"% fileName)
+        logging.debug("FileMan.postFile() dirPath: %s"% dirPath)
 
-        # it is there, DO NOT overwrite
+        # make sure that the directory exists
+        dirExists = os.path.exists(dirPath) and os.path.isdir(dirPath)
+        if not dirExists:
+            try:
+                os.makedirs(dirPath)
+            except Exception as e:
+               logging.error("[FileMan][postFile] Cannot create user directory %s: %s" % (dirPath, str(e))
+               raise LaymanError(500, "FileMan: postFile: Cannot create user directory %s: %s" % (dirPath, str(e)) 
+
+        # The file is there, DO NOT overwrite
         if os.path.exists(filePath):
 
             return ("conflict",
                     "Sorry, the file [%s] already exists, use PUT method if you wish to overwrite it" % fileName)
 
-        # it is not there, create it
+        # The file is not there, create it
         else:
             try:
                 f = open(filePath, "wb")
