@@ -167,7 +167,7 @@ class DbMan:
             strfields = map(lambda field: '"%s"' % field, fields)
             # insert each feature into database table
             while feature:
-                vals = map(lambda field: "'%s'" % feature.GetField(field), fields[:-1])
+                vals = map(lambda field: "'%s'" % self._clean_string_vals(feature.GetField(field)), fields[:-1])
                 geom = feature.GetGeometryRef().ExportToWkt()
 
                 # we have to convert polygons to multipolygons
@@ -189,6 +189,14 @@ class DbMan:
                 feature = layer_in.GetNextFeature()
 
             return sqlBatch
+
+    def _clean_string_vals(self, val):
+        """Clean string to be sql usable
+        """
+
+        if type(val) == type(''):
+            val = val.replace("'","%s'"%"\'")
+        return val
 
     def _get_raster_file_import_sql(self, filePath,dbSchema,table):
         """Import raster file
