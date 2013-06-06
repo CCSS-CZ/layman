@@ -174,7 +174,15 @@ class FileMan:
            :return: (status, response)
         """
             
+        logging.debug("FileMan.postFile() filePath: %s"% filePath)
+
         fileName = os.path.split(filePath)[-1]
+
+        logging.debug("FileMan.postFile() fileName: %s"% fileName)
+
+        pathParsed = os.path.split(filePath)
+
+        logging.debug("FileMan.postFile() pathParsed: %s"% pathParsed)
 
         # it is there, DO NOT overwrite
         if os.path.exists(filePath):
