@@ -182,7 +182,7 @@ class FileMan:
 
         pathParsed = os.path.split(filePath)
 
-        logging.debug("FileMan.postFile() pathParsed: %s"% pathParsed)
+        logging.debug("FileMan.postFile() pathParsed: %s"% str(pathParsed))
 
         # it is there, DO NOT overwrite
         if os.path.exists(filePath):
