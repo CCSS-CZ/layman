@@ -191,6 +191,7 @@ class FileMan:
         if not dirExists:
             try:
                 os.makedirs(dirPath)
+                logging.info("[FileMan][postFile] Created user directory: %s"% dirPath)
             except Exception as e:
                errMsg = "[FileMan][postFile] Cannot create user directory %s: %s" % (dirPath, str(e))
                logging.error(errMsg)
