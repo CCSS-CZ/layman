@@ -192,8 +192,9 @@ class FileMan:
             try:
                 os.makedirs(dirPath)
             except Exception as e:
-               logging.error("[FileMan][postFile] Cannot create user directory %s: %s" % (dirPath, str(e))
-               raise LaymanError(500, "FileMan: postFile: Cannot create user directory %s: %s" % (dirPath, str(e)) 
+               errMsg = "[FileMan][postFile] Cannot create user directory %s: %s" % (dirPath, str(e))
+               logging.error(errMsg)
+               raise LaymanError(500, errMsg) 
 
         # The file is there, DO NOT overwrite
         if os.path.exists(filePath):
