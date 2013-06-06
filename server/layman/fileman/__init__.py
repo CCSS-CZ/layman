@@ -180,7 +180,7 @@ class FileMan:
         if os.path.exists(filePath):
 
             return ("conflict",
-                    "{success:false, message:'Sorry, the file [%s] already exists, use PUT method if you wish to overwrite it'}" % fileName)
+                    "Sorry, the file [%s] already exists, use PUT method if you wish to overwrite it" % fileName)
 
         # it is not there, create it
         else:
@@ -189,20 +189,19 @@ class FileMan:
                 f.write(data)
                 f.close()
 
-
                 # handle zip files
                 msg = None
                 if zipfile.is_zipfile(filePath):
                     (fileName,msg) = self._unzipFile(filePath)
                 if fileName:
-                    logging.debug("File [%s] successfully uploaded"% fileName)
-                    return ("created","{'success':true, file:'%s'}" % fileName)
+                    logging.info("File [%s] successfully uploaded"% fileName)
+                    return ("created","File uploaded:'%s'" % fileName)
                 else:
                     logging.error(msg)
-                    return ("internalerror","{success: false, message: '%s'}" % msg)
+                    return ("internalerror","Error while uploading/unzipping file: '%s'" % msg)
             except Exception as e:
                 logging.error(e)
-                return ("internalerror","{success: false, message: '%s'}" % e)
+                raise LaymanError("internalerror","FileMan: postFile(): %s" % str(e))
 
     def putFile(self,fileName,data):
         """Update an existing file. 
