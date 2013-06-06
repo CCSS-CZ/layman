@@ -118,7 +118,7 @@ class LayEd:
                 data_type = "raster"
 
         if not data_type:
-            raise LaymanError("Data type (raster or vector) not recognized")
+            raise LaymanError(500, "Data type (raster or vector) not recognized")
 
 
         # Here the Data Store should exist
@@ -179,7 +179,7 @@ class LayEd:
         final_name = os.path.join(ws_data_dir, os.path.split(filePath)[1])
         # final check
         if not os.path.exists(final_name):
-            raise LaymanError("File seems to be copied into target dir, but not found" % final_name)
+            raise LaymanError(500, "File seems to be copied into target dir, but not found" % final_name)
 
         req = {
             "coverageStore":{
