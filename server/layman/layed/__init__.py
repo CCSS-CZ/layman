@@ -725,7 +725,9 @@ class LayEd:
         layerJson["layer"] = data["layer"]
         layerString = json.dumps(layerJson)
         headers, response = gsr.putLayer(workspace, layerName, layerString)
-        # TODO: check the reuslt and return st.
+        # TODO: check the reuslt 
+
+        return (200, "PUT Layer Config OK")
 
     ### STYLES ###
 

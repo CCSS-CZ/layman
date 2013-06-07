@@ -234,9 +234,10 @@ class FileMan:
             f = open(fileName, "wb")
             f.write(data)
             f.close()
-            return ("ok","{'success':'true','action':'updated'}")
+            return (200,"PUT File OK")
         except Exception as e:
-            return (500, "{success: false, message: '%s'}" % e.message)
+            errMsg = "PUT File failed: " + str(e)
+            return (500, errMsg)
 
     def deleteFile(self,fileName):
         """Delete the file"""
