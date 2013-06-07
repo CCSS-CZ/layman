@@ -268,7 +268,7 @@ class LayMan:
                         try:
                             gsc.putStyle(path[-1],web.data())
                             (code, message) = (200, "PUT Style OK")
-                        except Exception e:
+                        except Exception as e:
                             code = 500
                             message = "PUT Style failed: " + str(e)
 
