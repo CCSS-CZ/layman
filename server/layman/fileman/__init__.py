@@ -249,12 +249,15 @@ class FileMan:
                 os.remove(fileName)
 
             if os.path.exists(fileName):
-                return (500, "{success: false, message: '%s'}" % "Unable to delete file")
+                msg = "Unable to delete file '"+fileName+"'"
+                return (500, msg)
             else:
-                return (200, "{success: true, message: '%s'}" % "File deleted")
+                return (200, "File deleted")
 
         except Exception as e:
-            return (500, "{success: false, message: '%s'}" % e)
+           errMsg = "[FileMan][deleteFile] An exception occurred while deleting file "+fileName+": "+str(e) 
+           logging.error(errMsg)
+           raise LaymanError(500, errMsg) 
 
     def get_gis_attributes(self,fileName, attrs):
         """Append more gis attributes of given file to attrs hash

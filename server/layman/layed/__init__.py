@@ -606,49 +606,61 @@ class LayEd:
         """Delete the Layer and the Corresponding Feature Type
            deleteStore = whether to delete the underlying data store as well
         """
-        logging.debug("[LayEd][deleteLayer]")
-        gsr = GsRest(self.config)
-        
-        # Find the Feature Type
-        headers, response = gsr.getLayer(workspace,layer)
-        logging.debug("[LayEd][deleteLayer] GET Layer response headers: %s"% headers)
-        logging.debug("[LayEd][deleteLayer] GET Layer response content: %s"% response)
-        # TODO: check the result
-        layerJson = json.loads(response)
-        ftUrl = layerJson["layer"]["resource"]["href"]
-        layer_type = layerJson["layer"]["type"]
-        logging.debug("[LayEd][deleteLayer] Feature Type URL: %s"% ftUrl)
 
-        # Delete Layer
-        headers, response = gsr.deleteLayer(workspace,layer)
-        logging.debug("[LayEd][deleteLayer] DELETE Layer response headers: %s"% headers)
-        logging.debug("[LayEd][deleteLayer] DELETE Layer response content: %s"% response)
-        # TODO: check the result
+        try:
+                logging.debug("[LayEd][deleteLayer]")
+                gsr = GsRest(self.config)
+                
+                # Find the Feature Type
+                headers, response = gsr.getLayer(workspace,layer)
+                logging.debug("[LayEd][deleteLayer] GET Layer response headers: %s"% headers)
+                logging.debug("[LayEd][deleteLayer] GET Layer response content: %s"% response)
+                # TODO: check the result
+                layerJson = json.loads(response)
+                ftUrl = layerJson["layer"]["resource"]["href"]
+                layer_type = layerJson["layer"]["type"]
+                logging.debug("[LayEd][deleteLayer] Feature Type URL: %s"% ftUrl)
 
-        # Delete Feature Type
-        headers, response = gsr.deleteUrl(ftUrl)
-        logging.debug("[LayEd][deleteLayer] DELETE Feature Type response headers: %s"% headers)
-        logging.debug("[LayEd][deleteLayer] DELETE Feature Type response content: %s"% response)
-        # TODO: check the result
+                # Delete Layer
+                headers, response = gsr.deleteLayer(workspace,layer)
+                logging.debug("[LayEd][deleteLayer] DELETE Layer response headers: %s"% headers)
+                logging.debug("[LayEd][deleteLayer] DELETE Layer response content: %s"% response)
+                # TODO: check the result
 
-        # Delete Style (we have created it when publishing)
-        headers, response = gsr.deleteStyle(workspace, styleName=layer, purge="true")
-        logging.debug("[LayEd][deleteLayer] DELETE Style response headers: %s"% headers)
-        logging.debug("[LayEd][deleteLayer] DELETE Style  response content: %s"% response)
-        # TODO: check the result 
-        # NOTE: if no style, it still should be ok (coverages do not have
-        # styles)
+                # Delete Feature Type
+                headers, response = gsr.deleteUrl(ftUrl)
+                logging.debug("[LayEd][deleteLayer] DELETE Feature Type response headers: %s"% headers)
+                logging.debug("[LayEd][deleteLayer] DELETE Feature Type response content: %s"% response)
+                # TODO: check the result
 
-        # drop the data: coverage vs featuretype
+                # Delete Style (we have created it when publishing)
+                headers, response = gsr.deleteStyle(workspace, styleName=layer, purge="true")
+                logging.debug("[LayEd][deleteLayer] DELETE Style response headers: %s"% headers)
+                logging.debug("[LayEd][deleteLayer] DELETE Style  response content: %s"% response)
+                # TODO: check the result 
+                # NOTE: if no style, it still should be ok (coverages do not have
+                # styles)
 
-        if layer_type == "VECTOR":
-            # Drop Table in PostreSQL
-            from layman.layed.dbman import DbMan
-            dbm = DbMan(self.config)
-            dbm.deleteTable(dbSchema=schema, tableName=layer)
-        elif layer_type == "RASTER":
-            headers, response = gsr.deleteCoverageStore(workspace,layer)
-            # works
+                # drop the data: coverage vs featuretype
+
+                if layer_type == "VECTOR":
+                    # Drop Table in PostreSQL
+                    from layman.layed.dbman import DbMan
+                    dbm = DbMan(self.config)
+                    dbm.deleteTable(dbSchema=schema, tableName=layer)
+                elif layer_type == "RASTER":
+                    headers, response = gsr.deleteCoverageStore(workspace,layer)
+                    # works
+
+                # TODO: check the result
+
+                message = "Layer "+workspace+":"+layer+" deleted."
+                return (200, message)
+
+        except Exception as e:
+           errMsg = "[LayEd][deleteLayer] An exception occurred while deleting layer "+workspace+":"+layer+": "+str(e)
+           logging.error(errMsg)
+           raise LaymanError(500, errMsg)
 
         # Delete Data Store 
         # (this is usefull when dedicated datastore was created when publishing)
@@ -657,9 +669,6 @@ class LayEd:
         #    headers, response = gsr.deleteDataStore(workspace,layer)
         # FIXME: tohle zlobi nevim proc        
 
-        # TODO: check the result
-
-        # TODO: return st.
 
     ### LAYER CONFIG ###
 
