@@ -210,7 +210,9 @@ class LayMan:
                         gsWorkspace = self.auth.getGSWorkspace(inpt.usergroup)
                         crs         = inpt.crs
                         (code, message) = le.publish(fsUserDir, fsGroupDir, dbSchema, gsWorkspace, fileName,crs, inpt)
-                        #retval = "{success: true, message: 'File "+fileName+" published as layer "+layerName+"'}" 
+
+                    else:
+                        (code, message) = self._callNotSupported(restMethod="POST", call=origName)
 
                 else:
                     (code, message) = self._callNotSupported(restMethod="POST", call=origName)
