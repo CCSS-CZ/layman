@@ -258,6 +258,7 @@ class LayMan:
                 if len(path) > 3:
                     ws = path[-2]
                 gs = GsConfig(ws = ws)
+                # sem prijde try - catch (kdyz se neco nepovede, gsconfig hazi vyjimku)
                 gs.putStyle(path[-1],web.data())
 
         # /layed/config/<layer>?usergroup=FireBrigade
