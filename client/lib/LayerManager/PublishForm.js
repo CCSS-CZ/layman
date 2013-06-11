@@ -70,6 +70,67 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                 title: config.isFeatureType ? "Edit layer settings" : "Publish file '" + config.name + "'",
                 items: [
                     {
+                        xtype: 'combobox',
+                        name: 'usergroup',
+                        anchor: '100%',
+                        fieldLabel: 'Group',
+                        store: Ext4.create('Ext4.data.JsonStore', {
+                            autoLoad: true,
+                            proxy: {
+                                type: "ajax",
+                                url: config.url+"groups",
+                                model: 'HSRS.LayerManager.PublishForm.GroupModel',
+                                reader: {
+                                    type: "json",
+                                    idProperty: "name"
+                                }
+                            },
+                            listeners: {
+                                load: function(combo, records, ok, opts) {
+                                    if (this.val) {
+                                        this.form.getForm().setValues({"usergroup": this.val});
+                                    }
+                                },
+                                scope: {form: this, val: config.group}
+                            },
+                            fields: ['name', 'title']
+                        }),
+                        editable: false,
+                        displayField: 'title',
+                        valueField: 'name'
+                    },
+                    {
+                        xtype: 'combobox',
+                        name: 'newlayer',
+                        anchor: '100%',
+                        fieldLabel: 'Publish as',
+                        value: "new layer",
+                        store: Ext4.create('Ext4.data.JsonStore', {
+                            autoLoad: true,
+                            proxy: {
+                                type: "ajax",
+                                url: config.url+"groups",
+                                model: 'HSRS.LayerManager.PublishForm.GroupModel',
+                                reader: {
+                                    type: "json",
+                                    idProperty: "name"
+                                }
+                            },
+                            listeners: {
+                                load: function(combo, records, ok, opts) {
+                                    if (this.val) {
+                                        this.form.getForm().setValues({"newlayer": this.val});
+                                    }
+                                },
+                                scope: {form: this, val: config.group}
+                            },
+                            fields: ['name', 'title']
+                        }),
+                        editable: false,
+                        displayField: 'title',
+                        valueField: 'name'
+                    },
+                    {
                         name: config.isFeatureType ? "layerName" : 'fileName',
                         xtype: 'hidden',
                         anchor: '100%',
@@ -109,36 +170,6 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                         xtype: 'textfield',
                         name: 'metadataurl',
                         value: config.metadataurl || ''
-                    },
-                    {
-                        xtype: 'combobox',
-                        name: 'usergroup',
-                        anchor: '100%',
-                        fieldLabel: 'Group',
-                        store: Ext4.create('Ext4.data.JsonStore', {
-                            autoLoad: true,
-                            proxy: {
-                                type: "ajax",
-                                url: config.url+"groups",
-                                model: 'HSRS.LayerManager.PublishForm.GroupModel',
-                                reader: {
-                                    type: "json",
-                                    idProperty: "name"
-                                }
-                            },
-                            listeners: {
-                                load: function(combo, records, ok, opts) {
-                                    if (this.val) {
-                                        this.form.getForm().setValues({"usergroup": this.val});
-                                    }
-                                },
-                                scope: {form: this, val: config.group}
-                            },
-                            fields: ['name', 'title']
-                        }),
-                        editable: false,
-                        displayField: 'title',
-                        valueField: 'name'
                     },
                     {
                         title: 'Coordinate Reference Systems',
