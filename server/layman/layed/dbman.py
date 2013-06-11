@@ -320,7 +320,7 @@ class DbMan:
                 return "NULL"
             else:
                 return str(float(value))
-        elif tp == "integer":
+        elif ftype == "integer":
             if value == None:
                 return "NULL"
             else:
