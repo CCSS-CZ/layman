@@ -92,11 +92,12 @@ class DbMan:
                 while j < fieldCount:
                     fieldDfn = dfn.GetFieldDefn(j)
                     fieldName = fieldDfn.GetName()
+                    field_type = self._getSqlTypeFromType(fieldDfn.GetType())
                     comma = ",\n"
                     if j+1 == fieldCount:
                         comma = ""
-                    sqlBatch += '"'+fieldName.lower()+'" '+ self._getSqlTypeFromType(fieldDfn.GetType())+comma
-                    fields.append(fieldName)
+                    sqlBatch += '"'+fieldName.lower()+'" '+ field_type + comma
+                    fields.append((fieldName, field_type))
                     j += 1
                 sqlBatch += ");\n"
                 sqlBatch += 'ALTER TABLE '+dbSchema+"."+name_out+' ADD PRIMARY KEY (gid);\n'
@@ -109,7 +110,7 @@ class DbMan:
                                      "','geom','0','",
                                      self._getGeomType(layer_in.GetGeomType()),
                                      "',2);\n"])
-                fields.append("geom")
+                fields.append(("geom","geometry"))
 
 
                 # create new table in database
@@ -119,10 +120,11 @@ class DbMan:
                 # database prepared, feed it
                 sqlBatch = ""
                 feature = layer_in.GetNextFeature()
-                strfields = map(lambda field: '"%s"' % field, fields)
+                strfields = map(lambda field: '"%s"' % field[0], fields)
                 # insert each feature into database table
                 while feature:
-                    vals = map(lambda field: "'%s'" % feature.GetField(field), fields[:-1])
+                    vals = map(lambda field: "%s" % \
+                            self._adjust_value(feature.GetField(field[0]),field[1]), fields[:-1])
                     geom = feature.GetGeometryRef().ExportToWkt()
 
                     # we have to convert polygons to multipolygons
@@ -206,6 +208,25 @@ class DbMan:
             return "text"
         else:
             return "varchar(256)"
+
+        # FIXME add more
+
+    def _adjust_value(self,value, ftype):
+        """Return string representig value, acceptable by sql
+        """
+
+        if ftype == "real":
+            if value == None:
+                return "NULL"
+            else:
+                return str(float(value))
+        elif tp == "integer":
+            if value == None:
+                return "NULL"
+            else:
+                return str(int(value))
+        else:
+            return "'%s'" % value
 
         # FIXME add more
 
