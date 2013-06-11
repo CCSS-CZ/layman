@@ -168,7 +168,7 @@ class DbMan:
             strfields = map(lambda field: '"%s"' % field[0], fields)
             # insert each feature into database table
             while feature:
-                vals = map(lambda field: "'%s'" % \
+                vals = map(lambda field: "%s" % \
                             self._adjust_value(feature.GetField(field[0]),field[1]), fields[:-1])
                 geom = feature.GetGeometryRef().ExportToWkt()
 
