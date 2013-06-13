@@ -92,7 +92,7 @@ class LayEd:
         filePathNoExt = os.path.splitext(filePath)[0]
 
         # file
-        fileNameNoExt = os.path.splitext(fileName)[0]
+        fileNameNoExt = os.path.splitext(fileName)[0].lower()
 
         # Check the GS workspace and create it if it does not exist 
         self.createWorkspaceIfNotExists(gsWorkspace)
