@@ -71,7 +71,7 @@ class DbMan:
 
             if layer_in:
 
-                name_out = layer_in.GetName()
+                name_out = layer_in.GetName().lower()
                 # TODO: data exists, throw exception
                 #if pg_out.GetLayerByName(name_out):
                 #    pass
@@ -169,7 +169,10 @@ class DbMan:
             # insert each feature into database table
             while feature:
                 vals = map(lambda field: "%s" % \
-                            self._adjust_value(feature.GetField(field[0]),field[1]), fields[:-1])
+                            self._clean_string_vals(
+                                self._adjust_value(feature.GetField(field[0]),field[1]), fields[:-1]
+                            )
+                        )
                 geom = feature.GetGeometryRef().ExportToWkt()
 
                 # we have to convert polygons to multipolygons
