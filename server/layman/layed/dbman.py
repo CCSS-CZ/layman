@@ -169,8 +169,7 @@ class DbMan:
             # insert each feature into database table
             while feature:
                 vals = map(lambda field: "%s" % \
-                            self._clean_string_vals(
-                                self._adjust_value(feature.GetField(field[0]),field[1])),
+                                self._adjust_value(feature.GetField(field[0]),field[1]),
                             fields[:-1]
                         )
                 geom = feature.GetGeometryRef().ExportToWkt()
@@ -200,6 +199,9 @@ class DbMan:
         """
 
         if type(val) == type(''):
+            if val.find("ANDKHOY") > -1:
+                import sys
+                print >>sys.stderr, val,"###################x"
             val = val.replace("'","%s'"%"\'")
         return val
 
@@ -318,17 +320,14 @@ class DbMan:
         """Return string representig value, acceptable by sql
         """
 
-        if ftype == "real":
-            if value == None:
-                return "NULL"
-            else:
-                return str(float(value))
+        if value == None:
+            return "NULL"
+        elif ftype == "real":
+            return str(float(value))
         elif ftype == "integer":
-            if value == None:
-                return "NULL"
-            else:
-                return str(int(value))
+            return str(int(value))
         else:
+            value = value.replace("'","%s'"%"\'")
             return "'%s'" % value
 
         # FIXME add more
