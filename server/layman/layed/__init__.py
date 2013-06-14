@@ -106,6 +106,13 @@ class LayEd:
 
         # VECTOR
         if ds:
+
+            # Import to DB
+            from layman.layed.dbman import DbMan
+            dbm = DbMan(self.config)
+
+            fileNameNoExt = dbm.importVectorFile(filePath, dbSchema)
+
             # Check the GS data store and create it if it does not exist 
             self.createVectorDataStoreIfNotExists(dbSchema, gsWorkspace)
             data_type = "vector"
@@ -120,17 +127,6 @@ class LayEd:
         if not data_type:
             raise LaymanError(500, "Data type (raster or vector) not recognized")
 
-
-        # Here the Data Store should exist
-
-        # Import to DB
-        from layman.layed.dbman import DbMan
-        dbm = DbMan(self.config)
-
-        datadir_filepath = None
-        # VECTOR
-        if data_type == "vector":
-            dbm.importVectorFile(filePath, dbSchema)
 
         # TODO: check the result
         logging.info("[LayEd][publish] Imported file '%s'"% filePath)

@@ -72,6 +72,7 @@ class DbMan:
             if layer_in:
 
                 name_out = layer_in.GetName().lower()
+                name_out = self._find_new_layername(dbSchema,name_out)
                 # TODO: data exists, throw exception
                 #if pg_out.GetLayerByName(name_out):
                 #    pass
@@ -79,12 +80,41 @@ class DbMan:
                 sqlBatch = self._get_vector_file_import_sql(ds, dbSchema,name_out)
 
                 if sqlBatch:
-                    logParam = "filePath='"+filePath+"', dbSchema='"+dbSchema+"'"
+                    logParam = "filePath=%s, tablename=%s, schema=%s" %\
+                                            (filePath, name_out, dbSchema)
                     logging.debug("[DbMan][importVectorFile] %s"% logParam)
 
                     self.write_sql(sqlBatch)
         
+        return name_out
         #TODO return table name
+
+    def _find_new_layername(self, schema, name):
+        """
+        Finds new layer name, which does not exist in the database yet
+        """
+
+        conn = psycopg2.connect(self.getConnectionString())
+        cur = conn.cursor()
+
+        cur.execute("SELECT relname  FROM pg_stat_user_tables WHERE schemaname = '%s' AND relname like '%s_%%' " % (schema,name))
+        tables = map(lambda t: t[0], cur.fetchall())
+        if len(tables) > 0:
+            tables.sort()
+            splitn = tables[-1].split("_")
+            name = "_".join(splitn[:-1])
+            try:
+                nr = int(splitn[-1])
+                name = "%s_%02d" % (name, int(nr+1))
+            except:
+                name = "%s_%s_00" % (name, splitn[-1])
+        else:
+            return "%s_00"%name
+
+        return name
+
+
+
 
     def importRasterFile(self, filePath, dbSchema): 
         """Import raster file into POSTGIS database
@@ -199,9 +229,6 @@ class DbMan:
         """
 
         if type(val) == type(''):
-            if val.find("ANDKHOY") > -1:
-                import sys
-                print >>sys.stderr, val,"###################x"
             val = val.replace("'","%s'"%"\'")
         return val
 
