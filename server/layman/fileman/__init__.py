@@ -10,6 +10,7 @@ import zipfile
 from osgeo import ogr
 from osgeo import gdal
 from osgeo import osr
+import web
 
 from layman.errors import LaymanError
 
@@ -111,7 +112,26 @@ class FileMan:
 
         # TODO: set propper Content/type
         try:
-            return (200, open(fileName).read())
+            if fileName.find(".shp"):
+                (path,fn) = os.path.split(fileName)
+                old_path = os.path.abspath(os.path.curdir)
+                os.chdir(path)
+                fn_noext = os.path.splitext(fn)[0]
+                from zipfile import ZipFile
+                from io import BytesIO
+                filelike = BytesIO()
+                zipout = ZipFile(filelike,"w")
+                for f in os.listdir(os.path.curdir):
+                    if f.find(fn_noext) > -1:
+                        zipout.write(f)
+
+                zipout.close()
+                web.header('Content-Disposition','attachment; filename="%s.zip"'% fn_noext)
+                os.chdir(old_path)
+                fn_noext = os.path.splitext(fn)[0]
+                return (200, filelike.getvalue())
+            else:
+                return (200, open(fileName).read())
 
         except Exception as e:
             message = "LayEd: getFile(): Unable to read from the file named '" + fileName + "'. Exception received: " + str(e)
@@ -121,7 +141,7 @@ class FileMan:
         """Get the details for the given file
             Returns:
             {
-             name: "file.shp",
+             name: "file.shp"GzipFile,
              size: 1000000,
              date: "2012-04-05 05:43",
              mimetype: "application/x-esri-shp" || "application/octet-stream"

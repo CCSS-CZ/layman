@@ -68,6 +68,7 @@ class LayMan:
 
                     # /fileman/<file>
                     elif len(path) == 2:
+                        #web.header('Content-Disposition','attachment; filename="cities.zip"')
                         (code, retval) = fm.getFile(self._getTargetFile(path[1]))
 
                     # /fileman/detail/<file>
