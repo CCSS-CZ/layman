@@ -170,8 +170,8 @@ class DbMan:
             while feature:
                 vals = map(lambda field: "%s" % \
                             self._clean_string_vals(
-                                self._adjust_value(feature.GetField(field[0]),field[1]), fields[:-1]
-                            )
+                                self._adjust_value(feature.GetField(field[0]),field[1])),
+                            fields[:-1]
                         )
                 geom = feature.GetGeometryRef().ExportToWkt()
 
