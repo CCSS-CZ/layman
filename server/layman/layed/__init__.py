@@ -92,7 +92,12 @@ class LayEd:
         filePathNoExt = os.path.splitext(filePath)[0]
 
         # file
-        fileNameNoExt = os.path.splitext(fileName)[0].lower()
+        
+        logging.debug("[LayEd][publish] fileName: %s"% fileName)
+        fileNameNoExt = os.path.splitext(fileName)[0]
+        logging.debug("[LayEd][publish] fileNameNoExt: %s"% fileNameNoExt)
+        fileNameNoExt = fileNameNoExt.lower()
+        logging.debug("[LayEd][publish] fileNameNoExt - lower: %s"% fileNameNoExt)
 
         # Check the GS workspace and create it if it does not exist 
         self.createWorkspaceIfNotExists(gsWorkspace)
