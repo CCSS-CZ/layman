@@ -69,8 +69,6 @@ class DbMan:
         self.createSchemaIfNotExists(dbSchema)
         ds = ogr.Open(filePath)
 
-        sqlBatch = None
-
         for i in range(ds.GetLayerCount()):
             layer_in = ds.GetLayerByIndex(i)
 
@@ -82,17 +80,12 @@ class DbMan:
                 #if pg_out.GetLayerByName(name_out):
                 #    pass
 
-                logging.debug("[DbMan][importVectorFile] Going to assemble the SQL...")
-                sqlBatch = self._get_vector_file_import_sql(ds, dbSchema,name_out)
-                sqlBatch_log = sqlBatch[0:500]+"\n...\n"+sqlBatch[-500:]
-                logging.debug("[DbMan][importVectorFile] SQL assembled: \n%s"% sqlBatch_log)
-
-                if sqlBatch:
-                    logging.debug("[DbMan][importVectorFile] Going to write the SQL...")
-                    self.write_sql(sqlBatch)
-                    logging.debug("[DbMan][importVectorFile] SQL written")
+                logging.debug("[DbMan][importVectorFile] Going to import layer to db...")
+                dspg = ogr.Open(self.getConnectionString(True))
+                dst_lyr = dspg.CopyLayer(layer_in, dbSchema+'.'+name_out)
+                dspg = None
         
-        return name_out
+        return True
         #TODO return table name
 
     def _find_new_layername(self, schema, name):
@@ -149,127 +142,6 @@ class DbMan:
             errStr = "Database (psycopg2) error: '"+str(e)+"'"
             logging.debug("[DbMan][importFile] %s"% errStr)
             raise LaymanError(500, "DbMan: "+errStr)
-
-    def _get_vector_file_import_sql(self, file_in, dbSchema, name_out):
-        """Import vector file
-        """
-        logParam = "dbSchema='"+dbSchema+"', name_out='"+name_out+"'"
-        logging.debug("[DbMan][_get_vector_file_import_sql] %s"% logParam)
-
-        sqlBatch = ""
-
-        import time
-
-        # for each layer within the file
-        # NOTE: in Shapefile, there is usually only one layer
-        layer_count = 0
-        for layer_in in file_in:
-            layer_count_str = str(layer_count)
-            logging.debug("[DbMan][_get_vector_file_import_sql] layer %s"% layer_count_str)
-            layer_count += 1
-
-            # begin table creation
-            sqlBatch += "SET search_path TO "+dbSchema+",public;\n"
-            sqlBatch += "SET CLIENT_ENCODING TO UTF8;\n"
-            sqlBatch += "SET STANDARD_CONFORMING_STRINGS TO ON;\n"
-            sqlBatch += 'CREATE TABLE '+dbSchema+"."+name_out+' (\n';
-            sqlBatch +="gid serial,\n"
-
-            # layer columns definition
-            dfn = layer_in.GetLayerDefn()
-            fieldCount = dfn.GetFieldCount()
-            fields = []
-
-            j = 0
-            # create columns
-            while j < fieldCount:
-                fieldDfn = dfn.GetFieldDefn(j)
-                fieldName = fieldDfn.GetName()
-                field_type = self._getSqlTypeFromType(fieldDfn.GetType())
-                fieldName_str = str(fieldName)
-                logging.debug("[DbMan][_get_vector_file_import_sql] field: '%s'"% fieldName_str)
-                comma = ",\n"
-                if j+1 == fieldCount:
-                    comma = ""
-                sqlBatch += '"'+fieldName.lower()+'" '+ field_type + comma
-                fields.append((fieldName,field_type))
-                j += 1
-            sqlBatch += ");\n"
-            sqlBatch += 'ALTER TABLE '+dbSchema+"."+name_out+' ADD PRIMARY KEY (gid);\n'
-
-            # add geometry column
-            (geom_type, dimensions) = self._getGeomType(layer_in.GetGeomType())
-            sqlBatch += "".join(["SELECT AddGeometryColumn('",
-                                  dbSchema,
-                                  "','",
-                                  name_out,
-                                 "','geom','0','",
-                                 geom_type,
-                                 "',"+str(dimensions)+");\n"])
-            fields.append(("geom","geometry"))
-
-            # database prepared, feed it
-            logging.debug("[DbMan][_get_vector_file_import_sql] Database prepared, going to feed it...")
-            feature = layer_in.GetNextFeature()
-            strfields = map(lambda field: '"%s"' % field[0], fields)
-
-            # insert each feature into database table
-            feature_count = 0
-            while feature:
-
-                time_0 = time.time()        
-
-                vals = map(lambda field: "%s" % \
-                                self._adjust_value(feature.GetField(field[0]),field[1]),
-                            fields[:-1]
-                        )
-                feature_count_str = str(feature_count)
-                logging.debug("[DbMan][_get_vector_file_import_sql] feature %s"% feature_count_str)
-                feature_count += 1
-
-                time_1 = time.time() 
-
-                geom = feature.GetGeometryRef().ExportToWkt()
-
-                time_2 = time.time() 
-
-                # we have to convert polygons to multipolygons
-                if geom.find("POLYGON") == 0:
-                    geom = geom.replace("POLYGON","MULTIPOLYGON(")
-                    geom = geom+")"
-
-                # add geometry to values
-                vals.append("ST_AsText('"+geom+"')")
-
-                sqlBatch += 'INSERT INTO %(schema)s.%(table)s (%(columns)s) VALUES (%(values)s);' %\
-                        ({
-                            "schema":dbSchema,
-                            "table": name_out,
-                            "columns": ",".join(strfields).lower(),
-                            "values": ",".join(vals)
-                        })
-                        
-                feature = layer_in.GetNextFeature()
-
-                time_3 = time.time() 
-                
-                time01 = str(time_1 - time_0)
-                time12 = str(time_2 - time_1)
-                time23 = str(time_3 - time_2)
-                
-                logging.debug("[DbMan][_get_vector_file_import_sql] TIME 1: %s"% time01)
-                logging.debug("[DbMan][_get_vector_file_import_sql] TIME 2: %s"% time12)
-                logging.debug("[DbMan][_get_vector_file_import_sql] TIME 3: %s"% time23)
-
-            return sqlBatch
-
-    def _clean_string_vals(self, val):
-        """Clean string to be sql usable
-        """
-
-        if type(val) == type(''):
-            val = val.replace("'","%s'"%"\'")
-        return val
 
     def _get_raster_file_import_sql(self, filePath,dbSchema,table):
         """Import raster file
@@ -363,57 +235,6 @@ class DbMan:
             raise LaymanError(500, "DbMan: "+errStr)
         
         #TODO return table name
-
-    def _getSqlTypeFromType(self,tp):
-        """Return string representing propper data type, based on given input
-        data type (usually from shapefile)
-        """
-
-        if tp == ogr.OFTReal:
-            return "real"
-        elif tp == ogr.OFTInteger:
-            return "integer"
-        elif tp == ogr.OFTString:
-            return "varchar(256)"
-        elif tp == ogr.OFTWideString:
-            return "text"
-        else:
-            return "varchar(256)"
-
-        # FIXME add more
-
-    def _adjust_value(self,value, ftype):
-        """Return string representig value, acceptable by sql
-        """
-
-        if value == None:
-            return "NULL"
-        elif ftype == "real":
-            return str(float(value))
-        elif ftype == "integer":
-            return str(int(value))
-        else:
-            value = value.replace("'","%s'"%"\'")
-            return "'%s'" % value
-
-        # FIXME add more
-
-    def _getGeomType(self,geomtype):
-        """Return string representing propper geometry type, based on given input
-        data ogr
-        """
-
-        if geomtype == ogr.wkbPolygon:
-            return ("MULTIPOLYGON",2)
-        elif geomtype == ogr.wkbMultiPolygon:
-            return ("MULTIPOLYGON",2)
-        elif geomtype == ogr.wkbPolygon25D:
-            return ("MULTIPOLYGON",3)
-        elif geomtype == ogr.wkbPoint:
-            return ("POINT",2)
-        elif geomtype == ogr.wkbLineString:
-            return ("LINESTRING",2)
-        # FIXME: add more
 
 RASTER2PSQL_CONFIG = {}
 
