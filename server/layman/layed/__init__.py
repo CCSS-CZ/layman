@@ -112,7 +112,7 @@ class LayEd:
             from layman.layed.dbman import DbMan
             dbm = DbMan(self.config)
 
-            dbm.importVectorFile(filePath, dbSchema)
+            tableName = dbm.importVectorFile(filePath, dbSchema)
 
             # Check the GS data store and create it if it does not exist 
             self.createVectorDataStoreIfNotExists(dbSchema, gsWorkspace)
@@ -143,15 +143,16 @@ class LayEd:
 
         # Publish from DB to GS
         if data_type == "vector":
-            self.createFtFromDb(workspace=gsWorkspace, dataStore=dbSchema, layerName=fileNameNoExt, srs=srs, data=data)
+            self.createFtFromDb(workspace=gsWorkspace, dataStore=dbSchema, layerName=tableName, srs=srs, data=data)
             # Create and assgin new style
-            self.createStyleForLayer(workspace=gsWorkspace, dataStore=dbSchema, layerName=fileNameNoExt)
+            self.createStyleForLayer(workspace=gsWorkspace, dataStore=dbSchema, layerName=tableName)
             # TODO: check the result
+            logging.info("[LayEd][publish] Published layer '%s'"% tableName)
         elif data_type == "raster":
             self.createCoverageFromFile(gsworkspace=gsWorkspace, store=fileNameNoExt, name=fileNameNoExt, srs=srs, data=data)
+            logging.info("[LayEd][publish] Published layer '%s'"% fileNameNoExt)
 
         # TODO: check the result
-        logging.info("[LayEd][publish] Published layer '%s'"% fileNameNoExt)
         logging.info("[LayEd][publish] in workspace '%s'"% gsWorkspace)
 
         return (201, "Layer published")

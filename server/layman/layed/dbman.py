@@ -86,8 +86,7 @@ class DbMan:
                 dst_lyr = dspg.CopyLayer(layer_in, str(table_name))
                 dspg = None
         
-        return True
-        #TODO return table name
+        return name_out
 
     def _find_new_layername(self, schema, name):
         """
