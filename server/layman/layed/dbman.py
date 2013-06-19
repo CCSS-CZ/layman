@@ -61,6 +61,9 @@ class DbMan:
         """import given file to database, ogr is used for data READING, psycopg2
         for data WRITING directly into PostGIS
         """
+        logParam = "filePath='"+filePath+"', dbSchema='"+dbSchema+"'"
+        logging.debug("[DbMan][importVectorFile] %s"% logParam)
+
         self.createSchemaIfNotExists(dbSchema)
         ds = ogr.Open(filePath)
 
@@ -77,14 +80,14 @@ class DbMan:
                 #if pg_out.GetLayerByName(name_out):
                 #    pass
 
+                logging.debug("[DbMan][importVectorFile] Going to assemble the SQL...")
                 sqlBatch = self._get_vector_file_import_sql(ds, dbSchema,name_out)
+                logging.debug("[DbMan][importVectorFile] SQL assembled: %s"% sqlBatch)
 
                 if sqlBatch:
-                    logParam = "filePath=%s, tablename=%s, schema=%s" %\
-                                            (filePath, name_out, dbSchema)
-                    logging.debug("[DbMan][importVectorFile] %s"% logParam)
-
+                    logging.debug("[DbMan][importVectorFile] Going to write the SQL...")
                     self.write_sql(sqlBatch)
+                    logging.debug("[DbMan][importVectorFile] SQL written")
         
         return name_out
         #TODO return table name
@@ -144,15 +147,21 @@ class DbMan:
             logging.debug("[DbMan][importFile] %s"% errStr)
             raise LaymanError(500, "DbMan: "+errStr)
 
-    def _get_vector_file_import_sql(self, file_in, dbSchema,name_out):
+    def _get_vector_file_import_sql(self, file_in, dbSchema, name_out):
         """Import vector file
         """
+        logParam = "file_in='"+file_in+"', dbSchema='"+dbSchema+"', name_out='"+name_out+"'"
+        logging.debug("[DbMan][_get_vector_file_import_sql] %s"% logParam)
 
         sqlBatch = ""
 
         # for each layer within the file
         # NOTE: in Shapefile, there is usually only one layer
+        layer_count = 0
         for layer_in in file_in:
+            layer_count_str = str(layer_count)
+            logging.debug("[DbMan][_get_vector_file_import_sql] layer %s"% layer_count_str)
+            layer_count += 1
 
             # begin table creation
             sqlBatch += "SET search_path TO "+dbSchema+",public;\n"
@@ -166,13 +175,13 @@ class DbMan:
             fieldCount = dfn.GetFieldCount()
             fields = []
 
-
             j = 0
             # create columns
             while j < fieldCount:
                 fieldDfn = dfn.GetFieldDefn(j)
                 fieldName = fieldDfn.GetName()
                 field_type = self._getSqlTypeFromType(fieldDfn.GetType())
+                logging.debug("[DbMan][_get_vector_file_import_sql] field: '%s'"% fieldName_str)
                 comma = ",\n"
                 if j+1 == fieldCount:
                     comma = ""
@@ -194,14 +203,21 @@ class DbMan:
             fields.append(("geom","geometry"))
 
             # database prepared, feed it
+            logging.debug("[DbMan][_get_vector_file_import_sql] Database prepared, going to feed it...")
             feature = layer_in.GetNextFeature()
             strfields = map(lambda field: '"%s"' % field[0], fields)
+
             # insert each feature into database table
+            feature_count = 0
             while feature:
                 vals = map(lambda field: "%s" % \
                                 self._adjust_value(feature.GetField(field[0]),field[1]),
                             fields[:-1]
                         )
+                feature_count_str = str(feature_count)
+                logging.debug("[DbMan][_get_vector_file_import_sql] feature %s"% feature_count_str)
+                feature_count += 1
+
                 geom = feature.GetGeometryRef().ExportToWkt()
 
                 # we have to convert polygons to multipolygons
