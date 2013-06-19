@@ -62,12 +62,12 @@ class LaymanAuth:
             try:
                 os.mkdir(dirname)
             except OSError,e:
-                raise AuthError("Could not create target directory [%s]:%s"%\
+                raise AuthError(500,"Could not create target directory [%s]:%s"%\
                         (dirname, e))
 
         # check directory permission
         if not os.access(dirname, 7):
-            raise AuthError("Write access denied for target directory [%s]"% (dirname))
+            raise AuthError(500,"Write access denied for target directory [%s]"% (dirname))
 
         return dirname
 
@@ -187,14 +187,14 @@ class LaymanAuthLiferay(LaymanAuth):
             logging.debug("[LaymanAuthLiferay][_parseUserInfo] Liferay reply succesfully parsed")
         except ValueError,e:
             logging.error("[LaymanAuthLiferay][_parseUserInfo] Cannot parse Liferay reply: '%s'"% content)
-            raise AuthError("Cannot parse Liferay response [%s] as JSON:%s"% (content,e)) 
+            raise AuthError(500, "Cannot parse Liferay response [%s] as JSON:%s"% (content,e)) 
 
         if self.authJson["resultCode"] == "0":
             self.authorised = True
             logging.info("[LaymanAuthLiferay][_parseUserInfo] Authentication succesfull")
         else:
             logging.error("[LaymanAuthLiferay][_parseUserInfo] Authentication failed: Liferay does not recognise given JSESSIONID")
-            raise AuthError("Authentication failed: Liferay does not recognise given JSESSIONID")
+            raise AuthError(401, "Authentication failed: Liferay does not recognise given JSESSIONID")
 
     # User/Group configuration methods #
 
@@ -202,13 +202,13 @@ class LaymanAuthLiferay(LaymanAuth):
         """Get user working directory. Dirname == screenName from Liferay
         """
         if not self.authorised:
-            raise AuthError("I am sorry, but you are not authorised")
+            raise AuthError(401,"I am sorry, but you are not authorised")
 
         if self.authJson["userInfo"] and self.authJson["userInfo"]["screenName"]:
             fsDir = self.config.get("FileMan","homedir") + self.authJson["userInfo"]["screenName"]
             return fsDir
         else: 
-            raise AuthError("Cannot determine the working directory - Liferay did not provide user's screenName")
+            raise AuthError(500, "Cannot determine the working directory - Liferay did not provide user's screenName")
 
     def getDBSchema(self, desired=None):
         """ roleName ~ Schema. Uses getRole()
@@ -234,12 +234,12 @@ class LaymanAuthLiferay(LaymanAuth):
         logging.debug("[LaymanAuthLiferay][getRole]")
         if not self.authorised:
             logging.error("[LaymanAuthLiferay][getRole] The user is not authorised")
-            raise AuthError("I am sorry, but you are not authorised")
+            raise AuthError(401, "I am sorry, but you are not authorised")
         if self.authJson["userInfo"] and self.authJson["userInfo"]["roles"]:
             roles = self.authJson["userInfo"]["roles"]
             if len(roles) < 1:
                 logging.error("[LaymanAuthLiferay][getRole] Cannot determine the workspace - Liferay provided empty list of roles")
-                raise AuthError("Cannot determine the workspace - Liferay provided empty list of roles")            
+                raise AuthError(500,"Cannot determine the workspace - Liferay provided empty list of roles")            
 
             theRole = roles[0]
             for r in roles:
@@ -251,7 +251,7 @@ class LaymanAuthLiferay(LaymanAuth):
             return theRole.lower()
         else: 
             logging.error("[LaymanAuthLiferay][getRole] Cannot determine the workspace - Liferay did not provide user's roles")
-            raise AuthError("Cannot determine the workspace - Liferay did not provide user's roles")
+            raise AuthError(500,"Cannot determine the workspace - Liferay did not provide user's roles")
 
     def getRoleStr(self, desired=None):
         """ returns string representation of getRole()
@@ -276,12 +276,12 @@ class LaymanAuthLiferay(LaymanAuth):
         logging.debug("[LaymanAuthLiferay][getRoles]")
         if not self.authorised:
             logging.error("[LaymanAuthLiferay][getRoles] The user is not authorised")
-            raise AuthError("I am sorry, but you are not authorised")
+            raise AuthError(401,"I am sorry, but you are not authorised")
         if self.authJson["userInfo"] and self.authJson["userInfo"]["roles"]:
             roles = self.authJson["userInfo"]["roles"]
             if len(roles) < 1:
                 logging.error("[LaymanAuthLiferay][getRoles] Cannot determine the workspace - Liferay provided empty list of roles")
-                raise AuthError("Cannot determine the workspace - Liferay provided empty list of roles")            
+                raise AuthError(500,"Cannot determine the workspace - Liferay provided empty list of roles")            
             #lower()
             for rr in roles:
                 rr["roleName"] = rr["roleName"].lower()
@@ -290,7 +290,7 @@ class LaymanAuthLiferay(LaymanAuth):
             return roles
         else: 
             logging.error("[LaymanAuthLiferay][getRoles] Cannot determine the workspace - Liferay did not provide user's roles")
-            raise AuthError("Cannot determine the workspace - Liferay did not provide user's roles")
+            raise AuthError(500,"Cannot determine the workspace - Liferay did not provide user's roles")
 
     def getRolesStr(self):
         """ returns string representation of getRoles() json
