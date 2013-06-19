@@ -150,7 +150,7 @@ class DbMan:
     def _get_vector_file_import_sql(self, file_in, dbSchema, name_out):
         """Import vector file
         """
-        logParam = "file_in='"+file_in+"', dbSchema='"+dbSchema+"', name_out='"+name_out+"'"
+        logParam = "dbSchema='"+dbSchema+"', name_out='"+name_out+"'"
         logging.debug("[DbMan][_get_vector_file_import_sql] %s"% logParam)
 
         sqlBatch = ""
