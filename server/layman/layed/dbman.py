@@ -82,7 +82,8 @@ class DbMan:
 
                 logging.debug("[DbMan][importVectorFile] Going to import layer to db...")
                 dspg = ogr.Open(self.getConnectionString(True))
-                dst_lyr = dspg.CopyLayer(layer_in, dbSchema+'.'+name_out)
+                table_name = dbSchema + '.' + name_out
+                dst_lyr = dspg.CopyLayer(layer_in, str(table_name))
                 dspg = None
         
         return True
