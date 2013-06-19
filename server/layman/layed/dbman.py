@@ -181,6 +181,7 @@ class DbMan:
                 fieldDfn = dfn.GetFieldDefn(j)
                 fieldName = fieldDfn.GetName()
                 field_type = self._getSqlTypeFromType(fieldDfn.GetType())
+                fieldName_str = str(fieldName)
                 logging.debug("[DbMan][_get_vector_file_import_sql] field: '%s'"% fieldName_str)
                 comma = ",\n"
                 if j+1 == fieldCount:
