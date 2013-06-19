@@ -246,9 +246,11 @@ class LaymanAuthLiferay(LaymanAuth):
                 if desired == r["roleName"]:
                     theRole = r
 
+            #lower
+            theRole["roleName"] = theRole["roleName"].lower()
             roleName = theRole["roleName"]
             logging.debug("[LaymanAuthLiferay][getRole] The role: '%s'"% roleName)
-            return theRole.lower()
+            return theRole
         else: 
             logging.error("[LaymanAuthLiferay][getRole] Cannot determine the workspace - Liferay did not provide user's roles")
             raise AuthError(500,"Cannot determine the workspace - Liferay did not provide user's roles")
