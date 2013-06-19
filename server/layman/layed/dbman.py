@@ -158,6 +158,8 @@ class DbMan:
 
         sqlBatch = ""
 
+        import time
+
         # for each layer within the file
         # NOTE: in Shapefile, there is usually only one layer
         layer_count = 0
