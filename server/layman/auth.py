@@ -78,6 +78,10 @@ class LaymanAuth:
         groupDir = self.config.get("FileMan","homedir") + role["roleName"]
         return groupDir
 
+    def getFSUserDir(self, desired=None):
+        logging.warning("[LaymanAuth][getFSUserDir] Call of Authorisation class ancestor. Was it intended? No authorisation will be granted here. Try descendants - e.g. LaymanAuthLiferay or LaymanAuthOpen.")
+        return None
+    
     def getDBSchema(self, desired=None):
         logging.warning("[LaymanAuth][getDBSchema] Call of Authorisation class ancestor. Was it intended? No authorisation will be granted here. Try descendants - e.g. LaymanAuthLiferay or LaymanAuthOpen.")
         return None
@@ -244,7 +248,7 @@ class LaymanAuthLiferay(LaymanAuth):
 
             roleName = theRole["roleName"]
             logging.debug("[LaymanAuthLiferay][getRole] The role: '%s'"% roleName)
-            return theRole
+            return theRole.lower()
         else: 
             logging.error("[LaymanAuthLiferay][getRole] Cannot determine the workspace - Liferay did not provide user's roles")
             raise AuthError("Cannot determine the workspace - Liferay did not provide user's roles")
@@ -278,6 +282,9 @@ class LaymanAuthLiferay(LaymanAuth):
             if len(roles) < 1:
                 logging.error("[LaymanAuthLiferay][getRoles] Cannot determine the workspace - Liferay provided empty list of roles")
                 raise AuthError("Cannot determine the workspace - Liferay provided empty list of roles")            
+            #lower()
+            for rr in roles:
+                rr["roleName"] = rr["roleName"].lower()
             rolesStr = json.dumps(roles)
             logging.debug("[LaymanAuthLiferay][getRoles] The roles: '%s'"% rolesStr)
             return roles
