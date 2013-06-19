@@ -93,11 +93,7 @@ class LayEd:
 
         # file
         
-        logging.debug("[LayEd][publish] fileName: %s"% fileName)
-        fileNameNoExt = os.path.splitext(fileName)[0]
-        logging.debug("[LayEd][publish] fileNameNoExt: %s"% fileNameNoExt)
-        fileNameNoExt = fileNameNoExt.lower()
-        logging.debug("[LayEd][publish] fileNameNoExt - lower: %s"% fileNameNoExt)
+        fileNameNoExt = os.path.splitext(fileName)[0].lower()
 
         # Check the GS workspace and create it if it does not exist 
         self.createWorkspaceIfNotExists(gsWorkspace)
@@ -116,7 +112,7 @@ class LayEd:
             from layman.layed.dbman import DbMan
             dbm = DbMan(self.config)
 
-            fileNameNoExt = dbm.importVectorFile(filePath, dbSchema)
+            dbm.importVectorFile(filePath, dbSchema)
 
             # Check the GS data store and create it if it does not exist 
             self.createVectorDataStoreIfNotExists(dbSchema, gsWorkspace)
