@@ -10,6 +10,8 @@ from osgeo import gdal
 from StringIO import StringIO
 import os
 
+import time
+
 from layman import raster2pgsql
 
 class DbMan:
@@ -212,6 +214,9 @@ class DbMan:
             # insert each feature into database table
             feature_count = 0
             while feature:
+
+                start_time = time.time()        
+
                 vals = map(lambda field: "%s" % \
                                 self._adjust_value(feature.GetField(field[0]),field[1]),
                             fields[:-1]
@@ -220,7 +225,17 @@ class DbMan:
                 logging.debug("[DbMan][_get_vector_file_import_sql] feature %s"% feature_count_str)
                 feature_count += 1
 
+                time = time.time() - start_time
+                time_str = str(time)
+                logging.debug("[DbMan][_get_vector_file_import_sql] TIME 1: %s"% time_str)
+                start_time = time.time()        
+
                 geom = feature.GetGeometryRef().ExportToWkt()
+
+                time = time.time() - start_time
+                time_str = str(time)
+                logging.debug("[DbMan][_get_vector_file_import_sql] TIME 2: %s"% time_str)
+                start_time = time.time()        
 
                 # we have to convert polygons to multipolygons
                 if geom.find("POLYGON") == 0:
@@ -239,6 +254,11 @@ class DbMan:
                         })
                         
                 feature = layer_in.GetNextFeature()
+
+                time = time.time() - start_time
+                time_str = str(time)
+                logging.debug("[DbMan][_get_vector_file_import_sql] TIME 3: %s"% time_str)
+                start_time = time.time()        
 
             return sqlBatch
 
