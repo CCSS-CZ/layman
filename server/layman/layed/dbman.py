@@ -82,7 +82,8 @@ class DbMan:
 
                 logging.debug("[DbMan][importVectorFile] Going to assemble the SQL...")
                 sqlBatch = self._get_vector_file_import_sql(ds, dbSchema,name_out)
-                logging.debug("[DbMan][importVectorFile] SQL assembled: %s"% sqlBatch)
+                sqlBatch_log = sqlBatch[0:500]+"\n...\n"+sqlBatch[-500:]
+                logging.debug("[DbMan][importVectorFile] SQL assembled: \n%s"% sqlBatch_log)
 
                 if sqlBatch:
                     logging.debug("[DbMan][importVectorFile] Going to write the SQL...")
