@@ -13,6 +13,7 @@ import os
 import time
 
 from layman import raster2pgsql
+from layman import ogr2ogr
 
 class DbMan:
     """PostGis db interface
@@ -69,23 +70,12 @@ class DbMan:
         self.createSchemaIfNotExists(dbSchema)
         ds = ogr.Open(filePath)
 
-        for i in range(ds.GetLayerCount()):
-            layer_in = ds.GetLayerByIndex(i)
-
-            if layer_in:
-
-                name_out = layer_in.GetName().lower()
-                name_out = self._find_new_layername(dbSchema,name_out)
-                # TODO: data exists, throw exception
-                #if pg_out.GetLayerByName(name_out):
-                #    pass
-
-                logging.debug("[DbMan][importVectorFile] Going to import layer to db...")
-                dspg = ogr.Open(self.getConnectionString(True))
-                table_name = dbSchema + '.' + name_out
-                dst_lyr = dspg.CopyLayer(layer_in, str(table_name))
-                dspg = None
+        layer_in = ds.GetLayerByIndex(0)
+        name_out = layer_in.GetName().lower()
         
+        logging.debug("[DbMan][importVectorFile] Going to import layer to db...")
+        ogr2ogr.main(["","-lco","SCHEMA="+str(dbSchema),"-lco","PRECISION=NO","-f","PostgreSQL",self.getConnectionString(True),filePath])
+
         return name_out
 
     def _find_new_layername(self, schema, name):
