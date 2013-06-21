@@ -60,7 +60,7 @@ class DbMan:
         else:
             self.importRasterFile(filePath, dbSchema)
 
-    def importVectorFile(self, filePath, dbSchema): 
+    def importVectorFile(self, filePath, dbSchema):
         """import given file to database, ogr is used for data READING, psycopg2
         for data WRITING directly into PostGIS
         """
@@ -72,9 +72,10 @@ class DbMan:
 
         layer_in = ds.GetLayerByIndex(0)
         name_out = layer_in.GetName().lower()
-        
+        name_out = self._find_new_layername(dbSchema, name_out)
+
         logging.debug("[DbMan][importVectorFile] Going to import layer to db...")
-        ogr2ogr.main(["","-lco","SCHEMA="+str(dbSchema),"-lco","PRECISION=NO","-f","PostgreSQL",self.getConnectionString(True),filePath])
+        ogr2ogr.main(["","-lco","SCHEMA="+str(dbSchema),"-lco","PRECISION=NO","-nln",name_out,"-f","PostgreSQL",self.getConnectionString(True),filePath])
 
         return name_out
 
@@ -105,7 +106,7 @@ class DbMan:
 
 
 
-    def importRasterFile(self, filePath, dbSchema): 
+    def importRasterFile(self, filePath, dbSchema):
         """Import raster file into POSTGIS database
         """
         name_out = os.path.splitext(os.path.split(filePath)[1])[0]
@@ -124,7 +125,7 @@ class DbMan:
 
             cur.execute(sqlBatch)
             conn.commit()
-            
+
             #close
             cur.close()
             conn.close()
@@ -143,10 +144,10 @@ class DbMan:
         RASTER2PSQL_CONFIG["output"] = StringIO()
         RASTER2PSQL_CONFIG["table"] = table
 
-        raster2pgsql.g_rt_schema = dbSchema 
+        raster2pgsql.g_rt_schema = dbSchema
 
 
-        raster2pgsql.parse_command_line = parse_raster2psql_command_line 
+        raster2pgsql.parse_command_line = parse_raster2psql_command_line
         raster2pgsql.main()
 
         sys.stdout = sys.__stdout__
@@ -159,13 +160,13 @@ class DbMan:
 
         return sqlBatch
 
-        
+
 
     def createSchemaIfNotExists(self, dbSchema):
         logParam = "dbSchema='"+dbSchema+"'"
         logging.debug("[DbMan][createSchemaIfNotExists] %s"% logParam)
 
-        try: 
+        try:
             dbSchema = dbSchema.lower()
 
             conn = psycopg2.connect(self.getConnectionString())
@@ -173,14 +174,14 @@ class DbMan:
 
             SQL = "SELECT schema_name FROM information_schema.schemata WHERE schema_name = %s;"
             params = (dbSchema, )
-            cur.execute(SQL, params) 
+            cur.execute(SQL, params)
             result = cur.fetchone()
 
             created = False
             if not result:
                 SQL = "CREATE SCHEMA "+dbSchema+";"
-                cur.execute(SQL) 
-                created = True            
+                cur.execute(SQL)
+                created = True
 
             conn.commit()
             cur.close()
@@ -193,15 +194,15 @@ class DbMan:
             logging.debug("[DbMan][createSchemaIfNotExists] %s"% errStr)
             raise LaymanError(500, "DbMan: "+errStr)
 
-    # Delete 
-    def deleteTable(self, dbSchema, tableName): 
+    # Delete
+    def deleteTable(self, dbSchema, tableName):
         logParam = "tableName='"+tableName+"', dbSchema='"+dbSchema+"'"
         logging.debug("[DbMan][deleteTable] %s"% logParam)
- 
+
         try: # TODO: extract to one function
             # connect
             conn = psycopg2.connect(self.getConnectionString())
- 
+
             # set schema
             setSchemaSql = "SET search_path TO "+dbSchema+",public;"
 
@@ -215,7 +216,7 @@ class DbMan:
             logging.debug("[DbMan][deleteTable] deleteTableSql: %s"% deleteTableSql)
             cur.execute(deleteTableSql) # TODO check the success
             conn.commit()
-        
+
             #close
             cur.close()
             conn.close()
@@ -223,13 +224,13 @@ class DbMan:
             errStr = "Database (psycopg2) error: '"+str(e)+"'"
             logging.debug("[DbMan][deleteTable] %s"% errStr)
             raise LaymanError(500, "DbMan: "+errStr)
-        
+
         #TODO return table name
 
 RASTER2PSQL_CONFIG = {}
 
 def parse_raster2psql_command_line():
-    """should return back propper configuration for raster2pgsql.main 
+    """should return back propper configuration for raster2pgsql.main
     """
 
     global RASTER2PSQL_CONFIG
@@ -253,7 +254,7 @@ def parse_raster2psql_command_line():
     opts.block_size = None
     opts.register = False
     opts.overview_level = 1
-    
+
     opts.create_table = False
     opts.append_table = False
     opts.drop_table = False
