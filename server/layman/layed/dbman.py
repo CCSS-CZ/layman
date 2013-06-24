@@ -9,6 +9,7 @@ from osgeo import ogr
 from osgeo import gdal
 from StringIO import StringIO
 import os
+import sys
 
 import time
 
@@ -75,7 +76,10 @@ class DbMan:
         name_out = self._find_new_layername(dbSchema, name_out)
 
         logging.debug("[DbMan][importVectorFile] Going to import layer to db...")
+        # hack -> everthing to stderr
+        sys.stdout = sys.stderr
         ogr2ogr.main(["","-lco","SCHEMA="+str(dbSchema),"-lco","PRECISION=NO","-nln",name_out,"-f","PostgreSQL",self.getConnectionString(True),filePath])
+        sys.stdout = sys.__stdout__
 
         return name_out
 
