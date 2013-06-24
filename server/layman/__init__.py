@@ -1,12 +1,12 @@
 # Lincese: ...
 # authors: Michal, Jachym
 
-# TODO: 
+# TODO:
 # * License
 
-import os,sys
+import os
+import sys
 import ConfigParser
-import string
 import web
 import logging
 import json
@@ -17,7 +17,8 @@ from errors import LaymanError, AuthError
 # global variables
 INSTALL_DIR = os.path.dirname(os.path.abspath(__file__))
 config = None
-__all__ = ["layed","fileman","auth"]
+__all__ = ["layed", "fileman", "auth"]
+
 
 class LayMan:
     """Layer manager server part implementation"""
@@ -38,26 +39,27 @@ class LayMan:
     #
     # REST methods
     #
-    def GET(self,name=None):
+
+    def GET(self, name=None):
 
         try:
-                logging.info("[LayMan][GET] %s"% name)
+                logging.info("[LayMan][GET] %s" % name)
                 params = repr(web.input())
-                logging.info("[LayMan][GET] Parameters: %s ... %s"%\
-                        (str(params)[:500], str(params)[-500:]))
-                
+                logging.info("[LayMan][GET] Parameters: %s ... %s" %
+                    (str(params)[:500], str(params)[-500:]))
+
                 if not self.auth.authorised:
                     logging.error("[LayMan][GET] Unauthorised")
                     raise AuthError(401, "Authorisation failed. Are you logged-in?")
 
-                code = None    # 200, 404...         
+                code = None    # 200, 404...
                 retval = None  # success: returned value. failure: error message.
                 origName = name
                 path = [d for d in name.split(os.path.sep) if d]
 
                 # GET "http://localhost:8080/layman/fileman/"
                 if path[0] == "fileman":
-                    
+
                     from fileman import FileMan
                     fm = FileMan()
 
@@ -86,8 +88,8 @@ class LayMan:
                     # /layed[?usergroup=FireBrigade]
                     if len(path) == 1:
                         """ Get the json of the layers.
-                        If usergroup parameter is specified, only the layers 
-                        of the corresponding workspace are returned. 
+                        If usergroup parameter is specified, only the layers
+                        of the corresponding workspace are returned.
                         Otherwise, the layers of all groups allowed are returned
                         in proprietary json, ordered by group (i.e. workspace)
                         """
@@ -100,7 +102,7 @@ class LayMan:
                             roles = [role]
                         (code,retval) = le.getLayers(roles)
 
-                    elif len(path) == 2:               
+                    elif len(path) == 2:
 
                         # /layed/workspaces
                         if path[1] == "workspaces":
@@ -143,14 +145,14 @@ class LayMan:
                         if len(path) > 3:
                             ws = path[-2]
                         g = GsConfig(ws = ws)
-                        retval = g.getStyle(path[-1])                
+                        retval = g.getStyle(path[-1])
                         web.header("Content-type", "text/xml")
-                    
+
                 else:
                     (code, retval) = self._callNotSupported(restMethod="GET", call=origName)
 
                 success = self._setReturnCode(code)
-                if not success: 
+                if not success:
                     retval  = self._jsonReply(code, message=retval, success=success)
                 # else: we return the returned value directly
                 return retval
@@ -168,13 +170,13 @@ class LayMan:
                 params = repr(web.input())
                 logging.info("[LayMan][POST] Parameters: %s ... %s"%\
                         (str(params)[:500], str(params)[-500:]))
-                
+
                 global config
                 if not self.auth.authorised:
                     logging.error("[LayMan][POST] Unauthorised")
                     raise AuthError(401, "Authorisation failed. Are you logged-in?")
 
-                code = None             
+                code = None
                 message = None
                 origName = name
                 name = [d for d in os.path.split(origName) if d]
@@ -189,7 +191,7 @@ class LayMan:
                         # Where is it documented?
                         inpt = web.input(filename={}, newfilename="")
                         newFilename = inpt["newfilename"]
-                        if not newFilename: 
+                        if not newFilename:
                             newFilename = inpt["filename"].filename
                         newFilename = self._getTargetFile(newFilename,False)
                         (code, message) = fm.postFile(newFilename, inpt["filename"].file.read())  # FIXME Security: we
@@ -217,7 +219,7 @@ class LayMan:
                 else:
                     (code, message) = self._callNotSupported(restMethod="POST", call=origName)
 
-                success = self._setReturnCode(code) 
+                success = self._setReturnCode(code)
                 retval  = self._jsonReply(code, message, success)
                 return retval
 
@@ -234,13 +236,13 @@ class LayMan:
                 params = repr(web.input())
                 logging.info("[LayMan][PUT] Parameters: %s ... %s"%\
                         (str(params)[:500], str(params)[-500:]))
-                
+
                 global config
                 if not self.auth.authorised:
                     logging.error("[LayMan][PUT] Unauthorised")
                     raise AuthError(401, "Authorisation failed. Are you logged-in?")
 
-                code = 404    # 200, 404...         
+                code = 404    # 200, 404...
                 message = "Call not supported: PUT "+name+" Please check the API doc or report a bug if appropriate."
 
                 path = [d for d in name.split(os.path.sep) if d]
@@ -282,7 +284,7 @@ class LayMan:
                     data = web.data()
                     (code, message) = le.putLayerConfig(gsWorkspace, layerName, data)
 
-                success = self._setReturnCode(code) 
+                success = self._setReturnCode(code)
                 retval  = self._jsonReply(code, message, success)
                 return retval
 
@@ -299,14 +301,14 @@ class LayMan:
                 params = repr(web.input())
                 logging.info("[LayMan][DELETE] Parameters: %s ... %s"%\
                         (str(params)[:500], str(params)[-500:]))
-                
+
                 if not self.auth.authorised:
                     logging.error("[LayMan][DELETE] Unauthorised")
                     raise AuthError(401, "Authorisation failed. Are you logged-in?")
 
-                code = 404    # 200, 404...         
+                code = 404    # 200, 404...
                 message = "Call not supported: DELETE "+name+" Please check the API doc or report a bug if appropriate."
-    
+
                 path = [d for d in name.split(os.path.sep) if d]
                 if len(name) > 0:
 
@@ -315,7 +317,7 @@ class LayMan:
                             from fileman import FileMan
                             fm = FileMan()
                             fileName = name[8:]
-                            (code, message) = fm.deleteFile(self._getTargetFile(path[-1])) 
+                            (code, message) = fm.deleteFile(self._getTargetFile(path[-1]))
 
                     # /layed/<layer>?usergroup=FireBrigade
                     elif path[0] == "layed" and len(path) == 2:
@@ -329,7 +331,7 @@ class LayMan:
                         logging.info("[LayMan][DELETE] Delete from workspace '%s'"% gsWorkspace)
                         (code, message) = le.deleteLayer(gsWorkspace, layerName, dbSchema)
 
-                success = self._setReturnCode(code) 
+                success = self._setReturnCode(code)
                 retval  = self._jsonReply(code, message, success)
                 return retval
 
@@ -352,7 +354,7 @@ class LayMan:
             # and create LaymanAuth instance based on that
             from auth import LaymanAuthLiferay
             JSESSIONID = web.cookies().get("JSESSIONID")
-            self.auth = LaymanAuthLiferay() 
+            self.auth = LaymanAuthLiferay()
             self.auth.authorise(JSESSIONID)
         elif service.lower() == "hsrs":
             from auth import LaymanAuthHSRS
@@ -389,9 +391,9 @@ class LayMan:
                     cfgfiles = (os.path.join(INSTALL_DIR, "layman.cfg"),
                                 "/etc/layman.cfg",
                                 os.path.join(os.getenv("HOME"),".layman.cfg" ))
-                else: 
+                else:
                     cfgfiles = (os.path.join(INSTALL_DIR,"layman.cfg"), "/etc/pywps.cfg")
-            
+
         config = ConfigParser.SafeConfigParser()
         config.readfp(open(os.path.join(INSTALL_DIR,"defaults.cfg")))
 
@@ -428,7 +430,7 @@ class LayMan:
 
         :param: code
         :type code: integer or string
-        returns success: [True|False] 
+        returns success: [True|False]
         """
         success = False
 
@@ -476,7 +478,7 @@ class LayMan:
 
         message = str(laymanErr)
         logging.error("[LayMan][_handleLaymanError] Layman Error exception: '%s'"% message)
-        success = self._setReturnCode(laymanErr.code)    
+        success = self._setReturnCode(laymanErr.code)
         retval = self._jsonReply(laymanErr.code, message, success)
         return retval
 
@@ -488,7 +490,7 @@ class LayMan:
 
         message = str(ex)
         logging.error("[LayMan][_handleException] Unexpected exception: '%s'"% message)
-        self._setReturnCode(500)    
+        self._setReturnCode(500)
         retval = self._jsonReply(500, message, success=False)
         return retval
 
