@@ -148,7 +148,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                         xtype: 'textarea',
                         anchor: '100%',
                         name: 'abstract',
-                        value: config.abstract || ''
+                        value: config.abstract || config.description || ''
                     },
                     //{
                     //    fieldLabel: 'Keywords',
@@ -274,6 +274,16 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
 
         if (form.isValid()) {
             // submit FeatureTypes using http PUT
+            Ext4.MessageBox.show({
+                   msg: 'Importing data to database, creating new layer ...',
+                   progressText: 'Importing file ...',
+                   width:300,
+                   wait:true,
+                   waitConfig: {interval:200},
+                   icon: 'ext4-mb-download', //custom class in msg-box.html
+                   iconHeight: 50
+               });
+
             if (this.isFeatureType) {
                 var vals = form.getValues();
                 //this.featureType.abstract = vals.abstract;
@@ -289,9 +299,11 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                     },
                     method: "PUT",
                     success: function(form,action) {
+                            Ext4.MessageBox.hide();
                             this.fireEvent("updated", data);
                     },
                     failure: function(form, action) {
+                        Ext4.MessageBox.hide();
                         Ext4.Msg.alert('Failed', 'Publishing file failed');
                     },
                     scope: this
@@ -301,9 +313,11 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
             else {
                 form.submit({
                     success: function(form,action) {
+                            Ext4.MessageBox.hide();
                             this.fireEvent('published', data);
                     },
                     failure: function(form, action) {
+                        Ext4.MessageBox.hide();
                         Ext4.Msg.alert('Failed', 'Publishing file failed');
                     },
                     scope: this

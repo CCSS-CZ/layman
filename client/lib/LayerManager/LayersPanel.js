@@ -75,7 +75,6 @@ Ext4.define('HSRS.LayerManager.LayersPanel', {
                 //add in the custom tpl for the rows
                 tpl: Ext4.create('Ext4.XTemplate', '{layer:this.formatIcon}', {
                     formatIcon: function(v) {
-
                         return '<img src="' + HSRS.IMAGE_LOCATION + v.type.toLowerCase() + '-type.png" />';
                     }
                 })
@@ -86,8 +85,12 @@ Ext4.define('HSRS.LayerManager.LayersPanel', {
                 xtype: 'templatecolumn',
                 sortable: true,
                 flex: 1,
-                dataIndex: 'featureType',
-                tpl: '{featuretype.title}'
+                dataIndex: 'layerData',
+                tpl: Ext4.create('Ext4.XTemplate', '{layerData:this.formatTitle}', {
+                    formatTitle: function(v) {
+                        return v.title;
+                    }
+                })
             }
         ];
 
@@ -118,7 +121,8 @@ Ext4.define('HSRS.LayerManager.LayersPanel', {
                                     function(btn, x, msg) {
                                         if (btn == 'yes') {
                                             this.lm.deleteLayer(this.record.get('layer').name,
-                                                                this.record.get('workspace'));
+                                                                this.record.get('workspace'),
+                                                               this.record.get('layer').title);
                                         }
                                     },
                                     {lm: this, record: record});
@@ -148,12 +152,26 @@ Ext4.define('HSRS.LayerManager.LayersPanel', {
      * @param layer {String}  layer name.
      * @param layer {workspace} ws name.
      */
-    deleteLayer: function(layer,ws) {
+    deleteLayer: function(layer,ws,title) {
         var url = this.url + layer + '?usergroup='+ ws;
+
+        title = title || layer;
+
+        Ext4.MessageBox.show({
+               msg: 'Deleting layer ['+title+'] ...',
+               width:300,
+               wait:true,
+               waitConfig: {interval:200},
+               icon: 'ext4-mb-download', //custom class in msg-box.html
+               iconHeight: 50
+           });
+
         Ext4.Ajax.request({
             method: 'DELETE',
             url: (HSRS.ProxyHost ? HSRS.ProxyHost + escape(url) : url),
             success: function() {
+                Ext4.MessageBox.hide();
+                Ext4.Msg.alert('Success', 'Deleting layer succeeded');
                 this.store.load();
             },
             scope: this

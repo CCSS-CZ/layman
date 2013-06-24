@@ -10,25 +10,23 @@ Ext4.define('HSRSLayerObject', {
             this.callParent(arguments);
         }
 });
-Ext4.define('HSRSFeatureTypeObject', {
+
+Ext4.define('HSRSLayerDataObject', {
         extend: 'Ext4.Base',
-        aaa: 'FeatureTypeObject',
-        nativeBoundingBox: undefined,
-        nativeCRS: undefined,
-        description: undefined,
-        title: undefined,
-        latLonBoundingBox: undefined,
-        enabled: undefined,
-        namespace: undefined,
-        projectionPolicy: undefined,
-        numDecimals: undefined,
-        srs: undefined,
-        keywords: undefined,
-        attributes: undefined,
-        nativeName: undefined,
-        maxFeatures: undefined,
-        store: undefined,
-        name: undefined,
+        aaa: 'CoverageTypeObject',
+        nativeBoundingBox: undefined, //
+        nativeCRS: undefined, //
+        description: undefined, //
+        title: undefined, //
+        latLonBoundingBox: undefined, //
+        enabled: undefined, //
+        namespace: undefined, //
+        projectionPolicy: undefined, //
+        srs: undefined, //
+        nativeName: undefined, //
+        store: undefined, //
+        name: undefined, //
+        datatype: undefined,
         constructor: function(config) {
             Ext4.Object.merge(this, config);
             this.callParent(arguments);
@@ -46,16 +44,15 @@ Ext4.data.Types.TYPELAYER = {
     type: 'LayerObject'
 };
 
-Ext4.data.Types.TYPEFEATURETYPE = {
+Ext4.data.Types.LAYERDATATYPE = {
     convert: function(v, model) {
-        return new HSRSFeatureTypeObject(v);
+        return new HSRSLayerDataObject(v);
     },
     sortType: function(v) {
         return v.title;  // When sorting, order by latitude
     },
-    type: 'TypeFeatureType'
+    type: 'LayerDataType'
 };
-
 
 Ext4.define('HSRS.LayerManager.LayersPanel.Model', {
         extend: 'Ext4.data.Model',
@@ -63,7 +60,7 @@ Ext4.define('HSRS.LayerManager.LayersPanel.Model', {
             {name: 'workspace', mapping: 'ws', type: Ext4.data.Types.STRING},
             {name: 'wstitle', mapping: 'roleTitle', type: Ext4.data.Types.STRING},
             {name: 'layer', mapping: 'layer', type: Ext4.data.Types.TYPELAYER},
-            {name: 'featuretype', mapping: 'featureType', type: Ext4.data.Types.TYPEFEATURETYPE}
+            {name: 'layerData', mapping: 'layerData', type: Ext4.data.Types.LAYERDATATYPE}
         ]
 
 });

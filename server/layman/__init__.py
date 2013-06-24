@@ -43,7 +43,8 @@ class LayMan:
         try:
                 logging.info("[LayMan][GET] %s"% name)
                 params = repr(web.input())
-                logging.info("[LayMan][GET] Parameters: %s"% params)
+                logging.info("[LayMan][GET] Parameters: %s ... %s"%\
+                        (str(params)[:500], str(params)[-500:]))
                 
                 if not self.auth.authorised:
                     logging.error("[LayMan][GET] Unauthorised")
@@ -165,7 +166,8 @@ class LayMan:
         try:
                 logging.info("[LayMan][POST] %s"% name)
                 params = repr(web.input())
-                logging.info("[LayMan][POST] Parameters: %s"% params)
+                logging.info("[LayMan][POST] Parameters: %s ... %s"%\
+                        (str(params)[:500], str(params)[-500:]))
                 
                 global config
                 if not self.auth.authorised:
@@ -206,8 +208,11 @@ class LayMan:
                         fsGroupDir  = self.auth.getFSGroupDir(inpt.usergroup)
                         dbSchema    = self.auth.getDBSchema(inpt.usergroup)
                         gsWorkspace = self.auth.getGSWorkspace(inpt.usergroup)
-                        (code, message) = le.publish(fsUserDir, fsGroupDir, dbSchema, gsWorkspace, fileName)
-                        #retval = "{success: true, message: 'File "+fileName+" published as layer "+layerName+"'}" 
+                        crs         = inpt.crs
+                        (code, message) = le.publish(fsUserDir, fsGroupDir, dbSchema, gsWorkspace, fileName,crs, inpt)
+
+                    else:
+                        (code, message) = self._callNotSupported(restMethod="POST", call=origName)
 
                 else:
                     (code, message) = self._callNotSupported(restMethod="POST", call=origName)
@@ -224,95 +229,115 @@ class LayMan:
 
     def PUT(self, name=None):
 
-        logging.info("[LayMan][PUT] %s"% name)
-        if not self.auth.authorised:
-            self._setReturnCode(401) # Unauthorized 
-            return "Authorisation failed. You need to log-in into the Liferay first."    
+        try:
+                logging.info("[LayMan][PUT] %s"% name)
+                params = repr(web.input())
+                logging.info("[LayMan][PUT] Parameters: %s ... %s"%\
+                        (str(params)[:500], str(params)[-500:]))
+                
+                global config
+                if not self.auth.authorised:
+                    logging.error("[LayMan][PUT] Unauthorised")
+                    raise AuthError(401, "Authorisation failed. Are you logged-in?")
 
-        retval = None
-        code = None
+                code = 404    # 200, 404...         
+                message = "Call not supported: PUT "+name+" Please check the API doc or report a bug if appropriate."
 
-        path = [d for d in name.split(os.path.sep) if d]
+                path = [d for d in name.split(os.path.sep) if d]
 
-        # PUT "http://localhost:8080/layman/fileman/file.shp"
-        if path[0]  == "fileman":
-            from fileman import FileMan
-            fm = FileMan()
-            fileName = path[-1]
-            data = web.data()
-            (code, retval) = fm.putFile(self._getTargetFile(fileName),data)
-            self._setReturnCode(code)
-            return retval
+                # PUT "http://localhost:8080/layman/fileman/file.shp"
+                if path[0]  == "fileman":
+                    from fileman import FileMan
+                    fm = FileMan()
+                    fileName = path[-1]
+                    data = web.data()
+                    (code, message) = fm.putFile(self._getTargetFile(fileName),data)
 
-        elif path[0] == "geoserver":
-            from layed.gsconfig import GsConfig
-            gs = GsConfig()
+                elif path[0] == "geoserver":
+                    from layed.gsconfig import GsConfig
+                    gs = GsConfig()
 
-            # /geoserver/style/style_name
-            if path[1] == "style":
-                # gs.putStyle(path[2],web.data())
-                ws = None
-                if len(path) > 3:
-                    ws = path[-2]
-                gs = GsConfig(ws = ws)
-                gs.putStyle(path[-1],web.data())
+                    # /geoserver/style/style_name
+                    if path[1] == "style":
+                        # gs.putStyle(path[2],web.data())
+                        ws = None
+                        if len(path) > 3:
+                            ws = path[-2]
+                        gsc = GsConfig(ws = ws)
+                        # If PUT Style fails, gsconfig throws an exception
+                        try:
+                            gsc.putStyle(path[-1],web.data())
+                            (code, message) = (200, "PUT Style OK")
+                        except Exception as e:
+                            code = 500
+                            message = "PUT Style failed: " + str(e)
 
-        # /layed/config/<layer>?usergroup=FireBrigade
-        elif path[0] == "layed" and len(path) == 2:
-            from layed import LayEd
-            le = LayEd()
-            layerName = path[1]
-            inpt = web.input(usergroup=None)
-            gsWorkspace = self.auth.getGSWorkspace(inpt.usergroup)
-            data = web.data()
-            retval = le.putLayerConfig(gsWorkspace, layerName, data)
+                # /layed/config/<layer>?usergroup=FireBrigade
+                elif path[0] == "layed" and len(path) == 2:
+                    from layed import LayEd
+                    le = LayEd()
+                    layerName = path[1]
+                    inpt = web.input(usergroup=None)
+                    gsWorkspace = self.auth.getGSWorkspace(inpt.usergroup)
+                    data = web.data()
+                    (code, message) = le.putLayerConfig(gsWorkspace, layerName, data)
 
-        else:
-            web.notfound()
-            return "Call not supported. I'm sorry, mate..."
+                success = self._setReturnCode(code) 
+                retval  = self._jsonReply(code, message, success)
+                return retval
+
+        except LaymanError as le:
+            return self._handleLaymanError(le)
+
+        except Exception as e:
+            return self._handleException(e)
 
     def DELETE(self, name=None):
 
-        logging.info("[LayMan][DELETE] %s"% name)
-        if not self.auth.authorised:
-            self._setReturnCode(401) # Unauthorized 
-            return "Authorisation failed. You need to log-in into the Liferay first."    
+        try:
+                logging.info("[LayMan][DELETE] %s"% name)
+                params = repr(web.input())
+                logging.info("[LayMan][DELETE] Parameters: %s ... %s"%\
+                        (str(params)[:500], str(params)[-500:]))
+                
+                if not self.auth.authorised:
+                    logging.error("[LayMan][DELETE] Unauthorised")
+                    raise AuthError(401, "Authorisation failed. Are you logged-in?")
 
-        retval = None
-        code = None
+                code = 404    # 200, 404...         
+                message = "Call not supported: DELETE "+name+" Please check the API doc or report a bug if appropriate."
+    
+                path = [d for d in name.split(os.path.sep) if d]
+                if len(name) > 0:
 
-        # DELETE "http://localhost:8080/layman/fileman/file.shp"
-        path = [d for d in name.split(os.path.sep) if d]
-        if len(name) > 0:
+                    # /fileman/file.shp"
+                    if path[0] == "fileman":
+                            from fileman import FileMan
+                            fm = FileMan()
+                            fileName = name[8:]
+                            (code, message) = fm.deleteFile(self._getTargetFile(path[-1])) 
 
-            if path[0] == "fileman":
-                    from fileman import FileMan
-                    fm = FileMan()
-                    fileName = name[8:]
-                    (code, retval) = fm.deleteFile(self._getTargetFile(path[-1])) 
-                    self._setReturnCode(code)
-                    return retval 
+                    # /layed/<layer>?usergroup=FireBrigade
+                    elif path[0] == "layed" and len(path) == 2:
+                        from layed import LayEd
+                        le = LayEd()
+                        layerName = path[1]
+                        inpt = web.input(usergroup=None)
+                        gsWorkspace = self.auth.getGSWorkspace(inpt.usergroup)
+                        dbSchema    = self.auth.getDBSchema(inpt.usergroup)
+                        logging.info("[LayMan][DELETE] Delete layer '%s'"% layerName )
+                        logging.info("[LayMan][DELETE] Delete from workspace '%s'"% gsWorkspace)
+                        (code, message) = le.deleteLayer(gsWorkspace, layerName, dbSchema)
 
-            # /layed/<layer>?usergroup=FireBrigade
-            elif path[0] == "layed" and len(path) == 2:
-                logging.info("[LayMan][DELETE /layed/<layer>]")
-                from layed import LayEd
-                le = LayEd()
-                layerName = path[1]
-                inpt = web.input(usergroup=None)
-                gsWorkspace = self.auth.getGSWorkspace(inpt.usergroup)
-                dbSchema    = self.auth.getDBSchema(inpt.usergroup)
-                logging.info("[LayMan]Delete layer '%s'"% layerName )
-                logging.info("[LayMan]Delete from workspace '%s'"% gsWorkspace)
-                retval = le.deleteLayer(gsWorkspace, layerName, dbSchema)
+                success = self._setReturnCode(code) 
+                retval  = self._jsonReply(code, message, success)
                 return retval
 
-            else:
-                web.notfound()
-                return "{success: false, message: 'File [%s] not found '}" % path[-1]
-        else:
-            web.notfound()
-            return "Call not supported. I'm sorry, mate..."
+        except LaymanError as le:
+            return self._handleLaymanError(le)
+
+        except Exception as e:
+            return self._handleException(e)
 
     #
     # Private methods
@@ -424,6 +449,11 @@ class LayMan:
         elif code in (500, "500", "internalerror"):
             web.internalerror()
 
+        if success:
+            logging.debug("[LayMan][_setReturnCode] Code: '%s'" % code)
+        else:
+            logging.error("[LayMan][_setReturnCode] Code: '%s'" % code)
+
         return success
 
     def _jsonReply(self, code, message, success):
@@ -432,6 +462,10 @@ class LayMan:
         jsonReply["success"] = success
         jsonReply["message"] = message
         retval = json.dumps(jsonReply)
+        if success:
+            logging.debug("[LayMan][_jsonReply] Reply with: '%s'" % retval)
+        else:
+            logging.error("[LayMan][_jsonReply] Reply with: '%s'" % retval)
         return retval
 
     def _handleLaymanError(self, laymanErr):

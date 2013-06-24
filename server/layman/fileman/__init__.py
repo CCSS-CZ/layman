@@ -9,6 +9,8 @@ import logging
 import zipfile
 from osgeo import ogr
 from osgeo import gdal
+from osgeo import osr
+import web
 
 from layman.errors import LaymanError
 
@@ -80,13 +82,29 @@ class FileMan:
             time_sec = os.path.getmtime(targetDir+'/'+fn) 
             time_struct = time.localtime(time_sec)
             filetime = time.strftime("%Y-%m-%d %H:%M",time_struct)
-            filetype = mimetypes.guess_type("file://"+targetDir+'/'+fn)
-            file_dict = {"name":fn,"size":filesize,"date":filetime,"mimetype":filetype[0]}           
+            filetype = self.guess_type(targetDir, fn)
+            file_dict = {"name":fn,"size":filesize,"date":filetime,"mimetype":filetype}           
             files_list.append(file_dict)
                 
         files_json = json.dumps(files_list)
 
         return (200, files_json)
+
+    def guess_type(self, target_dir, fn):
+        """Gues mimetype
+        """
+        filetype = mimetypes.guess_type("file://"+target_dir+'/'+fn)
+        if filetype[0]:
+            return filetype[0]
+        else:
+            ext = os.path.splitext(fn)[1].lower()
+
+            if ext == ".shp":
+                return "application/x-qgis"
+            elif ext == ".gml":
+                return "application/gml+xml"
+            elif ext == ".tiff":
+                return "image/tiff"
 
     def getFile(self,fileName):
         """Return file itself
@@ -94,7 +112,26 @@ class FileMan:
 
         # TODO: set propper Content/type
         try:
-            return (200, open(fileName).read())
+            if fileName.find(".shp"):
+                (path,fn) = os.path.split(fileName)
+                old_path = os.path.abspath(os.path.curdir)
+                os.chdir(path)
+                fn_noext = os.path.splitext(fn)[0]
+                from zipfile import ZipFile
+                from io import BytesIO
+                filelike = BytesIO()
+                zipout = ZipFile(filelike,"w")
+                for f in os.listdir(os.path.curdir):
+                    if f.find(fn_noext) > -1:
+                        zipout.write(f)
+
+                zipout.close()
+                web.header('Content-Disposition','attachment; filename="%s.zip"'% fn_noext)
+                os.chdir(old_path)
+                fn_noext = os.path.splitext(fn)[0]
+                return (200, filelike.getvalue())
+            else:
+                return (200, open(fileName).read())
 
         except Exception as e:
             message = "LayEd: getFile(): Unable to read from the file named '" + fileName + "'. Exception received: " + str(e)
@@ -104,7 +141,7 @@ class FileMan:
         """Get the details for the given file
             Returns:
             {
-             name: "file.shp",
+             name: "file.shp"GzipFile,
              size: 1000000,
              date: "2012-04-05 05:43",
              mimetype: "application/x-esri-shp" || "application/octet-stream"
@@ -157,35 +194,55 @@ class FileMan:
            :return: (status, response)
         """
             
-        fileName = os.path.split(filePath)[-1]
+        logging.debug("FileMan.postFile() filePath: %s"% filePath)
 
-        # it is there, DO NOT overwrite
+        #fileName = os.path.split(filePath)[-1]
+
+        pathParsed = os.path.split(filePath)
+        fileName = pathParsed[-1]
+        dirPath = pathParsed[-2]
+
+        logging.debug("FileMan.postFile() pathParsed: %s"% str(pathParsed))
+        logging.debug("FileMan.postFile() fileName: %s"% fileName)
+        logging.debug("FileMan.postFile() dirPath: %s"% dirPath)
+
+        # make sure that the directory exists
+        dirExists = os.path.exists(dirPath) and os.path.isdir(dirPath)
+        if not dirExists:
+            try:
+                os.makedirs(dirPath)
+                logging.info("[FileMan][postFile] Created user directory: %s"% dirPath)
+            except Exception as e:
+               errMsg = "[FileMan][postFile] Cannot create user directory %s: %s" % (dirPath, str(e))
+               logging.error(errMsg)
+               raise LaymanError(500, errMsg) 
+
+        # The file is there, DO NOT overwrite
         if os.path.exists(filePath):
 
             return ("conflict",
-                    "{success:false, message:'Sorry, the file [%s] already exists, use PUT method if you wish to overwrite it'}" % fileName)
+                    "Sorry, the file [%s] already exists, use PUT method if you wish to overwrite it" % fileName)
 
-        # it is not there, create it
+        # The file is not there, create it
         else:
             try:
                 f = open(filePath, "wb")
                 f.write(data)
                 f.close()
 
-
                 # handle zip files
                 msg = None
                 if zipfile.is_zipfile(filePath):
                     (fileName,msg) = self._unzipFile(filePath)
                 if fileName:
-                    logging.debug("File [%s] successfully uploaded"% fileName)
-                    return ("created","{'success':true, file:'%s'}" % fileName)
+                    logging.info("File [%s] successfully uploaded"% fileName)
+                    return ("created","File uploaded:'%s'" % fileName)
                 else:
                     logging.error(msg)
-                    return ("internalerror","{success: false, message: '%s'}" % msg)
+                    return ("internalerror","Error while uploading/unzipping file: '%s'" % msg)
             except Exception as e:
                 logging.error(e)
-                return ("internalerror","{success: false, message: '%s'}" % e)
+                raise LaymanError("internalerror","FileMan: postFile(): %s" % str(e))
 
     def putFile(self,fileName,data):
         """Update an existing file. 
@@ -197,9 +254,10 @@ class FileMan:
             f = open(fileName, "wb")
             f.write(data)
             f.close()
-            return ("ok","{'success':'true','action':'updated'}")
+            return (200,"PUT File OK")
         except Exception as e:
-            return (500, "{success: false, message: '%s'}" % e.message)
+            errMsg = "PUT File failed: " + str(e)
+            return (500, errMsg)
 
     def deleteFile(self,fileName):
         """Delete the file"""
@@ -212,12 +270,15 @@ class FileMan:
                 os.remove(fileName)
 
             if os.path.exists(fileName):
-                return (500, "{success: false, message: '%s'}" % "Unable to delete file")
+                msg = "Unable to delete file '"+fileName+"'"
+                return (500, msg)
             else:
-                return (200, "{success: true, message: '%s'}" % "File deleted")
+                return (200, "File deleted")
 
         except Exception as e:
-            return (500, "{success: false, message: '%s'}" % e)
+           errMsg = "[FileMan][deleteFile] An exception occurred while deleting file "+fileName+": "+str(e) 
+           logging.error(errMsg)
+           raise LaymanError(500, errMsg) 
 
     def get_gis_attributes(self,fileName, attrs):
         """Append more gis attributes of given file to attrs hash
@@ -261,12 +322,44 @@ class FileMan:
             attrs["type"] = "point"
         elif ftype == ogr.wkbLineString:   #2
             attrs["type"] = "line"
+        elif ftype == ogr.wkbPolygon25D:
+            attrs["type"] = "polygon"
         else: 
             attrs["type"] = "none/unknown"  # 0 or anything else
 
         # srs
         sr = layer.GetSpatialRef()
-        sr.AutoIdentifyEPSG()
+        if sr:
+            sr.AutoIdentifyEPSG()
+            attrs["prj"]= self._get_prj(sr)
+        else:
+            attrs["prj"] = "unknown"
+
+        # Done
+        return attrs
+
+    def _get_raster_attributes(self,ds,attrs):
+        """Collect raster attributes
+        """
+
+        attrs["type"] = "raster"
+
+        geotransform = ds.GetGeoTransform()
+        attrs["extent"] = (geotransform[0], 
+                           geotransform[3]+(geotransform[5]*ds.RasterYSize), 
+                           geotransform[0]+(geotransform[1]*ds.RasterXSize),
+                           geotransform[3])
+
+        sr = osr.SpatialReference()
+        sr.ImportFromWkt(ds.GetProjectionRef())
+        attrs["prj"] = self._get_prj(sr)
+
+        attrs["features_count"] = "%s raster, %dx%d cells" % \
+                (ds.RasterCount, ds.RasterXSize, ds.RasterYSize)
+
+        return attrs
+
+    def _get_prj(self,sr):
 
         if sr.IsGeographic() == 1:  # this is a geographic srs
             cstype = 'GEOGCS'
@@ -274,13 +367,9 @@ class FileMan:
             cstype = 'PROJCS'
         an = sr.GetAuthorityName(cstype)
         ac = sr.GetAuthorityCode(cstype)
-        attrs["prj"]="%s:%s"%(an,ac)
 
-        # Done
-        return attrs
+        return "%s:%s"%(an,ac)
 
-    def _get_raster_attributes(self,ds,attrs):
-        return attrs
 
     def _deleteShapeFile(self, fileName):
         """Delete all files, belonging to this shapefile
