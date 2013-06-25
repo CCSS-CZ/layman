@@ -70,6 +70,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
              */
             {
                 xtype: 'combobox',
+                disabled: (config.isFeatureType ? true : false),
                 name: 'usergroup',
                 id: "usergroup",
                 anchor: '100%',
@@ -102,7 +103,9 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                      * selected
                      */
                     "change": function(combo, newValue, oldValue, eOpts){
-                        this.up().down("#newlayer").enable();
+                        if (!this.up().isFeatureType) {
+                            this.up().down("#newlayer").enable();
+                        }
 
                     }
                 },
@@ -116,7 +119,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
              */
             {
                 xtype: 'combobox',
-                disabled: true,
+                disabled: (config.isFeatureType ? true : false),
                 name: 'newlayer',
                 id:"newlayer",
                 anchor: '100%',
@@ -170,12 +173,16 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                         // record found, fill the form
                         if (ridx > -1) {
                             var record = combo.store.getAt(ridx);
+                            this.layer = record.get("layer");
+                            this.layerData = record.get("layerData");
                             this.getForm().setValues({
                                 title: record.get("title"),
                                 abstract: record.get("abstract"),
                                 metadataurl: record.get("metadataurl"),
                                 attribution_text: record.get("attribution_text"),
-                                attribution_link: record.get("attribution_link")
+                                attribution_link: record.get("attribution_link"),
+                                fileName: this.name,
+                                layerName: newValue
                             });
 
                             this.isFeatureType = true;
@@ -183,13 +190,18 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                             this.url = config.url+newValue;
                             this.down("#layerName").setValue(newValue);
                         }
+                        // record not found -> new file to be published
                         else {
                             var vals = this.getForm().getValues();
+                            this.layer = undefined;
+                            this.layerData = undefined;
                             this._reseting = true;
                             this.getForm().reset();
                             this.getForm().setValues({
                                 usergroup: vals.usergroup,
-                                newlayer: vals.newlayer
+                                newlayer: vals.newlayer,
+                                fileName: this.name,
+                                layerName: newValue
                             });
                             this._reseting = false;
 
@@ -209,7 +221,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
              */
             {
                 xtype: 'fieldset',
-                disabled: true,
+                disabled: (config.isFeatureType ? false : true),
                 id: "publishing_set",
                 title: config.isFeatureType ? "Edit layer settings" : "Publish file '" + config.name + "'",
                  items: [
@@ -229,6 +241,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                          name: 'fileName',
                          id: 'fileName',
                          xtype: 'hidden',
+                         disabled: (config.isFeatureType ? true : false),
                          anchor: '100%',
                          value: (config.isFeatureType ? undefined:config.name)
                      },
@@ -398,8 +411,6 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
 
             if (this.isFeatureType) {
                 var vals = form.getValues();
-                //this.featureType.abstract = vals.abstract;
-                //this.featureType.title = vals.title;
 
                 Ext4.Ajax.request({
                     url: this.url, 
@@ -407,6 +418,8 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                         title: vals.title,
                         abstract: vals.abstract
                         },
+                        crs: vals.crs,
+                        fileName: vals.fileName,
                         layer: this.layer
                     },
                     method: "PUT",
@@ -424,8 +437,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                             obj = {message: ""};
                         }
                         Ext4.Msg.alert('Failed', 'Publishing file failed'+
-                            "<br />"+
-                            obj.message);
+                            "<br />"+ obj.message);
                     },
                     scope: this
                 });

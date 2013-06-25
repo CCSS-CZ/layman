@@ -204,17 +204,21 @@ class LayMan:
                         le = LayEd(config)
                         inpt = web.input(usergroup=None)
                         if not inpt.fileName:
-                            raise LaymanError(400, "'fileName' parameter missing")
-                        fileName    = inpt.fileName
-                        fsUserDir   = self.auth.getFSUserDir()
-                        fsGroupDir  = self.auth.getFSGroupDir(inpt.usergroup)
-                        dbSchema    = self.auth.getDBSchema(inpt.usergroup)
+                            raise LaymanError(
+                                400, "'fileName' parameter missing")
+                        fileName = inpt.fileName
+                        fsUserDir = self.auth.getFSUserDir()
+                        fsGroupDir = self.auth.getFSGroupDir(inpt.usergroup)
+                        dbSchema = self.auth.getDBSchema(inpt.usergroup)
                         gsWorkspace = self.auth.getGSWorkspace(inpt.usergroup)
-                        crs         = inpt.crs
-                        (code, message) = le.publish(fsUserDir, fsGroupDir, dbSchema, gsWorkspace, fileName,crs, inpt)
+                        crs = inpt.crs
+                        (code, message) = le.publish(fsUserDir, fsGroupDir,
+                                                     dbSchema, gsWorkspace,
+                                                     fileName, crs, inpt)
 
                     else:
-                        (code, message) = self._callNotSupported(restMethod="POST", call=origName)
+                        (code, message) = self._callNotSupported(restMethod="POST",
+                                                                 call=origName)
 
                 else:
                     (code, message) = self._callNotSupported(restMethod="POST", call=origName)
@@ -253,22 +257,21 @@ class LayMan:
                     fm = FileMan()
                     fileName = path[-1]
                     data = web.data()
-                    (code, message) = fm.putFile(self._getTargetFile(fileName),data)
+                    (code, message) = fm.putFile(self._getTargetFile(
+                                                 fileName), data)
 
                 elif path[0] == "geoserver":
                     from layed.gsconfig import GsConfig
-                    gs = GsConfig()
 
                     # /geoserver/style/style_name
                     if path[1] == "style":
-                        # gs.putStyle(path[2],web.data())
                         ws = None
                         if len(path) > 3:
                             ws = path[-2]
-                        gsc = GsConfig(ws = ws)
+                        gsc = GsConfig(ws=ws)
                         # If PUT Style fails, gsconfig throws an exception
                         try:
-                            gsc.putStyle(path[-1],web.data())
+                            gsc.putStyle(path[-1], web.data())
                             (code, message) = (200, "PUT Style OK")
                         except Exception as e:
                             code = 500
@@ -282,10 +285,19 @@ class LayMan:
                     inpt = web.input(usergroup=None)
                     gsWorkspace = self.auth.getGSWorkspace(inpt.usergroup)
                     data = web.data()
-                    (code, message) = le.putLayerConfig(gsWorkspace, layerName, data)
+
+                    fsUserDir = self.auth.getFSUserDir()
+                    fsGroupDir = self.auth.getFSGroupDir(inpt.usergroup)
+                    dbSchema = self.auth.getDBSchema(inpt.usergroup)
+                    gsWorkspace = self.auth.getGSWorkspace(inpt.usergroup)
+
+                    (code, message) = le.putLayerConfig(gsWorkspace,
+                                                        layerName, data,
+                                                        fsUserDir, fsGroupDir,
+                                                        dbSchema)
 
                 success = self._setReturnCode(code)
-                retval  = self._jsonReply(code, message, success)
+                retval = self._jsonReply(code, message, success)
                 return retval
 
         except LaymanError as le:

@@ -9,6 +9,7 @@ from osgeo import ogr
 from osgeo import gdal
 from StringIO import StringIO
 import os
+import sys
 
 import time
 
@@ -47,34 +48,64 @@ class DbMan:
         logging.debug("[DbMan][getConnectionString] Connection details: %s"% logStr)
 
         if ogr:
-            return "PG: host=%s dbname=%s user=%s password=%s port=%s"%\
-                    (dbhost, dbname,dbuser,dbpass,dbport)
+            return "PG: host=%s dbname=%s user=%s password=%s port=%s" %\
+                   (dbhost, dbname, dbuser, dbpass, dbport)
         else:
-            return "dbname='"+dbname+"' user='"+dbuser+"' host='"+dbhost+"' password='"+dbpass+"'"
+            return "dbname='%s' user='%s' host='%s' password='%s'" %\
+                   (dbname, dbuser, dbhost, dbpass)
 
     # Import
-
     def importFile(self, filePath, dbSchema, data_type="vector"):
         if data_type == "vector":
             self.importVectorFile(filePath, dbSchema)
         else:
             self.importRasterFile(filePath, dbSchema)
 
-    def importVectorFile(self, filePath, dbSchema):
-        """import given file to database, ogr is used for data READING, psycopg2
-        for data WRITING directly into PostGIS
+    def updateVectorFile(self, filePath, dbSchema, table_name):
+        """Update existing postgresql table with given file
         """
-        logParam = "filePath='"+filePath+"', dbSchema='"+dbSchema+"'"
-        logging.debug("[DbMan][importVectorFile] %s"% logParam)
+        logParam = "filePath='%s', dbSchema='%s'" % (filePath, dbSchema)
+        logging.debug("[DbMan][updateVectorFile] %s" % logParam)
+
+        devnull = open(os.devnull, "w")
+        sys.stdout = sys.__stderr__
+        sys.stderr = devnull
+        ogr2ogr.main(["", "-lco", "OVERWRITE=YES", "-lco",
+                      "SCHEMA=" + str(dbSchema),
+                      "-lco", "PRECISION=NO", "-nln",
+                      table_name, "-f", "PostgreSQL",
+                      self.getConnectionString(True), filePath])
+        sys.stdout = sys.__stdout__
+        sys.stderr = sys.__stderr__
+        devnull.close()
+
+    def importVectorFile(self, filePath, dbSchema):
+        """import given file to database, ogr is used for data READING,
+        psycopg2 for data WRITING directly into PostGIS
+        """
+        logParam = "filePath='%s', dbSchema='%s'" % (filePath, dbSchema)
+        logging.debug("[DbMan][importVectorFile] %s" % logParam)
 
         self.createSchemaIfNotExists(dbSchema)
         ds = ogr.Open(filePath)
 
         layer_in = ds.GetLayerByIndex(0)
         name_out = layer_in.GetName().lower()
+        name_out = self._find_new_layername(dbSchema, name_out)
 
         logging.debug("[DbMan][importVectorFile] Going to import layer to db...")
-        ogr2ogr.main(["","-lco","SCHEMA="+str(dbSchema),"-lco","PRECISION=NO","-f","PostgreSQL",self.getConnectionString(True),filePath])
+        # hack -> everthing to devnull
+        devnull = open(os.devnull, "w")
+        sys.stdout = sys.__stderr__
+        sys.stderr = devnull
+        ogr2ogr.main(["", "-lco", "SCHEMA=" + str(dbSchema),
+                      "-lco", "PRECISION=NO", "-nln",
+                      name_out, "-f", "PostgreSQL",
+                      self.getConnectionString(True),
+                      filePath])
+        sys.stdout = sys.__stdout__
+        sys.stderr = sys.__stderr__
+        devnull.close()
 
         return name_out
 
@@ -158,7 +189,6 @@ class DbMan:
         sqlBatch += "END;"
 
         return sqlBatch
-
 
     def createSchemaIfNotExists(self, dbSchema):
         logParam = "dbSchema='"+dbSchema+"'"

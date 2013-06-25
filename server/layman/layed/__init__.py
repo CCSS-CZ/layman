@@ -15,8 +15,9 @@ import shutil
 from layman.errors import LaymanError
 
 namespaces = {
-            "sld":"http://www.opengis.net/sld"
-        }
+    "sld": "http://www.opengis.net/sld"
+}
+
 
 class LayEd:
     """Layer editor and manager
@@ -43,7 +44,7 @@ class LayEd:
     ### LAYERS ###
 
     def publishFromFile(self, fsDir, dbSchema, gsWorkspace, fileName):
-        """ Publish from file with GS Config 
+        """ Publish from file with GS Config
             Group ~ db Schema ~ gs Data Store ~ gs Workspace
         """
         # /path/to/file.shp
@@ -55,20 +56,20 @@ class LayEd:
         # file
         fileNameNoExt = os.path.splitext(fileName)[0]
 
-        # TODO - check the GS workspace and create it if it does not exist 
+        # TODO - check the GS workspace and create it if it does not exist
         # if...
         #    createWorkspace(...)
 
         # Here the Workspace should exist
 
-        # TODO - check the GS data store and create it if it does not exist 
+        # TODO - check the GS data store and create it if it does not exist
         # if...
         #    createDataStore(...)
-        # NOTE: Well, this is not needed if we use gsconfig.py "create_featurestore()" 
+        # NOTE: Well, this is not needed if we use gsconfig.py "create_featurestore()"
         # It would be needed for GS "POST FeatureType" request
 
         # Here the Data Store should exist
-  
+
         # publish with gsconfig.py
         from gsconfig import GsConfig
         gsc = GsConfig(self.config)
@@ -91,10 +92,10 @@ class LayEd:
         # /path/to/file
         filePathNoExt = os.path.splitext(filePath)[0]
 
-        # file        
+        # file
         fileNameNoExt = os.path.splitext(fileName)[0].lower()
 
-        # Check the GS workspace and create it if it does not exist 
+        # Check the GS workspace and create it if it does not exist
         self.createWorkspaceIfNotExists(gsWorkspace)
 
         # Here the Workspace should exist
@@ -113,7 +114,7 @@ class LayEd:
 
             tableName = dbm.importVectorFile(filePath, dbSchema)
 
-            # Check the GS data store and create it if it does not exist 
+            # Check the GS data store and create it if it does not exist
             self.createVectorDataStoreIfNotExists(dbSchema, gsWorkspace)
             data_type = "vector"
         # RASTER
@@ -136,7 +137,7 @@ class LayEd:
         from layman.fileman import FileMan
         fm = FileMan(self.config)
         if not srs:
-            gisAttribs = fm.get_gis_attributes(filePath, {})    
+            gisAttribs = fm.get_gis_attributes(filePath, {})
             srs = gisAttribs["prj"]
         logging.debug("[LayEd][publish] SRS: %s"% srs)
 
@@ -148,31 +149,48 @@ class LayEd:
             # TODO: check the result
             logging.info("[LayEd][publish] Published layer '%s'"% tableName)
         elif data_type == "raster":
-            self.createCoverageFromFile(gsworkspace=gsWorkspace, store=fileNameNoExt, name=fileNameNoExt, srs=srs, data=data)
-            logging.info("[LayEd][publish] Published layer '%s'"% fileNameNoExt)
+            self.createCoverageFromFile(gsworkspace=gsWorkspace,
+                                        store=fileNameNoExt,
+                                        name=fileNameNoExt,
+                                        srs=srs, data=data)
+            logging.info("[LayEd][publish] Published layer '%s'" %
+                         fileNameNoExt)
 
         # TODO: check the result
-        logging.info("[LayEd][publish] in workspace '%s'"% gsWorkspace)
+        logging.info("[LayEd][publish] in workspace '%s'" % gsWorkspace)
 
         return (201, "Layer published")
 
-    def createRasterDataStoreIfNotExists(self, ds, name, gsworkspace,filePath):
+    def updateRasterFile(self, gsworkspace, filePath):
+        """Just copy raster file to target directory
+        """
+
+        data_dir = self.config.get("GeoServer", "datadir")
+        ws_data_dir = os.path.join(data_dir, "workspaces", gsworkspace, "data")
+        shutil.copy2(filePath, ws_data_dir)
+        logging.debug("[LayEd][updateRasterFile]: File %s updated to %s" %
+                      (filePath, ws_data_dir))
+
+    def createRasterDataStoreIfNotExists(self, ds, name, gsworkspace,
+                                         filePath):
         """Import raster file to geoserver
         """
 
         # check for data_dir path
-        data_dir = self.config.get("GeoServer","datadir")
+        data_dir = self.config.get("GeoServer", "datadir")
         if not data_dir:
             raise LaymanError(500, "Configuration Geoserver/data_dir not set")
         if not os.path.exists(data_dir):
-            raise LaymanError(500, "Configured Geoserver/data_dir %s does not exist" % data_dir)
+            raise LaymanError(500,
+                              "Configured Geoserver/data_dir %s does not exist" %
+                              data_dir)
 
-        ws_data_dir = os.path.join(data_dir, "workspaces",gsworkspace, "data")
+        ws_data_dir = os.path.join(data_dir, "workspaces", gsworkspace, "data")
         # create 'data' directory in the workspace
         if not os.path.exists(ws_data_dir):
             os.mkdir(ws_data_dir)
 
-        shutil.copy2(filePath,ws_data_dir)
+        shutil.copy2(filePath, ws_data_dir)
         final_name = os.path.join(ws_data_dir, os.path.split(filePath)[1])
         # final check
         if not os.path.exists(final_name):
@@ -206,7 +224,7 @@ class LayEd:
 
     def createCoverageFromFile(self, gsworkspace, store, name, srs, data=None):
 
-        # Create ft json 
+        # Create ft json
         ftJson = {
             "coverage": {
                 "name": name,
@@ -223,7 +241,7 @@ class LayEd:
                 }
             }
         }
-        
+
         if hasattr(data,"title"):
             ftJson["coverage"]["title"] = data["title"]
         if hasattr(data,"abstract"):
@@ -231,7 +249,7 @@ class LayEd:
 
         ftStr = json.dumps(ftJson)
 
-        # PUT Feature Type        
+        # PUT Feature Type
         gsr = GsRest(self.config)
         logging.debug("[LayEd][createCoverageFromFile] Create Feature Type: '%s'"% ftStr)
         (head, cont) = gsr.postCoverage(gsworkspace, store, data=ftStr)
@@ -246,7 +264,7 @@ class LayEd:
         return (head, cont)
 
 
-    # Check the GS workspace and create it if it does not exist 
+    # Check the GS workspace and create it if it does not exist
     def createWorkspaceIfNotExists(self, workspace):
 
         # Check the workspace
@@ -256,7 +274,7 @@ class LayEd:
         #print cont
 
         # If it does not exist
-        if head["status"] != "200":           
+        if head["status"] != "200":
 
             # Create it
             ws = {}
@@ -274,12 +292,12 @@ class LayEd:
                 message = "LayEd: createWorkspaceIfNotExists(): Cannot create workspace " + workspace + ". Geoserver replied with " + headStr + " and said " + cont
                 raise LaymanError(500, message)
 
-    # Check the GS data store and create it if it does not exist 
+    # Check the GS data store and create it if it does not exist
     # Database schema name is used as the name of the datastore
     def createVectorDataStoreIfNotExists(self, dbSchema, gsWorkspace):
         """Create database connection
         """
-    
+
         # Check the datastore
         gsr = GsRest(self.config)
         (head, cont) = gsr.getDataStore(workspace=gsWorkspace, name=dbSchema)
@@ -288,8 +306,7 @@ class LayEd:
         #print cont
 
         # If it does not exist, create it
-        if head["status"] != "200":           
-
+        if head["status"] != "200":
             # Connection parameters
             host     = self.config.get("DbMan","dbhost")
             port     = self.config.get("DbMan","dbport")
@@ -330,7 +347,7 @@ class LayEd:
                 raise LaymanError(500, message)
 
     def createStyleForLayer(self, workspace, dataStore, layerName):
-        """ Create and assign new style for layer. 
+        """ Create and assign new style for layer.
         Old style of the layer is cloned into the layer's workspace
         and is assigned to the layer.
         """
@@ -344,12 +361,12 @@ class LayEd:
 
         currentStyleUrl = layerJson["layer"]["defaultStyle"]["href"]
 
-        # Create new style      
-        newStyleUrl = self.cloneStyle(fromStyleUrl=currentStyleUrl, toWorkspace=workspace, toStyle=layerName) 
+        # Create new style
+        newStyleUrl = self.cloneStyle(fromStyleUrl=currentStyleUrl, toWorkspace=workspace, toStyle=layerName)
         logging.info("[LayEd][createStyleForLayer] created style '%s'"% layerName)
         logging.info("[LayEd][createStyleForLayer] in workspace '%s'"% workspace)
         # TODO: check the result
-       
+
         # Assign new style with gsxml
         style_str = {}
         style_str["layer"] = {}
@@ -368,7 +385,6 @@ class LayEd:
         # Tell GS to reload the configuration
         gsr.putReload()
 
-
     def createFtFromDb(self, workspace, dataStore, layerName, srs, data=None):
         """ Create Feature Type from PostGIS database
             Given dataStore must exist in GS, connected to PG schema.
@@ -377,12 +393,12 @@ class LayEd:
         logParam = "workspace="+workspace+" dataStore="+dataStore+" layerName="+layerName+" srs="+srs
         logging.debug("[LayEd][publish] Params: %s"% logParam)
 
-        # Create ft json 
+        # Create ft json
         ftJson = {}
         ftJson["featureType"] = {}
         ftJson["featureType"]["name"] = layerName
         ftJson["featureType"]["srs"] = srs
-        
+
         if hasattr(data,"title"):
             ftJson["featureType"]["title"] = data["title"]
         if hasattr(data,"abstract"):
@@ -390,7 +406,7 @@ class LayEd:
 
         ftStr = json.dumps(ftJson)
 
-        # PUT Feature Type        
+        # PUT Feature Type
         gsr = GsRest(self.config)
         logging.debug("[LayEd][createFtFromDb] Create Feature Type: '%s'"% ftStr)
         (head, cont) = gsr.postFeatureTypes(workspace, dataStore, data=ftStr)
@@ -404,7 +420,7 @@ class LayEd:
             raise LaymanError(500, message)
         return (head, cont)
 
-    def getLayersGsConfig(self, workspace=None): 
+    def getLayersGsConfig(self, workspace=None):
         """returns list of layers"""
         # May be we can remove this one
         from gsconfig import GsConfig
@@ -417,9 +433,9 @@ class LayEd:
         return (code,layers)
 
     def getLayers(self, roles):
-        """ Get layers of the given workspaces.        
+        """ Get layers of the given workspaces.
 
-        params: 
+        params:
             roles (json):
             [
                {
@@ -429,7 +445,7 @@ class LayEd:
                {
                    roleTitle: "pozarnaja",
                    roleName: "hasici"
-               } 
+               }
             ]
             (can be obtained from Auth.getRoles())
 
@@ -452,14 +468,14 @@ class LayEd:
         (headers, response) = gsr.getLayers()
         logging.debug("[LayEd][getLayers] GS GET Layers response header: '%s'"% headers)
         logging.debug("[LayEd][getLayers] GS GET Layers response content: '%s'"% response)
-        
+
         # TODO: check the result
         #print "head"
         #print headers
         #print "resp"
         #print response
 
-        gsLayers = json.loads(response) # Layers from GS    
+        gsLayers = json.loads(response) # Layers from GS
 
         # Filter ond organise the layers by workspaces
         # For every Layer,
@@ -472,11 +488,11 @@ class LayEd:
         logging.debug("[LayEd][getLayers] Requested workspaces:")
 
         workspaces = [] # list of workspaces
-        roleTitles = {} # roles as dictionary with roleName key 
+        roleTitles = {} # roles as dictionary with roleName key
         #print "roles: " + repr(roles)
         for r in roles:
             #print "role: " + repr(r)
-            workspaces.append(r["roleName"]) 
+            workspaces.append(r["roleName"])
             roleTitles[r["roleName"]] = r["roleTitle"]
             logging.debug("Workspace: %s"% r["roleName"])
 
@@ -486,14 +502,14 @@ class LayEd:
         # 1. Identify the duplicities
         # 2. Insert only once
         # 3. Note all duplicities
-        # 4. At the end, come through all the requested workspaces and in every ws check, 
-        # if it contains the Feature Type of the same name. If yes, add it. 
+        # 4. At the end, come through all the requested workspaces and in every ws check,
+        # if it contains the Feature Type of the same name. If yes, add it.
         # Note, that there may be five different layers of the same name in five workspaces
         # and say three allowed for the current user.
         layersDone = {}  # lay[href]: ws
         duplicities = {} # lay[href]: count
 
-        # For every Layer        
+        # For every Layer
         for lay in gsLayers["layers"]["layer"]:
             logging.debug("[LayEd][getLayers] Trying layer '%s'"% lay["href"])
             #print "Trying layer"
@@ -517,13 +533,13 @@ class LayEd:
 
             # Check the workspace
             ftUrl = layer["layer"]["resource"]["href"] # URL of Feature Type
-            urlParsed = urlparse(ftUrl)                
+            urlParsed = urlparse(ftUrl)
             path = urlParsed[2]                        # path
             path = [d for d in path.split(os.path.sep) if d] # path parsed
             if path[2] != "workspaces":                # something is wrong
                 logStr = repr(path)
                 logging.error("[LayEd][getLayers] Strange: path[2] != 'workspaces'. Path: %s"% logStr)
-            ws = path[3]   # workspace of the layer 
+            ws = path[3]   # workspace of the layer
             logging.debug("[LayEd][getLayers] Layer's workspace: '%s'"% ws)
             #print "layer's workspace"
             #print ws
@@ -534,7 +550,7 @@ class LayEd:
                 logging.debug("[LayEd][getLayers] MATCH! Get Feature Type: '%s'"% ftUrl)
                 (headers, response) = gsr.getUrl(ftUrl)
                 # TODO: chceck the result
-                ft = json.loads(response)   # Feature Type              
+                ft = json.loads(response)   # Feature Type
 
                 # Return both
                 bundle = {}   # Layer that will be returned
@@ -549,23 +565,23 @@ class LayEd:
                     bundle["layerData"] = ft["coverage"]
                     bundle["layerData"]["datatype"] =  "coverage"
                 layers.append(bundle)
-    
+
         # Now find the layers hidden by the duplicites
-   
+
         #print "duplicities"
-        #print duplicities 
+        #print duplicities
         # For every duplicity
         for (dup, count) in duplicities.items():
 
             logging.debug("[LayEd][getLayers] Trying duplicity '%s'"% dup)
-            
-            # For every requested workspace    
+
+            # For every requested workspace
             for ws in workspaces:
                 if ws == layersDone[ dup ]:
                     continue # this workspace is already done
 
                 # Extract the layer/feature type name
-                dotPos = dup.rfind(".") 
+                dotPos = dup.rfind(".")
                 slashPos = dup.rfind("/")
                 name = dup[slashPos+1:dotPos]
 
@@ -575,15 +591,15 @@ class LayEd:
 
                 #print "head status"
                 #print head["status"]
-                if head["status"] == "200": # match          
+                if head["status"] == "200": # match
 
                     logging.debug("[LayEd][getLayers] Found in workspace '%s'"% ws)
 
                     ft = json.loads(resp) # Feature Type
                     # Fake layer - valid GS REST URI does not exist
                     layer = {}
-                    layer["name"] = name        
-        
+                    layer["name"] = name
+
                     # Return both
                     bundle = {}   # Layer that will be returned
                     bundle["ws"] = ws
@@ -601,7 +617,7 @@ class LayEd:
         layers = json.dumps(layers) # json -> string
         return (code, layers)
 
-    def deleteLayer(self, workspace, layer, schema, deleteStore=False): 
+    def deleteLayer(self, workspace, layer, schema, deleteStore=False):
         """Delete the Layer and the Corresponding Feature Type
            deleteStore = whether to delete the underlying data store as well
         """
@@ -609,7 +625,7 @@ class LayEd:
         try:
                 logging.debug("[LayEd][deleteLayer]")
                 gsr = GsRest(self.config)
-                
+
                 # Find the Feature Type
                 headers, response = gsr.getLayer(workspace,layer)
                 logging.debug("[LayEd][deleteLayer] GET Layer response headers: %s"% headers)
@@ -636,7 +652,7 @@ class LayEd:
                 headers, response = gsr.deleteStyle(workspace, styleName=layer, purge="true")
                 logging.debug("[LayEd][deleteLayer] DELETE Style response headers: %s"% headers)
                 logging.debug("[LayEd][deleteLayer] DELETE Style  response content: %s"% response)
-                # TODO: check the result 
+                # TODO: check the result
                 # NOTE: if no style, it still should be ok (coverages do not have
                 # styles)
 
@@ -661,19 +677,19 @@ class LayEd:
            logging.error(errMsg)
            raise LaymanError(500, errMsg)
 
-        # Delete Data Store 
+        # Delete Data Store
         # (this is usefull when dedicated datastore was created when publishing)
-        #print "$$$ layer: $$$ " + layer 
+        #print "$$$ layer: $$$ " + layer
         #if deleteStore == True:
         #    headers, response = gsr.deleteDataStore(workspace,layer)
-        # FIXME: tohle zlobi nevim proc        
+        # FIXME: tohle zlobi nevim proc
 
 
     ### LAYER CONFIG ###
 
     def getLayerConfig(self, workspace, layerName):
         """ This function combines two things together:
-        {{Layer}{FeatureType}}, both in json. 
+        {{Layer}{FeatureType}}, both in json.
         Type of the return value is string."""
         gsr = GsRest(self.config)
 
@@ -701,22 +717,29 @@ class LayEd:
         retval = json.dumps(retval)
         return (200, retval)
 
-    def putLayerConfig(self, workspace, layerName, data):
+    def putLayerConfig(self, workspace, layerName, data, fsUserDir,
+                       fsGroupDir, dbSchema):
         """ This function expects two things together:
         {{Layer}{FeatureType}}, both in json.
-        Expected type of data is string."""        
-        gsr = GsRest(self.config)
-        data = json.loads(data) # string -> json
+        Expected type of data is string."""
 
-        # TODO: check, that layer.resource.href 
+        gsr = GsRest(self.config)
+        data = json.loads(data)  # string -> json
+
+        if "fileName" in data.keys():
+            self.updateData(layerName, workspace, fsUserDir, fsGroupDir,
+                            dbSchema, data["fileName"])
+
+        # TODO: check, that layer.resource.href
         # is referrencing the proper feature type
 
         # PUT Feature Type
-        featureTypeJson = {}
-        featureTypeJson["featureType"] = data["featureType"] # Extract Feature Type
-        ftUrl = data["layer"]["resource"]["href"]            # Extract Feature Type URL
-        featureTypeString = json.dumps(featureTypeJson)      # json -> string
-        headers, response = gsr.putUrl(ftUrl, featureTypeString) # PUT Feature Type
+        featureTypeJson = {}          # Extract Feature Type
+        featureTypeJson["featureType"] = data["featureType"]
+        ftUrl = data["layer"]["resource"]["href"]  # Extract Feature Type URL
+        featureTypeString = json.dumps(featureTypeJson)  # json -> string
+        # PUT Feature Type
+        headers, response = gsr.putUrl(ftUrl, featureTypeString)
         # TODO: check the reuslt
 
         # PUT Layer
@@ -724,9 +747,43 @@ class LayEd:
         layerJson["layer"] = data["layer"]
         layerString = json.dumps(layerJson)
         headers, response = gsr.putLayer(workspace, layerName, layerString)
-        # TODO: check the reuslt 
+        # TODO: check the reuslt
 
         return (200, "PUT Layer Config OK")
+
+    def updateData(self, layerName, workspace, fsUserDir, fsGroupDir,
+                   dbSchema, fileName):
+        """Update data - database or file system -
+           from new shape or raster file
+        """
+
+        filePath = os.path.realpath(os.path.join(fsUserDir, fileName))
+
+        from osgeo import ogr
+        ds = ogr.Open(filePath)
+        data_type = None
+
+        # VECTOR
+        if ds:
+
+            # Import to DB
+            from layman.layed.dbman import DbMan
+            dbm = DbMan(self.config)
+            dbm.updateVectorFile(filePath, dbSchema, layerName)
+            data_type = "vector"
+
+        # RASTER
+        else:
+            from osgeo import gdal
+            ds = gdal.Open(filePath)
+            if ds:
+                self.updateRasterFile(ds, workspace, filePath)
+                data_type = "raster"
+                return
+
+        if not data_type:
+            raise LaymanError(500,
+                              "Data type (raster or vector) not recognized")
 
     ### STYLES ###
 
@@ -737,7 +794,7 @@ class LayEd:
         gsr = GsRest(self.config)
 
         # url.json -> url.sld
-        dotPos = fromStyleUrl.rfind(".") 
+        dotPos = fromStyleUrl.rfind(".")
         sldUrl = fromStyleUrl[0:dotPos+1] + "sld"
         #print "*** LayEd *** cloneStyle ** "
         #print "sldUrl:"
@@ -786,25 +843,25 @@ class LayEd:
     def _getGSRasterType(self,rtype):
         """Returns raster type name for geoserver, based on gdal driver name
         """
-        
+
         if rtype == "GTiff":
             return "GeoTIFF"
 
     ### WORKSPACES ###
 
     def getWorkspaces(self): # TODO
-        """json of workspaces, eventually with layers"""        
-        return (501, "I am sorry, not implemented yet")        
+        """json of workspaces, eventually with layers"""
+        return (501, "I am sorry, not implemented yet")
 
-    def addWorkspace(self,name,attributes=None): 
+    def addWorkspace(self,name,attributes=None):
         """create workspace""" #TODO
-        return (501, "I am sorry, not implemented yet")        
+        return (501, "I am sorry, not implemented yet")
 
-    def removeWorkspace(self,name): 
+    def removeWorkspace(self,name):
         """remove workspace""" #TODO
-        return (501, "I am sorry, not implemented yet")        
+        return (501, "I am sorry, not implemented yet")
 
-    def updateWorkspace(self, name,attributes=None): 
+    def updateWorkspace(self, name,attributes=None):
         """updates existing worspace""" #TODO
-        return (501, "I am sorry, not implemented yet")        
+        return (501, "I am sorry, not implemented yet")
 
