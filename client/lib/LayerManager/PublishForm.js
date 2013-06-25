@@ -423,6 +423,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                         miny: vals.miny,
                         maxx: vals.maxx,
                         maxy: vals.maxy,
+                        usergroup: vals.usergroup,
                         fileName: vals.fileName,
                         layer: this.layer
                     },

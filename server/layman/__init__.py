@@ -286,10 +286,15 @@ class LayMan:
                     gsWorkspace = self.auth.getGSWorkspace(inpt.usergroup)
                     data = web.data()
 
+                    usergroup = inpt.usergroup
+                    if not hasattr(inpt.usergroup) and \
+                       "usergroup" in data.keys():
+                        usergroup = data["usergroup"]
+
                     fsUserDir = self.auth.getFSUserDir()
-                    fsGroupDir = self.auth.getFSGroupDir(inpt.usergroup)
-                    dbSchema = self.auth.getDBSchema(inpt.usergroup)
-                    gsWorkspace = self.auth.getGSWorkspace(inpt.usergroup)
+                    fsGroupDir = self.auth.getFSGroupDir(usergroup)
+                    dbSchema = self.auth.getDBSchema(usergroup)
+                    gsWorkspace = self.auth.getGSWorkspace(usergroup)
 
                     (code, message) = le.putLayerConfig(gsWorkspace,
                                                         layerName, data,
