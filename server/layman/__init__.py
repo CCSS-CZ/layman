@@ -287,7 +287,7 @@ class LayMan:
                     data = web.data()
 
                     usergroup = inpt.usergroup
-                    if not hasattr(inpt.usergroup) and \
+                    if not hasattr(inpt,"usergroup") and \
                        "usergroup" in data.keys():
                         usergroup = data["usergroup"]
 
