@@ -777,7 +777,7 @@ class LayEd:
             from osgeo import gdal
             ds = gdal.Open(filePath)
             if ds:
-                self.updateRasterFile(ds, workspace, filePath)
+                self.updateRasterFile(workspace, filePath)
                 data_type = "raster"
                 return
 
