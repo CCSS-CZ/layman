@@ -36,7 +36,8 @@ Ext4.define('HSRS.LayerManager', {
             url: url,
             listeners: {
                 scope: this,
-                'filepublished': this._onFilePublished
+                'filepublished': this._onFilePublished,
+                'fileupdated': this._onLayerUpdated
             },
             flex: 1
         });
@@ -75,7 +76,12 @@ Ext4.define('HSRS.LayerManager', {
      * @function
      */
     _onLayerUpdated: function(data) {
-        Ext4.Msg.alert('Success', 'Layer ['+ (data.title || data.name) + '] updated');
+        var msg = 'Layer ['+ (data.title || data.name) + '] updated';
+        if (data.publish_as != "newfile") {
+
+            msg += "<br /> Since new data was loaded, please make sure, layer style is still working";
+        }
+        Ext4.Msg.alert('Success', msg);
         this.layersPanel.store.load();
     },
 

@@ -104,7 +104,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                      */
                     "change": function(combo, newValue, oldValue, eOpts){
                         if (!this.up().isFeatureType) {
-                            this.up().down("#newlayer").enable();
+                            this.up().down("#publish_as").enable();
                         }
 
                     }
@@ -120,8 +120,8 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
             {
                 xtype: 'combobox',
                 disabled: (config.isFeatureType ? true : false),
-                name: 'newlayer',
-                id:"newlayer",
+                name: 'publish_as',
+                id:"publish_as",
                 anchor: '100%',
                 fieldLabel: 'Publish as',
                 store: Ext4.create('Ext4.data.JsonStore', {
@@ -199,7 +199,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                             this.getForm().reset();
                             this.getForm().setValues({
                                 usergroup: vals.usergroup,
-                                newlayer: vals.newlayer,
+                                publish_as: vals.publish_as,
                                 fileName: this.name,
                                 layerName: newValue
                             });

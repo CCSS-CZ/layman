@@ -99,6 +99,7 @@ Ext4.define('HSRS.LayerManager.FilesPanel.FileMenu', {
         this.callParent(arguments);
 
         this.addEvents('filepublished');
+        this.addEvents('fileupdated');
         this.addEvents('filedeleted');
     },
 
@@ -159,7 +160,24 @@ Ext4.define('HSRS.LayerManager.FilesPanel.FileMenu', {
             },
             {menu: this, publishForm: publishForm}
         );
+        publishForm.on('updated',
+            function(e) {
+                this.publishForm._win.close();
+                this.menu._onFileUpdated.apply(this.menu, arguments);
+            },
+            {menu: this, publishForm: publishForm}
+        );
         publishForm._win.show();
+    },
+
+    /**
+     * on file updated
+     * @private
+     * @function
+     */
+    _onFileUpdated: function(data) {
+
+        this.fireEvent('fileupdated', data);
     },
 
     /**

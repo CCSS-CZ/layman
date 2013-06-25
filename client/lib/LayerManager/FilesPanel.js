@@ -152,6 +152,7 @@ Ext4.define('HSRS.LayerManager.FilesPanel', {
         config = Ext4.Object.merge(myconfig, config);
         this.callParent([config]);
         this.addEvents('filepublished');
+        this.addEvents('fileupdated');
 
         var makeMenu = function(view, record, elem, idx, e, opts) {
             this.getFileDetail(record.get('name'), function(r) {
@@ -165,6 +166,7 @@ Ext4.define('HSRS.LayerManager.FilesPanel', {
                     listeners: {
                         scope: this,
                         'filepublished': this._onFilePublished,
+                        'fileupdated': this._onFileUpdated,
 
                         // file deleted listener will popup confirmation window
                         'filedeleted': function(record, evt) {
@@ -290,7 +292,6 @@ Ext4.define('HSRS.LayerManager.FilesPanel', {
             method: 'DELETE',
             url: (HSRS.ProxyHost ? HSRS.ProxyHost + escape(url) : url),
             success: function() {
-                console.log('####', arguments);
             },
             scope: this
         });
@@ -312,5 +313,13 @@ Ext4.define('HSRS.LayerManager.FilesPanel', {
      */
     _onFilePublished: function(data) {
         this.fireEvent('filepublished', data);
+    },
+    /**
+     * file updated handler
+     * @private
+     * @function
+     */
+    _onFileUpdated: function(data) {
+        this.fireEvent('fileupdated', data);
     }
 });
