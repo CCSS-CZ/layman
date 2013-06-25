@@ -285,6 +285,7 @@ class LayMan:
                     inpt = web.input(usergroup=None)
                     gsWorkspace = self.auth.getGSWorkspace(inpt.usergroup)
                     data = web.data()
+                    data = json.loads(data)  # string -> json
 
                     usergroup = inpt.usergroup
                     if not hasattr(inpt,"usergroup") and \

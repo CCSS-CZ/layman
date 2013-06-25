@@ -724,7 +724,6 @@ class LayEd:
         Expected type of data is string."""
 
         gsr = GsRest(self.config)
-        data = json.loads(data)  # string -> json
 
         if "fileName" in data.keys():
             self.updateData(layerName, workspace,
