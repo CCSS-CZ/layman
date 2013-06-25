@@ -288,8 +288,7 @@ class LayMan:
                     data = json.loads(data)  # string -> json
 
                     usergroup = inpt.usergroup
-                    if not hasattr(inpt,"usergroup") and \
-                       "usergroup" in data.keys():
+                    if not usergroup and "usergroup" in data.keys():
                         usergroup = data["usergroup"]
 
                     fsUserDir = self.auth.getFSUserDir()
