@@ -1,4 +1,4 @@
-# Lincense: ...
+:s Lincense: ...
 # authors: Michal, Jachym
 
 import subprocess
@@ -70,10 +70,11 @@ class DbMan:
         devnull = open(os.devnull, "w")
         sys.stdout = sys.__stderr__
         sys.stderr = devnull
-        ogr2ogr.main(["", "-lco", "OVERWRITE=YES", "-lco",
-                      "SCHEMA=" + str(dbSchema),
-                      "-lco", "PRECISION=NO", "-nln",
-                      table_name, "-f", "PostgreSQL",
+        ogr2ogr.main(["", "-lco", "OVERWRITE=YES",
+                      "-lco", "SCHEMA=" + str(dbSchema),
+                      "-lco", "PRECISION=NO",
+                      "-nln", table_name, "-f", "PostgreSQL",
+                      "-nlt", "PROMOTE_TO_MULTI",
                       self.getConnectionString(True), filePath])
         sys.stdout = sys.__stdout__
         sys.stderr = sys.__stderr__
