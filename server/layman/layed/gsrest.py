@@ -64,7 +64,7 @@ class GsRest:
             #print "url:"
             #print url
             headers, response =  self.h.request(url, 'POST',
-                    "<style><name>%s</name><filename>%s.sld</filename></style>" % (styleName,styleName), 
+                    "<style><name>%s</name><filename>%s.sld</filename></style>" % (styleName,styleName),
                     {"Content-type": "text/xml"})
 
             if headers["status"] == "201":
@@ -122,7 +122,7 @@ class GsRest:
         #print headers
         #print "*** response ***"
         #print response
-        return headers, response        
+        return headers, response
 
     def putLayer(self, workspace, name, data):
         url = self.url + "/layers/" + workspace + ":" + name + ".json"
@@ -131,12 +131,12 @@ class GsRest:
         #print url
         #print "*** data ***"
         #print data
-        headers, response =  self.h.request(url,'PUT', data, self.jsonHeader)
+        headers, response = self.h.request(url,'PUT', data, self.jsonHeader)
         #print "*** headers ***"
         #print headers
         #print "*** response ***"
         #print response
-        return headers, response        
+        return headers, response
 
     def deleteLayer(self, workspace, name, recurse="false"):
         """ recurse - whether to delete referrenced styles. default: false
@@ -150,115 +150,116 @@ class GsRest:
         ##print headers
         ##print "*** response ***"
         ##print response
-        return headers, response        
+        return headers, response
 
     ### FEATURE TYPES ###
 
     def getFeatureTypes(self, workspace, datastore):
         url = self.url + "/workspaces/" + workspace + "/datastores/" + datastore + "/featuretypes.json"
         headers, response =  self.h.request(url,'GET')
-        return headers, response        
+        return headers, response
 
     def postFeatureTypes(self, workspace, datastore, data):
         url = self.url + "/workspaces/" + workspace + "/datastores/" + datastore + "/featuretypes.json"
         headers, response =  self.h.request(url,'POST', data, self.jsonHeader)
-        return headers, response        
+        return headers, response
 
     def getFeatureType(self, workspace, datastore, name):
         url = self.url + "/workspaces/" + workspace + "/datastores/" + datastore + "/featuretypes/" + name + ".json"
         headers, response =  self.h.request(url,'GET')
-        return headers, response        
+        return headers, response
 
     def putFeatureType(self, workspace, datastore, name, data):
-        url = self.url + "/workspaces/" + workspace + "/datastores/" + datastore + "/featuretypes/" + name + ".json"
-        headers, response =  self.h.request(url,'PUT',data, self.jsonHeader)
-        return headers, response        
+        url = "%s/workspaces/%s/datastores/%s/featuretypes/%s.json?recalculate=nativebbox,latlonbbox" %\
+              (self.url, workspace, datastore, name)
+        headers, response = self.h.request(url, 'PUT', data, self.jsonHeader)
+        return headers, response
 
     def deleteFeatureType(self, workspace, datastore, name):
         url = self.url + "/workspaces/" + workspace + "/datastores/" + datastore + "/featuretypes/" + name + ".json"
         headers, response =  self.h.request(url,'DELETE')
-        return headers, response        
+        return headers, response
 
     ### DATA STORES ###
 
     def getDataStores(self, workspace):
         url = self.url + "/workspaces/" + workspace + "/datastores.json"
         headers, response =  self.h.request(url,'GET')
-        return headers, response        
+        return headers, response
 
     def postDataStores(self, workspace, data):
         url = self.url + "/workspaces/" + workspace + "/datastores.json"
         headers, response =  self.h.request(url,'POST', data, self.jsonHeader)
-        return headers, response        
+        return headers, response
 
     def postCoverageStores(self, workspace, data):
         url = self.url + "/workspaces/" + workspace + "/coveragestores.json"
         headers, response =  self.h.request(url,'POST', data, self.jsonHeader)
-        return headers, response        
+        return headers, response
 
     def postCoverage(self, workspace, store, data):
         url = self.url + "/workspaces/" + workspace + "/coveragestores/"+store+"/coverages.json"
         headers, response =  self.h.request(url,'POST', data, self.jsonHeader)
-        return headers, response        
+        return headers, response
 
     def getDataStore(self, workspace, name):
         url = self.url + "/workspaces/" + workspace + "/datastores/" +  name + ".json"
         headers, response =  self.h.request(url,'GET')
-        return headers, response        
+        return headers, response
 
     def putDataStore(self, workspace, name, data):
         url = self.url + "/workspaces/" + workspace + "/datastores/" + name + ".json"
         headers, response =  self.h.request(url,'PUT',data, self.jsonHeader)
-        return headers, response        
+        return headers, response
 
     def deleteDataStore(self, workspace, name):
         url = self.url + "/workspaces/" + workspace + "/datastores/" + name + ".json"
         headers, response =  self.h.request(url,'DELETE')
-        return headers, response        
+        return headers, response
 
     def deleteCoverageStore(self, workspace, name):
         url = self.url + "/workspaces/" + workspace + "/coveragestores/" + name + ".json"
         headers, response =  self.h.request(url,'DELETE')
-        return headers, response        
+        return headers, response
 
     ### WORKSPACES ###
 
     def getWorkspaces(self):
         url = self.url + "/workspaces.json"
         headers, response =  self.h.request(url,'GET')
-        return headers, response        
+        return headers, response
 
     def postWorkspaces(self, data):
         url = self.url + "/workspaces.json"
         headers, response =  self.h.request(url,'POST', data, self.jsonHeader)
-        return headers, response        
+        return headers, response
 
     def getWorkspace(self, name):
         url = self.url + "/workspaces/" +  name + ".json"
         headers, response =  self.h.request(url,'GET')
-        return headers, response        
+        return headers, response
 
     def putWorkspace(self, name, data):
         url = self.url + "/workspaces/" + name + ".json"
         headers, response =  self.h.request(url,'PUT',data, self.jsonHeader)
-        return headers, response        
+        return headers, response
 
     def xdeleteDataStore(self, name):
         url = self.url + "/workspaces/" + name + ".json"
         headers, response =  self.h.request(url,'DELETE')
-        return headers, response        
+        return headers, response
 
     ### CONFIGURATION ###
 
     def putReload(self):
         url = self.url + "/reload"
         headers, response = self.h.request(url,'PUT')
-        return headers, response        
+        return headers, response
 
     def postReload(self):
         url = self.url + "/reload"
         headers, response = self.h.request(url,'POST')
-        return headers, response        
+        return headers, response
 
     ### GENERAL ###
 
@@ -272,12 +273,12 @@ class GsRest:
         ####print headers
         ####print "*** response ***"
         ####print response
-        return headers, response        
+        return headers, response
 
     def postUrl(self, url, data):
         """ Post given url, authenticated."""
         headers, response =  self.h.request(url,'POST', data, self.jsonHeader)
-        return headers, response        
+        return headers, response
 
     def putUrl(self, url, data):
         """ Put given url, authenticated."""
@@ -291,7 +292,7 @@ class GsRest:
         ###print headers
         ###print "*** response ***"
         ###print response
-        return headers, response        
+        return headers, response
 
     def deleteUrl(self, url):
         """ Delete given url, authenticated."""
@@ -303,7 +304,7 @@ class GsRest:
         ##print headers
         ##print "*** response ***"
         ##print response
-        return headers, response        
+        return headers, response
 
     ### PRIVATE ###
 

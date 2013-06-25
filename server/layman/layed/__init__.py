@@ -727,8 +727,18 @@ class LayEd:
         data = json.loads(data)  # string -> json
 
         if "fileName" in data.keys():
-            self.updateData(layerName, workspace, fsUserDir, fsGroupDir,
+            self.updateData(layerName, workspace,
+                            fsUserDir, fsGroupDir,
                             dbSchema, data["fileName"])
+            featureTypeJson = {}
+            featureTypeJson["featureType"] = data["featureType"]
+            ftString = json.dumps(featureTypeJson)
+            (header, response) = gsr.putFeatureType(workspace, workspace,
+                                                    layerName, ftString)
+            if header["status"] != "200":
+                headStr = str(header)
+                message = "LayEd: putLayerConfig(): Cannot update layer bbox <br /> Geoserver replied with " + headStr + " and said " + response
+                raise LaymanError(500, message)
 
         # TODO: check, that layer.resource.href
         # is referrencing the proper feature type
@@ -747,6 +757,7 @@ class LayEd:
         layerJson["layer"] = data["layer"]
         layerString = json.dumps(layerJson)
         headers, response = gsr.putLayer(workspace, layerName, layerString)
+
         # TODO: check the reuslt
 
         return (200, "PUT Layer Config OK")
