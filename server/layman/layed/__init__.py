@@ -83,7 +83,8 @@ class LayEd:
         """ Main publishing function. Import to PostreSQL and publish in GeoServer.
             Group ~ db Schema ~ gs Data Store ~ gs Workspace
         """
-        logParam = "fsUserDir="+fsUserDir+" fsGroupDir="+fsGroupDir+" dbSchema="+dbSchema+" gsWorkspace="+gsWorkspace+" fileName="+fileName
+        logParam = "fsUserDir=%s fsGroupDir=%s dbSchema=%s gsWorkspace=%s fileName=%s" %\
+                   (fsUserDir, fsGroupDir, dbSchema, gsWorkspace, fileName)
         logging.debug("[LayEd][publish] Params: %s"% logParam)
 
         # /path/to/file.shp
@@ -117,21 +118,22 @@ class LayEd:
             # Check the GS data store and create it if it does not exist
             self.createVectorDataStoreIfNotExists(dbSchema, gsWorkspace)
             data_type = "vector"
+
         # RASTER
         else:
             from osgeo import gdal
             ds = gdal.Open(filePath)
             if ds:
-                self.createRasterDataStoreIfNotExists(ds, fileNameNoExt, gsWorkspace, filePath)
+                self.createRasterDataStoreIfNotExists(ds, fileNameNoExt,
+                                                      gsWorkspace, filePath)
                 data_type = "raster"
 
         if not data_type:
             raise LaymanError(500, "Data type (raster or vector) not recognized")
 
-
         # TODO: check the result
-        logging.info("[LayEd][publish] Imported file '%s'"% filePath)
-        logging.info("[LayEd][publish] in schema '%s'"% dbSchema)
+        logging.info("[LayEd][publish] Imported file '%s'" % filePath)
+        logging.info("[LayEd][publish] in schema '%s'" % dbSchema)
 
         # SRS
         from layman.fileman import FileMan
@@ -139,15 +141,19 @@ class LayEd:
         if not srs:
             gisAttribs = fm.get_gis_attributes(filePath, {})
             srs = gisAttribs["prj"]
-        logging.debug("[LayEd][publish] SRS: %s"% srs)
+        logging.debug("[LayEd][publish] SRS: %s" % srs)
 
         # Publish from DB to GS
         if data_type == "vector":
-            self.createFtFromDb(workspace=gsWorkspace, dataStore=dbSchema, layerName=tableName, srs=srs, data=data)
+            self.createFtFromDb(workspace=gsWorkspace, dataStore=dbSchema,
+                                layerName=tableName, srs=srs, data=data)
             # Create and assgin new style
-            self.createStyleForLayer(workspace=gsWorkspace, dataStore=dbSchema, layerName=tableName)
+            self.createStyleForLayer(workspace=gsWorkspace,
+                                     dataStore=dbSchema,
+                                     layerName=tableName)
             # TODO: check the result
-            logging.info("[LayEd][publish] Published layer '%s'"% tableName)
+            logging.info("[LayEd][publish] Published layer '%s'" %
+                         tableName)
         elif data_type == "raster":
             self.createCoverageFromFile(gsworkspace=gsWorkspace,
                                         store=fileNameNoExt,
@@ -246,6 +252,7 @@ class LayEd:
             ftJson["coverage"]["title"] = data["title"]
         if hasattr(data,"abstract"):
             ftJson["coverage"]["description"] = data["abstract"]
+            ftJson["coverage"]["abstract"] = data["abstract"]
 
         ftStr = json.dumps(ftJson)
 
@@ -259,7 +266,7 @@ class LayEd:
         if head["status"] != "201":
             # Raise an exception
             headStr = str(head)
-            message = "LayEd: createFtFromDb(): Cannot create FeatureType " + ftStr + ". Geoserver replied with " + headStr + " and said " + cont
+            message = "LayEd: createCoverageFromFile(): Cannot create FeatureType " + ftStr + ". Geoserver replied with " + headStr + " and said " + cont
             raise LaymanError(500, message)
         return (head, cont)
 
@@ -390,8 +397,9 @@ class LayEd:
             Given dataStore must exist in GS, connected to PG schema.
             layerName corresponds to table name in the schema.
         """
-        logParam = "workspace="+workspace+" dataStore="+dataStore+" layerName="+layerName+" srs="+srs
-        logging.debug("[LayEd][publish] Params: %s"% logParam)
+        logParam = "workspace=%s dataStore=%s layerName=%s srs=%s" %\
+                   (workspace, dataStore, layerName, srs)
+        logging.debug("[LayEd][createFtFromDb] Params: %s" % logParam)
 
         # Create ft json
         ftJson = {}
@@ -399,24 +407,59 @@ class LayEd:
         ftJson["featureType"]["name"] = layerName
         ftJson["featureType"]["srs"] = srs
 
-        if hasattr(data,"title"):
+        if hasattr(data, "title"):
             ftJson["featureType"]["title"] = data["title"]
-        if hasattr(data,"abstract"):
+        if hasattr(data, "description"):
+            ftJson["featureType"]["description"] = data["description"]
+            ftJson["featureType"]["abstract"] = data["description"]
+        if hasattr(data, "abstract"):
             ftJson["featureType"]["description"] = data["abstract"]
+            ftJson["featureType"]["abstract"] = data["abstract"]
+        if hasattr(data, "keywords") and data["keywords"] != "":
+            ftJson["featureType"]["keywords"] = {}
+            ftJson["featureType"]["keywords"]["string"] = \
+                map(lambda k: k.strip(), data.keywords.split(","))
+        if hasattr(data, "metadataurl") and data["metadataurl"] != "":
+            ftJson["featureType"]["metadataLinks"] = {}
+            ftJson["featureType"]["metadataLinks"]["metadataLink"] = [
+                {
+                    'type': "text/xml",
+                    'metadataType': 'ISO19115:2003',
+                    'content': data.metadataurl
+                }
+            ]
 
         ftStr = json.dumps(ftJson)
 
-        # PUT Feature Type
-        gsr = GsRest(self.config)
-        logging.debug("[LayEd][createFtFromDb] Create Feature Type: '%s'"% ftStr)
-        (head, cont) = gsr.postFeatureTypes(workspace, dataStore, data=ftStr)
-        logging.debug("[LayEd][createFtFromDb] Response header: '%s'"% head)
-        logging.debug("[LayEd][createFtFromDb] Response contents: '%s'"% cont)
+        layerStr = None
+        layerJson = {
+            "layer": {
+                "name": layerName,
+                "attribution": {
+                }
+            }
+        }
 
-        if head["status"] != "201":
+        if hasattr(data, "attribution_text") and data["attribution_text"] != "":
+            layerJson["layer"]["attribution"]["title"] = data.attribution_text
+        if hasattr(data, "attribution_link") and data["attribution_text"] != "":
+            layerJson["layer"]["attribution"]["href"] = data.attribution_link
+        layerStr = json.dumps(layerJson)
+
+        # POST Feature Type
+        gsr = GsRest(self.config)
+        logging.debug("[LayEd][createFtFromDb] Create Feature Type: '%s'" % ftStr)
+        (head, cont) = gsr.postFeatureTypes(workspace, dataStore, data=ftStr)
+        logging.debug("[LayEd][createFtFromDb] Response header: '%s'" % head)
+        (head, cont) = gsr.putLayer(workspace, layerName, layerStr)
+        logging.debug("[LayEd][createFtFromDb] Response contents: '%s'" % cont)
+
+        if head["status"] != "200":
             # Raise an exception
             headStr = str(head)
-            message = "LayEd: createFtFromDb(): Cannot create FeatureType " + ftStr + ". Geoserver replied with " + headStr + " and said " + cont
+            message = """LayEd: createFtFromDb(): Cannot create FeatureType %s.
+                 Geoserver replied with %s and said %s""" %\
+                      (ftStr, headStr, cont)
             raise LaymanError(500, message)
         return (head, cont)
 
@@ -745,6 +788,30 @@ class LayEd:
         # PUT Feature Type
         featureTypeJson = {}          # Extract Feature Type
         featureTypeJson["featureType"] = data["featureType"]
+        abstract_text = ""
+        if "abstract" in featureTypeJson["featureType"].keys() and\
+                featureTypeJson["featureType"]["abstract"] != "":
+            abstract_text = featureTypeJson["featureType"]["abstract"]
+        elif "description" in featureTypeJson["featureType"].keys() and\
+                featureTypeJson["featureType"]["description"] != "":
+            abstract_text = featureTypeJson["featureType"]["description"]
+
+        featureTypeJson["featureType"]["abstract"] = abstract_text
+        featureTypeJson["featureType"]["description"] = abstract_text
+
+        if "keywords" in data.keys() and data["keywords"] != "":
+            featureTypeJson["featureType"]["keywords"] = {}
+            featureTypeJson["featureType"]["keywords"]["string"] = \
+                map(lambda k: k.strip(), data["keywords"].split(","))
+        if "metadataurl" in data.keys() and data["metadataurl"] != "":
+            featureTypeJson["featureType"]["metadataLinks"] = {}
+            featureTypeJson["featureType"]["metadataLinks"]["metadataLink"] = [
+                {
+                    'type': "text/xml",
+                    'metadataType': 'ISO19115:2003',
+                    'content': data["metadataurl"]
+                }
+            ]
         ftUrl = data["layer"]["resource"]["href"]  # Extract Feature Type URL
         featureTypeString = json.dumps(featureTypeJson)  # json -> string
         # PUT Feature Type
@@ -754,6 +821,15 @@ class LayEd:
         # PUT Layer
         layerJson = {}
         layerJson["layer"] = data["layer"]
+        layerJson["attribution"] = {}
+        if "attribution_link" in data.keys() and\
+           data["attribution_link"] != "":
+            layerJson["layer"]["attribution"]["href"] = \
+                data["attribution_link"]
+        if "attribution_text" in data.keys() and\
+           data["attribution_text"] != "":
+            layerJson["layer"]["attribution"]["title"] = \
+                data["attribution_text"]
         layerString = json.dumps(layerJson)
         headers, response = gsr.putLayer(workspace, layerName, layerString)
 

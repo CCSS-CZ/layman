@@ -143,7 +143,9 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                     name:"newlayer",
                                     title:"New layer"
                                 })
+
                             ]);
+                            this.form.down("#publish_as").setValue("newlayer");
                         },
                         scope: {form: this, val: config.group}
                     }
@@ -177,10 +179,11 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                             this.layerData = record.get("layerData");
                             this.getForm().setValues({
                                 title: record.get("title"),
-                                abstract: record.get("abstract"),
-                                metadataurl: record.get("metadataurl"),
-                                attribution_text: record.get("attribution_text"),
-                                attribution_link: record.get("attribution_link"),
+                                abstract: this.layerData.abstract,
+                                keywords: this.layerData.keywords.string.join(","),
+                                metadataurl: this.layerData.metadataLinks.metadataLink[0].content,
+                                attribution_text: this.layer.attribution.title,
+                                attribution_link: this.layer.attribution.href,
                                 fileName: this.name,
                                 layerName: newValue
                             });
@@ -263,25 +266,22 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                          name: 'abstract',
                          value: config.abstract || config.description || ''
                      },
-                     //{
-                     //    fieldLabel: 'Keywords',
-                     //    xtype: 'multiselect',
-                     //    anchor: '100%',
-                     //    msgTarget: 'side',
-                     //    name: 'keywords',
-                     //    allowBlank: true,
-                     //    store: {
-                     //        fields: [ 'keyword' ],
-                     //        data: [["keyword1"]]
-                     //    },
-                     //    valueField: 'keyword',
-                     //    displayField: 'keyword'
-                     //},
-
+                    /* Keywords field
+                     */
+                     {
+                         fieldLabel: 'Keywords',
+                         xtype: 'textfield',
+                         anchor: '100%',
+                         name: 'keywords',
+                         value: config.keywords,
+                         id: "keywords",
+                         allowBlank: true
+                     },
                     /* Metadata link field
                      */
                      {
                          fieldLabel: 'Metadata link',
+                         emptyText: 'http://',
                          anchor: '100%',
                          xtype: 'textfield',
                          name: 'metadataurl',
@@ -370,7 +370,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                  fieldLabel: 'Attribution text',
                                  anchor: '100%',
                                  xtype: 'textfield',
-                                 value: config.attribution ? config.attribution.text : '',
+                                 value: config.attribution_text ? config.attribution_text : '',
                                  name: 'attribution_text'
                              },
                              {
@@ -378,7 +378,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                  anchor: '100%',
                                  xtype: 'textfield',
                                  emptyText: 'http://',
-                                 value: config.attribution ? config.attribution.link : '',
+                                 value: config.attribution_link ? config.attribution_link : '',
                                  name: 'attribution_link'
                              }
                          ]
@@ -423,6 +423,10 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                         miny: vals.miny,
                         maxx: vals.maxx,
                         maxy: vals.maxy,
+                        keywords: vals.keywords,
+                        metadataurl: vals.metadataurl,
+                        attribution_text: vals.attribution_text,
+                        attribution_link: vals.attribution_link,
                         usergroup: vals.usergroup,
                         fileName: vals.fileName,
                         layer: this.layer

@@ -67,12 +67,6 @@ Ext4.define('HSRS.LayerManager.FilesPanel.FileMenu', {
                 handler: this._onUploadClicked
             },
             {
-                text: 'Update data',
-                icon: HSRS.IMAGE_LOCATION + '/map_go.png',
-                disabled: true,
-                scope: this
-            },
-            {
                 text: 'Download',
                 icon: HSRS.IMAGE_LOCATION + '/download.png',
                 href: this.url + '/' + config.data.name,

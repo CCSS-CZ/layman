@@ -15,16 +15,18 @@ Ext4.define('HSRS.LayerManager.FilesPanel.FileUploader', {
 
         config.frame = true;
         config.filesnames = config.filesnames || [];
-        config.items = [{
-            xtype: 'textfield',
-            id: 'file_name',
-            //emptyText: '(leave blank for use file name)',
-            fieldLabel: 'New file name',
-            name: 'newfilename',
-            width: 350,
-            labelWidth: 120,
-            allowBlank: true
-        },
+        config.html = "Please, select file to upload. File can be either single file (e.g. KML) or zipped multi-file (such as ESRI Shapefile";
+        config.items = [
+        //{
+        //    xtype: 'textfield',
+        //    id: 'file_name',
+        //    //emptyText: '(leave blank for use file name)',
+        //    fieldLabel: 'New file name',
+        //    name: 'newfilename',
+        //    width: 350,
+        //    labelWidth: 120,
+        //    allowBlank: true
+        //},
         //{
         //    xtype: "checkbox",
         //    id: 'ovewrite',

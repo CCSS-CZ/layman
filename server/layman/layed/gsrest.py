@@ -160,8 +160,11 @@ class GsRest:
         return headers, response
 
     def postFeatureTypes(self, workspace, datastore, data):
-        url = self.url + "/workspaces/" + workspace + "/datastores/" + datastore + "/featuretypes.json"
-        headers, response =  self.h.request(url,'POST', data, self.jsonHeader)
+        """Create feature type in geoserver
+        """
+        url = "%s/workspaces/%s/datastores/%s/featuretypes.json" %\
+              (self.url, workspace, datastore)
+        headers, response = self.h.request(url, 'POST', data, self.jsonHeader)
         return headers, response
 
     def getFeatureType(self, workspace, datastore, name):

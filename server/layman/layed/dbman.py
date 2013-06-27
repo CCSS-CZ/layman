@@ -10,6 +10,7 @@ from osgeo import gdal
 from StringIO import StringIO
 import os
 import sys
+from osgeo import gdal
 
 import time
 
@@ -70,12 +71,19 @@ class DbMan:
         devnull = open(os.devnull, "w")
         sys.stdout = sys.__stderr__
         sys.stderr = devnull
-        ogr2ogr.main(["", "-lco", "OVERWRITE=YES",
-                      "-lco", "SCHEMA=" + str(dbSchema),
-                      "-lco", "PRECISION=NO",
-                      "-nln", table_name, "-f", "PostgreSQL",
-                      "-nlt", "PROMOTE_TO_MULTI",
-                      self.getConnectionString(True), filePath])
+        ogr2ogr_params = ["", "-lco", "OVERWRITE=YES",
+                          "-lco", "SCHEMA=" + str(dbSchema),
+                          "-lco", "PRECISION=NO",
+                          "-nln", table_name, "-f", "PostgreSQL"]
+
+        if self._get_ogr2ogr_version() >= 1100000:
+            ogr2ogr_params.extend(["-nlt", "PROMOTE_TO_MULTI"])
+
+        ogr2ogr_params.extend([self.getConnectionString(True),
+                               filePath])
+
+        ogr2ogr.main(ogr2ogr_params)
+
         sys.stdout = sys.__stdout__
         sys.stderr = sys.__stderr__
         devnull.close()
@@ -99,11 +107,17 @@ class DbMan:
         devnull = open(os.devnull, "w")
         sys.stdout = sys.__stderr__
         sys.stderr = devnull
-        ogr2ogr.main(["", "-lco", "SCHEMA=" + str(dbSchema),
-                      "-lco", "PRECISION=NO", "-nln",
-                      name_out, "-f", "PostgreSQL",
-                      self.getConnectionString(True),
-                      filePath])
+        ogr2ogr_params = ["",
+                          "-lco", "SCHEMA=" + str(dbSchema),
+                          "-lco", "PRECISION=NO",
+                          "-nln", name_out, "-f", "PostgreSQL"]
+
+        if self._get_ogr2ogr_version() >= 1100000:
+            ogr2ogr_params.extend(["-nlt", "PROMOTE_TO_MULTI"])
+
+        ogr2ogr_params.extend([self.getConnectionString(True),
+                               filePath])
+        ogr2ogr.main(ogr2ogr_params)
         sys.stdout = sys.__stdout__
         sys.stderr = sys.__stderr__
         devnull.close()
@@ -256,6 +270,12 @@ class DbMan:
 
         #TODO return table name
 
+    def _get_ogr2ogr_version(self):
+        """Returns version of OGR2OGR as (major,minor,release) triplet
+        """
+
+        return int(gdal.VersionInfo())
+
 RASTER2PSQL_CONFIG = {}
 
 def parse_raster2psql_command_line():
@@ -294,3 +314,4 @@ def parse_raster2psql_command_line():
     opts.create_raster_overviews_table = False
 
     return  (opts, args)
+
