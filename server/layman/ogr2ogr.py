@@ -267,6 +267,8 @@ def main(args = None, progress_func = TermProgress, progress_data = None):
                 eGType = ogr.wkbMultiLineString
             elif EQUAL(args[iArg+1],"MULTIPOLYGON"):
                 eGType = ogr.wkbMultiPolygon
+            elif EQUAL(args[iArg+1],"PROMOTE_TO_MULTI"):
+                eGType = "PROMOTE"
             elif EQUAL(args[iArg+1],"GEOMETRY25D"):
                 eGType = ogr.wkbUnknown | ogr.wkb25DBit
             elif EQUAL(args[iArg+1],"POINT25D"):
@@ -1297,6 +1299,15 @@ def SetupTargetLayer( poSrcDS, poSrcLayer, poDstDS, papszLCO, pszNewLayerName, \
 
             if pszZField is not None:
                 eGType = eGType | ogr.wkb25DBit
+
+        if eGType == "PROMOTE":
+            eGType = poSrcFDefn.GetGeomType()
+            if wkbFlatten(eGType) == ogr.wkbPoint:
+                eGType = org.wkbMultiPoint
+            elif wkbFlatten(eGType) == ogr.wkbLineString:
+                eGType = org.wkbMultiLineString
+            elif wkbFlatten(eGType) == ogr.wkbPolygon:
+                eGType = org.wkbMultiPolygon
 
         if nCoordDim == 2:
             eGType = eGType & ~ogr.wkb25DBit
