@@ -1519,6 +1519,15 @@ def TranslateLayer( psInfo, poSrcDS, poSrcLayer, poDstDS,  \
     if poOutputSRS is None and not bNullifyOutputSRS:
         poOutputSRS = poSrcLayer.GetSpatialRef()
 
+    if eGType == "PROMOTE":
+        eGType = poSrcLayer.GetLayerDefn().GetGeomType()
+        if wkbFlatten(eGType) == ogr.wkbLineString:
+            eGType = ogr.wkbMultiLineString
+            bForceToMultiLineString = True
+        elif wkbFlatten(eGType) == ogr.wkbPolygon:
+            eGType = ogr.wkbMultiPolygon
+            bForceToMultiPolygon = True
+
     if wkbFlatten(eGType) == ogr.wkbPolygon:
         bForceToPolygon = True
     elif wkbFlatten(eGType) == ogr.wkbMultiPolygon:
