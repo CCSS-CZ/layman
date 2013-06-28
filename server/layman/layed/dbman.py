@@ -68,6 +68,7 @@ class DbMan:
         logParam = "filePath='%s', dbSchema='%s'" % (filePath, dbSchema)
         logging.debug("[DbMan][updateVectorFile] %s" % logParam)
 
+        os.environ["GDAL_DATA"] = self.config.get("Gdal","gdal_data")
         devnull = open(os.devnull, "w")
         sys.stdout = sys.__stderr__
         sys.stderr = devnull
@@ -101,6 +102,8 @@ class DbMan:
         layer_in = ds.GetLayerByIndex(0)
         name_out = layer_in.GetName().lower()
         name_out = self._find_new_layername(dbSchema, name_out)
+
+        os.environ["GDAL_DATA"] = self.config.get("Gdal","gdal_data")
 
         logging.debug("[DbMan][importVectorFile] Going to import layer to db...")
         # hack -> everthing to devnull
