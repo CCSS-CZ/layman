@@ -7,17 +7,16 @@ from layman import LayMan
 from web import application as app
 
 import web
-import os
+import os,sys
 import logging
 
-DIR = os.path.dirname(os.path.abspath(__file__))
+DIR = os.path.dirname(os.path.realpath(__file__))
+sys.path.append("/data/www/py/gsconfig.py/src/")
+
 web.config.debug = True
 logging.basicConfig(level=logging.DEBUG) # DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 os.environ["LAYMAN_CFG"] = os.path.join(DIR, "layman.cfg")
-
-#print os.environ["LAYMAN_CFG"]
-
 
 if __name__ == "__main__":
     laymanapp = app(("/layman/(.*)","LayMan"),globals())
