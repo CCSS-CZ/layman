@@ -1305,12 +1305,12 @@ def SetupTargetLayer( poSrcDS, poSrcLayer, poDstDS, papszLCO, pszNewLayerName, \
 
         if eGType == "PROMOTE":
             eGType = poSrcFDefn.GetGeomType()
-            if wkbFlatten(eGType) == ogr.wkbPoint:
-                eGType = ogr.wkbMultiPoint
-            elif wkbFlatten(eGType) == ogr.wkbLineString:
+            if wkbFlatten(eGType) == ogr.wkbLineString:
                 eGType = ogr.wkbMultiLineString
+                bForceToMultiLineString = True
             elif wkbFlatten(eGType) == ogr.wkbPolygon:
                 eGType = ogr.wkbMultiPolygon
+                bForceToMultiPolygon = True
 
         if nCoordDim == 2:
             eGType = eGType & ~ogr.wkb25DBit
