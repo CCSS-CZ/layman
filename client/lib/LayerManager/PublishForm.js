@@ -130,7 +130,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                 fieldLabel: 'Publish as',
                 value:"newlayer",
                 store: Ext4.create('Ext4.data.JsonStore', {
-                    autoLoad: true,
+                    //autoLoad: true,
                     proxy: {
                         type: "ajax",
                         url: config.url,
@@ -150,6 +150,19 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                 })
 
                             ]);
+
+                            //  remove records from differenent group
+                            var group = this.form.down("#usergroup").getValue();
+
+                            var remove_records = [];
+                            for (var i = 0, ilen = records.length; i < ilen; i++) {
+
+                                if (records[i].get("workspace") != group){
+                                    remove_records.push(i);
+                                }
+                            }
+
+                            store.remove(remove_records);
                         },
                         scope: {form: this, val: config.group}
                     }
