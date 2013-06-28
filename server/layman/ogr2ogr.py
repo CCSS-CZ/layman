@@ -1157,7 +1157,10 @@ def LoadGeometry( pszDS, pszSQL, pszLyr, pszWhere):
 
 
 def wkbFlatten(x):
-    return x & (~ogr.wkb25DBit)
+    if x == "PROMOTE":
+        return x
+    else:
+        return x & (~ogr.wkb25DBit)
 
 #/************************************************************************/
 #/*                               SetZ()                                 */
