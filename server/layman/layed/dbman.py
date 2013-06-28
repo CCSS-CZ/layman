@@ -77,7 +77,8 @@ class DbMan:
                           "-lco", "PRECISION=NO",
                           "-nln", table_name, "-f", "PostgreSQL"]
 
-        ogr2ogr_params.extend(["-nlt", "GEOMETRY"])
+        if self._get_ogr2ogr_version() >= 1100000:
+            ogr2ogr_params.extend(["-nlt", "PROMOTE_TO_MULTI"])
 
         ogr2ogr_params.extend([self.getConnectionString(True),
                                filePath])
@@ -114,7 +115,8 @@ class DbMan:
                           "-lco", "PRECISION=NO",
                           "-nln", name_out, "-f", "PostgreSQL"]
 
-        ogr2ogr_params.extend(["-nlt", "GEOMETRY"])
+        if self._get_ogr2ogr_version() >= 1100000:
+            ogr2ogr_params.extend(["-nlt", "PROMOTE_TO_MULTI"])
 
         ogr2ogr_params.extend([self.getConnectionString(True),
                                filePath])
