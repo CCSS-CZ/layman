@@ -104,7 +104,11 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                      */
                     "change": function(combo, newValue, oldValue, eOpts){
                         if (!this.up().isFeatureType) {
-                            this.up().down("#publish_as").enable();
+                            var publish_as = this.up().down("#publish_as");
+                            publish_as.enable();
+                            if (publish_as.getValue()) {
+                                this.up().down("#publishing_set").enable();
+                            }
                         }
 
                     }
@@ -119,11 +123,12 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
              */
             {
                 xtype: 'combobox',
-                disabled: (config.isFeatureType ? true : false),
+                disabled: (config.isFeatureType ? true : true),
                 name: 'publish_as',
                 id:"publish_as",
                 anchor: '100%',
                 fieldLabel: 'Publish as',
+                value:"newlayer",
                 store: Ext4.create('Ext4.data.JsonStore', {
                     autoLoad: true,
                     proxy: {
@@ -145,7 +150,6 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                 })
 
                             ]);
-                            this.form.down("#publish_as").setValue("newlayer");
                         },
                         scope: {form: this, val: config.group}
                     }
