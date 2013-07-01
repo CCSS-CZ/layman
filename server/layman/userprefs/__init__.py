@@ -25,10 +25,14 @@ class UserPrefs:
         ## get configuration parser
         self._setConfig(config)
 
-        # create tempdir
-        self.tempdir = self.config.get("FileMan","tempdir")
-        if not os.path.exists(self.tempdir):
-            os.mkdir(self.tempdir)
+    def _setConfig(self,config):
+        """Get and set configuration files parser
+        """
+        if config:
+            self.config = config
+        else:
+            from layman import config
+            self.config =  config
 
     #
     # POST methods
@@ -38,17 +42,16 @@ class UserPrefs:
             
         logging.debug("UserPrefs.add() added user: %s"% username)
 
-        return ("created","User:'%s'" % created)
+        return (200,"User:'%s'" % username)
 
     def update(self,username,roles):
             
-        logging.debug("UserPrefs.add() added user: %s"% username)
+        logging.debug("UserPrefs.add() update user: %s"% username)
 
-        return ("created","User:'%s'" % created)
+        return (200,"User:'%s'" % username)
 
     def remove(self,username,roles):
             
-        logging.debug("UserPrefs.add() added user: %s"% username)
+        logging.debug("UserPrefs.add() removed user: %s"% username)
 
-        return ("created","User:'%s'" % created)
-
+        return (200,"User:'%s'" % removed)

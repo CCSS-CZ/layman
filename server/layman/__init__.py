@@ -164,7 +164,6 @@ class LayMan:
             return self._handleException(e)
 
     def POST(self, name=None):
-
         try:
                 logging.info("[LayMan][POST] %s"% name)
                 params = repr(web.input())
@@ -197,6 +196,18 @@ class LayMan:
                         (code, message) = fm.postFile(newFilename, inpt["filename"].file.read())  # FIXME Security: we
                                                                          # shoudl read file size up to X megabytes
                         web.header("Content-type", "text/html")
+
+                    elif name[0] == "secure":
+                        from userprefs import UserPrefs
+                        up = UserPrefs(config)
+                        input = web.input()
+                        logging.debug(input.name)
+                        if name[1] == "update":
+                            (code, message) = up.update(input.name,input.roles)
+                        elif name[1] == "delete":
+                            (code, message) = up.delete(input.name)
+                        elif name[1] == "add":
+                            (code, message) = up.add(input.name,input.roles)
 
                     # POST "http://localhost:8080/layman/layed?fileName=Rivers.shp&usergroup=RescueRangers"
                     elif name[0] == "layed":
