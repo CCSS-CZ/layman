@@ -358,7 +358,7 @@ class LayMan:
                         userName = path[1]
                         from userprefs import UserPrefs
                         up = UserPrefs(config)
-                        (code, message) = up.updateUser(userName)
+                        (code, message) = up.deleteUser(userName)
 
                     # /layed/<layer>?usergroup=FireBrigade
                     elif path[0] == "layed" and len(path) == 2:
