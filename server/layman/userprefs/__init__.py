@@ -34,24 +34,28 @@ class UserPrefs:
             from layman import config
             self.config =  config
 
-    #
-    # POST methods
-    #
+    def createUser(self, userJson):
+        """ Create user and assign group membership
+        userJson: {screenName: "user", roles: [{roleTitle, roleName}, {roleTitle, roleName}]}
+        return 409 Conflict if the user already exists
+        """            
+        logging.debug("[UserPrefs][createUser] %s"% userJson)
+        # TODO
+        return (201,"User created")
 
-    def add(self,username,roles):
-            
-        logging.debug("UserPrefs.add() added user: %s"% username)
+    def updateUser(self, userJson):
+        """ Update user 
+        userJson: {screenName: "user", roles: [{roleTitle, roleName}, {roleTitle, roleName}]}
+        if the user does not exist yet, create it.
+        """                        
+        logging.debug("[UserPrefs][updateUser] %s"% userJson)
+        # TODO
+        return (200, "User updated")
 
-        return (200,"User:'%s'" % username)
+    def deleteUser(self, userName):
+        """ Delete user
+        """    
+        logging.debug("[UserPrefs][deleteUser] %s"% userName)
+        # TODO
+        return (200,"User deleted")
 
-    def update(self,username,roles):
-            
-        logging.debug("UserPrefs.add() update user: %s"% username)
-
-        return (200,"User:'%s'" % username)
-
-    def remove(self,username,roles):
-            
-        logging.debug("UserPrefs.add() removed user: %s"% username)
-
-        return (200,"User:'%s'" % removed)

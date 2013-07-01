@@ -197,17 +197,14 @@ class LayMan:
                                                                          # shoudl read file size up to X megabytes
                         web.header("Content-type", "text/html")
 
-                    elif name[0] == "secure":
+                    # POST /layman/user
+                    # data: {screenName: "user", roles: [{roleTitle, roleName}, {roleTitle, roleName}]}
+                    elif name[0] == "user":
                         from userprefs import UserPrefs
                         up = UserPrefs(config)
-                        input = web.input()
-                        logging.debug(input.name)
-                        if name[1] == "update":
-                            (code, message) = up.update(input.name,input.roles)
-                        elif name[1] == "delete":
-                            (code, message) = up.delete(input.name)
-                        elif name[1] == "add":
-                            (code, message) = up.add(input.name,input.roles)
+                        data = web.data()
+                        logging.debug(data)
+                        (code, message) = up.createUser(userJson=data)
 
                     # POST "http://localhost:8080/layman/layed?fileName=Rivers.shp&usergroup=RescueRangers"
                     elif name[0] == "layed":
@@ -270,6 +267,15 @@ class LayMan:
                     data = web.data()
                     (code, message) = fm.putFile(self._getTargetFile(
                                                  fileName), data)
+
+                # PUT /layman/user/
+                # data: {screenName: "user", roles: [{roleTitle, roleName}, {roleTitle, roleName}]}
+                elif name[0] == "user":
+                    from userprefs import UserPrefs
+                    up = UserPrefs(config)
+                    data = web.data()
+                    logging.debug(data)
+                    (code, message) = up.updateUser(userJson=data)
 
                 elif path[0] == "geoserver":
                     from layed.gsconfig import GsConfig
@@ -346,6 +352,13 @@ class LayMan:
                             fm = FileMan()
                             fileName = name[8:]
                             (code, message) = fm.deleteFile(self._getTargetFile(path[-1]))
+
+                    # /user/<username>
+                    elif path[0] == "user" and len(path) == 2:
+                        userName = path[1]
+                        from userprefs import UserPrefs
+                        up = UserPrefs(config)
+                        (code, message) = up.updateUser(userName)
 
                     # /layed/<layer>?usergroup=FireBrigade
                     elif path[0] == "layed" and len(path) == 2:
