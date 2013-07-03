@@ -5,6 +5,7 @@
 
 Ext4.define('HSRS.LayerManager.PublishForm', {
 
+    requires: ["HSRS.LayerManager.PublishForm.LayersCombo"],
     extend: 'Ext4.form.Panel',
     groups: undefined,
     isFeatureType: false,
@@ -106,6 +107,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                         if (!this.up().isFeatureType) {
                             var publish_as = this.up().down("#publish_as");
                             publish_as.enable();
+                            publish_as.loadLayers(newValue);
                             if (publish_as.getValue()) {
                                 this.up().down("#publishing_set").enable();
                             }
@@ -122,120 +124,19 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
              * Either publish as new layer or update existing one
              */
             {
-                xtype: 'combobox',
-                disabled: (config.isFeatureType ? true : true),
+                xtype: "layerscombo",
                 name: 'publish_as',
+                url: config.url,
                 id:"publish_as",
+                disabled: (config.isFeatureType ? true : true),
                 anchor: '100%',
                 fieldLabel: 'Publish as',
                 value:"newlayer",
-                store: Ext4.create('Ext4.data.JsonStore', {
-                    //autoLoad: true,
-                    proxy: {
-                        type: "ajax",
-                        url: config.url,
-                        model: 'HSRS.LayerManager.LayersPanel.Model',
-                        reader: {
-                            type: "json" 
-                        }
-                    },
-                    listeners: {
-                        /* Add "new layer" to the beginning of values
-                         */
-                        load: function(store, records, ok, opts) {
-                            store.insert(0,[
-                                Ext4.create("HSRS.LayerManager.LayersPanel.Model",{
-                                    name:"newlayer",
-                                    title:"New layer"
-                                })
-
-                            ]);
-
-                            //  remove records from differenent group
-                            var group = this.form.down("#usergroup").getValue();
-
-                            var remove_records = [];
-                            for (var i = 0, ilen = records.length; i < ilen; i++) {
-
-                                if (records[i].get("workspace") != group){
-                                    remove_records.push(i);
-                                }
-                            }
-
-                            store.remove(remove_records);
-                        },
-                        scope: {form: this, val: config.group}
-                    }
-                }),
                 listeners: {
-                    scope: this,
-                    /* onvalue change -> existing layer is selected -> fill the
-                     * form with already given values
-                     */
-                    "change": function(combo, newValue, oldValue, eOpts){
-                        if (this._reseting) {
-                            return;
-                        }
-                        this.up().down("#publishing_set").enable();
-                        var ws = combo.up().down("#usergroup").getValue();
-                        var find_record = function(record, id) {
-                            if (record.get("workspace") == this.ws &&
-                                record.get("layerData").name == this.val) {
-                                return true;
-                            }
-                        };
-
-                        // find record
-                        var ridx = combo.store.findBy(find_record,
-                                {ws:ws,val:newValue});
-
-                        // record found, fill the form
-                        if (ridx > -1) {
-                            var record = combo.store.getAt(ridx);
-                            this.layer = record.get("layer");
-                            this.layerData = record.get("layerData");
-                            this.getForm().setValues({
-                                title: record.get("title"),
-                                abstract: this.layerData.abstract,
-                                keywords: this.layerData.keywords.string.join(","),
-                                metadataurl: this.layerData.metadataLinks.metadataLink[0].content,
-                                attribution_text: this.layer.attribution.title,
-                                attribution_link: this.layer.attribution.href,
-                                fileName: this.name,
-                                layerName: newValue
-                            });
-
-                            this.isFeatureType = true;
-                            this.down("#publish_button").setText("Update");
-                            this.url = config.url+newValue;
-                            this.down("#layerName").setValue(newValue);
-                        }
-                        // record not found -> new file to be published
-                        else {
-                            var vals = this.getForm().getValues();
-                            this.layer = undefined;
-                            this.layerData = undefined;
-                            this._reseting = true;
-                            this.getForm().reset();
-                            this.getForm().setValues({
-                                usergroup: vals.usergroup,
-                                publish_as: vals.publish_as,
-                                fileName: this.name,
-                                layerName: newValue
-                            });
-                            this._reseting = false;
-
-                            this.isFeatureType = false;
-                            this.down("#publish_button").setText("Publish");
-                            this.url = config.url;
-                            this.down("#layerName").setValue(newValue);
-                        }
-                    }
-                },
-                editable: false,
-                displayField: 'title',
-                valueField: 'name'
-            },            
+                    change: this._onLayerChangeHandler,
+                    scope: this
+                }
+            },
 
             /* Metadata fieldset
              */
@@ -496,6 +397,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
         }
 
     },
+
     /*
      * @private
      */
@@ -509,5 +411,69 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
      */
     _onCancelClicked: function() {
         this.fireEvent('canceled');
+    },
+
+    /**
+     * layer change handler
+     */
+    _onLayerChangeHandler: function(combo, newValue, oldValue, eOpts){
+        if (this._reseting) {
+            return;
+        }
+        this.down("#publishing_set").enable();
+        var ws = combo.up().down("#usergroup").getValue();
+        var find_record = function(record, id) {
+            if (record.get("workspace") == this.ws &&
+                record.get("layerData").name == this.val) {
+                return true;
+            }
+        };
+
+        // find record
+        var ridx = combo.store.findBy(find_record,
+                {ws:ws,val:newValue});
+
+        // record found, fill the form
+        if (ridx > -1) {
+            var record = combo.store.getAt(ridx);
+            this.layer = record.get("layer");
+            this.layerData = record.get("layerData");
+            this.up().getForm().setValues({
+                title: record.get("title"),
+                abstract: this.layerData.abstract,
+                keywords: this.layerData.keywords.string.join(","),
+                metadataurl: this.layerData.metadataLinks.metadataLink[0].content,
+                attribution_text: this.layer.attribution.title,
+                attribution_link: this.layer.attribution.href,
+                fileName: this.name,
+                layerName: newValue
+            });
+
+            this.isFeatureType = true;
+            this.up().down("#publish_button").setText("Update");
+            this.url = config.url+newValue;
+            this.down("#layerName").setValue(newValue);
+        }
+        // record not found -> new file to be published
+        else {
+            var vals = this.getForm().getValues();
+            this.layer = undefined;
+            this.layerData = undefined;
+            this._reseting = true;
+            this.getForm().reset();
+            this.getForm().setValues({
+                usergroup: vals.usergroup,
+                publish_as: vals.publish_as,
+                fileName: this.name,
+                layerName: newValue
+            });
+            this._reseting = false;
+
+            this.isFeatureType = false;
+            this.down("#publish_button").setText("Publish");
+            this.url = config.url;
+            this.down("#layerName").setValue(newValue);
+        }
     }
+
 });
