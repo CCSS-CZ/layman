@@ -440,11 +440,15 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
             var record = combo.store.getAt(ridx);
             this.layer = record.get("layer");
             this.layerData = record.get("layerData");
+            var metadataurl = "";
+            if (this.layerData.metadataLinks) {
+                metadataurl = this.layerData.metadataLinks.metadataLink[0].content;
+            }
             this.getForm().setValues({
                 title: record.get("title"),
                 abstract: this.layerData.abstract,
                 keywords: this.layerData.keywords.string.join(","),
-                metadataurl: this.layerData.metadataLinks.metadataLink[0].content,
+                metadataurl: metadataurl,
                 attribution_text: this.layer.attribution.title,
                 attribution_link: this.layer.attribution.href,
                 fileName: this.name,
