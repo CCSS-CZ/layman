@@ -22,4 +22,5 @@ user=admin
 password=geoserver
 gsdir=/data/geoserver/
 datadir=/data/geoserver/data_dir
+userpwd=crypt1:2DFyNWnqJIfUL0j8bGMUeA==
 #workspace=
