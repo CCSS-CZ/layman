@@ -13,9 +13,13 @@ class GsXml:
     """
 
     config = None
-    gsDir = None 
+    gsDir  = None 
     """ Path to geoserver directory, e.g. "/data/geoserver/"
     """
+    userPwd = None
+
+    # userGroupFile = None # File users.xml
+    # userGroupXml  = None # XML from users.xml
 
     def __init__(self,config = None):
         """constructor
@@ -23,6 +27,93 @@ class GsXml:
         self._setConfig(config)
 
         self.gsDir = self.config.get("GeoServer","gsdir")
+        self.userPwd = self.config.get("GeoServer","userpwd")
+
+    ### User Management ###
+
+    def createUserWithGroups(self, user, grouplist):
+        """ Create new user and assign provided groups 
+        Refuse, if user already exist. 
+        Create the groups, if they don't exist yet """
+
+        # Read UserGroup XML
+        ugPath = self.getUserGroupPath()
+        ugTree = Xml.parse(ugPath)
+        ugRoot = ugTree.getroot()
+
+        # Serach for the user
+        userElem = ugRoot.find("./users/user[@name='"+user+"']")
+        if (userElem):
+            return(409, "User "+user+" already exists")
+
+        # Create user and assign groups
+        # We don't check for already-assigned groups that may need to be unassigned
+        # as we expect to be creating a brand new user here
+        self._createUser(user, self.userPwd, ugRoot)
+        for gr in grouplist:
+            self._createGroup(gr, ugRoot)
+            self._assignGroupToUser(user, gr, ugRoot)
+
+        # Write
+        ugTree.write(ugPath)
+
+        return (201,"User created")
+
+    def _createUser(self, user, pwd, ugRoot):
+        """ Create user """
+        # users.xml:
+        # <user enabled="true" name="hasic1" password="crypt1:2DFyNWnqJIfUL0j8bGMUeA=="/>
+
+        userElem = Xml.Element("{http://www.geoserver.org/security/users}user", {"enabled":"true", "name":user, "password":pwd}) 
+        usersElem = ugRoot.find("./{http://www.geoserver.org/security/users}users")
+        usersElem.append(userElem)
+
+    def _createGroup(self, group, ugRoot):
+        """ Create group 
+        Do nothing, if it already exists """
+        # users.xml:
+        # <group enabled="true" name="hasici">
+        # </group>
+
+        # Search for the group
+        groupElem = ugRoot.find("./groups/group[@name='"+group+"']")
+        if groupElem: # if it is already there
+            return    # do nothing
+
+        # Create the group
+        groupElem = Xml.Element("{http://www.geoserver.org/security/users}group", {"enabled":"true", "name":group})
+        groupsElem = ugRoot.find("./{http://www.geoserver.org/security/users}groups")
+        groupsElem.append(groupElem)
+
+    def _assignGroupToUser(self, user, group, ugRoot):
+        """ Assign the group membership to the user
+        Do nothing, if it is already assigned """
+        # users.xml:
+        # <group enabled="true" name="hasici">
+        #    <member username="hasic1"/>
+        # </group>
+               
+        groupElem = ugRoot.find("./{http://www.geoserver.org/security/users}groups/{http://www.geoserver.org/security/users}group[@name='"+group+"']")
+        memberElem = groupElem.find("member[@username='"+user+"']")
+        if memberElem: # if the group is already assigned
+            return     # do nothing
+
+        memberElem = Xml.Element("{http://www.geoserver.org/security/users}member", {"username":user})
+        groupElem.append(memberElem)
+
+    def getUserGroupPath(self):
+        path = self.gsDir + "data/security/usergroup/default/users.xml"
+        return path
+
+    def gerRolePath(self):
+        path = self.gsDir + "data/security/role/default/roles.xml"
+        return path
+
+    def getSecurityPath(self):
+        path = self.gsDir + "data/security/layers.properties"
+        return path
+
+    ### Layer Style ###
 
     def setLayerStyle(self, layerWorkspace, dataStoreName, layerName, styleWorkspace, styleName):
         """ Set the default style of given layer.

@@ -10,6 +10,7 @@ import zipfile
 import web
 
 from layman.errors import LaymanError
+from layman.layed.gsxml import GsXml
 
 class UserPrefs:
     """User preferences manager of LayMan
@@ -34,14 +35,22 @@ class UserPrefs:
             from layman import config
             self.config =  config
 
-    def createUser(self, userJson):
+    def createUser(self, userJsonStr):
         """ Create user and assign group membership
-        userJson: {screenName: "user", roles: [{roleTitle, roleName}, {roleTitle, roleName}]}
+        userJsonStr: '{screenName: "user", roles: [{roleTitle, roleName}, {roleTitle, roleName}]}'
         return 409 Conflict if the user already exists
         """            
-        logging.debug("[UserPrefs][createUser] %s"% userJson)
-        # TODO
-        return (201,"User created")
+        logging.debug("[UserPrefs][createUser] %s"% userJsonStr)
+        
+        userJson = json.loads(userJsonStr)
+        user = userJson["screenName"]
+        grouplist = []
+        for g in userJson["roles"]:
+            grouplist.append(g["roleName"])
+
+        gsx = GsXml(self.config)
+        (code, message) = gsx.createUserWithGroups(user, grouplist)
+        return (code, message)
 
     def updateUser(self, userJson):
         """ Update user 
