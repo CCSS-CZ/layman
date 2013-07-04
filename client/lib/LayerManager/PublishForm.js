@@ -11,6 +11,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
     isFeatureType: false,
     featureType: undefined,
     layer: undefined,
+    _url: undefined,
 
     /**
      * @constructor
@@ -20,6 +21,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
         config.layout = 'anchor';
         config.frame = true;
         config.url = config.isFeatureType ? config.url+config.name : config.url;
+        this._url = config.url;
         config.buttons = [
             {
                 text: config.isFeatureType ? "Update" : 'Publish',
@@ -438,7 +440,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
             var record = combo.store.getAt(ridx);
             this.layer = record.get("layer");
             this.layerData = record.get("layerData");
-            this.up().getForm().setValues({
+            this.getForm().setValues({
                 title: record.get("title"),
                 abstract: this.layerData.abstract,
                 keywords: this.layerData.keywords.string.join(","),
@@ -450,8 +452,8 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
             });
 
             this.isFeatureType = true;
-            this.up().down("#publish_button").setText("Update");
-            this.url = config.url+newValue;
+            this.down("#publish_button").setText("Update");
+            this.url = this._url+newValue;
             this.down("#layerName").setValue(newValue);
         }
         // record not found -> new file to be published
@@ -471,7 +473,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
 
             this.isFeatureType = false;
             this.down("#publish_button").setText("Publish");
-            this.url = config.url;
+            this.url = this._url;
             this.down("#layerName").setValue(newValue);
         }
     }
