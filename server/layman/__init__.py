@@ -270,7 +270,7 @@ class LayMan:
 
                 # PUT /layman/user/
                 # data: {screenName: "user", roles: [{roleTitle, roleName}, {roleTitle, roleName}]}
-                elif name[0] == "user":
+                elif path[0] == "user":
                     from userprefs import UserPrefs
                     up = UserPrefs(config)
                     data = web.data()
