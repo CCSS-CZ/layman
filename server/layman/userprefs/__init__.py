@@ -52,19 +52,29 @@ class UserPrefs:
         (code, message) = gsx.createUserWithGroups(user, grouplist)
         return (code, message)
 
-    def updateUser(self, userJson):
+    def updateUser(self, userJsonStr):
         """ Update user 
         userJson: {screenName: "user", roles: [{roleTitle, roleName}, {roleTitle, roleName}]}
         if the user does not exist yet, create it.
         """                        
-        logging.debug("[UserPrefs][updateUser] %s"% userJson)
-        # TODO
-        return (200, "User updated")
+        logging.debug("[UserPrefs][updateUser] %s"% userJsonStr)
+
+        userJson = json.loads(userJsonStr)
+        user = userJson["screenName"]
+        grouplist = []
+        for g in userJson["roles"]:
+            grouplist.append(g["roleName"])
+
+        gsx = GsXml(self.config)
+        (code, message) = gsx.updateUserWithGroups(user, grouplist)
+        return (code, message)
 
     def deleteUser(self, userName):
         """ Delete user
         """    
         logging.debug("[UserPrefs][deleteUser] %s"% userName)
-        # TODO
-        return (200,"User deleted")
+
+        gsx = GsXml(self.config)
+        (code, message) = gsx.deleteUser(user)
+        return (code, message)
 

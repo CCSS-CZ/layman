@@ -30,7 +30,7 @@ class UserManTestCase(unittest.TestCase):
         up = UserPrefs(self.config)
 
         uj = {} # user json
-        uj["screenName"] = "Jacek"
+        uj["screenName"] = "Jarek"
         uj["roles"] = []
         r1 = {}
         r1["roleName"]  = "drvostep2"

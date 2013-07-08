@@ -275,7 +275,7 @@ class LayMan:
                     up = UserPrefs(config)
                     data = web.data()
                     logging.debug(data)
-                    (code, message) = up.updateUser(userJson=data)
+                    (code, message) = up.updateUser(userJsonStr=data)
 
                 elif path[0] == "geoserver":
                     from layed.gsconfig import GsConfig
