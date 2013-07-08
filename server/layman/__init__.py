@@ -204,7 +204,7 @@ class LayMan:
                         up = UserPrefs(config)
                         data = web.data()
                         logging.debug(data)
-                        (code, message) = up.createUser(userJson=data)
+                        (code, message) = up.createUser(userJsonStr=data)
 
                     # POST "http://localhost:8080/layman/layed?fileName=Rivers.shp&usergroup=RescueRangers"
                     elif name[0] == "layed":
