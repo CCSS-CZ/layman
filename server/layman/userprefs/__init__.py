@@ -75,6 +75,6 @@ class UserPrefs:
         logging.debug("[UserPrefs][deleteUser] %s"% userName)
 
         gsx = GsXml(self.config)
-        (code, message) = gsx.deleteUser(user)
+        (code, message) = gsx.deleteUser(userName)
         return (code, message)
 

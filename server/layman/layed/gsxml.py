@@ -119,7 +119,7 @@ class GsXml:
 
         # delete user 
         usersElem = ugRoot.find("./{http://www.geoserver.org/security/users}users")
-        usersElem.erase(userElem)
+        usersElem.remove(userElem)
 
         # Write
         ugTree.write(ugPath)

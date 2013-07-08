@@ -24,7 +24,7 @@ class UserManTestCase(unittest.TestCase):
         self.config = cfg
         self.gsdir = self.gsx.config.get("GeoServer", "gsdir")
 
-    def test_createUserWithGroups(self):
+    def test_Users(self):
         
         from layman.userprefs import UserPrefs
         up = UserPrefs(self.config)
@@ -33,7 +33,7 @@ class UserManTestCase(unittest.TestCase):
         uj["screenName"] = "Jarek"
         uj["roles"] = []
         r1 = {}
-        r1["roleName"]  = "drvostep2"
+        r1["roleName"]  = "drvostep44"
         r1["roleTitle"] = "Dr.Vostep"
         uj["roles"].append(r1)
         r2 = {}
@@ -42,7 +42,8 @@ class UserManTestCase(unittest.TestCase):
         uj["roles"].append(r2)
         userJsonStr = json.dumps(uj)
         
-        up.createUser(userJsonStr)
+        #up.updateUser(userJsonStr)
+        up.deleteUser("Jacek")
 
 
 if __name__ == "__main__":
