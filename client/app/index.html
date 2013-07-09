@@ -5,6 +5,7 @@
         <script type="text/javascript" src="/wwwlibs/hslayers/build/OpenLayers-debug.js"></script>
         <script type="text/javascript" src="/wwwlibs/proj4js/proj4js.js"></script>
         <script type="text/javascript" src="../lib/HSRS.js"></script>
+        <link rel="stylesheet" type="text/css" href="../lib/layman.css" />
         <title>Data man application</title>
         <script type="text/javascript">
             Ext4.Loader.setConfig({
@@ -24,7 +25,7 @@
             Ext4.onReady(function() {
                 lm = Ext4.create("HSRS.LayerManager",{
                     url: "/cgi-bin/layman/layman/",
-                    height: 200,
+                    height: "100%",
                     renderTo: "data"
                 });
 
