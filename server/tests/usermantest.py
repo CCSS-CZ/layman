@@ -37,13 +37,14 @@ class UserManTestCase(unittest.TestCase):
         r1["roleTitle"] = "Dr.Vostep"
         uj["roles"].append(r1)
         r2 = {}
-        r2["roleName"]  = "pijan2"
-        r2["roleTitle"] = "Dr.Inker"
+        r2["roleName"]  = "Hodinar"
+        r2["roleTitle"] = "Josef"
         uj["roles"].append(r2)
         userJsonStr = json.dumps(uj)
         
+        up.createUser(userJsonStr) 
         #up.updateUser(userJsonStr)
-        up.deleteUser("Jacek")
+        #up.deleteUser("Jarek")
 
 
 if __name__ == "__main__":

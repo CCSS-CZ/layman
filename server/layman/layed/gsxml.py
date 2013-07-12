@@ -45,7 +45,7 @@ class GsXml:
         ugRoot = ugTree.getroot()
 
         # Serach for the user
-        userElem = ugRoot.find("./{http://www.geoserver.org/security/users}users/{http://www.geoserver.org/security/users}user[@name='"+user+"']")
+        userElem = ugRoot.find("./{http://www.geoserver.org/security/users}users/user[@name='"+user+"']")
         if (userElem):
             return(409, "User "+user+" already exists")
 
@@ -74,25 +74,44 @@ class GsXml:
 
         # Serach for the user
         userElem = ugRoot.find("./{http://www.geoserver.org/security/users}users/{http://www.geoserver.org/security/users}user[@name='"+user+"']")
-        if (not userElem):
+
+        if (userElem is None):
+            #print "USER NOT FOUND"
             return self.createUserWithGroups(user, grouplist)
 
+        #print "USER FOUND"
         # The user does exist, update it
         # Check every group in GS and check for changes
+
+        newGroups = grouplist
+
         groupElems = ugRoot.findall("./{http://www.geoserver.org/security/users}groups/{http://www.geoserver.org/security/users}group")
         for grEl in groupElems:
+
+            #print repr(grEl) + "\n"
 
             wasMember = grEl.find("{http://www.geoserver.org/security/users}member[@username='"+user+"']") is not None 
             groupName = grEl.attrib["name"]
             isMember  = groupName in grouplist
 
+            if isMember:
+                newGroups.remove(groupName)
+            #print "group name: " + groupName + "\n"
+
             if wasMember and not isMember:
+                #print "byl a neni: " + groupName + "\n"
                 self._removeGroupFromUser(user, groupName, ugRoot)
 
             elif not wasMember and isMember:
+                #print "nebyl a je: " + groupName + "\n"
                 self._assignGroupToUser(user, groupName, ugRoot)
 
             # otherwise leave unchanged
+
+        # Create and assign new groups
+        for gr in newGroups:
+            self._createGroup(gr, ugRoot)
+            self._assignGroupToUser(user, gr, ugRoot)
 
         # Write
         ugTree.write(ugPath)
@@ -109,14 +128,18 @@ class GsXml:
         ugRoot = ugTree.getroot()
 
         # Serach for the user
-        userElem = ugRoot.find("./{http://www.geoserver.org/security/users}users/{http://www.geoserver.org/security/users}user[@name='"+user+"']")
+        xPath = "./{http://www.geoserver.org/security/users}users/{http://www.geoserver.org/security/users}user[@name='"+user+"']"
+        userElem = ugRoot.find(xPath)
+        #print "xPath: " + repr(xPath)
+        #print "userElem: " + repr(userElem)
 
         # erase group membership
-        membeership = ugRoot.find("./{http://www.geoserver.org/security/users}groups/{http://www.geoserver.org/security/users}group/{http://www.geoserver.org/security/users}member[@username='"+user+"']")
-        for ms in membeership:
-            parent = ms.find("..")
-            parent.erase(ms)
-
+        groupElems = ugRoot.findall("./{http://www.geoserver.org/security/users}groups/{http://www.geoserver.org/security/users}group")
+        for grEl in groupElems:
+            memberElem = grEl.find("{http://www.geoserver.org/security/users}member[@username='"+user+"']") 
+            if memberElem is not None:  
+                grEl.remove(memberElem)
+        
         # delete user 
         usersElem = ugRoot.find("./{http://www.geoserver.org/security/users}users")
         usersElem.remove(userElem)
@@ -143,8 +166,9 @@ class GsXml:
         # </group>
 
         # Search for the group
-        groupElem = ugRoot.find("./groups/group[@name='"+group+"']")
-        if groupElem: # if it is already there
+        groupElem = ugRoot.find("./{http://www.geoserver.org/security/users}groups/{http://www.geoserver.org/security/users}group[@name='"+group+"']")
+        #print "group elem: " + repr(groupElem)
+        if groupElem is not None: # if it is already there
             return    # do nothing
 
         # Create the group
@@ -162,7 +186,7 @@ class GsXml:
                
         groupElem = ugRoot.find("./{http://www.geoserver.org/security/users}groups/{http://www.geoserver.org/security/users}group[@name='"+group+"']")
         memberElem = groupElem.find("{http://www.geoserver.org/security/users}member[@username='"+user+"']")
-        if memberElem: # if the group is already assigned
+        if memberElem is not None: # if the group is already assigned
             return     # do nothing
 
         memberElem = Xml.Element("{http://www.geoserver.org/security/users}member", {"username":user})
@@ -172,11 +196,17 @@ class GsXml:
         """ Remove group membership """
 
         groupElem = ugRoot.find("./{http://www.geoserver.org/security/users}groups/{http://www.geoserver.org/security/users}group[@name='"+group+"']")
-        if groupElem:
-            memberElem = groupElem.find("member[@username='"+user+"']")
+        if groupElem is not None:
+            #print "nasel grupu"
+            memberElem = groupElem.find("{http://www.geoserver.org/security/users}member[@username='"+user+"']")
 
-            if memberElem:
+            if memberElem is not None:
+                #print "nasel membra"
                 groupElem.remove(memberElem)            
+            #else:
+            #    print "nenasel membra"
+        #else:
+        #    print "nenasel grupu"
 
     def getUserGroupPath(self):
         path = self.gsDir + "data/security/usergroup/default/users.xml"
