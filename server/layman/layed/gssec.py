@@ -14,7 +14,7 @@ class GsSec:
     """ Path to geoserver directory, e.g. "/data/geoserver/"
     """
 
-    laySec = None 
+    laySec = {} 
     """ Layer security. Representation of the content of the layers.properties file.
     A dictionary is organised into the structure of a tree:
     Levels: workspace, layer, right. 
@@ -30,6 +30,7 @@ class GsSec:
         # Read the file layer.properties into self.laySec
         self.readLayerProp()
 
+
     ### Read/Write ###
 
     def readLayerProp(self):
@@ -37,7 +38,7 @@ class GsSec:
         """
         # TODO: Handle and preserve comments
 
-        with open(self.getLayerPropPath, "r") as f:
+        with open(self.getLayerPropPath(), "r") as f:
             for line in f:
 
                 # cut off comments
@@ -58,11 +59,11 @@ class GsSec:
                 if len(splitEq) < 2: 
                     continue
 
-                splitDot = splitEq[0](".")
+                splitDot = splitEq[0].split(".")
                 if len(splitDot) < 3:
                     continue
 
-                splitCom = splitEq[1](",")
+                splitCom = splitEq[1].split(",")
                 if len(splitCom) < 1:
                     continue
         
@@ -74,6 +75,8 @@ class GsSec:
                 right = splitDot[2]
                 rolelist = splitCom
 
+                print "orig rule: ws=" + ws + " layer=" + layer +" right=" + right +" rolelist=" + repr(rolelist)
+
                 # set the rule
                 self.setRule(ws, layer, right, rolelist)
 
@@ -82,13 +85,14 @@ class GsSec:
         """
         # TODO: Handle and preserve comments
 
-        with open(self.getLayerPropPath, "w") as f:
+        with open(self.getLayerPropPath(), "w") as f:
         
-            for (ws, val1) in self.laySec:
-                for (layer, val2) in val1:          # val1 - laySec[ws]
-                    for (right, rolelist) in val2:  # val2 - laySec[ws][layer]
+            for (ws, val1) in self.laySec.iteritems():
+                for (layer, val2) in val1.iteritems():          # val1 - laySec[ws]
+                    for (right, rolelist) in val2.iteritems():  # val2 - laySec[ws][layer]
 
-                        rule = ws+'.'+layer+'.'+right + '=' + ','.join() + '\n'
+                        rule = ws+'.'+layer+'.'+right + '=' + ','.join(rolelist) + '\n'
+                        print "rule: " + rule
                         f.write(rule)
 
         # the file should be automatically closed here
@@ -100,7 +104,7 @@ class GsSec:
     
         if ws not in self.laySec:
             self.laySec[ws] = {}
-        if layer not in self.laySec[ws]
+        if layer not in self.laySec[ws]:
             self.laySec[ws][layer] = {}
 
         self.laySec[ws][layer][right] = rolelist
@@ -122,7 +126,7 @@ class GsSec:
         else:
             return None
 
-        # TODO: This ^ does not take into acount the '*' settings - wrong!
+        # TODO: This ^ does not take into acount the '*' settings - WRONG!!!
 
     ### Syntactic sugar ###
 
