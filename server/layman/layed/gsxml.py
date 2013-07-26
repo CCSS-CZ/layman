@@ -29,7 +29,7 @@ class GsXml:
         self.gsDir = self.config.get("GeoServer","gsdir")
         self.userPwd = self.config.get("GeoServer","userpwd")
 
-    ### User Management ###
+    ### USERS & GROUPS ###
 
     #TODO: Get rid of the hardcoded namespaces
     # try Xml.register_namespace() and also the Xml.write(default_namespace=...)
@@ -159,22 +159,20 @@ class GsXml:
         usersElem.append(userElem)
 
     def _createGroup(self, group, ugRoot):
-        """ Create group 
-        Do nothing, if it already exists """
-        # users.xml:
-        # <group enabled="true" name="hasici">
-        # </group>
+        """ Create group. 
+        Create also the basic group role and assign it to the group.
+        If the group exists, do not re-create, but make sure that the group role does exist and is properly assigned. """
 
         # Search for the group
         groupElem = ugRoot.find("./{http://www.geoserver.org/security/users}groups/{http://www.geoserver.org/security/users}group[@name='"+group+"']")
-        #print "group elem: " + repr(groupElem)
-        if groupElem is not None: # if it is already there
-            return    # do nothing
+        if groupElem is None: 
+            # Create the group
+            groupElem = Xml.Element("{http://www.geoserver.org/security/users}group", {"enabled":"true", "name":group})
+            groupsElem = ugRoot.find("./{http://www.geoserver.org/security/users}groups")
+            groupsElem.append(groupElem)
 
-        # Create the group
-        groupElem = Xml.Element("{http://www.geoserver.org/security/users}group", {"enabled":"true", "name":group})
-        groupsElem = ugRoot.find("./{http://www.geoserver.org/security/users}groups")
-        groupsElem.append(groupElem)
+        # Create and assign the group role
+        self.createGroupRole(group)
 
     def _assignGroupToUser(self, user, group, ugRoot):
         """ Assign the group membership to the user
@@ -212,15 +210,60 @@ class GsXml:
         path = self.gsDir + "data/security/usergroup/default/users.xml"
         return path
 
-    def gerRolePath(self):
+    ### ROLES ###
+
+    def createGroupRole(self, group):
+        """ Create ROLE_<groupname> role and assign it to the group 
+        """
+        # Read Roles XML
+        rrPath = self.getRolesPath()
+        rrTree = Xml.parse(rrPath)
+        rrRoot = rrTree.getroot()
+
+        # Role name
+        role = "ROLE_" + group
+
+        # Create role and assign it to the group
+        self._createRole(role, rrRoot)
+        self._assignRoleToGroup(group, role, rrRoot)
+
+        # Write
+        rrTree.write(rrPath)
+
+    def _createRole(self, role, rrRoot):
+        """ Create Role. If exists, do nothing. """
+
+        # Check for the role
+        roleElem = rrRoot.find("./{http://www.geoserver.org/security/roles}roleList/{http://www.geoserver.org/security/roles}role[@id='"+role+"']")
+        if roleElem is None:
+            # Create the role
+            roleElem     = Xml.Element("{http://www.geoserver.org/security/roles}role", {"id":role}) 
+            roleListElem = rrRoot.find("./{http://www.geoserver.org/security/roles}roleList")
+            roleListElem.append(roleElem)       
+
+    def _assignRoleToGroup(self, group, role, rrRoot):
+        """ Assign role to group. If already assigned, do nothing. """
+
+        # Check the group record
+        groupRolesElem = rrRoot.find("./{http://www.geoserver.org/security/roles}groupList/{http://www.geoserver.org/security/roles}groupRoles[@groupname='"+group+"']")
+        if groupRolesElem is None:
+            # Create the group record
+            groupRolesElem = Xml.Element("{http://www.geoserver.org/security/roles}groupRoles", {"groupname":group})
+            groupListElem  = rrRoot.find("./{http://www.geoserver.org/security/roles}groupList")
+            groupListElem.append(groupRolesElem)
+
+        # Check if the role is already assigned
+        roleRefElem = groupRolesElem.find("./{http://www.geoserver.org/security/roles}roleRef[@roleID='"+role+"']")
+        if roleRefElem is None:
+            # Assign the role
+            roleRefElem = Xml.Element("{http://www.geoserver.org/security/roles}roleRef", {"roleID":role})
+            groupRolesElem.append(roleRefElem)
+
+    def getRolesPath(self):
         path = self.gsDir + "data/security/role/default/roles.xml"
         return path
 
-    def getSecurityPath(self):
-        path = self.gsDir + "data/security/layers.properties"
-        return path
-
-    ### Layer Style ###
+    ### LAYER STYLE ###
 
     def setLayerStyle(self, layerWorkspace, dataStoreName, layerName, styleWorkspace, styleName):
         """ Set the default style of given layer.

@@ -132,7 +132,8 @@ class GsSec:
 
     def secureWorkspace(self, ws, rolelist):
         """ Sets read, write and admin rights.
-        Does not affect rules for particular layers that may already exist """
+        Overwrites whatever may be already there for the entire workspace.
+        Does not affect rules for particular layers of the workspace. """
         self.setRule(ws, "*", "r", rolelist)
         self.setRule(ws, "*", "w", rolelist)
         self.setRule(ws, "*", "a", rolelist)

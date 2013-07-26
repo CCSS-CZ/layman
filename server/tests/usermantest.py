@@ -30,20 +30,20 @@ class UserManTestCase(unittest.TestCase):
         up = UserPrefs(self.config)
 
         uj = {} # user json
-        uj["screenName"] = "Jarek"
+        uj["screenName"] = "Tomanek"
         uj["roles"] = []
         r1 = {}
-        r1["roleName"]  = "drvostep44"
-        r1["roleTitle"] = "Dr.Vostep"
+        r1["roleName"]  = "huslista"
+        r1["roleTitle"] = "hudlar"
         uj["roles"].append(r1)
         r2 = {}
         r2["roleName"]  = "Hodinar"
-        r2["roleTitle"] = "Josef"
+        r2["roleTitle"] = "Stoura"
         uj["roles"].append(r2)
         userJsonStr = json.dumps(uj)
         
-        up.createUser(userJsonStr) 
-        #up.updateUser(userJsonStr)
+        #up.createUser(userJsonStr) 
+        up.updateUser(userJsonStr)
         #up.deleteUser("Jarek")
 
 
