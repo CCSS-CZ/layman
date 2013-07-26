@@ -33,7 +33,7 @@ class UserManTestCase(unittest.TestCase):
         uj["screenName"] = "Tomanek"
         uj["roles"] = []
         r1 = {}
-        r1["roleName"]  = "huslista"
+        r1["roleName"]  = "hasici"
         r1["roleTitle"] = "hudlar"
         uj["roles"].append(r1)
         r2 = {}

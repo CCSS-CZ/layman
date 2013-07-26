@@ -75,7 +75,7 @@ class GsSec:
                 right = splitDot[2]
                 rolelist = splitCom
 
-                print "orig rule: ws=" + ws + " layer=" + layer +" right=" + right +" rolelist=" + repr(rolelist)
+                # print "orig rule: ws=" + ws + " layer=" + layer +" right=" + right +" rolelist=" + repr(rolelist)
 
                 # set the rule
                 self.setRule(ws, layer, right, rolelist)
@@ -92,7 +92,7 @@ class GsSec:
                     for (right, rolelist) in val2.iteritems():  # val2 - laySec[ws][layer]
 
                         rule = ws+'.'+layer+'.'+right + '=' + ','.join(rolelist) + '\n'
-                        print "rule: " + rule
+                        # print "rule: " + rule
                         f.write(rule)
 
         # the file should be automatically closed here

@@ -161,18 +161,28 @@ class GsXml:
     def _createGroup(self, group, ugRoot):
         """ Create group. 
         Create also the basic group role and assign it to the group.
-        If the group exists, do not re-create, but make sure that the group role does exist and is properly assigned. """
+        Secure the corresponding workspace for this group.
+        If the group already exists, make sure that the group role does exist and is properly assigned. But don't touch the workspace security settings."""
 
         # Search for the group
         groupElem = ugRoot.find("./{http://www.geoserver.org/security/users}groups/{http://www.geoserver.org/security/users}group[@name='"+group+"']")
+        brandNew = False
         if groupElem is None: 
             # Create the group
             groupElem = Xml.Element("{http://www.geoserver.org/security/users}group", {"enabled":"true", "name":group})
             groupsElem = ugRoot.find("./{http://www.geoserver.org/security/users}groups")
             groupsElem.append(groupElem)
+            brandNew = True
 
         # Create and assign the group role
-        self.createGroupRole(group)
+        role = self.createGroupRole(group)
+
+        # If the group was newly created, secure the corresponding workspace
+        if brandNew:
+            from layman.layed.gssec import GsSec
+            gss = GsSec(self.config)
+            gss.secureWorkspace(ws=group, rolelist=[role])
+            gss.writeLayerProp()            
 
     def _assignGroupToUser(self, user, group, ugRoot):
         """ Assign the group membership to the user
@@ -213,7 +223,8 @@ class GsXml:
     ### ROLES ###
 
     def createGroupRole(self, group):
-        """ Create ROLE_<groupname> role and assign it to the group 
+        """ Create ROLE_<groupname> role and assign it to the group. 
+        Returns role name.
         """
         # Read Roles XML
         rrPath = self.getRolesPath()
@@ -229,6 +240,8 @@ class GsXml:
 
         # Write
         rrTree.write(rrPath)
+
+        return role
 
     def _createRole(self, role, rrRoot):
         """ Create Role. If exists, do nothing. """
