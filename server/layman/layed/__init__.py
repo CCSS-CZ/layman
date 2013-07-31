@@ -43,9 +43,8 @@ class LayEd:
 
     ### LAYERS ###
 
-    def publishFromFile(self, fsDir, dbSchema, gsWorkspace, fileName):
-        """ Publish from file with GS Config
-            Group ~ db Schema ~ gs Data Store ~ gs Workspace
+    def publishFromFileToGs(self, fsDir, gsWorkspace, fileName):
+        """ Publish from file to GeoServer with GS Config
         """
         # /path/to/file.shp
         filePath = os.path.realpath( os.path.join( fsDir,fileName) )
