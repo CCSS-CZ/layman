@@ -100,7 +100,7 @@ Ext4.define('HSRS.LayerManager.FilesPanel.FileUploader', {
         var values = form.getValues();
 
         // make sure, file name does not exist yet
-        var filename = values.newfilename || this.items.get(1).value.replace('C:\\fakepath\\', '');
+        var filename = values.newfilename || this.items.get(0).value.replace('C:\\fakepath\\', '');
 
         if (this.filesnames.indexOf(filename) > -1 ||
             this.filesnames.indexOf(filename + '.shp') > -1) {
