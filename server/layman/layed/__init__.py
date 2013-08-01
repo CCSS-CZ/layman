@@ -187,7 +187,9 @@ class LayEd:
         logging.info("[LayEd][publish] in workspace '%s'" % gsWorkspace)
 
         # FIXME: return resource URI
-        return (201, "Layer published")
+        code = 201
+        message = "Layer published: " + layerName
+        return (code, message)
 
     def publishRasterToGs(self, filePath, gsWorkspace, ds, name, srs=None, data=None):
         """ Publish raster files in GeoServer.
