@@ -509,7 +509,7 @@ class LayEd:
         return layerName
 
     def updateLayerAttribution(self, workspace, layerName, data=None):
-        if data is None return
+        if data is None: return
         doSt = False
 
         layerStr = None
@@ -528,7 +528,7 @@ class LayEd:
             layerJson["layer"]["attribution"]["href"] = data.attribution_link
             doSt = True
     
-        if not doSt return
+        if not doSt: return
 
         layerStr = json.dumps(layerJson)
 
