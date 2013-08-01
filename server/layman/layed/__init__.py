@@ -122,7 +122,7 @@ class LayEd:
             tableName = self.importFromFileToDb(filePath, dbSchema)
 
             # Publish from PostGIS to GeoServer
-            (code, message) = self.publishFromDbToGs(dbSchema, tableName, gsWorkspace, srs, data)
+            (code, layerName, message) = self.publishFromDbToGs(dbSchema, tableName, gsWorkspace, srs, data)
 
         else:
             from osgeo import gdal
@@ -133,12 +133,12 @@ class LayEd:
                 data_type = "raster"
 
                 # Publish from raster file to GeoServer
-                (code, message) = self.publishRasterToGs(filePath, gsWorkspace, ds, fileNameNoExt, srs, data)
+                (code, layerName, message) = self.publishRasterToGs(filePath, gsWorkspace, ds, fileNameNoExt, srs, data)
 
         if not data_type:
             raise LaymanError(500, "Data type (raster or vector) not recognized")
 
-        return (code, message)
+        return (code, layerName, message)
 
     def importFromFileToDb(self, filePath, dbSchema):
         """ Import data from vector file to PostreSQL 
@@ -218,7 +218,7 @@ class LayEd:
         logging.info("[LayEd][publish] in workspace '%s'" % gsWorkspace)
 
         # FIXME: return uri of created resource in locatiuon header
-        return (201, "Layer published")
+        return (201, layerName, "Layer published")
 
     def updateRasterFile(self, gsworkspace, filePath):
         """Just copy raster file to target directory
