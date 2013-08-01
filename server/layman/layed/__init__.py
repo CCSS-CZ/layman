@@ -140,7 +140,7 @@ class LayEd:
 
         return (code, message)
 
-    def importFromFileToDb(filePath, dbSchema):
+    def importFromFileToDb(self, filePath, dbSchema):
         """ Import data from vector file to PostreSQL 
         """
         logParam = "filePath=%s dbSchema=%s" %\
