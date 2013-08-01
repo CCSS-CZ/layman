@@ -224,6 +224,28 @@ class LayMan:
                                                      dbSchema, gsWorkspace,
                                                      fileName, crs, inpt)
 
+                    elif name[0] == "publish":
+                        from layed import LayEd
+                        le = LayEd(config)
+                        inpt = web.input()
+
+                        if not inpt.schema:
+                            raise LaymanError(
+                                400, "'schema' parameter missing")
+                        if not inpt.view:
+                            raise LaymanError(
+                                400, "'view' parameter missing")
+                        if not inpt.crs:
+                            raise LaymanError(
+                                400, "'crs' parameter missing")
+
+                        viewName = inpt.view
+                        dbSchema = self.auth.getDBSchema(inpt.schema)
+                        gsWorkspace = self.auth.getGSWorkspace(inpt.schema)
+                        crs = inpt.crs
+                        (code, message) = le.publishFromDbToGs(dbSchema, viewName, 
+                                                            gsWorkspace, crs, inpt)
+
                     else:
                         (code, message) = self._callNotSupported(restMethod="POST",
                                                                  call=origName)
