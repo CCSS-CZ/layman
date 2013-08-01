@@ -220,7 +220,7 @@ class LayMan:
                         dbSchema = self.auth.getDBSchema(inpt.usergroup)
                         gsWorkspace = self.auth.getGSWorkspace(inpt.usergroup)
                         crs = inpt.crs
-                        (code, message) = le.publish(fsUserDir, fsGroupDir,
+                        (code, message) = le.importAndPublish(fsUserDir, fsGroupDir,
                                                      dbSchema, gsWorkspace,
                                                      fileName, crs, inpt)
 

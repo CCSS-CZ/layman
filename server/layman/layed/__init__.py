@@ -78,16 +78,21 @@ class LayEd:
 
         return self.createStyleForLayer(workspace=gsWorkspace, dataStore=fileNameNoExt, layerName=fileNameNoExt)
 
-    def publish(self, fsUserDir, fsGroupDir, dbSchema, gsWorkspace, fileName,srs=None,data=None):
-        """ Main publishing function. Import to PostreSQL and publish in GeoServer.
+    def importAndPublish(self, fsUserDir, fsGroupDir, dbSchema, gsWorkspace, fileName, srs=None, data=None):
+        """ Main publishing function. 
+        Vectors import to PostreSQL and publish in GeoServer. 
+        Rasters publish from file to GeoServer.
             Group ~ db Schema ~ gs Data Store ~ gs Workspace
         """
         logParam = "fsUserDir=%s fsGroupDir=%s dbSchema=%s gsWorkspace=%s fileName=%s" %\
                    (fsUserDir, fsGroupDir, dbSchema, gsWorkspace, fileName)
-        logging.debug("[LayEd][publish] Params: %s"% logParam)
+        logging.debug("[LayEd][importAndPublish] Params: %s"% logParam)
+
+        code = 500
+        message = "Strange - message was not set"
 
         # /path/to/file.shp
-        filePath = os.path.realpath( os.path.join( fsUserDir,fileName) )
+        filePath = os.path.realpath( os.path.join(fsUserDir,fileName) )
 
         # /path/to/file
         filePathNoExt = os.path.splitext(filePath)[0]
@@ -95,75 +100,123 @@ class LayEd:
         # file
         fileNameNoExt = os.path.splitext(fileName)[0].lower()
 
-        # Check the GS workspace and create it if it does not exist
-        self.createWorkspaceIfNotExists(gsWorkspace)
+        if not srs:
+            # Identify the SRS
+            from layman.fileman import FileMan
+            fm = FileMan(self.config)
+            gisAttribs = fm.get_gis_attributes(filePath, {})
+            srs = gisAttribs["prj"]
+            logging.debug("[LayEd][importAndPublish] Detected SRS: %s" % srs)
+            # TODO: check success
 
-        # Here the Workspace should exist
-
-        # check for data type
+        # Identify the data type
         data_type = None
         from osgeo import ogr
         ds = ogr.Open(filePath)
 
-        # VECTOR
+        # Vector
         if ds:
-
-            # Import to DB
-            from layman.layed.dbman import DbMan
-            dbm = DbMan(self.config)
-
-            tableName = dbm.importVectorFile(filePath, dbSchema)
-
-            # Check the GS data store and create it if it does not exist
-            self.createVectorDataStoreIfNotExists(dbSchema, gsWorkspace)
             data_type = "vector"
 
-        # RASTER
+            # Import vector to PostGIS
+            tableName = self.importFromFileToDb(filePath, dbSchema)
+
+            # Publish from PostGIS to GeoServer
+            (code, message) = self.publishFromDbToGs(dbSchema, tableName, gsWorkspace, srs, data)
+
         else:
             from osgeo import gdal
             ds = gdal.Open(filePath)
+
+            # Raster
             if ds:
-                self.createRasterDataStoreIfNotExists(ds, fileNameNoExt,
-                                                      gsWorkspace, filePath)
                 data_type = "raster"
+
+                # Publish from raster file to GeoServer
+                (code, message) = self.publishRasterToGs(filePath, gsWorkspace, ds, fileNameNoExt, srs, data)
 
         if not data_type:
             raise LaymanError(500, "Data type (raster or vector) not recognized")
 
-        # TODO: check the result
-        logging.info("[LayEd][publish] Imported file '%s'" % filePath)
-        logging.info("[LayEd][publish] in schema '%s'" % dbSchema)
+        return (code, message)
 
-        # SRS
-        from layman.fileman import FileMan
-        fm = FileMan(self.config)
-        if not srs:
-            gisAttribs = fm.get_gis_attributes(filePath, {})
-            srs = gisAttribs["prj"]
-        logging.debug("[LayEd][publish] SRS: %s" % srs)
+    def importFromFileToDb(filePath, dbSchema):
+        """ Import data from vector file to PostreSQL 
+        """
+        logParam = "filePath=%s dbSchema=%s" %\
+                   (filePath, dbSchema)
+        logging.debug("[LayEd][importFromFileToDb] Params: %s"% logParam)
+
+        # Import to DB
+        from layman.layed.dbman import DbMan
+        dbm = DbMan(self.config)
+
+        tableName = dbm.importVectorFile(filePath, dbSchema)
+
+        # TODO: check the result
+        logging.info("[LayEd][importFromFileToDb] Imported file '%s'" % filePath)
+        logging.info("[LayEd][importFromFileToDb] in schema '%s'" % dbSchema)
+
+        return tableName
+
+    def publishFromDbToGs(self, dbSchema, tableName, gsWorkspace, srs=None, data=None):
+        """ Publish vector data from PostGIS to GeoServer.
+            A name of a view can be used as a tableName as well.
+        """
+        logParam = "dbSchema=%s tableName=%s gsWorkspace=%s srs=%s" %\
+                   (dbSchema, tableName, gsWorkspace, srs)
+        logging.debug("[LayEd][publish] Params: %s"% logParam)
+
+        # Check the GS workspace and create it if it does not exist
+        self.createWorkspaceIfNotExists(gsWorkspace)
+
+        # Check the GS data store and create it if it does not exist
+        dataStore = self.createVectorDataStoreIfNotExists(dbSchema, gsWorkspace)
 
         # Publish from DB to GS
-        if data_type == "vector":
-            self.createFtFromDb(workspace=gsWorkspace, dataStore=dbSchema,
-                                layerName=tableName, srs=srs, data=data)
-            # Create and assgin new style
-            self.createStyleForLayer(workspace=gsWorkspace,
-                                     dataStore=dbSchema,
-                                     layerName=tableName)
-            # TODO: check the result
-            logging.info("[LayEd][publish] Published layer '%s'" %
-                         tableName)
-        elif data_type == "raster":
-            self.createCoverageFromFile(gsworkspace=gsWorkspace,
-                                        store=fileNameNoExt,
-                                        name=fileNameNoExt,
-                                        srs=srs, data=data)
-            logging.info("[LayEd][publish] Published layer '%s'" %
-                         fileNameNoExt)
+        layerName = self.createFtFromDb(gsWorkspace, dataStore, tableName, srs, data)
 
-        # TODO: check the result
+        # Set attribution of the layer
+        self.updateLayerAttribution(gsWorkspace, layerName, data)
+
+        # Create and assgin new style
+        # FIXME: allow client to specify the style
+        self.createStyleForLayer(gsWorkspace, dataStore, layerName)
+
+        logging.info("[LayEd][publish] Published layer '%s'" % layerName)
         logging.info("[LayEd][publish] in workspace '%s'" % gsWorkspace)
 
+        # FIXME: return resource URI
+        return (201, "Layer published")
+
+    def publishRasterToGs(self, filePath, gsWorkspace, ds, name, srs=None, data=None):
+        """ Publish raster files in GeoServer.
+        """
+        logParam = "filePath=%s gsWorkspace=%s ds=%s name=%s srs=%s" %\
+                   (filePath gsWorkspace, ds, name, srs)
+        logging.debug("[LayEd][publish] Params: %s"% logParam)
+
+        # Check the GS workspace and create it if it does not exist
+        self.createWorkspaceIfNotExists(gsWorkspace)
+
+        # Check the GS data store and create it if it does not exist
+        self.createRasterDataStoreIfNotExists(ds, name, gsWorkspace, filePath)
+        #def createRasterDataStoreIfNotExists(self, ds, name, gsworkspace, filePath):
+
+        # Publish from raster file to GS
+        layerName = self.createCoverageFromFile(gsworkspace=gsWorkspace,
+                                                   store=name,
+                                                   name=name,
+                                                   srs=srs, data=data)
+
+        # Set attribution of the layer
+        self.updateLayerAttribution(gsWorkspace, layerName, data)
+
+        # TODO: check the result
+        logging.info("[LayEd][publish] Published layer '%s'" % name)
+        logging.info("[LayEd][publish] in workspace '%s'" % gsWorkspace)
+
+        # FIXME: return uri of created resource in locatiuon header
         return (201, "Layer published")
 
     def updateRasterFile(self, gsworkspace, filePath):
@@ -176,8 +229,7 @@ class LayEd:
         logging.debug("[LayEd][updateRasterFile]: File %s updated to %s" %
                       (filePath, ws_data_dir))
 
-    def createRasterDataStoreIfNotExists(self, ds, name, gsworkspace,
-                                         filePath):
+    def createRasterDataStoreIfNotExists(self, ds, name, gsworkspace, filePath):
         """Import raster file to geoserver
         """
 
@@ -267,7 +319,11 @@ class LayEd:
             headStr = str(head)
             message = "LayEd: createCoverageFromFile(): Cannot create FeatureType " + ftStr + ". Geoserver replied with " + headStr + " and said " + cont
             raise LaymanError(500, message)
-        return (head, cont)
+
+        # FIXME: return layer name from location header       
+        layerName = name
+
+        return layerName
 
 
     # Check the GS workspace and create it if it does not exist
@@ -341,9 +397,6 @@ class LayEd:
 
             # POST
             (head, cont) = gsr.postDataStores(gsWorkspace, data=dsStr)
-            #print "POST Data store"
-            #print head
-            #print cont
 
             # If the creation failed
             if head["status"] != "201":
@@ -351,6 +404,9 @@ class LayEd:
                 headStr = str(head)
                 message = "LayEd: createDataStoreIfNotExists(): Cannot create Data Store " + dbSchema + ". Geoserver replied with " + headStr + " and said " + cont
                 raise LaymanError(500, message)
+
+            # TODO: return data store name from location header
+            return dbSchema
 
     def createStyleForLayer(self, workspace, dataStore, layerName):
         """ Create and assign new style for layer.
@@ -361,7 +417,6 @@ class LayEd:
         # Get the current style
         gsr = GsRest(self.config)
         (head, cont) = gsr.getLayer(workspace, name=layerName) # GET Layer
-        # FIXME: we don't really KNOW the name of the layer. The layer of unsure name was automatically created upon POST FeatureType.
         # TODO: check the result
         layerJson = json.loads(cont)
 
@@ -391,7 +446,7 @@ class LayEd:
         # Tell GS to reload the configuration
         gsr.putReload()
 
-    def createFtFromDb(self, workspace, dataStore, layerName, srs, data=None):
+    def createFtFromDb(self, workspace, dataStore, tableName, srs, data=None):
         """ Create Feature Type from PostGIS database
             Given dataStore must exist in GS, connected to PG schema.
             layerName corresponds to table name in the schema.
@@ -403,7 +458,7 @@ class LayEd:
         # Create ft json
         ftJson = {}
         ftJson["featureType"] = {}
-        ftJson["featureType"]["name"] = layerName
+        ftJson["featureType"]["name"] = tableName
         ftJson["featureType"]["srs"] = srs
 
         if hasattr(data, "title"):
@@ -430,6 +485,33 @@ class LayEd:
 
         ftStr = json.dumps(ftJson)
 
+        # POST Feature Type
+        gsr = GsRest(self.config)
+        logging.debug("[LayEd][createFtFromDb] Create Feature Type: '%s'" % ftStr)
+        (head, cont) = gsr.postFeatureTypes(workspace, dataStore, data=ftStr)
+        logging.debug("[LayEd][createFtFromDb] Response header: '%s'" % head)
+        logging.debug("[LayEd][createFtFromDb] Response contents: '%s'" % cont)
+
+        # head: '{'status': '201', 'content-length': '0', 'vary': 'Accept-Encoding', 'server': 'Noelios-Restlet-Engine/1.0..8', '-content-encoding': 'gzip', 'location': 'http://erra.ccss.cz/geoserver/rest/workspaces/policajti/datastores/policajti/featuretypes.json/pest_00', 'date': 'Wed, 31 Jul 2013 17:49:12 GMT', 'content-type': 'application/json'}'
+        # cont: ''
+
+        if head["status"] != "201":
+            # Raise an exception
+            headStr = str(head)
+            message = """LayEd: createFtFromDb(): Cannot create FeatureType %s.
+                 Geoserver replied with %s and said %s""" %\
+                      (ftStr, headStr, cont)
+            raise LaymanError(500, message)
+
+        # FIXME: return feature type name (== layer name) from the location header
+        layerName = tableName
+
+        return layerName
+
+    def updateLayerAttribution(self, workspace, layerName, data=None):
+        if data is None return
+        doSt = False
+
         layerStr = None
         layerJson = {
             "layer": {
@@ -441,26 +523,20 @@ class LayEd:
 
         if hasattr(data, "attribution_text") and data["attribution_text"] != "":
             layerJson["layer"]["attribution"]["title"] = data.attribution_text
-        if hasattr(data, "attribution_link") and data["attribution_text"] != "":
+            doSt = True
+        if hasattr(data, "attribution_link") and data["attribution_link"] != "":
             layerJson["layer"]["attribution"]["href"] = data.attribution_link
+            doSt = True
+    
+        if not doSt return
+
         layerStr = json.dumps(layerJson)
 
-        # POST Feature Type
-        gsr = GsRest(self.config)
-        logging.debug("[LayEd][createFtFromDb] Create Feature Type: '%s'" % ftStr)
-        (head, cont) = gsr.postFeatureTypes(workspace, dataStore, data=ftStr)
-        logging.debug("[LayEd][createFtFromDb] Response header: '%s'" % head)
+        # PUT Layer
+        gsr = GsRest(self.config)                       
         (head, cont) = gsr.putLayer(workspace, layerName, layerStr)
-        logging.debug("[LayEd][createFtFromDb] Response contents: '%s'" % cont)
-
         if head["status"] != "200":
-            # Raise an exception
-            headStr = str(head)
-            message = """LayEd: createFtFromDb(): Cannot create FeatureType %s.
-                 Geoserver replied with %s and said %s""" %\
-                      (ftStr, headStr, cont)
-            raise LaymanError(500, message)
-        return (head, cont)
+            logging.warning("Set layer attribution failed")
 
     def getLayersGsConfig(self, workspace=None):
         """returns list of layers"""

@@ -125,6 +125,9 @@ class DbMan:
         sys.stderr = sys.__stderr__
         devnull.close()
 
+        # TODO: Check the result
+        # TODO: Exceptions handling
+
         return name_out
 
     def _find_new_layername(self, schema, name):
