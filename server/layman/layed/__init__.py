@@ -406,7 +406,8 @@ class LayEd:
                 raise LaymanError(500, message)
 
             # TODO: return data store name from location header
-            return dbSchema
+        
+        return dbSchema
 
     def createStyleForLayer(self, workspace, dataStore, layerName):
         """ Create and assign new style for layer.
