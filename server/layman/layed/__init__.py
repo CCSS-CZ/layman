@@ -747,7 +747,7 @@ class LayEd:
         layers = json.dumps(layers) # json -> string
         return (code, layers)
 
-    def deleteLayer(self, workspace, layer, schema, deleteTable=True):
+    def deleteLayer(self, workspace, layer, schema, deleteTable):
         """Delete the Layer.
         For vectors, delete the corresponding Feature Type as well.
         For rasters, delete the whole Coverage Store corresponding to the file.

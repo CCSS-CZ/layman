@@ -402,7 +402,7 @@ class LayMan:
                         up = UserPrefs(config)
                         (code, message) = up.deleteUser(userName)
 
-                    # /layed/<layer>?usergroup=FireBrigade
+                    # /layed/<layer>
                     elif path[0] == "layed" and len(path) == 2:
                         from layed import LayEd
                         le = LayEd()
@@ -412,7 +412,23 @@ class LayMan:
                         dbSchema    = self.auth.getDBSchema(inpt.usergroup)
                         logging.info("[LayMan][DELETE] Delete layer '%s'"% layerName )
                         logging.info("[LayMan][DELETE] Delete from workspace '%s'"% gsWorkspace)
-                        (code, message) = le.deleteLayer(gsWorkspace, layerName, dbSchema)
+                        (code, message) = le.deleteLayer(gsWorkspace, layerName, dbSchema, deleteTable=True)
+
+                    # /publish/<layer>
+                    elif path[0] == "publish" and len(path) == 2:
+                        from layed import LayEd
+                        le = LayEd()
+                        layerName = path[1]
+                        inpt = web.input(schema)
+                        if not inpt.schema:
+                            raise LaymanError(
+                                400, "'schema' parameter missing")
+
+                        gsWorkspace = self.auth.getGSWorkspace(inpt.schema)
+                        dbSchema    = self.auth.getDBSchema(inpt.schema)
+                        logging.info("[LayMan][DELETE] Delete layer '%s'"% layerName )
+                        logging.info("[LayMan][DELETE] Delete from workspace '%s'"% gsWorkspace)
+                        (code, message) = le.deleteLayer(gsWorkspace, layerName, dbSchema, deleteTable=False)
 
                 success = self._setReturnCode(code)
                 retval  = self._jsonReply(code, message, success)
