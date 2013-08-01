@@ -747,58 +747,57 @@ class LayEd:
         layers = json.dumps(layers) # json -> string
         return (code, layers)
 
-    def deleteLayer(self, workspace, layer, schema, deleteStore=False):
-        """Delete the Layer and the Corresponding Feature Type
-           deleteStore = whether to delete the underlying data store as well
+    def deleteLayer(self, workspace, layer, schema, deleteTable=True):
+        """Delete the Layer.
+        For vectors, delete the corresponding Feature Type as well.
+        For rasters, delete the whole Coverage Store corresponding to the file.
+        deleteTable - whether to delete the table with vector data.
         """
 
         try:
                 logging.debug("[LayEd][deleteLayer]")
                 gsr = GsRest(self.config)
 
-                # Find the Feature Type
+                # GET Layer
                 headers, response = gsr.getLayer(workspace,layer)
                 logging.debug("[LayEd][deleteLayer] GET Layer response headers: %s"% headers)
                 logging.debug("[LayEd][deleteLayer] GET Layer response content: %s"% response)
-                # TODO: check the result
                 layerJson = json.loads(response)
-                ftUrl = layerJson["layer"]["resource"]["href"]
-                layer_type = layerJson["layer"]["type"]
-                logging.debug("[LayEd][deleteLayer] Feature Type URL: %s"% ftUrl)
 
+                # VECTOR or RASTER
+                layer_type = layerJson["layer"]["type"]
+
+                # Resource URL
+                resourceUrl = layerJson["layer"]["resource"]["href"]
+                logging.debug("[LayEd][deleteLayer] resource (featuretype, coverage...) URL: %s"% resourceUrl)
+        
                 # Delete Layer
                 headers, response = gsr.deleteLayer(workspace,layer)
                 logging.debug("[LayEd][deleteLayer] DELETE Layer response headers: %s"% headers)
                 logging.debug("[LayEd][deleteLayer] DELETE Layer response content: %s"% response)
-                # TODO: check the result
 
-                # Delete Feature Type
-                headers, response = gsr.deleteUrl(ftUrl)
-                logging.debug("[LayEd][deleteLayer] DELETE Feature Type response headers: %s"% headers)
-                logging.debug("[LayEd][deleteLayer] DELETE Feature Type response content: %s"% response)
-                # TODO: check the result
-
-                # Delete Style (we have created it when publishing)
-                headers, response = gsr.deleteStyle(workspace, styleName=layer, purge="true")
-                logging.debug("[LayEd][deleteLayer] DELETE Style response headers: %s"% headers)
-                logging.debug("[LayEd][deleteLayer] DELETE Style  response content: %s"% response)
-                # TODO: check the result
-                # NOTE: if no style, it still should be ok (coverages do not have
-                # styles)
-
-                # drop the data: coverage vs featuretype
+                # Delete resource - Feature Type or Coverage
+                headers, response = gsr.deleteUrl(resourceUrl)
+                logging.debug("[LayEd][deleteLayer] DELETE resource response headers: %s"% headers)
+                logging.debug("[LayEd][deleteLayer] DELETE resource response content: %s"% response)
 
                 if layer_type == "VECTOR":
-                    # Drop Table in PostreSQL
-                    from layman.layed.dbman import DbMan
-                    dbm = DbMan(self.config)
-                    dbm.deleteTable(dbSchema=schema, tableName=layer)
+                    # Delete Style (we have created it when publishing)
+                    headers, response = gsr.deleteStyle(workspace, styleName=layer, purge="true")
+                    logging.debug("[LayEd][deleteLayer] DELETE Style response headers: %s"% headers)
+                    logging.debug("[LayEd][deleteLayer] DELETE Style  response content: %s"% response)
+
+                    if deleteTable:
+                        # Drop Table in PostreSQL
+                        from layman.layed.dbman import DbMan
+                        dbm = DbMan(self.config)
+                        dbm.deleteTable(dbSchema=schema, tableName=layer)
+
                 elif layer_type == "RASTER":
+                    # Delete Coverage Store
                     headers, response = gsr.deleteCoverageStore(workspace,layer)
-                    # works
 
-                # TODO: check the result
-
+                # TODO: check the results
                 message = "Layer "+workspace+":"+layer+" deleted."
                 return (200, message)
 
