@@ -451,8 +451,8 @@ class LayEd:
             Given dataStore must exist in GS, connected to PG schema.
             layerName corresponds to table name in the schema.
         """
-        logParam = "workspace=%s dataStore=%s layerName=%s srs=%s" %\
-                   (workspace, dataStore, layerName, srs)
+        logParam = "workspace=%s dataStore=%s tableName=%s srs=%s" %\
+                   (workspace, dataStore, tableName, srs)
         logging.debug("[LayEd][createFtFromDb] Params: %s" % logParam)
 
         # Create ft json
