@@ -201,8 +201,7 @@ class LayEd:
         self.createWorkspaceIfNotExists(gsWorkspace)
 
         # Check the GS data store and create it if it does not exist
-        self.createRasterDataStoreIfNotExists(ds, name, gsWorkspace, filePath)
-        #def createRasterDataStoreIfNotExists(self, ds, name, gsworkspace, filePath):
+        self.createCoverageStoreIfNotExists(ds, name, gsWorkspace, filePath)
 
         # Publish from raster file to GS
         layerName = self.createCoverageFromFile(gsworkspace=gsWorkspace,
@@ -217,7 +216,6 @@ class LayEd:
         logging.info("[LayEd][publish] Published layer '%s'" % name)
         logging.info("[LayEd][publish] in workspace '%s'" % gsWorkspace)
 
-        # FIXME: return uri of created resource in locatiuon header
         return (201, layerName, "Layer published")
 
     def updateRasterFile(self, gsworkspace, filePath):
@@ -230,8 +228,8 @@ class LayEd:
         logging.debug("[LayEd][updateRasterFile]: File %s updated to %s" %
                       (filePath, ws_data_dir))
 
-    def createRasterDataStoreIfNotExists(self, ds, name, gsworkspace, filePath):
-        """Import raster file to geoserver
+    def createCoverageStoreIfNotExists(self, ds, name, gsworkspace, filePath):
+        """Create CoverageStore in GS if it does not exist yet
         """
 
         # check for data_dir path
@@ -277,13 +275,13 @@ class LayEd:
         if head["status"] != "201":
             # Raise an exception
             headStr = str(head)
-            message = "LayEd: createRasterDataStoreIfNotExists(): Cannot create CoverageStore " + final_name + ". Geoserver replied with " + headStr + " and said " + cont
+            message = "LayEd: createCoverageStoreIfNotExists(): Cannot create CoverageStore " + final_name + ". Geoserver replied with " + headStr + " and said " + cont
             raise LaymanError(500, message)
 
     def createCoverageFromFile(self, gsworkspace, store, name, srs, data=None):
 
-        # Create ft json
-        ftJson = {
+        # Create coverage json
+        coverJson = {
             "coverage": {
                 "name": name,
                 "namespace": {
@@ -301,24 +299,24 @@ class LayEd:
         }
 
         if hasattr(data,"title"):
-            ftJson["coverage"]["title"] = data["title"]
+            coverJson["coverage"]["title"] = data["title"]
         if hasattr(data,"abstract"):
-            ftJson["coverage"]["description"] = data["abstract"]
-            ftJson["coverage"]["abstract"] = data["abstract"]
+            coverJson["coverage"]["description"] = data["abstract"]
+            coverJson["coverage"]["abstract"] = data["abstract"]
 
-        ftStr = json.dumps(ftJson)
+        coverStr = json.dumps(coverJson)
 
         # PUT Feature Type
         gsr = GsRest(self.config)
-        logging.debug("[LayEd][createCoverageFromFile] Create Feature Type: '%s'"% ftStr)
-        (head, cont) = gsr.postCoverage(gsworkspace, store, data=ftStr)
+        logging.debug("[LayEd][createCoverageFromFile] Create Coverage: '%s'"% coverStr)
+        (head, cont) = gsr.postCoverage(gsworkspace, store, data=coverStr)
         logging.debug("[LayEd][createCoverageFromFile] Response header: '%s'"% head)
         logging.debug("[LayEd][createCoverageFromFile] Response contents: '%s'"% cont)
 
         if head["status"] != "201":
             # Raise an exception
             headStr = str(head)
-            message = "LayEd: createCoverageFromFile(): Cannot create FeatureType " + ftStr + ". Geoserver replied with " + headStr + " and said " + cont
+            message = "LayEd: createCoverageFromFile(): Cannot create Coverage " + coverStr + ". Geoserver replied with " + headStr + " and said " + cont
             raise LaymanError(500, message)
 
         # FIXME: return layer name from location header       
