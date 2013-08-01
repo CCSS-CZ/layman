@@ -80,10 +80,19 @@ class LayMan:
                     else:
                         (code, retval) = self._callNotSupported(restMethod="GET", call=origName)
 
+                elif path[0] == 'publish':
+                    
+                    from layed import LayEd
+                    le = LayEd()
+
                 elif path[0] == 'layed':
 
                     from layed import LayEd
                     le = LayEd()
+
+                    logging.info("[LayMan][GET /publish]")
+                    roles = self.auth.getRoles()
+                    (code,retval) = le.getLayers(roles)
 
                     # /layed[?usergroup=FireBrigade]
                     if len(path) == 1:
