@@ -243,8 +243,15 @@ class LayMan:
                         dbSchema = self.auth.getDBSchema(inpt.schema)
                         gsWorkspace = self.auth.getGSWorkspace(inpt.schema)
                         crs = inpt.crs
-                        (code, message) = le.publishFromDbToGs(dbSchema, viewName, 
-                                                            gsWorkspace, crs, inpt)
+                        (code, layerName, message) = le.publishFromDbToGs(dbSchema, 
+                                                            viewName, 
+                                                            gsWorkspace, 
+                                                            crs, inpt)
+
+                        # Set Location header
+                        if code == 201 and layerName is not None:
+                            location = layerName # TODO: provide full URI here             
+                            web.header("Location", location)
 
                     else:
                         (code, message) = self._callNotSupported(restMethod="POST",

@@ -186,10 +186,9 @@ class LayEd:
         logging.info("[LayEd][publish] Published layer '%s'" % layerName)
         logging.info("[LayEd][publish] in workspace '%s'" % gsWorkspace)
 
-        # FIXME: return resource URI
         code = 201
         message = "Layer published: " + layerName
-        return (code, message)
+        return (code, layerName, message)
 
     def publishRasterToGs(self, filePath, gsWorkspace, ds, name, srs=None, data=None):
         """ Publish raster files in GeoServer.
@@ -506,8 +505,19 @@ class LayEd:
                       (ftStr, headStr, cont)
             raise LaymanError(500, message)
 
-        # FIXME: return feature type name (== layer name) from the location header
+        # Get location header and extract the name of the layer (== ft name)
         layerName = tableName
+        if head["location"] is None:
+            logging.warning("[LayEd][createFtFromDb] Got 201 Created Feature Type from GeoServer, but no 'location' header. Assuming layerName == tableName.") 
+        else:
+            location = head["location"]
+            slashPos = location.rfind('/')
+            resourceName = location[slashPos+1:]
+            dotPos = resourceName.rfind('.')
+            if dotPos > -1:
+                layerName = resourceName[:dotPos]
+            else:
+                layerName = resourceName
 
         return layerName
 
