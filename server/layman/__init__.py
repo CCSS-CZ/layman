@@ -85,14 +85,13 @@ class LayMan:
                     from layed import LayEd
                     le = LayEd()
 
+                    roles = self.auth.getRoles()
+                    (code,retval) = le.getLayers(roles)
+
                 elif path[0] == 'layed':
 
                     from layed import LayEd
                     le = LayEd()
-
-                    logging.info("[LayMan][GET /publish]")
-                    roles = self.auth.getRoles()
-                    (code,retval) = le.getLayers(roles)
 
                     # /layed[?usergroup=FireBrigade]
                     if len(path) == 1:
