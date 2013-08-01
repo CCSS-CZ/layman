@@ -220,9 +220,14 @@ class LayMan:
                         dbSchema = self.auth.getDBSchema(inpt.usergroup)
                         gsWorkspace = self.auth.getGSWorkspace(inpt.usergroup)
                         crs = inpt.crs
-                        (code, message) = le.importAndPublish(fsUserDir, fsGroupDir,
+
+                        (code, layerName, message) = le.importAndPublish(fsUserDir, fsGroupDir,
                                                      dbSchema, gsWorkspace,
                                                      fileName, crs, inpt)
+                        # Set Location header
+                        if code == 201 and layerName is not None:
+                            location = layerName # TODO: provide full URI here             
+                            web.header("Location", location)
 
                     elif name[0] == "publish":
                         from layed import LayEd
