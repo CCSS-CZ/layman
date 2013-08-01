@@ -153,6 +153,8 @@ class LaymanAuthLiferay(LaymanAuth):
         """ Authorise the given JSESSIONID against the Slavek's service:
         call the service and process the response """
         logging.debug("[LaymanAuthLiferay][authorise] %s"% JSESSIONID)
+        if JSESSIONID is None or JSESSIONID == "":
+            raise AuthError(401, "Authentication failed: No JSESSIONID given")
         self.JSESSIONID = JSESSIONID
         content = self._getUserInfo(JSESSIONID)
         self._parseUserInfo(content)
