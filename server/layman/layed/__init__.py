@@ -517,7 +517,7 @@ class LayEd:
         layerJson = {
             "layer": {
                 "name": layerName,
-                "enabled": True
+                "enabled": True,
                 "attribution": {
                 }
             }
