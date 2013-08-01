@@ -159,7 +159,7 @@ class LayEd:
 
         return tableName
 
-    def publishFromDbToGs(self, dbSchema, tableName, gsWorkspace, srs=None, data=None):
+    def publishFromDbToGs(self, dbSchema, tableName, gsWorkspace, srs=None, data=None, styleName=None, styleWs=None):
         """ Publish vector data from PostGIS to GeoServer.
             A name of a view can be used as a tableName as well.
         """
@@ -181,7 +181,8 @@ class LayEd:
 
         # Create and assgin new style
         # FIXME: allow client to specify the style
-        self.createStyleForLayer(gsWorkspace, dataStore, layerName)
+        
+        self.createStyleForLayer(gsWorkspace, dataStore, layerName, styleName, styleWs)
 
         logging.info("[LayEd][publish] Published layer '%s'" % layerName)
         logging.info("[LayEd][publish] in workspace '%s'" % gsWorkspace)
@@ -408,22 +409,35 @@ class LayEd:
         
         return dbSchema
 
-    def createStyleForLayer(self, workspace, dataStore, layerName):
+    def createStyleForLayer(self, workspace, dataStore, layerName, styleName=None, styleWs=None):
         """ Create and assign new style for layer.
         Old style of the layer is cloned into the layer's workspace
         and is assigned to the layer.
+        If styleName is specified, this style is used for cloning instead.
+        If the styleName refer to a certain workspace, specify that as styleWs.
         """
 
-        # Get the current style
-        gsr = GsRest(self.config)
-        (head, cont) = gsr.getLayer(workspace, name=layerName) # GET Layer
-        # TODO: check the result
-        layerJson = json.loads(cont)
+        if styleName is None or styleName == "":
+            # Clone the current style of the layer
+            gsr = GsRest(self.config)
+            (head, cont) = gsr.getLayer(workspace, name=layerName) # GET Layer
+            # TODO: check the result
+            layerJson = json.loads(cont)
 
-        currentStyleUrl = layerJson["layer"]["defaultStyle"]["href"]
+            fromStyleUrl = layerJson["layer"]["defaultStyle"]["href"]
+
+        elif styleWs is None or styleWs == "":
+            # Use the given style
+            # e.g. http://erra.ccss.cz/geoserver/rest/styles/line.json
+            fromStyleUrl = self.config.get("GeoServer","url") + "/styles/" + styleName + ".json"
+
+        else:
+            # Use the given style from some ws
+            # e.g. http://erra.ccss.cz/geoserver/rest/workspaces/hasici/styles/pest_02.json
+            fromStyleUrl = self.config.get("GeoServer","url") + "/workspaces/" + styleWs + "/styles/" + styleName + ".json"
 
         # Create new style
-        newStyleUrl = self.cloneStyle(fromStyleUrl=currentStyleUrl, toWorkspace=workspace, toStyle=layerName)
+        newStyleUrl = self.cloneStyle(fromStyleUrl=fromStyleUrl, toWorkspace=workspace, toStyle=layerName)
         logging.info("[LayEd][createStyleForLayer] created style '%s'"% layerName)
         logging.info("[LayEd][createStyleForLayer] in workspace '%s'"% workspace)
         # TODO: check the result

@@ -256,10 +256,18 @@ class LayMan:
                         dbSchema = self.auth.getDBSchema(inpt.schema)
                         gsWorkspace = self.auth.getGSWorkspace(inpt.schema)
                         crs = inpt.crs
+                        if inpt.style:
+                            styleName = inpt.style
+                        else:
+                            styleName = None
+                        if inpt.style_ws:
+                            styleWs = inpt.style_ws
+                        else:
+                            styleWs = None                        
                         (code, layerName, message) = le.publishFromDbToGs(dbSchema, 
                                                             viewName, 
                                                             gsWorkspace, 
-                                                            crs, inpt)
+                                                            crs, inpt, styleName, styleWs)
 
                         # Set Location header
                         if code == 201 and layerName is not None:
