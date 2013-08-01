@@ -193,7 +193,7 @@ class LayEd:
         """ Publish raster files in GeoServer.
         """
         logParam = "filePath=%s gsWorkspace=%s ds=%s name=%s srs=%s" %\
-                   (filePath gsWorkspace, ds, name, srs)
+                   (filePath, gsWorkspace, ds, name, srs)
         logging.debug("[LayEd][publish] Params: %s"% logParam)
 
         # Check the GS workspace and create it if it does not exist
