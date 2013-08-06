@@ -92,6 +92,7 @@ class DbMan:
     def importVectorFile(self, filePath, dbSchema):
         """import given file to database, ogr is used for data READING,
         psycopg2 for data WRITING directly into PostGIS
+        If a table of the same name already exists, new name is assigned.
         """
         logParam = "filePath='%s', dbSchema='%s'" % (filePath, dbSchema)
         logging.debug("[DbMan][importVectorFile] %s" % logParam)

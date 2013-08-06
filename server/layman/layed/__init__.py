@@ -81,7 +81,7 @@ class LayEd:
     def importAndPublish(self, fsUserDir, fsGroupDir, dbSchema, gsWorkspace, fileName, srs=None, data=None):
         """ Main publishing function. 
         Vectors import to PostreSQL and publish in GeoServer. 
-        Rasters publish from file to GeoServer.
+        Rasters copy to GeoServer datastore dir and publish from there in GS.
             Group ~ db Schema ~ gs Data Store ~ gs Workspace
         """
         logParam = "fsUserDir=%s fsGroupDir=%s dbSchema=%s gsWorkspace=%s fileName=%s" %\
@@ -90,6 +90,7 @@ class LayEd:
 
         code = 500
         message = "Strange - message was not set"
+        layerName = "NONAME"
 
         # /path/to/file.shp
         filePath = os.path.realpath( os.path.join(fsUserDir,fileName) )
@@ -142,6 +143,7 @@ class LayEd:
 
     def importFromFileToDb(self, filePath, dbSchema):
         """ Import data from vector file to PostreSQL 
+        If a table of the same name already exists, new table with modified name is created.
         """
         logParam = "filePath=%s dbSchema=%s" %\
                    (filePath, dbSchema)
@@ -150,7 +152,7 @@ class LayEd:
         # Import to DB
         from layman.layed.dbman import DbMan
         dbm = DbMan(self.config)
-
+        
         tableName = dbm.importVectorFile(filePath, dbSchema)
 
         # TODO: check the result
@@ -202,6 +204,7 @@ class LayEd:
         self.createWorkspaceIfNotExists(gsWorkspace)
 
         # Check the GS data store and create it if it does not exist
+        # Warning! This function overwrites the file if it was already there
         self.createCoverageStoreIfNotExists(ds, name, gsWorkspace, filePath)
 
         # Publish from raster file to GS
@@ -230,7 +233,9 @@ class LayEd:
                       (filePath, ws_data_dir))
 
     def createCoverageStoreIfNotExists(self, ds, name, gsworkspace, filePath):
-        """Create CoverageStore in GS if it does not exist yet
+        """Create CoverageStore in GS if it does not exist yet:
+        Create the coverage store dir if it does not exist yet.
+        COPY the raster file there - that would overwrite whatever was there!
         """
 
         # check for data_dir path
@@ -247,7 +252,7 @@ class LayEd:
         if not os.path.exists(ws_data_dir):
             os.mkdir(ws_data_dir)
 
-        shutil.copy2(filePath, ws_data_dir)
+        shutil.copy2(filePath, ws_data_dir) # overwriting here
         final_name = os.path.join(ws_data_dir, os.path.split(filePath)[1])
         # final check
         if not os.path.exists(final_name):
