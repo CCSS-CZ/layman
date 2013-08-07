@@ -32,9 +32,16 @@ class LayMan:
     def __init__(self):
         """Constructor
         """
+        try:
+            self._setconfiguration()
+            self._setauth()
 
-        self._setconfiguration()
-        self._setauth()
+        except LaymanError as le:
+            return self._handleLaymanError(le)
+
+        except Exception as e:
+            return self._handleException(e)
+
 
     #
     # REST methods
