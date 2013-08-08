@@ -411,14 +411,25 @@ class FileMan:
 
         # rename files to target location with new name
         for shape_file_part in files:
+            logging.debug("[FileMan][_unzipFile] Loop START")
             (root, suffix) = os.path.splitext(shape_file_part)
+
             # rename file as desired
+
             logging.debug("[FileMan][_unzipFile] tempdir=%s, shape_file_part=%s, target_dir=%s, target_root=%s, suffix=%s" % (self.tempdir, shape_file_part, target_dir, target_root, suffix))
-            os.rename(os.path.join(self.tempdir,shape_file_part),os.path.join(target_dir,target_root+suffix))
+
+            renameFrom = os.path.join(self.tempdir,shape_file_part)
+            renameTo = os.path.join(target_dir,target_root+suffix)
+            logging.debug("[FileMan][_unzipFile] renameFrom: %s, renameTo: %s" % (renameFrom, renameTo))
+            os.rename(renameFrom, renameTo)
+
             shape_file_part = target_root+suffix
+           
+            logging.debug("[FileMan][_unzipFile] Going to append %s" % shape_file_part) 
             tempfiles.append(shape_file_part)
             if suffix == ".shp":
                 fileName = shape_file_part
+            logging.debug("[FileMan][_unzipFile] Loop END")
 
         # remote original zip
         os.remove(zfile)
