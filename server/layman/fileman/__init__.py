@@ -393,6 +393,9 @@ class FileMan:
     def _unzipFile(self, zfile):
         """Extract shapefiles from zipped file
         """
+        
+        logging.debug("[FileMan][_unzipFile] zfile=%s" % repr(zfile))
+
 
         (target_dir,target_name) = os.path.split(zfile)
         (target_root,target_suffix) = os.path.splitext(target_name)
@@ -402,6 +405,7 @@ class FileMan:
         zf.extractall(path=self.tempdir)
 
         files = zf.namelist()
+        logging.debug("[FileMan][_unzipFile] Zip file contents: %s" % str(files))
         tempfiles = []
         fileName = None
 
@@ -409,6 +413,7 @@ class FileMan:
         for shape_file_part in files:
             (root, suffix) = os.path.splitext(shape_file_part)
             # rename file as desired
+            logging.debug("[FileMan][_unzipFile] tempdir=%s, shape_file_part=%s, target_dir=%s, target_root=%s, suffix=%s" % (self.tempdir, shape_file_part, target_dir, target_root, suffix))
             os.rename(os.path.join(self.tempdir,shape_file_part),os.path.join(target_dir,target_root+suffix))
             shape_file_part = target_root+suffix
             tempfiles.append(shape_file_part)
