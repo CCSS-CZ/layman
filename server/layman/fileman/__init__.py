@@ -409,6 +409,8 @@ class FileMan:
         tempfiles = []
         fileName = None
 
+        removeDirs = []
+
         # rename files to target location with new name
         for shape_file_part in files:
             logging.debug("[FileMan][_unzipFile] Loop START")
@@ -425,6 +427,7 @@ class FileMan:
             # Don't move the directories
             if os.path.isdir(renameFrom):
                 logging.debug("[FileMan][_unzipFile] Skipping directory %s" % renameFrom)
+                removeDirs.append(renameFrom)
                 continue
 
             os.rename(renameFrom, renameTo)
@@ -437,7 +440,15 @@ class FileMan:
                 fileName = shape_file_part
             logging.debug("[FileMan][_unzipFile] Loop END")
 
-        # remote original zip
+        # remove dirs
+        import shutil
+        for d in removeDirs:
+            try:
+                shutil.rmtree(d)
+            except Exception as e:
+                logging.warning("[FileMan][_unzipFile] Remove tree %s raises an exception: %s" % (str(d), str(e)))
+
+        # remove original zip
         os.remove(zfile)
 
         # check
