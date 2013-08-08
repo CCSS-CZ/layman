@@ -421,6 +421,12 @@ class FileMan:
             renameFrom = os.path.join(self.tempdir,shape_file_part)
             renameTo = os.path.join(target_dir,target_root+suffix)
             logging.debug("[FileMan][_unzipFile] renameFrom: %s, renameTo: %s" % (renameFrom, renameTo))
+    
+            # Don't move the directories
+            if os.path.isdir(renameFrom):
+                logging.debug("[FileMan][_unzipFile] Skipping directory %s" % renameFrom)
+                continue
+
             os.rename(renameFrom, renameTo)
 
             shape_file_part = target_root+suffix
