@@ -84,8 +84,8 @@ class LayEd:
         Rasters copy to GeoServer datastore dir and publish from there in GS.
             Group ~ db Schema ~ gs Data Store ~ gs Workspace
         """
-        logParam = "fsUserDir=%s fsGroupDir=%s dbSchema=%s gsWorkspace=%s fileName=%s srs=%" %\
-                   (fsUserDir, fsGroupDir, dbSchema, gsWorkspace, fileName, repr(srs))
+        logParam = "fsUserDir=%s fsGroupDir=%s dbSchema=%s gsWorkspace=%s fileName=%s" %\
+                   (fsUserDir, fsGroupDir, dbSchema, gsWorkspace, fileName)
         logging.debug("[LayEd][importAndPublish] Params: %s"% logParam)
 
         code = 500
@@ -101,7 +101,7 @@ class LayEd:
         # file
         fileNameNoExt = os.path.splitext(fileName)[0].lower()
 
-        if not srs:
+        if srs is None:
             # Identify the SRS
             from layman.fileman import FileMan
             fm = FileMan(self.config)
