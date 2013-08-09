@@ -108,7 +108,10 @@ class LayEd:
             gisAttribs = fm.get_gis_attributes(filePath, {})
             srs = gisAttribs["prj"]
             logging.debug("[LayEd][importAndPublish] Detected SRS: %s" % srs)
-            # TODO: check success
+
+            if srs is None or "none" in srs.lower():
+                raise LaymanError(500, "Cannot detect the SRS. Please specify the SRS.")
+            
         else:
             logging.debug("[LayEd][importAndPublish] Using given SRS: %s" % srs)
 
@@ -480,9 +483,7 @@ class LayEd:
         ftJson = {}
         ftJson["featureType"] = {}
         ftJson["featureType"]["name"] = tableName
-
-        if srs is not None and "none" not in srs.lower():
-            ftJson["featureType"]["srs"] = srs
+        ftJson["featureType"]["srs"] = srs
 
         if hasattr(data, "title"):
             ftJson["featureType"]["title"] = data["title"]
