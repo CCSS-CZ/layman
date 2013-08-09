@@ -99,9 +99,9 @@ class LayEd:
         filePathNoExt = os.path.splitext(filePath)[0]
 
         # file
-        fileNameNoExt = os.path.splitext(fileName)[0].lower()
+        fileNameNoExt = os.path.splitext(fileName)[0].lower()      
 
-        if srs is None:
+        if srs is None or "none" in srs.lower(): # python uses lazy evaluation
             # Identify the SRS
             from layman.fileman import FileMan
             fm = FileMan(self.config)
