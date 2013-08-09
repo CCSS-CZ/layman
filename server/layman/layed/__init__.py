@@ -84,8 +84,8 @@ class LayEd:
         Rasters copy to GeoServer datastore dir and publish from there in GS.
             Group ~ db Schema ~ gs Data Store ~ gs Workspace
         """
-        logParam = "fsUserDir=%s fsGroupDir=%s dbSchema=%s gsWorkspace=%s fileName=%s" %\
-                   (fsUserDir, fsGroupDir, dbSchema, gsWorkspace, fileName)
+        logParam = "fsUserDir=%s fsGroupDir=%s dbSchema=%s gsWorkspace=%s fileName=%s srs=%" %\
+                   (fsUserDir, fsGroupDir, dbSchema, gsWorkspace, fileName, srs)
         logging.debug("[LayEd][importAndPublish] Params: %s"% logParam)
 
         code = 500
@@ -109,6 +109,8 @@ class LayEd:
             srs = gisAttribs["prj"]
             logging.debug("[LayEd][importAndPublish] Detected SRS: %s" % srs)
             # TODO: check success
+        else:
+            logging.debug("[LayEd][importAndPublish] Using given SRS: %s" % srs)
 
         # Identify the data type
         data_type = None
