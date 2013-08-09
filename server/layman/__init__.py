@@ -249,6 +249,7 @@ class LayMan:
                         le = LayEd(config)
                         inpt = web.input()
 
+                        # Obligatory parameters
                         if not inpt.schema:
                             raise LaymanError(
                                 400, "'schema' parameter missing")
@@ -263,14 +264,15 @@ class LayMan:
                         dbSchema = self.auth.getDBSchema(inpt.schema)
                         gsWorkspace = self.auth.getGSWorkspace(inpt.schema)
                         crs = inpt.crs
+
+                        # Optional parameters
+                        styleName = None
+                        styleWs = None                        
                         if inpt.style:
                             styleName = inpt.style
-                        else:
-                            styleName = None
                         if inpt.style_ws:
                             styleWs = inpt.style_ws
-                        else:
-                            styleWs = None                        
+
                         (code, layerName, message) = le.publishFromDbToGs(dbSchema, 
                                                             viewName, 
                                                             gsWorkspace, 

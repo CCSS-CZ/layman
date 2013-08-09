@@ -427,20 +427,22 @@ class LayEd:
         If the styleName refer to a certain workspace, specify that as styleWs.
         """
 
+        gsr = GsRest(self.config)
+
+        # Style not provided - clone the default one that has been automatically assigned to the layer by GeoServer
         if styleName is None or styleName == "":
-            # Clone the current style of the layer
-            gsr = GsRest(self.config)
             (head, cont) = gsr.getLayer(workspace, name=layerName) # GET Layer
             # TODO: check the result
             layerJson = json.loads(cont)
 
             fromStyleUrl = layerJson["layer"]["defaultStyle"]["href"]
 
+        # Style given (from no workspace) - use it
         elif styleWs is None or styleWs == "":
-            # Use the given style
             # e.g. http://erra.ccss.cz/geoserver/rest/styles/line.json
             fromStyleUrl = self.config.get("GeoServer","url") + "/styles/" + styleName + ".json"
 
+        # Style given (from some workspace) - use it
         else:
             # Use the given style from some ws
             # e.g. http://erra.ccss.cz/geoserver/rest/workspaces/hasici/styles/pest_02.json
