@@ -85,7 +85,7 @@ class LayEd:
             Group ~ db Schema ~ gs Data Store ~ gs Workspace
         """
         logParam = "fsUserDir=%s fsGroupDir=%s dbSchema=%s gsWorkspace=%s fileName=%s srs=%" %\
-                   (fsUserDir, fsGroupDir, dbSchema, gsWorkspace, fileName, str(srs))
+                   (fsUserDir, fsGroupDir, dbSchema, gsWorkspace, fileName, repr(srs))
         logging.debug("[LayEd][importAndPublish] Params: %s"% logParam)
 
         code = 500
