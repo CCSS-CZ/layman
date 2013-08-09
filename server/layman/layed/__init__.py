@@ -480,7 +480,9 @@ class LayEd:
         ftJson = {}
         ftJson["featureType"] = {}
         ftJson["featureType"]["name"] = tableName
-        ftJson["featureType"]["srs"] = srs
+
+        if srs is not None and "none" not in srs.lower():
+            ftJson["featureType"]["srs"] = srs
 
         if hasattr(data, "title"):
             ftJson["featureType"]["title"] = data["title"]
