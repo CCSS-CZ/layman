@@ -110,7 +110,7 @@ class LayEd:
             logging.debug("[LayEd][importAndPublish] Detected SRS: %s" % srs)
 
             if srs is None or "none" in srs.lower():
-                raise LaymanError(500, "Cannot detect the SRS. Please specify the SRS.")
+                return (500, None, "Cannot detect the SRS. Please specify the SRS.")
             
         else:
             logging.debug("[LayEd][importAndPublish] Using given SRS: %s" % srs)
