@@ -287,21 +287,26 @@ class FileMan:
  
         # try vector
         ds = ogr.Open(fileName)
+       
         # opening vector success
         if ds:
+            logging.debug("[FileMan][get_gis_attributes] ogr.Open() O.K" )
             attrs = self._get_vector_attributes(ds,attrs)
             logging.debug("[FileMan][get_gis_attributes] Identified VECTOR attributes: %s" % repr(attrs) )       
 
         # try raster
         else:
+            logging.debug("[FileMan][get_gis_attributes] ogr.Open() Failed" )
             ds = gdal.Open(fileName)
 
             # opening raster success
             if ds:
+                logging.debug("[FileMan][get_gis_attributes] gdal.Open() O.K." )
                 attrs = self._get_raster_attributes( ds,attrs)
                 logging.debug("[FileMan][get_gis_attributes] Identified RASTER attributes: %s" % repr(attrs) )       
             # no gis data
             else:
+                logging.debug("[FileMan][get_gis_attributes] gdal.Open() Failed" )
                 logging.debug("[FileMan][get_gis_attributes] No attributes identified for file %s" % fileName )       
 
         return attrs
