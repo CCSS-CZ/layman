@@ -436,6 +436,8 @@ class FileMan:
 
             logging.debug("[FileMan][_unzipFile] tempdir=%s, shape_file_part=%s, target_dir=%s, target_root=%s, suffix=%s" % (self.tempdir, shape_file_part, target_dir, target_root, suffix))
 
+            suffix = suffix.lower()
+
             renameFrom = os.path.join(self.tempdir,shape_file_part)
             renameTo = os.path.join(target_dir,target_root+suffix)
             logging.debug("[FileMan][_unzipFile] renameFrom: %s, renameTo: %s" % (renameFrom, renameTo))
