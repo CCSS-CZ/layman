@@ -283,12 +283,14 @@ class FileMan:
     def get_gis_attributes(self,fileName, attrs):
         """Append more gis attributes of given file to attrs hash
         """
-        
+        logging.debug("[FileMan][get_gis_attributes] Params: fileName: %s, attrs: %s" % (fileName, repr(attrs)) )       
+ 
         # try vector
         ds = ogr.Open(fileName)
         # opening vector success
         if ds:
             attrs = self._get_vector_attributes(ds,attrs)
+            logging.debug("[FileMan][get_gis_attributes] Identified VECTOR attributes: %s" % repr(attrs) )       
 
         # try raster
         else:
@@ -297,18 +299,21 @@ class FileMan:
             # opening raster success
             if ds:
                 attrs = self._get_raster_attributes( ds,attrs)
+                logging.debug("[FileMan][get_gis_attributes] Identified RASTER attributes: %s" % repr(attrs) )       
             # no gis data
             else:
-                pass
+                logging.debug("[FileMan][get_gis_attributes] No attributes identified for file %s" % fileName )       
 
         return attrs
 
     def _get_vector_attributes(self,ds,attrs):
-
+        logging.debug("[FileMan][_get_vector_attributes]")
+        
         layer = ds.GetLayer()
 
         # extent
         extent = layer.GetExtent()
+        logging.debug("[FileMan][_get_vector_attributes] Extent: %s" % repr(extent) )
         attrs["extent"] = (extent[0],extent[2],extent[1],extent[3])
 
         # features count
@@ -329,8 +334,10 @@ class FileMan:
 
         # srs
         sr = layer.GetSpatialRef()
+        logging.debug("[FileMan][_get_vector_attributes] Spatial Reference from layer.GetSpatialRef() : %s" % repr(sr) )
         if sr:
             sr.AutoIdentifyEPSG()
+            logging.debug("[FileMan][_get_vector_attributes] Spatial Reference after sr.AutoIdentifyEPSG() : %s" % repr(sr) )
             attrs["prj"]= self._get_prj(sr)
         else:
             attrs["prj"] = "unknown"
@@ -360,13 +367,17 @@ class FileMan:
         return attrs
 
     def _get_prj(self,sr):
+        logging.debug("[FileMan][_get_prj]")
 
         if sr.IsGeographic() == 1:  # this is a geographic srs
+            logging.debug("[FileMan][_get_prj] Geographic SRS")
             cstype = 'GEOGCS'
         else:  # this is a projected srs
+            logging.debug("[FileMan][_get_prj] Projected SRS")
             cstype = 'PROJCS'
         an = sr.GetAuthorityName(cstype)
         ac = sr.GetAuthorityCode(cstype)
+        logging.debug("[FileMan][_get_prj] Authority name: %s, Authority code: %s" % (an, ac) )
 
         return "%s:%s"%(an,ac)
 
