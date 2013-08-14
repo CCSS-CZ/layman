@@ -250,10 +250,10 @@ class LayMan:
                         inpt = web.input()
 
                         # Obligatory parameters
-                        if not schema in inpt:
+                        if not "schema" in inpt:
                             raise LaymanError(
                                 400, "schema parameter missing")
-                        if not view in schema:
+                        if not "view" in schema:
                             raise LaymanError(
                                 400, "view parameter missing")
                         if not inpt.crs:
