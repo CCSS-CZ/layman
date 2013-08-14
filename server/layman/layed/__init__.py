@@ -686,7 +686,7 @@ class LayEd:
             (headers, response) = gsr.getUrl(lay["href"])
             # Check the response
             if headers["status"] != "200":
-                logging.warning("[LayEd][getLayers] Failed to get the Layer. GeoServer replied with '%s' and said '%s'" % (str(headers), str(response))
+                logging.warning("[LayEd][getLayers] Failed to get the Layer. GeoServer replied with '%s' and said '%s'" % (str(headers), str(response)) )
                 continue
             # Load JSON
             layer = json.loads(response)  # Layer from GS
