@@ -253,10 +253,10 @@ class LayMan:
                         if not "schema" in inpt:
                             raise LaymanError(
                                 400, "schema parameter missing")
-                        if not "view" in schema:
+                        if not "view" in inpt:
                             raise LaymanError(
                                 400, "view parameter missing")
-                        if not inpt.crs:
+                        if not "crs" in inpt:
                             raise LaymanError(
                                 400, "crs parameter missing")
 
