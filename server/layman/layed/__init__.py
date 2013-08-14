@@ -684,7 +684,11 @@ class LayEd:
 
             # GET the Layer
             (headers, response) = gsr.getUrl(lay["href"])
-            # TODO: check the response
+            # Check the response
+            if headers["status"] != "200":
+                logging.warning("[LayEd][getLayers] Failed to get the Layer. GeoServer replied with '%s' and said '%s'" % (str(headers), str(response))
+                continue
+            # Load JSON
             layer = json.loads(response)  # Layer from GS
 
             # Check the workspace
@@ -705,7 +709,9 @@ class LayEd:
                 # GET FeatureType
                 logging.debug("[LayEd][getLayers] MATCH! Get Feature Type: '%s'"% ftUrl)
                 (headers, response) = gsr.getUrl(ftUrl)
-                # TODO: chceck the result
+                if headers["status"] != "200":
+                    logging.warning("[LayEd][getLayers] Failed to get the FeatureType. GeoServer replied with '%s' and said '%s'" % (str(headers), str(response))
+                    continue
                 ft = json.loads(response)   # Feature Type
 
                 # Return both
