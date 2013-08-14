@@ -268,9 +268,9 @@ class LayMan:
                         # Optional parameters
                         styleName = None
                         styleWs = None                        
-                        if inpt.style:
+                        if "style" in inpt:
                             styleName = inpt.style
-                        if inpt.style_ws:
+                        if "style_ws" in inpt:
                             styleWs = inpt.style_ws
 
                         (code, layerName, message) = le.publishFromDbToGs(dbSchema, 
