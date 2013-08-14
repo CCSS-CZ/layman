@@ -436,7 +436,7 @@ class LayMan:
                         from layed import LayEd
                         le = LayEd()
                         layerName = path[1]
-                        inpt = web.input(schema)
+                        inpt = web.input()
                         if not "schema" in inpt:
                             raise LaymanError(
                                 400, "'schema' parameter missing")
