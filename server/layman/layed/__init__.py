@@ -710,7 +710,7 @@ class LayEd:
                 logging.debug("[LayEd][getLayers] MATCH! Get Feature Type: '%s'"% ftUrl)
                 (headers, response) = gsr.getUrl(ftUrl)
                 if headers["status"] != "200":
-                    logging.warning("[LayEd][getLayers] Failed to get the FeatureType. GeoServer replied with '%s' and said '%s'" % (str(headers), str(response))
+                    logging.warning("[LayEd][getLayers] Failed to get the FeatureType. GeoServer replied with '%s' and said '%s'" % (str(headers), str(response)) )
                     continue
                 ft = json.loads(response)   # Feature Type
 
