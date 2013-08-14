@@ -689,7 +689,11 @@ class LayEd:
                 logging.warning("[LayEd][getLayers] Failed to get the Layer. GeoServer replied with '%s' and said '%s'" % (str(headers), str(response)) )
                 continue
             # Load JSON
-            layer = json.loads(response)  # Layer from GS
+            try:
+                layer = json.loads(response)  # Layer from GS
+            except Exception as e:
+                logging.warning("[LayEd][getLayers] Failed to parse response JSON. GeoServer replied with '%s' and said '%s'" % (str(headers), str(response)) )
+                continue
 
             # Check the workspace
             ftUrl = layer["layer"]["resource"]["href"] # URL of Feature Type
@@ -709,11 +713,15 @@ class LayEd:
                 # GET FeatureType
                 logging.debug("[LayEd][getLayers] MATCH! Get Feature Type: '%s'"% ftUrl)
                 (headers, response) = gsr.getUrl(ftUrl)
-                logging.debug("[LayEd][getLayers] ftUrl: %s, headers: %s response: %s" % (str(ftUrl), str(headers), str(response)) )
+                #logging.debug("[LayEd][getLayers] ftUrl: %s, headers: %s response: %s" % (str(ftUrl), str(headers), str(response)) )
                 if headers["status"] != "200":
                     logging.warning("[LayEd][getLayers] Failed to get the FeatureType. GeoServer replied with '%s' and said '%s'" % (str(headers), str(response)) )
                     continue
-                ft = json.loads(response)   # Feature Type
+                try:
+                    ft = json.loads(response)   # Feature Type
+                except Exception as e:
+                    logging.warning("[LayEd][getLayers] Failed to parse response JSON. GeoServer replied with '%s' and said '%s'" % (str(headers), str(response)) )
+                    continue
 
                 # Return both
                 bundle = {}   # Layer that will be returned
