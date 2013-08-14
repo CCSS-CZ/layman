@@ -252,13 +252,13 @@ class LayMan:
                         # Obligatory parameters
                         if not inpt.schema:
                             raise LaymanError(
-                                400, "'schema' parameter missing")
+                                400, "schema parameter missing")
                         if not inpt.view:
                             raise LaymanError(
-                                400, "'view' parameter missing")
+                                400, "view parameter missing")
                         if not inpt.crs:
                             raise LaymanError(
-                                400, "'crs' parameter missing")
+                                400, "crs parameter missing")
 
                         viewName = inpt.view
                         dbSchema = self.auth.getDBSchema(inpt.schema)
