@@ -37,7 +37,7 @@ Ext4.define('HSRS.LayerManager.FilesPanel.FileUploader', {
         {
             xtype: 'filefield',
             id: 'form-file',
-            emptyText: 'Select an file',
+            emptyText: 'Select a file',
             fieldLabel: 'File',
             name: 'filename',
             //buttonText: '',
