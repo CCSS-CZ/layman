@@ -2,6 +2,7 @@
 # authors: Michal, Jachym
 
 import os, sys
+import shutil
 #import glob
 import mimetypes, time
 import json
@@ -448,7 +449,8 @@ class FileMan:
                 removeDirs.append(renameFrom)
                 continue
 
-            os.rename(renameFrom, renameTo)
+            shutil.move(renameFrom, renameTo)
+            # os.rename(renameFrom, renameTo)
 
             shape_file_part = target_root+suffix
            
@@ -459,7 +461,6 @@ class FileMan:
             logging.debug("[FileMan][_unzipFile] Loop END")
 
         # remove dirs
-        import shutil
         for d in removeDirs:
             try:
                 shutil.rmtree(d)
