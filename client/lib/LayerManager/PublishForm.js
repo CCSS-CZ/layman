@@ -318,7 +318,12 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                      fieldLabel: 'Native SRS',
                                      anchor: '100%',
                                      xtype: 'textfield',
-                                     value: config.prj || '',
+                                     emptyText: "EPSG:",
+                                     value: (config.prj == "None:None" || config.prj == '' ? "" : config.prj),
+                                     validator: function(val) {
+                                        // TODO
+                                        return true;
+                                     },
                                      name: 'crs'
                                  }
                              ]
