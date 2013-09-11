@@ -129,7 +129,7 @@ class LayEd:
 
             import time
             naptime = 15
-            for i in range(naptime)
+            for i in range(naptime):
                 logging.debug("[LayEd][importAndPublish] Sleeping... %s" % str(naptime - i + 1))
                 time.sleep(1)
 
