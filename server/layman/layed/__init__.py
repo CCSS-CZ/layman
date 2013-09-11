@@ -128,7 +128,10 @@ class LayEd:
             tableName = self.importFromFileToDb(filePath, dbSchema)
 
             import time
-            time.sleep(5)
+            naptime = 15
+            for i in range(naptime)
+                logging.debug("[LayEd][importAndPublish] Sleeping... %s" % str(naptime - i + 1))
+                time.sleep(1)
 
             # Publish from PostGIS to GeoServer
             (code, layerName, message) = self.publishFromDbToGs(dbSchema, tableName, gsWorkspace, srs, data)
