@@ -127,6 +127,9 @@ class LayEd:
             # Import vector to PostGIS
             tableName = self.importFromFileToDb(filePath, dbSchema)
 
+            import time
+            time.sleep(5)
+
             # Publish from PostGIS to GeoServer
             (code, layerName, message) = self.publishFromDbToGs(dbSchema, tableName, gsWorkspace, srs, data)
 
