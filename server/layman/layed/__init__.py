@@ -128,7 +128,7 @@ class LayEd:
             tableName = self.importFromFileToDb(filePath, dbSchema)
 
             import time
-            naptime = 7
+            naptime = 10
             for i in range(naptime):
                 logging.debug("[LayEd][importAndPublish] Sleeping... %s" % str(naptime - i))
                 time.sleep(1)
