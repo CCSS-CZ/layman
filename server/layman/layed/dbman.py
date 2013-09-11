@@ -126,6 +126,11 @@ class DbMan:
         sys.stderr = sys.__stderr__
         devnull.close()
 
+        # FIXME: We need to wait until the DB is ready and THEN return. 
+        # Otherwise publishing fails and we get 
+        # org.postgresql.util.PSQLException: ERROR: LWGEOM_estimated_extent: couldn't locate table within current schema
+        # Takes about 12 secs for 28MB shapefile
+
         # TODO: Check the result
         # TODO: Exceptions handling
 

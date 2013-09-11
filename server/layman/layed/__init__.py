@@ -126,9 +126,12 @@ class LayEd:
 
             # Import vector to PostGIS
             tableName = self.importFromFileToDb(filePath, dbSchema)
-
+            
+            # Have a nap - before dbm.importVectorFile() is fixed...
+            # We need to wait until the DB is ready
+            # Takes about 12 secs for ArmCommP.shp (28MB)
             import time
-            naptime = 12
+            naptime = 15
             for i in range(naptime):
                 logging.debug("[LayEd][importAndPublish] Sleeping... %s" % str(naptime - i))
                 time.sleep(1)
