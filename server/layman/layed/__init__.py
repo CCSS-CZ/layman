@@ -132,9 +132,9 @@ class LayEd:
             # Takes about 12 secs for ArmCommP.shp (28MB)
             import time
             naptime = 15
-            for i in range(naptime):
-                logging.debug("[LayEd][importAndPublish] Sleeping... %s" % str(naptime - i))
-                time.sleep(1)
+            #for i in range(naptime):
+            #    logging.debug("[LayEd][importAndPublish] Sleeping... %s" % str(naptime - i))
+            #    time.sleep(1)
 
             # Publish from PostGIS to GeoServer
             (code, layerName, message) = self.publishFromDbToGs(dbSchema, tableName, gsWorkspace, srs, data)
