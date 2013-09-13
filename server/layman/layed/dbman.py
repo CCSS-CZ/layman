@@ -113,7 +113,7 @@ class DbMan:
         sys.stderr = devnull
         ogr2ogr_params = ["",
                           "-lco", "SCHEMA=" + str(dbSchema),
-                          "-progress", "-lco", "PRECISION=NO",
+                          "-lco", "PRECISION=NO",
                           "-nln", name_out, "-f", "PostgreSQL"]
 
         if self._get_ogr2ogr_version() >= 1100000:
