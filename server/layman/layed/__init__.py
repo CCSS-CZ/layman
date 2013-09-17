@@ -543,7 +543,7 @@ class LayEd:
                 logging.debug("[LayEd][createFtFromDb] Sleeping...")
                 time.sleep(sleeptime)
                 continue
-            else
+            else:
                 break
  
 
