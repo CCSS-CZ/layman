@@ -1,8 +1,6 @@
 # Lincense: ...
 # authors: Michal, Jachym
 
-#TODO: class ServerMan, GeoServ, MapServ and DbMan
-
 import os
 import json
 from gsrest import GsRest
@@ -18,7 +16,8 @@ namespaces = {
     "sld": "http://www.opengis.net/sld"
 }
 
-
+# For now, with GeoServer only
+# For MapServer, common ancestor should be created
 class LayEd:
     """Layer editor and manager
     """
@@ -43,6 +42,7 @@ class LayEd:
 
     ### LAYERS ###
 
+    # Obsolete
     def publishFromFileToGs(self, fsDir, gsWorkspace, fileName):
         """ Publish from file to GeoServer with GS Config
         """
@@ -54,20 +54,6 @@ class LayEd:
 
         # file
         fileNameNoExt = os.path.splitext(fileName)[0]
-
-        # TODO - check the GS workspace and create it if it does not exist
-        # if...
-        #    createWorkspace(...)
-
-        # Here the Workspace should exist
-
-        # TODO - check the GS data store and create it if it does not exist
-        # if...
-        #    createDataStore(...)
-        # NOTE: Well, this is not needed if we use gsconfig.py "create_featurestore()"
-        # It would be needed for GS "POST FeatureType" request
-
-        # Here the Data Store should exist
 
         # publish with gsconfig.py
         from gsconfig import GsConfig
@@ -160,7 +146,6 @@ class LayEd:
         
         tableName = dbm.importVectorFile(filePath, dbSchema)
 
-        # TODO: check the result
         logging.info("[LayEd][importFromFileToDb] Imported file '%s'" % filePath)
         logging.info("[LayEd][importFromFileToDb] in schema '%s'" % dbSchema)
 
@@ -187,8 +172,6 @@ class LayEd:
         self.updateLayerAttribution(gsWorkspace, layerName, data)
 
         # Create and assgin new style
-        # FIXME: allow client to specify the style
-        
         self.createStyleForLayer(gsWorkspace, dataStore, layerName, styleName, styleWs)
 
         logging.info("[LayEd][publish] Published layer '%s'" % layerName)
@@ -600,8 +583,8 @@ class LayEd:
         gs = GsConfig()
 
         code = 200
-        layers =  gs.getLayers() # TODO: select only those from the given workspace
-        # NOTE: Do we want to get layers or feature types? (two different things in gs)
+        layers =  gs.getLayers() # todo: select only those from the given workspace
+        # note: Do we want to get layers or feature types? (two different things in gs)
 
         return (code,layers)
 
@@ -642,11 +625,10 @@ class LayEd:
         logging.debug("[LayEd][getLayers] GS GET Layers response header: '%s'"% headers)
         logging.debug("[LayEd][getLayers] GS GET Layers response content: '%s'"% response)
 
-        # TODO: check the result
-        #print "head"
-        #print headers
-        #print "resp"
-        #print response
+        if headers["status"] != "200":
+            headStr = str(headers)
+            message = "[LayEd][getLayers] Get Layers failed. Geoserver replied with " + headStr + " and said: '" + response + "'"
+            raise LaymanError(500, message)
 
         gsLayers = json.loads(response) # Layers from GS
 
