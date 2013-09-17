@@ -16,6 +16,8 @@ namespaces = {
     "sld": "http://www.opengis.net/sld"
 }
 
+# TODO: Move debug logging of GeoServer request/responses into the GsRest class
+
 # For now, with GeoServer only
 # For MapServer, common ancestor should be created
 class LayEd:
@@ -414,8 +416,16 @@ class LayEd:
 
         # Style not provided - clone the default one that has been automatically assigned to the layer by GeoServer
         if styleName is None or styleName == "":
+            logging.debug("[LayEd][createStyleForLayer] GET Layer %s" % layerName)
             (head, cont) = gsr.getLayer(workspace, name=layerName) # GET Layer
-            # TODO: check the result
+            logging.debug("[LayEd][createStyleForLayer] Response header: '%s'" % head)
+            logging.debug("[LayEd][createStyleForLayer] Response contents: '%s'" % cont)
+
+            if head["status"] != "200":
+                headStr = str(head)
+                message = "LayEd: createStyleForLayer(): Cannot get layer to get the current style. Geoserver replied with " + headStr + " and said '" + cont + "'"
+                raise LaymanError(500, message)
+
             layerJson = json.loads(cont)
 
             fromStyleUrl = layerJson["layer"]["defaultStyle"]["href"]
@@ -435,22 +445,29 @@ class LayEd:
         newStyleUrl = self.cloneStyle(fromStyleUrl=fromStyleUrl, toWorkspace=workspace, toStyle=layerName)
         logging.info("[LayEd][createStyleForLayer] created style '%s'"% layerName)
         logging.info("[LayEd][createStyleForLayer] in workspace '%s'"% workspace)
-        # TODO: check the result
 
-        # Assign new style with gsxml
-        style_str = {}
-        style_str["layer"] = {}
-        style_str["layer"]["defaultStyle"] = {}
-        style_str["layer"]["defaultStyle"]["name"] = layerName
-        style_str["layer"]["defaultStyle"]["workspace"] = workspace
-        style_str["layer"]["enabled"] = True
+        # Assign new style 
+        styleJson = {}
+        styleJson["layer"] = {}
+        styleJson["layer"]["defaultStyle"] = {}
+        styleJson["layer"]["defaultStyle"]["name"] = layerName
+        styleJson["layer"]["defaultStyle"]["workspace"] = workspace
+        styleJson["layer"]["enabled"] = True
+        styleStr = json.dumps(styleJson)
 
-        headers, content = gsr.putLayer(workspace, layerName, json.dumps(style_str))
+        logging.debug("[LayEd][createStyleForLayer] PUT Layer (Assign style): '%s'" % styleStr)
+        head, cont = gsr.putLayer(workspace, layerName, styleStr)
+        logging.debug("[LayEd][createStyleForLayer] Response header: '%s'" % head)
+        logging.debug("[LayEd][createStyleForLayer] Response contents: '%s'" % cont)
+
+        if head["status"] not in ("200", "201"):
+            headStr = str(head)
+            message = "LayEd: createStyleForLayer(): Cannot assign new syle to the layer. Geoserver replied with " + headStr + " and said '" + cont + "'"
+            raise LaymanError(500, message)
 
         logging.info("[LayEd][publish] assigned style '%s'"% layerName)
         logging.info("[LayEd][publish] to layer '%s'"% layerName)
         logging.info("[LayEd][publish] in workspace '%s'"% workspace)
-        # TODO: check the result
 
         # Tell GS to reload the configuration
         gsr.putReload()
@@ -802,6 +819,7 @@ class LayEd:
                 headers, response = gsr.getLayer(workspace,layer)
                 logging.debug("[LayEd][deleteLayer] GET Layer response headers: %s"% headers)
                 logging.debug("[LayEd][deleteLayer] GET Layer response content: %s"% response)
+                # TODO: check the result
                 layerJson = json.loads(response)
 
                 # VECTOR or RASTER
@@ -1008,9 +1026,6 @@ class LayEd:
         # url.json -> url.sld
         dotPos = fromStyleUrl.rfind(".")
         sldUrl = fromStyleUrl[0:dotPos+1] + "sld"
-        #print "*** LayEd *** cloneStyle ** "
-        #print "sldUrl:"
-        #print sldUrl
 
         # GET style .sld from GS
         (headers, styleSld) = gsr.getUrl(sldUrl)
@@ -1048,8 +1063,6 @@ class LayEd:
         # fix geoserver mismatch
         sldPos = location.rfind(".sld")
         location = location[0:sldPos] + location[sldPos+4:] + ".json"
-        #print "### LOCATION ###"
-        #print location
         return location
 
     def _getGSRasterType(self,rtype):

@@ -9,6 +9,8 @@ import logging
 import httplib2
 from urlparse import urlparse
 
+# TODO: Debug logging of requests/responses should be done here, not in the LayEd class
+
 class GsRest:
     """GeoServer REST API
     """
