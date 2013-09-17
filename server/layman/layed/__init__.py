@@ -295,7 +295,7 @@ class LayEd:
         if head["status"] != "201":
             # Raise an exception
             headStr = str(head)
-            message = "LayEd: createCoverageStoreIfNotExists(): Cannot create CoverageStore " + final_name + ". Geoserver replied with " + headStr + " and said " + cont
+            message = "LayEd: createCoverageStoreIfNotExists(): Cannot create CoverageStore " + final_name + ". Geoserver replied with " + headStr + " and said '" + cont + "'"
             raise LaymanError(500, message)
 
     def createCoverageFromFile(self, gsworkspace, store, name, srs, data=None):
@@ -336,7 +336,7 @@ class LayEd:
         if head["status"] != "201":
             # Raise an exception
             headStr = str(head)
-            message = "LayEd: createCoverageFromFile(): Cannot create Coverage " + coverStr + ". Geoserver replied with " + headStr + " and said " + cont
+            message = "LayEd: createCoverageFromFile(): Cannot create Coverage " + coverStr + ". Geoserver replied with " + headStr + " and said '" + cont + "'"
             raise LaymanError(500, message)
 
         # FIXME: return layer name from location header       
@@ -370,7 +370,7 @@ class LayEd:
             if head["status"] != "201":
                 # Raise an exception
                 headStr = str(head)
-                message = "LayEd: createWorkspaceIfNotExists(): Cannot create workspace " + workspace + ". Geoserver replied with " + headStr + " and said " + cont
+                message = "LayEd: createWorkspaceIfNotExists(): Cannot create workspace " + workspace + ". Geoserver replied with " + headStr + " and said '" + cont + "'"
                 raise LaymanError(500, message)
 
     # Check the GS data store and create it if it does not exist
@@ -421,7 +421,7 @@ class LayEd:
             if head["status"] != "201":
                 # Raise an exception
                 headStr = str(head)
-                message = "LayEd: createDataStoreIfNotExists(): Cannot create Data Store " + dbSchema + ". Geoserver replied with " + headStr + " and said " + cont
+                message = "LayEd: createDataStoreIfNotExists(): Cannot create Data Store " + dbSchema + ". Geoserver replied with " + headStr + " and said '" + cont + "'"
                 raise LaymanError(500, message)
 
             # TODO: return data store name from location header
@@ -522,19 +522,36 @@ class LayEd:
 
         # POST Feature Type
         gsr = GsRest(self.config)
-        logging.debug("[LayEd][createFtFromDb] Create Feature Type: '%s'" % ftStr)
-        (head, cont) = gsr.postFeatureTypes(workspace, dataStore, data=ftStr)
-        logging.debug("[LayEd][createFtFromDb] Response header: '%s'" % head)
-        logging.debug("[LayEd][createFtFromDb] Response contents: '%s'" % cont)
 
-        # head: '{'status': '201', 'content-length': '0', 'vary': 'Accept-Encoding', 'server': 'Noelios-Restlet-Engine/1.0..8', '-content-encoding': 'gzip', 'location': 'http://erra.ccss.cz/geoserver/rest/workspaces/policajti/datastores/policajti/featuretypes.json/pest_00', 'date': 'Wed, 31 Jul 2013 17:49:12 GMT', 'content-type': 'application/json'}'
-        # cont: ''
+        # It can happen that the database is not ready yet when we try to publish a layer
+        # So if an attempt fails, give it some time and try it again until some timeout
+        import time
+        timeout = 120 # time to wait
+        sleeptime = 10 # interval between attempts
+        for i in range(timeout/sleeptime):
+
+            # post
+            logging.debug("[LayEd][createFtFromDb] Create Feature Type: '%s'" % ftStr)
+            (head, cont) = gsr.postFeatureTypes(workspace, dataStore, data=ftStr)
+            logging.debug("[LayEd][createFtFromDb] Response header: '%s'" % head)
+            logging.debug("[LayEd][createFtFromDb] Response contents: '%s'" % cont)
+            # head: '{'status': '201', 'content-length': '0', 'vary': 'Accept-Encoding', 'server': 'Noelios-Restlet-Engine/1.0..8', '-content-encoding': 'gzip', 'location': 'http://erra.ccss.cz/geoserver/rest/workspaces/policajti/datastores/policajti/featuretypes.json/pest_00', 'date': 'Wed, 31 Jul 2013 17:49:12 GMT', 'content-type': 'application/json'}'
+            # cont: ''
+
+            # if it failed, lets wait
+            if head["status"] == "500":    
+                logging.debug("[LayEd][createFtFromDb] Sleeping...")
+                time.sleep(sleeptime)
+                continue
+            else
+                break
+ 
 
         if head["status"] != "201":
             # Raise an exception
             headStr = str(head)
             message = """LayEd: createFtFromDb(): Cannot create FeatureType %s.
-                 Geoserver replied with %s and said %s""" %\
+                 Geoserver replied with %s and said '%s'""" %\
                       (ftStr, headStr, cont)
             raise LaymanError(500, message)
 
