@@ -499,7 +499,7 @@ class LayEd:
             ftJson["featureType"]["keywords"] = {}
             ftJson["featureType"]["keywords"]["string"] = \
                 map(lambda k: k.strip(), data.keywords.split(","))
-        if hasattr(data, "metadataurl") and data["metadataurl"] != "":
+        if hasattr(data, "metadataurl") and data["metadataurl"] != "" and data["metadataurl"] != "http://":
             ftJson["featureType"]["metadataLinks"] = {}
             ftJson["featureType"]["metadataLinks"]["metadataLink"] = [
                 {
@@ -564,7 +564,7 @@ class LayEd:
 
     def updateLayerAttribution(self, workspace, layerName, data=None):
         if data is None: return
-        doSt = False
+        doSt = False # do something
 
         layerStr = None
         layerJson = {
@@ -579,7 +579,7 @@ class LayEd:
         if hasattr(data, "attribution_text") and data["attribution_text"] != "":
             layerJson["layer"]["attribution"]["title"] = data.attribution_text
             doSt = True
-        if hasattr(data, "attribution_link") and data["attribution_link"] != "":
+        if hasattr(data, "attribution_link") and data["attribution_link"] != "" and data["attribution_link"] != "http://":
             layerJson["layer"]["attribution"]["href"] = data.attribution_link
             doSt = True
     
