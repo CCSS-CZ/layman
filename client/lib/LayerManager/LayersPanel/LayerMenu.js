@@ -99,6 +99,10 @@ Ext4.define('HSRS.LayerManager.LayersPanel.LayerMenu', {
      */
     _onSettingsClicked: function() {
 
+        metadataUrlSafe = (this.layerData.metadataLinks && this.layerData.metadataLinks.metadataLink[0] && this.layerData.metadataLinks.metadataLink[0].content) 
+                    ? this.layerData.metadataLinks.metadataLink[0].content
+                    : undefined; 
+
         var publishForm = Ext4.create('HSRS.LayerManager.PublishForm', {
             name: this.layer.name,
             url: this.url.replace('fileman', 'layed'),
@@ -112,7 +116,7 @@ Ext4.define('HSRS.LayerManager.LayersPanel.LayerMenu', {
             layerData: this.layerData,
             layer: this.layer,
             keywords: this.layerData.keywords.string.join(","),
-            metadataurl: this.layerData.metadataLinks.metadataLink[0].content,
+            metadataurl: metadataUrlSafe,
             attribution_text: this.layer.attribution.title,
             attribution_link: this.layer.attribution.href,
             extent: [this.layerData.latLonBoundingBox.minx,
