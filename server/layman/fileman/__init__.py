@@ -432,6 +432,8 @@ class FileMan:
         for shape_file_part in files:
             logging.debug("[FileMan][_unzipFile] Loop START")
             (root, suffix) = os.path.splitext(shape_file_part)
+          
+            target_root = root # don't rename, leave the original name
 
             # rename file as desired
 
