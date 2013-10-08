@@ -300,7 +300,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                 }),
                                 displayField: 'title',
                                 valueField: 'name',
-                                allowBlank: false,
+                                allowBlank: true, // Shoudl this be rather false?
                                 msgTarget: 'side',
                                 fromTitle: 'Available groups',
                                 toTitle: 'Groups read'
