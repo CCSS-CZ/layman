@@ -878,6 +878,9 @@ class LayEd:
         """ This function combines two things together:
         {{Layer}{FeatureType}}, both in json.
         Type of the return value is string."""
+
+        logging.debug("[LayEd][getLayerConfig] GET Layer Config for %s:%s"% (workspace, layerName))
+
         gsr = GsRest(self.config)
 
         # GET Layer
@@ -902,6 +905,7 @@ class LayEd:
         retval["layer"] = layerJson["layer"]
         retval["featureType"] = featureTypeJson["featureType"]
         retval = json.dumps(retval)
+        logging.debug("[LayEd][getLayerConfig] Reply with: %s"% (retval))
         return (200, retval)
 
     def putLayerConfig(self, workspace, layerName, data, fsUserDir,
@@ -909,6 +913,9 @@ class LayEd:
         """ This function expects two things together:
         {{Layer}{FeatureType}}, both in json.
         Expected type of data is string."""
+
+        logging.info("[LayEd][putLayerConfig] PUT Layer Config for %s:%s"% (workspace, layerName))
+        logging.info("[LayEd][putLayerConfig] Client requests the following: %s"% (str(data)))
 
         gsr = GsRest(self.config)
 
@@ -959,12 +966,14 @@ class LayEd:
         ftUrl = data["layer"]["resource"]["href"]  # Extract Feature Type URL
         featureTypeString = json.dumps(featureTypeJson)  # json -> string
         # PUT Feature Type
+        logging.info("[LayEd][putLayerConfig] PUT Feature Type: %s"% featureTypeString)
         headers, response = gsr.putUrl(ftUrl, featureTypeString)
         # TODO: check the reuslt
 
         # PUT Layer
         layerJson = {}
         layerJson["layer"] = data["layer"]
+        styleJson["layer"]["enabled"] = True
         layerJson["attribution"] = {}
         if "attribution_link" in data.keys() and\
            data["attribution_link"] != "":
@@ -975,6 +984,7 @@ class LayEd:
             layerJson["layer"]["attribution"]["title"] = \
                 data["attribution_text"]
         layerString = json.dumps(layerJson)
+        logging.info("[LayEd][putLayerConfig] PUT Layer %s: %s"% (layerName, layerString))
         headers, response = gsr.putLayer(workspace, layerName, layerString)
 
         # TODO: check the reuslt
