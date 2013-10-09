@@ -939,6 +939,7 @@ class LayEd:
         # PUT Feature Type
         featureTypeJson = {}          # Extract Feature Type
         featureTypeJson["featureType"] = data["featureType"]
+        featureTypeJson["featureType"]["enabled"] = True # TODO: use previous value. if not specified, gs sets it to false. 
         abstract_text = ""
         if "abstract" in featureTypeJson["featureType"].keys() and\
                 featureTypeJson["featureType"]["abstract"] != "":
@@ -973,7 +974,7 @@ class LayEd:
         # PUT Layer
         layerJson = {}
         layerJson["layer"] = data["layer"]
-        layerJson["layer"]["enabled"] = True
+        layerJson["layer"]["enabled"] = True # TODO: should use previous value
         layerJson["attribution"] = {}
         if "attribution_link" in data.keys() and\
            data["attribution_link"] != "":
