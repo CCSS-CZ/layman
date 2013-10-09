@@ -973,7 +973,7 @@ class LayEd:
         # PUT Layer
         layerJson = {}
         layerJson["layer"] = data["layer"]
-        styleJson["layer"]["enabled"] = True
+        layerJson["layer"]["enabled"] = True
         layerJson["attribution"] = {}
         if "attribution_link" in data.keys() and\
            data["attribution_link"] != "":
