@@ -203,9 +203,9 @@ class FileMan:
         fileName = pathParsed[-1]
         dirPath = pathParsed[-2]
 
-        logging.debug("FileMan.postFile() pathParsed: %s"% str(pathParsed))
-        logging.debug("FileMan.postFile() fileName: %s"% fileName)
-        logging.debug("FileMan.postFile() dirPath: %s"% dirPath)
+        logging.debug("[FileMan][postFile] pathParsed: %s"% str(pathParsed))
+        logging.debug("[FileMan][postFile] fileName: %s"% fileName)
+        logging.debug("[FileMan][postFile] dirPath: %s"% dirPath)
 
         # make sure that the directory exists
         dirExists = os.path.exists(dirPath) and os.path.isdir(dirPath)
@@ -219,6 +219,7 @@ class FileMan:
                raise LaymanError(500, errMsg) 
 
         # The file is there, DO NOT overwrite
+        # WRONG - filePath is .zip - and that does not exist...
         if os.path.exists(filePath):
 
             return ("conflict",
