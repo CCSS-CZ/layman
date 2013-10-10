@@ -627,8 +627,8 @@ class LayEd:
             {
                 workspace: "police"
                 roleTitle: "Policie Ceske republiky"
-                layer: {...}
-                featureType: {...}
+                layer: {...}      // geoserver layer object
+                layerData: {...}  // geoserver object - featureType, coverage...
             },
             ...
         ]
