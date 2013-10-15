@@ -227,11 +227,13 @@ class DbMan:
             conn = psycopg2.connect(self.getConnectionString())
             cur = conn.cursor()
 
-            SQL = "SELECT schema_name FROM information_schema.schemata WHERE schema_name = %s;"
+            # SQL = "SELECT schema_name FROM information_schema.schemata WHERE schema_name = %s;"
+            SQL = "SELECT schema_name FROM information_schema.schemata WHERE schema_name = '"+dbSchema+"';"
             params = (dbSchema, )
             logging.debug("[DbMan][createSchemaIfNotExists] Checking schema '%s'..."% dbSchema)
             logging.debug("[DbMan][createSchemaIfNotExists] SQL: '%s', Params: '%s'..."% (SQL, params))
-            cur.execute(SQL, params)
+            #cur.execute(SQL, params)
+            cur.execute(SQL)
             result = cur.fetchone()
             logging.debug("[DbMan][createSchemaIfNotExists] Select result: '%s'"% str(result))
 
