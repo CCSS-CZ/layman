@@ -230,6 +230,7 @@ class DbMan:
             SQL = "SELECT schema_name FROM information_schema.schemata WHERE schema_name = %s;"
             params = (dbSchema, )
             logging.debug("[DbMan][createSchemaIfNotExists] Checking schema '%s'..."% dbSchema)
+            logging.debug("[DbMan][createSchemaIfNotExists] SQL: '%s', Params: '%s'..."% (SQL, params))
             cur.execute(SQL, params)
             result = cur.fetchone()
             logging.debug("[DbMan][createSchemaIfNotExists] Select result: '%s'"% str(result))
