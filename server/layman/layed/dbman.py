@@ -45,7 +45,7 @@ class DbMan:
         dbhost = self.config.get("DbMan","dbhost")
         dbpass = self.config.get("DbMan","dbpass")
         dbport = self.config.get("DbMan","dbport")
-        logStr = "dbname='"+dbname+"' user='"+dbuser+"' host='"+dbhost+"' pass='"+dbpass+"' port='"+dbport="'" # FIXME: remove password
+        logStr = "dbname='"+dbname+"' user='"+dbuser+"' host='"+dbhost+"' pass='"+dbpass+"' port='"+dbport+"'" # FIXME: remove password
         logging.debug("[DbMan][getConnectionString] Connection details: %s"% logStr)
 
         if ogr:
