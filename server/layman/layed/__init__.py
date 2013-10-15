@@ -936,6 +936,8 @@ class LayEd:
         # TODO: check, that layer.resource.href
         # is referrencing the proper feature type
 
+        # FIXME: *** pridelat coverage pro rastry
+
         # PUT Feature Type
         featureTypeJson = {}          # Extract Feature Type
         featureTypeJson["featureType"] = data["featureType"]

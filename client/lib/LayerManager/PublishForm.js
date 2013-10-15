@@ -415,7 +415,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
 
                 Ext4.Ajax.request({
                     url: this.url,
-                    jsonData: {'featureType' : {
+                    jsonData: {'featureType' : { // FIXME: *** tady je potreba poslat this.layerData (tj. featureType nebo coverage) podobne jako this.layer. Tam jsou totiz vsechny parametry, nejeon nektery a to taky ocekava server. hodnoty parametru nastavenych uzivatelem treba nastavit. enjoy *
                         title: vals.title,
                         abstract: vals.abstract
                         },
