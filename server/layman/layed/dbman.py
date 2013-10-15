@@ -229,14 +229,19 @@ class DbMan:
 
             SQL = "SELECT schema_name FROM information_schema.schemata WHERE schema_name = %s;"
             params = (dbSchema, )
+            logging.debug("[DbMan][createSchemaIfNotExists] Checking schema '%s'..."% dbSchema)
             cur.execute(SQL, params)
             result = cur.fetchone()
+            logging.debug("[DbMan][createSchemaIfNotExists] Select result: '%s'"% str(result))
 
             created = False
             if not result:
+                logging.debug("[DbMan][createSchemaIfNotExists] Schema not found, create schema")
                 SQL = "CREATE SCHEMA "+dbSchema+";"
                 cur.execute(SQL)
                 created = True
+            else:
+                logging.debug("[DbMan][createSchemaIfNotExists] Schema found, go on")
 
             conn.commit()
             cur.close()
