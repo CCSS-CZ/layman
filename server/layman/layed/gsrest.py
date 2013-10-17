@@ -270,46 +270,35 @@ class GsRest:
 
     def getUrl(self, url):
         """ Get given url, authenticated."""
-        ####print "*** GSREST *** getUrl ***"
-        ####print "*** url ***"
-        ####print url
-        headers, response =  self.h.request(url,'GET')
-        ####print "*** headers ***"
-        ####print headers
-        ####print "*** response ***"
-        ####print response
-        return headers, response
+        logging.debug("[GsRest][getUrl] GET URL: %s"% url)        
+        head, cont =  self.h.request(url,'GET')
+        logging.debug("[GsRest][getUrl] Response headers: %s"% head)        
+        logging.debug("[GsRest][getUrl] Response content: %s"% cont)        
+        return head, cont
 
     def postUrl(self, url, data):
         """ Post given url, authenticated."""
-        headers, response =  self.h.request(url,'POST', data, self.jsonHeader)
-        return headers, response
+        logging.debug("[GsRest][postUrl] POST URL: %s"% url)        
+        head, cont =  self.h.request(url,'POST', data, self.jsonHeader)
+        logging.debug("[GsRest][postUrl] Response headers: %s"% head)        
+        logging.debug("[GsRest][postUrl] Response content: %s"% cont)        
+        return head, cont
 
     def putUrl(self, url, data):
         """ Put given url, authenticated."""
-        ###print "*** GSREST *** putUrl ***"
-        ####print "*** url ***"
-        ####print url
-        ####print "*** data ***"
-        ####print data
-        headers, response =  self.h.request(url,'PUT', data, self.jsonHeader)
-        ###print "*** headers ***"
-        ###print headers
-        ###print "*** response ***"
-        ###print response
-        return headers, response
+        logging.debug("[GsRest][putUrl] PUT URL: %s"% url)        
+        head, cont =  self.h.request(url,'PUT', data, self.jsonHeader)
+        logging.debug("[GsRest][putUrl] Response headers: %s"% head)        
+        logging.debug("[GsRest][putUrl] Response content: %s"% cont)        
+        return head, cont
 
     def deleteUrl(self, url):
         """ Delete given url, authenticated."""
-        ##print "*** GSREST *** deleteUrl ***"
-        ##print "*** url ***"
-        ##print url
-        headers, response =  self.h.request(url,'DELETE')
-        ##print "*** headers ***"
-        ##print headers
-        ##print "*** response ***"
-        ##print response
-        return headers, response
+        logging.debug("[GsRest][deleteUrl] DELETE URL: %s"% url)        
+        head, cont =  self.h.request(url,'DELETE')
+        logging.debug("[GsRest][deleteUrl] Response headers: %s"% head)        
+        logging.debug("[GsRest][deleteUrl] Response content: %s"% cont)        
+        return head, cont
 
     ### PRIVATE ###
 
