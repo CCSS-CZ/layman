@@ -1053,7 +1053,7 @@ class LayEd:
         try:
             tree = etree.parse(sld_as_file)
         except Exception as e:
-            logging.error("[LayEd][cloneStyle] Cannot parse SLD: '%s'. Exception caught: '%s' "% (sld_as_file, e))
+            logging.error("[LayEd][cloneStyle] Cannot parse SLD: '%s'. Exception caught: '%s' "% (str(sld_as_file), e))
             message = "LayEd: cloneStyle(): Cannot parse default SLD"
             raise LaymanError(500, message)
 
