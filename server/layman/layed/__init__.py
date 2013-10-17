@@ -1050,7 +1050,13 @@ class LayEd:
 
         # change style name and title
         sld_as_file = BytesIO(styleSld)
-        tree = etree.parse(sld_as_file)
+        try:
+            tree = etree.parse(sld_as_file)
+        except Exception as e:
+            logging.error("[LayEd][cloneStyle] Cannot parse SLD: '%s'. Exception caught: '%s' "% (sld_as_file, e))
+            message = "LayEd: cloneStyle(): Cannot parse default SLD"
+            raise LaymanError(500, message)
+
         layer_name_elem = tree.xpath("//sld:NamedLayer/sld:Name",namespaces=namespaces)
         if len(layer_name_elem) > 0:
             layer_name_elem[0].text = "%s" % (toStyle)
