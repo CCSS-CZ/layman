@@ -399,7 +399,6 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
         var data = form.getValues();
 
         if (form.isValid()) {
-            // submit FeatureTypes using http PUT
             Ext4.MessageBox.show({
                    msg: 'Importing data to database, creating new layer ...',
                    progressText: 'Importing file ...',
@@ -409,28 +408,71 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                    icon: 'ext4-mb-download', //custom class in msg-box.html
                    iconHeight: 50
                });
+            
+            if (this.isFeatureType) { // If it already exists
 
-            if (this.isFeatureType) {
+                // Update Layer Settings 
+
+                // Sent back what we previously received from GeoServer through LayMan server GET Layers
+                // Set the values that were shown/edited in the GUI
                 var vals = form.getValues();
+                newFt    = this.layerData; 
+                newLayer = this.layer; 
+
+                // FIXME: Allow for Coverages
+
+                // Feature Type params
+    
+                // Title, Abstract, SRS
+                newFt.title = vals.title;
+                newFt.abstract = vals.abstract;
+                newFt.srs   =  vals.crs;
+
+                // Bounding Box
+                if (!newFt.latLonBoundingBox) {
+                    newFt.latLonBoundingBox = {};
+                }
+                newFt.latLonBoundingBox.minx = vals.minx;
+                newFt.latLonBoundingBox.miny = vals.miny;
+                newFt.latLonBoundingBox.maxx = vals.maxx;
+                newFt.latLonBoundingBox.maxy = vals.maxy;
+
+                // Keywords
+                if (!newFt.keywords) {
+                    newFt.keywords = {}
+                }
+                newFt.keywords.string = vals.keywords;
+                if (!newFt.metadataLinks) {
+                    newFt.metadataLinks = {}
+                }
+
+                // Metadata
+                if (!newFt.metadataLinks.metadataLink) {
+                    newFt.metadataLinks.metadataLink = []
+                }
+                if (!newFt.metadataLinks.metadataLink[0]) {
+                    newFt.metadataLinks.metadataLink[0] = {}
+                }
+                newFt.metadataLinks.metadataLink[0].content =  vals.metadataurl;
+
+                // Layer params
+
+                // Attribution
+                if (!newLayer.attribution) {
+                    newLayer.attribution = {}
+                }
+                newLayer.attribution.title = vals.attribution_text;
+                newLayer.attribution.href  = vals.attribution_link;
+
+                // PUT Layer Config 
 
                 Ext4.Ajax.request({
                     url: this.url,
-                    jsonData: {'featureType' : { // FIXME: *** tady je potreba poslat this.layerData (tj. featureType nebo coverage) podobne jako this.layer. Tam jsou totiz vsechny parametry, nejeon nektery a to taky ocekava server. hodnoty parametru nastavenych uzivatelem treba nastavit. enjoy *
-                        title: vals.title,
-                        abstract: vals.abstract
-                        },
-                        crs: vals.crs,
-                        minx: vals.minx,
-                        miny: vals.miny,
-                        maxx: vals.maxx,
-                        maxy: vals.maxy,
-                        keywords: vals.keywords,
-                        metadataurl: vals.metadataurl,
-                        attribution_text: vals.attribution_text,
-                        attribution_link: vals.attribution_link,
-                        usergroup: vals.usergroup,
-                        fileName: vals.fileName,
-                        layer: this.layer
+                    jsonData: {
+                        usergroup:      vals.usergroup, // wtf?
+                        fileName:       vals.fileName,  // wtf?
+                        layer:          newLayer,
+                        featureType:    newFt
                     },
                     method: 'PUT',
                     success: function(form, action) {
@@ -446,12 +488,13 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                         catch (E) {
                             obj = {message: ''};
                         }
-                        Ext4.Msg.alert('Failed', 'Publishing file failed' +
+                        Ext4.Msg.alert('Failed', 'Settings update failed' +
                             '<br />' + obj.message);
                     },
                     scope: this
                 });
             }
+
             // submit new files using http POST
             else {
                 form.submit({
