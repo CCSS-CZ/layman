@@ -748,7 +748,7 @@ class LayEd:
                 if "featureType" in ft.keys():
                     bundle["layerData"] = ft["featureType"]
                     bundle["layerData"]["datatype"] =  "featureType"
-                else:
+                else if "coverage" in ft.keys():
                     bundle["layerData"] = ft["coverage"]
                     bundle["layerData"]["datatype"] =  "coverage"
                 layers.append(bundle)
