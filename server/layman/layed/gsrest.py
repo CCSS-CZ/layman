@@ -129,10 +129,10 @@ class GsRest:
     def putLayer(self, workspace, name, data):
         url = self.url + "/layers/" + workspace + ":" + name + ".json"
         logging.debug("[GsRest][putLayer] PUT URL: %s"% url)        
-        headers, response = self.h.request(url,'PUT', data, self.jsonHeader)
+        head, cont = self.h.request(url,'PUT', data, self.jsonHeader)
         logging.debug("[GsRest][putLayer] Response headers: %s"% head)        
         logging.debug("[GsRest][putLayer] Response content: %s"% cont)        
-        return headers, response
+        return head, cont
 
     def deleteLayer(self, workspace, name, recurse="false"):
         """ recurse - whether to delete referrenced styles. default: false
