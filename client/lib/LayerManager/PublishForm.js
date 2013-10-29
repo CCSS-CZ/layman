@@ -469,7 +469,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                 Ext4.Ajax.request({
                     url: this.url,
                     jsonData: {
-                        usergroup:      vals.usergroup, // wtf?
+                        usergroup:      vals.usergroup, // usergroup=workspace=schema...
                         fileName:       vals.fileName,  // wtf?
                         layer:          newLayer,
                         featureType:    newFt

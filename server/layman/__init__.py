@@ -364,7 +364,8 @@ class LayMan:
                     data = json.loads(data)  # string -> json
 
                     usergroup = inpt.usergroup
-                    if not usergroup and "usergroup" in data.keys():
+                    if (not usergroup) and ("usergroup" in data.keys()):
+                        logging.debug("[LayMan][PUT] Usergroup not provided in params, but given in data: %s"% data["usergroup"])
                         usergroup = data["usergroup"]
 
                     fsUserDir = self.auth.getFSUserDir()
