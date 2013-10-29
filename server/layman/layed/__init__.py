@@ -747,10 +747,11 @@ class LayEd:
                 bundle["layerData"] = {}
                 if "featureType" in ft.keys():
                     bundle["layerData"] = ft["featureType"]
-                    bundle["layerData"]["datatype"] =  "featureType"
+                    #bundle["layerData"]["datatype"] =  "featureType" # this should not be here. 
+                    # can be detected from layer[type]. or, if really needed, should be set as bundle[datatype]
                 elif "coverage" in ft.keys():
                     bundle["layerData"] = ft["coverage"]
-                    bundle["layerData"]["datatype"] =  "coverage"
+                    #bundle["layerData"]["datatype"] =  "coverage"
                 layers.append(bundle)
 
         # Now find the layers hidden by the duplicites

@@ -26,7 +26,7 @@ Ext4.define('HSRSLayerDataObject', {
         nativeName: undefined, //
         store: undefined, //
         name: undefined, //
-        datatype: undefined,
+        // datatype: undefined, // should not be here
         constructor: function(config) {
             Ext4.Object.merge(this, config);
             this.callParent(arguments);
