@@ -971,8 +971,12 @@ class LayEd:
         featureTypeString = json.dumps(featureTypeJson)  # json -> string
         # PUT Feature Type
         logging.info("[LayEd][putLayerConfig] PUT Feature Type: %s"% featureTypeString)
-        headers, response = gsr.putUrl(ftUrl, featureTypeString)
-        # TODO: check the reuslt
+        (head, cont) = gsr.putUrl(ftUrl, featureTypeString)
+
+        if head["status"] != "200":
+            errorMsg = "Update of data settings failed. "
+            logging.error("[LayEd][putLayerConfig] PUT Feature Type failed. Geoserver replied with '%s' and said: '%s'"% (head, cont))
+            raise LaymanError(500, errorMsg)
 
         # PUT Layer
         layerJson = {}
@@ -989,11 +993,14 @@ class LayEd:
                 data["attribution_text"]
         layerString = json.dumps(layerJson)
         logging.info("[LayEd][putLayerConfig] PUT Layer %s: %s"% (layerName, layerString))
-        headers, response = gsr.putLayer(workspace, layerName, layerString)
+        (head, cont) = gsr.putLayer(workspace, layerName, layerString)
 
-        # TODO: check the reuslt
+        if head["status"] != "200":
+            errorMsg = "Data settings have been updated succesfully, but the update of publishing settings failed. "
+            logging.error("[LayEd][putLayerConfig] PUT Layer failed. Geoserver replied with '%s' and said: '%s'"% (head, cont))
+            raise LaymanError(500, errorMsg)
 
-        return (200, "PUT Layer Config OK")
+        return (200, "Settings successfully updated")
 
     def updateData(self, layerName, workspace, fsUserDir, fsGroupDir,
                    dbSchema, fileName):

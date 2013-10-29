@@ -128,16 +128,10 @@ class GsRest:
 
     def putLayer(self, workspace, name, data):
         url = self.url + "/layers/" + workspace + ":" + name + ".json"
-        #print "*** GSREST *** putLayer ***"
-        #print "*** url ***"
-        #print url
-        #print "*** data ***"
-        #print data
+        logging.debug("[GsRest][putLayer] PUT URL: %s"% url)        
         headers, response = self.h.request(url,'PUT', data, self.jsonHeader)
-        #print "*** headers ***"
-        #print headers
-        #print "*** response ***"
-        #print response
+        logging.debug("[GsRest][putLayer] Response headers: %s"% head)        
+        logging.debug("[GsRest][putLayer] Response content: %s"% cont)        
         return headers, response
 
     def deleteLayer(self, workspace, name, recurse="false"):
