@@ -996,8 +996,14 @@ class LayEd:
                     'content': data["metadataurl"]
                 }
             ]
+
+        if coverageJson["grid"]:
+            del coverageJson["grid"] # GS doesn't like that
+
         cvUrl = data["layer"]["resource"]["href"]  # Extract Coverage URL
         coverageString = json.dumps(coverageJson)  # json -> string
+
+        
 
         # PUT Coverage
         logging.info("[LayEd][putLayerConfig] PUT Coverage: %s"% coverageString)
