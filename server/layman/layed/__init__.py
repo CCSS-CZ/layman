@@ -937,7 +937,79 @@ class LayEd:
         # TODO: check, that layer.resource.href
         # is referrencing the proper feature type
 
-        # FIXME: *** pridelat coverage pro rastry
+        # Update Data Settings
+
+        layerType = data["layer"]["type"]
+
+        if layerType == "VECTOR":
+            # PUT Feature Type
+            self.updateFeatureType(data)
+
+        elif layerType == "RASTER":
+            # PUT Coverage
+            self.updateCoverage(data)
+        
+        # TODO: PUT WMS Layer
+        #elif layerType == "WMS":
+
+        else:
+            logging.error("[LayEd][putLayerConfig] Layer %s:%s: Update request for unsupported layer type '%s'"% (workspace, layerName, layerType))
+            errMsg = "Cannot update layer settings. Layer type '" + layerType+ "' is not supported."             
+            raise LaymanError(500, errMsg)            
+
+        # Update Publishing Settings
+
+        # PUT Layer
+        self.updateLayer(workspace, layerName, data)
+
+        return (200, "Settings successfully updated")
+
+    # PUT Coverage
+    def updateCoverage(self, data):
+        logging.debug("[LayEd][updateCoverage] PUT Coverage")
+
+        # PUT Feature Type
+        coverageJson = {}          
+        coverageJson["coverage"] = data["layerData"]
+        coverageJson["coverage"]["enabled"] = True # TODO: use previous value. if not specified, gs sets it to false. 
+        abstract_text = ""
+        if "abstract" in coverageJson["coverage"].keys() and\
+                coverageJson["coverage"]["abstract"] != "":
+            abstract_text = coverageJson["coverage"]["abstract"]
+        elif "description" in coverageJson["coverage"].keys() and\
+                coverageJson["coverage"]["description"] != "":
+            abstract_text = coverageJson["coverage"]["description"]
+
+        coverageJson["coverage"]["abstract"] = abstract_text
+        coverageJson["coverage"]["description"] = abstract_text
+
+        if "keywords" in data.keys() and data["keywords"] != "":
+            coverageJson["coverage"]["keywords"] = {}
+            coverageJson["coverage"]["keywords"]["string"] = \
+                map(lambda k: k.strip(), data["keywords"].split(","))
+        if "metadataurl" in data.keys() and data["metadataurl"] != "":
+            coverageJson["coverage"]["metadataLinks"] = {}
+            coverageJson["coverage"]["metadataLinks"]["metadataLink"] = [
+                {
+                    'type': "text/xml",
+                    'metadataType': 'ISO19115:2003',
+                    'content': data["metadataurl"]
+                }
+            ]
+        cvUrl = data["layer"]["resource"]["href"]  # Extract Coverage URL
+        coverageString = json.dumps(coverageJson)  # json -> string
+        # PUT Coverage
+        logging.info("[LayEd][putLayerConfig] PUT Coverage: %s"% coverageString)
+        (head, cont) = gsr.putUrl(cvUrl, coverageString)
+
+        if head["status"] != "200":
+            errorMsg = "Update of data settings failed. "
+            logging.error("[LayEd][updateCoverage] PUT Coverage failed. Geoserver replied with '%s' and said: '%s'"% (head, cont))
+            raise LaymanError(500, errorMsg)
+
+    # PUT Feature Type
+    def updateFeatureType(self, data):
+        logging.debug("[LayEd][updateFeatureType] PUT Feature Type")
 
         # PUT Feature Type
         featureTypeJson = {}          # Extract Feature Type
@@ -970,15 +1042,18 @@ class LayEd:
         ftUrl = data["layer"]["resource"]["href"]  # Extract Feature Type URL
         featureTypeString = json.dumps(featureTypeJson)  # json -> string
         # PUT Feature Type
-        logging.info("[LayEd][putLayerConfig] PUT Feature Type: %s"% featureTypeString)
+        logging.info("[LayEd][updateFeatureType] PUT Feature Type: %s"% featureTypeString)
         (head, cont) = gsr.putUrl(ftUrl, featureTypeString)
 
         if head["status"] != "200":
             errorMsg = "Update of data settings failed. "
-            logging.error("[LayEd][putLayerConfig] PUT Feature Type failed. Geoserver replied with '%s' and said: '%s'"% (head, cont))
+            logging.error("[LayEd][updateFeatureType] PUT Feature Type failed. Geoserver replied with '%s' and said: '%s'"% (head, cont))
             raise LaymanError(500, errorMsg)
 
-        # PUT Layer
+    # PUT Layer
+    def updateLayer(self, workspace, layerName, data):
+        logging.debug("[LayEd][updateLayer] PUT Layer")
+
         layerJson = {}
         layerJson["layer"] = data["layer"]
         layerJson["layer"]["enabled"] = True # TODO: should use previous value
@@ -992,15 +1067,14 @@ class LayEd:
             layerJson["layer"]["attribution"]["title"] = \
                 data["attribution_text"]
         layerString = json.dumps(layerJson)
-        logging.info("[LayEd][putLayerConfig] PUT Layer %s: %s"% (layerName, layerString))
+        logging.info("[LayEd][updateLayer] PUT Layer %s: %s"% (layerName, layerString))
         (head, cont) = gsr.putLayer(workspace, layerName, layerString)
 
         if head["status"] != "200":
             errorMsg = "Data settings have been updated succesfully, but the update of publishing settings failed. "
-            logging.error("[LayEd][putLayerConfig] PUT Layer failed. Geoserver replied with '%s' and said: '%s'"% (head, cont))
+            logging.error("[LayEd][updateLayer] PUT Layer failed. Geoserver replied with '%s' and said: '%s'"% (head, cont))
             raise LaymanError(500, errorMsg)
 
-        return (200, "Settings successfully updated")
 
     def updateData(self, layerName, workspace, fsUserDir, fsGroupDir,
                    dbSchema, fileName):
