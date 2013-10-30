@@ -968,7 +968,7 @@ class LayEd:
     def updateCoverage(self, data):
         logging.debug("[LayEd][updateCoverage] PUT Coverage")
 
-        # PUT Feature Type
+        # Prepare JSON
         coverageJson = {}          
         coverageJson["coverage"] = data["layerData"]
         coverageJson["coverage"]["enabled"] = True # TODO: use previous value. if not specified, gs sets it to false. 
@@ -998,8 +998,10 @@ class LayEd:
             ]
         cvUrl = data["layer"]["resource"]["href"]  # Extract Coverage URL
         coverageString = json.dumps(coverageJson)  # json -> string
+
         # PUT Coverage
         logging.info("[LayEd][putLayerConfig] PUT Coverage: %s"% coverageString)
+        gsr = GsRest(self.config)
         (head, cont) = gsr.putUrl(cvUrl, coverageString)
 
         if head["status"] != "200":
@@ -1010,8 +1012,8 @@ class LayEd:
     # PUT Feature Type
     def updateFeatureType(self, data):
         logging.debug("[LayEd][updateFeatureType] PUT Feature Type")
-
-        # PUT Feature Type
+        
+        # Prepare JSON
         featureTypeJson = {}          # Extract Feature Type
         featureTypeJson["featureType"] = data["layerData"]
         featureTypeJson["featureType"]["enabled"] = True # TODO: use previous value. if not specified, gs sets it to false. 
@@ -1041,8 +1043,10 @@ class LayEd:
             ]
         ftUrl = data["layer"]["resource"]["href"]  # Extract Feature Type URL
         featureTypeString = json.dumps(featureTypeJson)  # json -> string
+
         # PUT Feature Type
         logging.info("[LayEd][updateFeatureType] PUT Feature Type: %s"% featureTypeString)
+        gsr = GsRest(self.config)
         (head, cont) = gsr.putUrl(ftUrl, featureTypeString)
 
         if head["status"] != "200":
@@ -1054,6 +1058,7 @@ class LayEd:
     def updateLayer(self, workspace, layerName, data):
         logging.debug("[LayEd][updateLayer] PUT Layer")
 
+        # Prepare JSON
         layerJson = {}
         layerJson["layer"] = data["layer"]
         layerJson["layer"]["enabled"] = True # TODO: should use previous value
@@ -1067,14 +1072,16 @@ class LayEd:
             layerJson["layer"]["attribution"]["title"] = \
                 data["attribution_text"]
         layerString = json.dumps(layerJson)
+
+        # PUT Layer
         logging.info("[LayEd][updateLayer] PUT Layer %s: %s"% (layerName, layerString))
+        gsr = GsRest(self.config)
         (head, cont) = gsr.putLayer(workspace, layerName, layerString)
 
         if head["status"] != "200":
             errorMsg = "Data settings have been updated succesfully, but the update of publishing settings failed. "
             logging.error("[LayEd][updateLayer] PUT Layer failed. Geoserver replied with '%s' and said: '%s'"% (head, cont))
             raise LaymanError(500, errorMsg)
-
 
     def updateData(self, layerName, workspace, fsUserDir, fsGroupDir,
                    dbSchema, fileName):
