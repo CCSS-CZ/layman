@@ -1013,7 +1013,7 @@ class LayEd:
 
         # PUT Feature Type
         featureTypeJson = {}          # Extract Feature Type
-        featureTypeJson["featureType"] = data["featureType"]
+        featureTypeJson["featureType"] = data["layerData"]
         featureTypeJson["featureType"]["enabled"] = True # TODO: use previous value. if not specified, gs sets it to false. 
         abstract_text = ""
         if "abstract" in featureTypeJson["featureType"].keys() and\
