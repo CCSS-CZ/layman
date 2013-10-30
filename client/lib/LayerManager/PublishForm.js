@@ -415,45 +415,43 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
 
                 // Sent back what we previously received from GeoServer through LayMan server GET Layers
                 // Set the values that were shown/edited in the GUI
-                var vals = form.getValues();
-                newFt    = this.layerData; 
-                newLayer = this.layer; 
+                var vals        = form.getValues();
+                newLayerData    = this.layerData;   // "featureType" or "coverage" json of geoserver
+                newLayer        = this.layer;       // "layer" json of geoserver
 
-                // FIXME: Allow for Coverages
-
-                // Feature Type params
+                // Layer data params
     
                 // Title, Abstract, SRS
-                newFt.title = vals.title;
-                newFt.abstract = vals.abstract;
-                newFt.srs   =  vals.crs;
+                newLayerData.title      = vals.title;
+                newLayerData.abstract   = vals.abstract;
+                newLayerData.srs        = vals.crs;
 
                 // Bounding Box
-                if (!newFt.latLonBoundingBox) {
-                    newFt.latLonBoundingBox = {};
+                if (!newLayerData.latLonBoundingBox) {
+                    newLayerData.latLonBoundingBox = {};
                 }
-                newFt.latLonBoundingBox.minx = vals.minx;
-                newFt.latLonBoundingBox.miny = vals.miny;
-                newFt.latLonBoundingBox.maxx = vals.maxx;
-                newFt.latLonBoundingBox.maxy = vals.maxy;
+                newLayerData.latLonBoundingBox.minx = vals.minx;
+                newLayerData.latLonBoundingBox.miny = vals.miny;
+                newLayerData.latLonBoundingBox.maxx = vals.maxx;
+                newLayerData.latLonBoundingBox.maxy = vals.maxy;
 
                 // Keywords
-                if (!newFt.keywords) {
-                    newFt.keywords = {}
+                if (!newLayerData.keywords) {
+                    newLayerData.keywords = {}
                 }
-                newFt.keywords.string = vals.keywords;
-                if (!newFt.metadataLinks) {
-                    newFt.metadataLinks = {}
+                newLayerData.keywords.string = vals.keywords;
+                if (!newLayerData.metadataLinks) {
+                    newLayerData.metadataLinks = {}
                 }
 
                 // Metadata
-                if (!newFt.metadataLinks.metadataLink) {
-                    newFt.metadataLinks.metadataLink = []
+                if (!newLayerData.metadataLinks.metadataLink) {
+                    newLayerData.metadataLinks.metadataLink = []
                 }
-                if (!newFt.metadataLinks.metadataLink[0]) {
-                    newFt.metadataLinks.metadataLink[0] = {}
+                if (!newLayerData.metadataLinks.metadataLink[0]) {
+                    newLayerData.metadataLinks.metadataLink[0] = {}
                 }
-                newFt.metadataLinks.metadataLink[0].content =  vals.metadataurl;
+                newLayerData.metadataLinks.metadataLink[0].content =  vals.metadataurl;
 
                 // Layer params
 
@@ -469,10 +467,10 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                 Ext4.Ajax.request({
                     url: this.url,
                     jsonData: {
-                        usergroup:      this.group,     // group=workspace
-                        fileName:       vals.fileName,  // wtf?
-                        layer:          newLayer,
-                        featureType:    newFt
+                        usergroup:  this.group,     // group=workspace
+                        fileName:   vals.fileName,  // wtf?
+                        layer:      newLayer,       // "layer" json of geoserver
+                        layerData:  newLayerData    // "featureType" or "coverage" json of geoserver
                     },
                     method: 'PUT',
                     success: function(form, action) {
