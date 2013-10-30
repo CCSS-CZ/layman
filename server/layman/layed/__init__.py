@@ -997,8 +997,8 @@ class LayEd:
                 }
             ]
 
-        if "grid" in coverageJson:
-            del coverageJson["grid"] # GS doesn't like that
+        if "grid" in coverageJson["coverage"]:
+            del coverageJson["coverage"]["grid"] # GS doesn't like that
 
         cvUrl = data["layer"]["resource"]["href"]  # Extract Coverage URL
         coverageString = json.dumps(coverageJson)  # json -> string
