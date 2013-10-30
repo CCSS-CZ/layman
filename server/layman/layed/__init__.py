@@ -997,7 +997,7 @@ class LayEd:
                 }
             ]
 
-        if coverageJson["grid"]:
+        if "grid" in coverageJson:
             del coverageJson["grid"] # GS doesn't like that
 
         cvUrl = data["layer"]["resource"]["href"]  # Extract Coverage URL
