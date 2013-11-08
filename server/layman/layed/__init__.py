@@ -3,13 +3,15 @@
 
 import os
 import json
-from gsrest import GsRest
 from urlparse import urlparse
 import logging
 from lxml import etree
 from io import BytesIO
 import shutil
 
+from gsrest import GsRest
+from gsxml import GsXml
+from gssec import GsSec
 from layman.errors import LaymanError
 
 namespaces = {
@@ -302,7 +304,6 @@ class LayEd:
 
         coverStr = json.dumps(coverJson)
 
-        # PUT Feature Type
         gsr = GsRest(self.config)
         logging.debug("[LayEd][createCoverageFromFile] Create Coverage: '%s'"% coverStr)
         (head, cont) = gsr.postCoverage(gsworkspace, store, data=coverStr)
@@ -317,6 +318,8 @@ class LayEd:
 
         # FIXME: return layer name from location header       
         layerName = name
+
+        # TODO: secure layer here
 
         return layerName
 
@@ -339,8 +342,18 @@ class LayEd:
             ws["workspace"]["name"] = workspace
             wsStr = json.dumps(ws)
             (head, cont) = gsr.postWorkspaces(data=wsStr)
-            #print head
-            #print cont
+
+            # Access Control Note
+            # ===================
+            #
+            # Here we have created the workspace. Regarding the access control, 
+            # this workspace should had been already secured even before it has been created.
+            # Setting ws.*.w=ROLE_[group] is done upon a group creation in LR through the LR-LM user if. (liferay-layman user interface)
+            # Only after this group has been assigned (that means it has to exist, 
+            # that means that securing of the workspace have been already triggered) 
+            # a user with such a role can come here.
+            #
+            # FIXME: If we cancel LR-LM user if (replace by CAS), we need to secure the workspace elsewhere, e.g. here, see gsxml.py: gss.secureWorkspace()
 
             # If the creation failed
             if head["status"] != "201":
@@ -560,7 +573,26 @@ class LayEd:
             else:
                 layerName = resourceName
 
+        # TODO: secure layer here
+
         return layerName
+
+    def secureLayer(self, workspace, layerName):
+        """ Secure read access to the layer. 
+        Write and admin access is secured for the whole workspace. 
+        Create READ_<ws>_<layer> role and assign it to the group.
+        Set <ws>.<layer>.r=READ_<ws>_<layer> in layers.properties.
+
+        It shouldn't matter if the configuration is accidentaly already there.   
+        """
+        gsx = GsXml(self.config)
+        gss = GsSec(self.config)
+
+        # Create READ_<ws>_<layer> role and assign it to the group
+        role = gsx.createReadLayerRole(group=workspace, layer=layerName)
+
+        # Set <ws>.<layer>.r=READ_<ws>_<layer>
+        gss.secureLayer(ws=workspace, layer=layeName, rolelist=[role])
 
     def updateLayerAttribution(self, workspace, layerName, data=None):
         if data is None: return

@@ -131,12 +131,22 @@ class GsSec:
     ### Syntactic sugar ###
 
     def secureWorkspace(self, ws, rolelist):
-        """ Sets read, write and admin rights.
+        """ Sets write and admin rights.
         Overwrites whatever may be already there for the entire workspace.
         Does not affect rules for particular layers of the workspace. """
-        self.setRule(ws, "*", "r", rolelist)
         self.setRule(ws, "*", "w", rolelist)
         self.setRule(ws, "*", "a", rolelist)
+
+        # GS bug - if the following is set, 
+        # access to particular layers cannot be granted 
+        # with the "hide" mode
+        # self.setRule(ws, "*", "r", rolelist)
+
+    def secureLayer(self, ws, layer, rolelist):
+        """ Sets read access to the given layer.
+        Overwrites whatever may be already there.
+        """
+        self.setRule(ws, layer, "r", rolelist)
 
     ### Auxiliary functions ###
 

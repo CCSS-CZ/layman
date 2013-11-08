@@ -223,16 +223,32 @@ class GsXml:
     ### ROLES ###
 
     def createGroupRole(self, group):
-        """ Create ROLE_<groupname> role and assign it to the group. 
+        """ Create ROLE_<group> role and assign it to the group. 
         Returns role name.
+        """
+        # Role name
+        role = "ROLE_" + group
+        # Create and assign
+        self.createAndAssignRole(group, role)
+        return role        
+
+    def createReadLayerRole(self, group, layer):
+        """ Create READ_<group>_<layer> role and assign it to the group. 
+        Returns role name.
+        """
+        # Role name
+        role = "READ_" + group + "_" + layer
+        # Create and assign
+        self.createAndAssignRole(group, role)
+        return role        
+    
+    def createAndAssignRole(self, group, role):
+        """ Create role of the given name and assign it to the group. 
         """
         # Read Roles XML
         rrPath = self.getRolesPath()
         rrTree = Xml.parse(rrPath)
         rrRoot = rrTree.getroot()
-
-        # Role name
-        role = "ROLE_" + group
 
         # Create role and assign it to the group
         self._createRole(role, rrRoot)
@@ -240,8 +256,6 @@ class GsXml:
 
         # Write
         rrTree.write(rrPath)
-
-        return role
 
     def _createRole(self, role, rrRoot):
         """ Create Role. If exists, do nothing. """
