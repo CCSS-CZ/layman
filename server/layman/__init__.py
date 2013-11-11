@@ -471,7 +471,7 @@ class LayMan:
             # and create LaymanAuth instance based on that
             from auth import LaymanAuthLiferay
             JSESSIONID = web.cookies().get("JSESSIONID")
-            self.auth = LaymanAuthLiferay()
+            self.auth = LaymanAuthLiferay(config)
             self.auth.authorise(JSESSIONID)
         elif service.lower() == "hsrs":
             from auth import LaymanAuthHSRS
