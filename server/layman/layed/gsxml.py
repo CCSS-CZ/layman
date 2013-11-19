@@ -281,6 +281,9 @@ class GsXml:
 
     def _assignRoleToUsersOrGroups(self, role, ug, uglist, rrRoot):
 
+        if uglist is None:
+            uglist = []
+
         newRecords = uglist # list of possible users/groups that do not have their record in the roles file yet
 
         # Go throug the existing records and check for changes
