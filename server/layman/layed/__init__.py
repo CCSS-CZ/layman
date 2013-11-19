@@ -319,11 +319,14 @@ class LayEd:
         # FIXME: return layer name from location header       
         layerName = name
 
-        # Secure the layer 
+        # Secure the layer (for the native group)
         self.secureLayer(workspace, layerName)
 
-        return layerName
+        # Grant Access (to foreigners)
+        # TODO - uncomment: userlist, grouplist    
+        #self.grantAccess(role, userlist, grouplist)
 
+        return layerName
 
     # Check the GS workspace and create it if it does not exist
     def createWorkspaceIfNotExists(self, workspace):
@@ -574,8 +577,12 @@ class LayEd:
             else:
                 layerName = resourceName
 
-        # Secure the layer 
-        self.secureLayer(workspace, layerName)
+        # Secure the layer (for the native group) 
+        role = self.secureLayer(workspace, layerName)
+
+        # Grant Access (to foreigners)
+        # TODO - uncomment: userlist, grouplist    
+        #self.grantAccess(role, userlist, grouplist)
 
         return layerName
 
@@ -595,6 +602,13 @@ class LayEd:
 
         # Set <ws>.<layer>.r=READ_<ws>_<layer>
         gss.secureLayer(ws=workspace, layer=layeName, rolelist=[role])
+        
+        return role
+
+    def grantAccess(self, role, userlist, grouplist):
+
+        gsx = GsXml(self.config)        
+        gsx.assignRoleToUsersAndGroups(role, grouplist, userlist):
 
     def updateLayerAttribution(self, workspace, layerName, data=None):
         if data is None: return
