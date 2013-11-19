@@ -319,7 +319,8 @@ class LayEd:
         # FIXME: return layer name from location header       
         layerName = name
 
-        # TODO: secure layer here
+        # Secure the layer 
+        self.secureLayer(workspace, layerName)
 
         return layerName
 
@@ -573,7 +574,8 @@ class LayEd:
             else:
                 layerName = resourceName
 
-        # TODO: secure layer here
+        # Secure the layer 
+        self.secureLayer(workspace, layerName)
 
         return layerName
 
