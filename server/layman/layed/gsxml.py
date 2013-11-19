@@ -257,6 +257,66 @@ class GsXml:
         # Write
         rrTree.write(rrPath)
 
+    def assignRoleToUsersAndGroups(self, role, grouplist, userlist):
+        """ Assign Role To Users And Groups.
+        Unassign from the rest.
+        We assume, that the role, users and groups already exist.
+        """
+
+        # Read Roles XML
+        rrPath = self.getRolesPath()
+        rrTree = Xml.parse(rrPath)
+        rrRoot = rrTree.getroot()
+
+        # Assign role to groups
+        self._assignRoleToUsersOrGroups(role, ug="group", uglist=grouplist, rrRoot=rrRoot)
+
+        # Assign role to users
+        self._assignRoleToUsersOrGroups(role, ug="user", uglist=userlist, rrRoot=rrRoot)
+
+        # Write
+        rrTree.write(rrPath)
+
+        return (200, "Roles assigned")
+
+    def _assignRoleToUsersOrGroups(self, role, ug, uglist, rrRoot):
+
+        newRecords = uglist # list of possible users/groups that do not have their record in the roles file yet
+
+        # Go throug the existing records and check for changes
+        ugRolesElems = rrRoot.findall("./{http://www.geoserver.org/security/roles}"+ug+"List/{http://www.geoserver.org/security/roles}"+ug+"Roles")
+        for ugrEl in ugRolesElems:
+
+            roleRefEl = ugrEl.find("{http://www.geoserver.org/security/roles}roleRef[@roleID='"+role+"']") is not None 
+            wasMember = roleRefEl is not None 
+            ugName = ugrEl.attrib[ug+"name"]
+            isMember  = ugName in uglist
+
+            newRecords.remove(ugName) # tick off
+
+            # Unassign
+            if wasMember and not isMember:
+                ugrEl.remove(roleRefEl) # both elems do exist here
+
+            # Assign
+            elif not wasMember and isMember:
+                roleRefElem = Xml.Element("{http://www.geoserver.org/security/roles}roleRef", {"roleID":role})
+                ugrEl.append(roleRefElem)
+
+            # otherwise leave unchanged
+
+        # Go through the possibly remaining users/groups from the given list
+        for nr in newRecords:
+            
+            # Create the user/group record
+            ugRolesElem = Xml.Element("{http://www.geoserver.org/security/roles}"+ug+"Roles", {ug+"name":nr})
+            ugListElem  = rrRoot.find("./{http://www.geoserver.org/security/roles}}"+ug+"List")
+            ugListElem.append(ugRolesElem)
+
+            # Assign the role
+            roleRefElem = Xml.Element("{http://www.geoserver.org/security/roles}roleRef", {"roleID":role})
+            ugRolesElem.append(roleRefElem)
+
     def _createRole(self, role, rrRoot):
         """ Create Role. If exists, do nothing. """
 
