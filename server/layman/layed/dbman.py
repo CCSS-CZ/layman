@@ -114,7 +114,7 @@ class DbMan:
         devnull = open(os.devnull, "w")
         sys.stdout = sys.__stderr__
         sys.stderr = devnull
-        ogr2ogr_params = ["",
+        ogr2ogr_params = ["", "--config", "PG_LIST_ALL_TABLES YES",
                           "-lco", "SCHEMA=" + str(dbSchema),
                           "-lco", "PRECISION=NO",
                           "-nln", name_out, "-f", "PostgreSQL"]
