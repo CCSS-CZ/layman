@@ -596,7 +596,7 @@ class LayEd:
         if hasattr(data, "read_users"):
             userlist = map(lambda k: k.strip(), data.read_users.split(",")) # Users to be granted from the Client
         else:
-            grouplist = []
+            userlist = []
 
         if workspace not in grouplist:
             grouplist.append(workspace) # Make sure our home group is involved
