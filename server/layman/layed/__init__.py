@@ -616,7 +616,7 @@ class LayEd:
         role = gsx.createReadLayerRole(group=workspace, layer=layerName)
 
         # Set <ws>.<layer>.r=READ_<ws>_<layer>
-        gss.secureLayer(ws=workspace, layer=layeName, rolelist=[role])
+        gss.secureLayer(ws=workspace, layer=layerName, rolelist=[role])
         
         return role
 
