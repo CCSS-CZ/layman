@@ -83,7 +83,9 @@ class DbMan:
         ogr2ogr_params.extend([self.getConnectionString(True),
                                filePath])
 
+        logging.debug("[DbMan][updateVectorFile] Going to call ogr2ogr.main() with the following params: %s" % str(ogr2ogr_params))
         ogr2ogr.main(ogr2ogr_params)
+        logging.debug("[DbMan][updateVectorFile] ogr2ogr.main() returned.")
 
         sys.stdout = sys.__stdout__
         sys.stderr = sys.__stderr__
