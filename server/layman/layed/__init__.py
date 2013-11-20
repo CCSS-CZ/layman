@@ -623,7 +623,7 @@ class LayEd:
     def grantAccess(self, role, userlist, grouplist):
 
         gsx = GsXml(self.config)        
-        gsx.assignRoleToUsersAndGroups(role, grouplist, userlist):
+        gsx.assignRoleToUsersAndGroups(role, grouplist, userlist)
 
     def updateLayerAttribution(self, workspace, layerName, data=None):
         if data is None: return
