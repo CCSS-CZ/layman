@@ -39,18 +39,19 @@ class DbMan:
             from layman import config
             self.config =  config
 
-    def getConnectionString(self,ogr=False):
+    def getConnectionString(self,dbSchema, ogr=False):
         dbname = self.config.get("DbMan","dbname")
         dbuser = self.config.get("DbMan","dbuser")
         dbhost = self.config.get("DbMan","dbhost")
         dbpass = self.config.get("DbMan","dbpass")
         dbport = self.config.get("DbMan","dbport")
-        logStr = "dbname='"+dbname+"' user='"+dbuser+"' host='"+dbhost+"' pass='"+dbpass+"' port='"+dbport+"'" # FIXME: remove password
+        dbschemas = "public, " + dbSchema
+        logStr = "dbname='"+dbname+"' schemas=" + dbschemas + "' user='"+dbuser+"' host='"+dbhost+"' pass='"+dbpass+"' port='"+dbport+"'" # FIXME: remove password
         logging.debug("[DbMan][getConnectionString] Connection details: %s"% logStr)
 
         if ogr:
-            return "PG: host=%s dbname=%s user=%s password=%s port=%s" %\
-                   (dbhost, dbname, dbuser, dbpass, dbport)
+            return "PG: host=%s dbname=%s schemas=%s user=%s password=%s port=%s" %\
+                   (dbhost, dbname, dbschemas, dbuser, dbpass, dbport)
         else:
             return "dbname='%s' user='%s' host='%s' password='%s'" %\
                    (dbname, dbuser, dbhost, dbpass)
@@ -72,8 +73,7 @@ class DbMan:
         devnull = open(os.devnull, "w")
         sys.stdout = sys.__stderr__
         sys.stderr = devnull
-        ogr2ogr_params = ["", "--config", "PG_LIST_ALL_TABLES YES",
-                          "-lco", "OVERWRITE=YES",
+        ogr2ogr_params = ["", "-lco", "OVERWRITE=YES",
                           "-lco", "SCHEMA=" + str(dbSchema),
                           "-lco", "PRECISION=NO",
                           "-nln", table_name, "-f", "PostgreSQL"]
@@ -114,8 +114,7 @@ class DbMan:
         devnull = open(os.devnull, "w")
         sys.stdout = sys.__stderr__
         sys.stderr = devnull
-        ogr2ogr_params = ["", "--config", "PG_LIST_ALL_TABLES YES",
-                          "-lco", "SCHEMA=" + str(dbSchema),
+        ogr2ogr_params = ["", "-lco", "SCHEMA=" + str(dbSchema),
                           "-lco", "PRECISION=NO",
                           "-nln", name_out, "-f", "PostgreSQL"]
 
