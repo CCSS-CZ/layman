@@ -320,19 +320,19 @@ class LayEd:
         layerName = name
 
         # Secure the layer (for the native group)
-        self.secureLayer(workspace, layerName)
+        #self.secureLayer(workspace, layerName)
 
         # Grant Access (to foreigners)
         
-        if hasattr(data, "read_groups"):
-            grouplist = map(lambda k: k.strip(), data.read_groups.split(",")) # Groups to be granted from the Client
-        if hasattr(data, "read_users"):
-            userlist = map(lambda k: k.strip(), data.read_users.split(",")) # Users to be granted from the Client
+        #if hasattr(data, "read_groups"):
+        #    grouplist = map(lambda k: k.strip(), data.read_groups.split(",")) # Groups to be granted from the Client
+        #if hasattr(data, "read_users"):
+        #    userlist = map(lambda k: k.strip(), data.read_users.split(",")) # Users to be granted from the Client
 
-        if workspace not in grouplist:
-            grouplist.append(workspace) # Make sure our home group is involved
+        #if workspace not in grouplist:
+        #    grouplist.append(workspace) # Make sure our home group is involved
 
-        self.grantAccess(role, userlist, grouplist)
+        #self.grantAccess(role, userlist, grouplist)
 
         return layerName
 
@@ -585,23 +585,23 @@ class LayEd:
                 layerName = resourceName
 
         # Secure the layer (for the native group) 
-        role = self.secureLayer(workspace, layerName)
+        #role = self.secureLayer(workspace, layerName)
 
         # Grant Access (to foreigners)
         
-        if hasattr(data, "read_groups"):
-            grouplist = map(lambda k: k.strip(), data.read_groups.split(",")) # Groups to be granted from the Client
-        else:
-            grouplist = []
-        if hasattr(data, "read_users"):
-            userlist = map(lambda k: k.strip(), data.read_users.split(",")) # Users to be granted from the Client
-        else:
-            userlist = []
+        #if hasattr(data, "read_groups"):
+        #    grouplist = map(lambda k: k.strip(), data.read_groups.split(",")) # Groups to be granted from the Client
+        #else:
+        #    grouplist = []
+        #if hasattr(data, "read_users"):
+        #    userlist = map(lambda k: k.strip(), data.read_users.split(",")) # Users to be granted from the Client
+        #else:
+        #    userlist = []
 
-        if workspace not in grouplist:
-            grouplist.append(workspace) # Make sure our home group is involved
+        #if workspace not in grouplist:
+        #    grouplist.append(workspace) # Make sure our home group is involved
 
-        self.grantAccess(role, userlist, grouplist)
+        #self.grantAccess(role, userlist, grouplist)
 
         return layerName
 
@@ -1032,15 +1032,15 @@ class LayEd:
         # Grant Access
         # FIXME: Make sure the following works with Client
         # Maybe we can change to something like data["GrantAccess"]["users"] and data["GrantAccess"]["groups"] instead        
-        if hasattr(data, "read_groups"):
-            grouplist = map(lambda k: k.strip(), data.read_groups.split(",")) # Groups to be granted from the Client
-        if hasattr(data, "read_users"):
-            userlist = map(lambda k: k.strip(), data.read_users.split(",")) # Users to be granted from the Client
+        #if hasattr(data, "read_groups"):
+        #    grouplist = map(lambda k: k.strip(), data.read_groups.split(",")) # Groups to be granted from the Client
+        #if hasattr(data, "read_users"):
+        #    userlist = map(lambda k: k.strip(), data.read_users.split(",")) # Users to be granted from the Client
 
-        if workspace not in grouplist:
-            grouplist.append(workspace) # Make sure our home group is involved
+        #if workspace not in grouplist:
+        #    grouplist.append(workspace) # Make sure our home group is involved
 
-        self.grantAccess(role, userlist, grouplist)
+        #self.grantAccess(role, userlist, grouplist)
 
         return (200, "Settings successfully updated")
 
