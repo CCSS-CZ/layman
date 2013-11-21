@@ -39,19 +39,18 @@ class DbMan:
             from layman import config
             self.config =  config
 
-    def getConnectionString(self, dbSchema='public', ogr=False):
+    def getConnectionString(self, ogr=False):
         dbname = self.config.get("DbMan","dbname")
         dbuser = self.config.get("DbMan","dbuser")
         dbhost = self.config.get("DbMan","dbhost")
         dbpass = self.config.get("DbMan","dbpass")
         dbport = self.config.get("DbMan","dbport")
-        dbschemas = "public," + dbSchema
-        logStr = "dbname='"+dbname+"' schemas=" + dbschemas + "' user='"+dbuser+"' host='"+dbhost+"' pass='"+dbpass+"' port='"+dbport+"'" # FIXME: remove password
+        logStr = "dbname='"+dbname+"' user='"+dbuser+"' host='"+dbhost+"' pass='"+dbpass+"' port='"+dbport+"'" # FIXME: remove password
         logging.debug("[DbMan][getConnectionString] Connection details: %s"% logStr)
 
         if ogr:
-            return "PG: host=%s dbname=%s schemas=%s user=%s password=%s port=%s" %\
-                   (dbhost, dbname, dbschemas, dbuser, dbpass, dbport)
+            return "PG: host=%s dbname=%s user=%s password=%s port=%s" %\
+                   (dbhost, dbname, dbuser, dbpass, dbport)
         else:
             return "dbname='%s' user='%s' host='%s' password='%s'" %\
                    (dbname, dbuser, dbhost, dbpass)
@@ -81,7 +80,7 @@ class DbMan:
         if self._get_ogr2ogr_version() >= 1100000:
             ogr2ogr_params.extend(["-nlt", "PROMOTE_TO_MULTI"])
 
-        ogr2ogr_params.extend([self.getConnectionString(dbSchema, True),
+        ogr2ogr_params.extend([self.getConnectionString(True),
                                filePath])
 
         logging.debug("[DbMan][updateVectorFile] Going to call ogr2ogr.main() with the following params: %s" % str(ogr2ogr_params))
@@ -121,7 +120,7 @@ class DbMan:
         if self._get_ogr2ogr_version() >= 1100000:
             ogr2ogr_params.extend(["-nlt", "PROMOTE_TO_MULTI"])
 
-        ogr2ogr_params.extend([self.getConnectionString(dbSchema, True),
+        ogr2ogr_params.extend([self.getConnectionString(True),
                                filePath])
         logging.debug("[DbMan][importVectorFile] Going to call ogr2ogr.main() with the following params: %s" % str(ogr2ogr_params))
         ogr2ogr.main(ogr2ogr_params)

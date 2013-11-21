@@ -204,6 +204,8 @@ def main(args = None, progress_func = TermProgress, progress_data = None):
 
     nArgc = len(args)
 
+    gdal.SetConfigOption("PG_LIST_ALL_TABLES", "YES")
+
     iArg = 1
     while iArg < nArgc:
         if EQUAL(args[iArg],"-f") and iArg < nArgc-1:
