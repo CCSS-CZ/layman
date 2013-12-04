@@ -290,7 +290,7 @@ class GsXml:
         ugRolesElems = rrRoot.findall("./{http://www.geoserver.org/security/roles}"+ug+"List/{http://www.geoserver.org/security/roles}"+ug+"Roles")
         for ugrEl in ugRolesElems:
 
-            roleRefEl = ugrEl.find("{http://www.geoserver.org/security/roles}roleRef[@roleID='"+role+"']") is not None 
+            roleRefEl = ugrEl.find("{http://www.geoserver.org/security/roles}roleRef[@roleID='"+role+"']")
             wasMember = roleRefEl is not None 
             ugName = ugrEl.attrib[ug+"name"]
             isMember  = ugName in uglist
