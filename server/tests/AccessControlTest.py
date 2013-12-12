@@ -32,10 +32,10 @@ class AccessControlTestCase(unittest.TestCase):
         # Test SECURE LAYER from LayEd
 
         le = LayEd(self.config)
+        le = LayEd(self.config)
  
-        roleFer = le.secureLayer("hasici", "Ferrovie")
-        rolePest = le.secureLayer("hasici", "Hasici Pest")
-        roleAzov = le.secureLayer("policajti", "Policajti Azov")
+        #roleFer = le.secureLayer("hasici", "Ferrovie")
+        roleFer = "READ_hasici_Ferrovie"
 
         # TODO add tests
 
@@ -48,19 +48,22 @@ class AccessControlTestCase(unittest.TestCase):
 
         # Test ACCESS GRANTING from LayEd
 
-        le = LayEd(self.config)
         
-        le.grantAccess(role, userlist, grouplist)
-        le.grantAccess(roleFer, [], ["hasici","policajti"])
-        le.grantAccess(rolePest, ["pepa"], ["hasici"])
-        le.grantAccess(roleAzov, [], ["policajti"])
+        le.grantAccess(roleFer, ["premek"], ["hasici"])
 
         # TODO add tests
 
         # Make sure that:
         #   - the corresponding roles are assigned to the appropriate users and groups
 
+        #rolePest = le.secureLayer("hasici", "Pest")
+        rolePest = "READ_hasici_Pest"
+        le.grantAccess(rolePest, [], ["hasici"])
+
+        #roleAzov = le.secureLayer("policajti", "Azov")
+        roleAzov = "READ_policajti_Azov"
+        le.grantAccess(roleAzov, ["hubert","honza"], ["policajti"])
 
 if __name__ == "__main__":
-   suite = unittest.TestLoader().loadTestsFromTestCase(UserManTestCase)
+   suite = unittest.TestLoader().loadTestsFromTestCase(AccessControlTestCase)
    unittest.TextTestRunner(verbosity=2).run(suite)

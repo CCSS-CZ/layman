@@ -36,6 +36,8 @@ class GsSec:
     def readLayerProp(self):
         """ Read the file layer.properties into self.laySec
         """
+        # FIXME: Preserve catalogue mode! (default is hide, that's we we need just now)
+
         # TODO: Handle and preserve comments
 
         with open(self.getLayerPropPath(), "r") as f:
@@ -142,11 +144,15 @@ class GsSec:
         # with the "hide" mode
         # self.setRule(ws, "*", "r", rolelist)
 
+        self.writeLayerProp()
+
     def secureLayer(self, ws, layer, rolelist):
         """ Sets read access to the given layer.
         Overwrites whatever may be already there.
         """
         self.setRule(ws, layer, "r", rolelist)
+
+        self.writeLayerProp()
 
     ### Auxiliary functions ###
 

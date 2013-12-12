@@ -18,6 +18,8 @@ class GsXml:
     """
     userPwd = None
 
+    caseSensitive = True # False => convert the names to lowercase # TODO: make sure we use it all around # TODO: should we rahter remove it?
+
     # userGroupFile = None # File users.xml
     # userGroupXml  = None # XML from users.xml
 
@@ -67,6 +69,9 @@ class GsXml:
         If the user does not exist, create it. 
         """
 
+        if self.caseSensitive is False:
+            grouplist = map(str.lower, grouplist)
+
         # Read UserGroup XML
         ugPath = self.getUserGroupPath()
         ugTree = Xml.parse(ugPath)
@@ -92,6 +97,8 @@ class GsXml:
 
             wasMember = grEl.find("{http://www.geoserver.org/security/users}member[@username='"+user+"']") is not None 
             groupName = grEl.attrib["name"]
+            if self.caseSensitive is False:
+                groupName = groupName.lower()
             isMember  = groupName in grouplist
 
             if isMember:
@@ -182,7 +189,6 @@ class GsXml:
             from layman.layed.gssec import GsSec
             gss = GsSec(self.config)
             gss.secureWorkspace(ws=group, rolelist=[role])
-            gss.writeLayerProp()            
 
     def _assignGroupToUser(self, user, group, ugRoot):
         """ Assign the group membership to the user
@@ -284,7 +290,12 @@ class GsXml:
         if uglist is None:
             uglist = []
 
+        if self.caseSensitive is False:
+            uglist = map(str.lower, uglist)
+
         newRecords = uglist # list of possible users/groups that do not have their record in the roles file yet
+
+        #print "[_assignRoleToUsersOrGroups] " + role + " " + ug + " " + str(uglist)
 
         # Go throug the existing records and check for changes
         ugRolesElems = rrRoot.findall("./{http://www.geoserver.org/security/roles}"+ug+"List/{http://www.geoserver.org/security/roles}"+ug+"Roles")
@@ -293,9 +304,15 @@ class GsXml:
             roleRefEl = ugrEl.find("{http://www.geoserver.org/security/roles}roleRef[@roleID='"+role+"']")
             wasMember = roleRefEl is not None 
             ugName = ugrEl.attrib[ug+"name"]
+            if self.caseSensitive is False:
+                ugName = ugName.lower()
             isMember  = ugName in uglist
 
-            newRecords.remove(ugName) # tick off
+            #print str(newRecords)
+            #print ugName
+
+            if ugName in newRecords:
+                newRecords.remove(ugName) # tick off
 
             # Unassign
             if wasMember and not isMember:
@@ -313,7 +330,7 @@ class GsXml:
             
             # Create the user/group record
             ugRolesElem = Xml.Element("{http://www.geoserver.org/security/roles}"+ug+"Roles", {ug+"name":nr})
-            ugListElem  = rrRoot.find("./{http://www.geoserver.org/security/roles}}"+ug+"List")
+            ugListElem  = rrRoot.find("./{http://www.geoserver.org/security/roles}"+ug+"List")
             ugListElem.append(ugRolesElem)
 
             # Assign the role
