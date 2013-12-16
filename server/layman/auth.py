@@ -328,9 +328,14 @@ class LaymanAuthLiferay(LaymanAuth):
         except ValueError,e:
             logging.error("[LaymanAuthLiferay][getAllRoles] Cannot parse AllRoles reply: '%s'"% content)
             raise AuthError(500, "Cannot parse GET All Roles response [%s] as JSON:%s"% (content,e)) 
+        
+        roles = allRolesJson["roles"]
 
-        # Return roles.lower()
-        roles = map(str.lower(), allRolesJson["roles"])
+        # lower()
+        for rr in roles:
+            rr["roleName"] = rr["roleName"].lower()
+
+        # Return roles
         logging.debug("[LaymanAuthLiferay][getAllRoles] Return roles: %s"% str(roles))
         return roles
 
