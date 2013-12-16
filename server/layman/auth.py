@@ -98,6 +98,10 @@ class LaymanAuth:
         logging.warning("[LaymanAuth][getRoles] Call of Authorisation class ancestor. Was it intended? No authorisation will be granted here. Try descendants - e.g. LaymanAuthLiferay or LaymanAuthOpen.")
         return []
 
+    def getAllRoles(self):
+        logging.warning("[LaymanAuth][getallRoles] Call of Authorisation class ancestor. Was it intended? No authorisation will be granted here. Try descendants - e.g. LaymanAuthLiferay or LaymanAuthOpen.")
+        return []
+
     # Private Methods #
 
     def _setConfig(self,config):
@@ -302,6 +306,39 @@ class LaymanAuthLiferay(LaymanAuth):
         rolesJson = self.getRoles()
         rolesStr = json.dumps(rolesJson)
         return (200, rolesStr)
+
+    def getAllRoles(self):
+        """ Returns list of all roles as JSON. We assume this is not secret. """
+
+        # Learn URL of AllRoles service
+        url = self.config.get("Authorization","allroles") # http://erra.ccss.cz/g4i-portlet/service/list/roles/en
+        logging.debug("[LaymanAuthLiferay][getAllRoles] AllRoles url: %s"% url)
+    
+        # Request all roles from LifeRay
+        import httplib2
+        h = httplib2.Http()
+        header, content = h.request(url, "GET")
+        logging.debug("[LaymanAuthLiferay][getAllRoles] response header: %s"% header)
+        logging.debug("[LaymanAuthLiferay][getAllRoles] response content: %s"% content)
+
+        # Parse the response
+        try:
+            allRolesJson = json.loads(content)
+            logging.debug("[LaymanAuthLiferay][getAllRoles] AllRoles reply succesfully parsed")
+        except ValueError,e:
+            logging.error("[LaymanAuthLiferay][getAllRoles] Cannot parse AllRoles reply: '%s'"% content)
+            raise AuthError(500, "Cannot parse GET All Roles response [%s] as JSON:%s"% (content,e)) 
+
+        # Return roles.lower()
+        roles = map(str.lower(), allRolesJson["roles"])
+        logging.debug("[LaymanAuthLiferay][getAllRoles] Return roles: %s"% str(roles))
+        return roles
+
+    def getAllRolesStr(self):
+        """ Returns list of all roles as string. We assume this is not secret. """
+        allRolesJson = self.getAllRoles()
+        allRolesStr = json.dumps(allRolesJson)
+        return (200, allRolesStr)
 
     # Service Authorisation Methods #
 

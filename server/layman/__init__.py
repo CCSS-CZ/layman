@@ -127,6 +127,10 @@ class LayMan:
                         elif path[1] == "groups":
                             (code, retval) = self.auth.getRolesStr()
 
+                        # /layed/allgroups
+                        elif path[1] == "allgroups":
+                            (code, retval) = self.auth.getAllRolesStr()
+
                         else:
                             (code, retval) = self._callNotSupported(restMethod="GET", call=origName)
 
