@@ -294,9 +294,19 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                 //fieldLabel: 'Enable read',
                                 buttons: ['add', 'remove'],
                                 height: 100,
-                                store: Ext4.create('Ext4.data.Store', {
+                                store: Ext4.create('Ext4.data.JsonStore', {
                                     autoLoad: false,
-                                    model: 'HSRS.LayerManager.PublishForm.GroupModel'
+                                    // model: 'HSRS.LayerManager.PublishForm.GroupModel'
+                                    proxy: {
+                                        type: 'ajax',
+                                        url: config.url + 'allgroups', // Here we get all the groups
+                                        model: 'HSRS.LayerManager.PublishForm.GroupModel',
+                                        reader: {
+                                            type: 'json',
+                                            idProperty: 'name'
+                                        }
+                                    },
+                                    fields: ['name', 'title']
                                 }),
                                 displayField: 'title',
                                 valueField: 'name',
