@@ -278,7 +278,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                ]
             },
                 {
-                    title: 'Advanced',
+                    title: 'ADDvanced22',
                     items: [
                         {
                             xtype: 'fieldset',
@@ -295,7 +295,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                 buttons: ['add', 'remove'],
                                 height: 100,
                                 store: Ext4.create('Ext4.data.JsonStore', {
-                                    autoLoad: false,
+                                    autoLoad: true,
                                     // model: 'HSRS.LayerManager.PublishForm.GroupModel'
                                     proxy: {
                                         type: 'ajax',

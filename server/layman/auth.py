@@ -102,6 +102,10 @@ class LaymanAuth:
         logging.warning("[LaymanAuth][getallRoles] Call of Authorisation class ancestor. Was it intended? No authorisation will be granted here. Try descendants - e.g. LaymanAuthLiferay or LaymanAuthOpen.")
         return []
 
+    def getAllRolesStr(self):
+        logging.warning("[LaymanAuth][getallRoles] Call of Authorisation class ancestor. Was it intended? No authorisation will be granted here. Try descendants - e.g. LaymanAuthLiferay or LaymanAuthOpen.")
+        return None
+
     # Private Methods #
 
     def _setConfig(self,config):
