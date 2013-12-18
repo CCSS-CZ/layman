@@ -1,6 +1,6 @@
 /**
  * License: ...
- * @author: Jachym
+ * @author: Jachym, Michal
  */
 
 Ext4.define('HSRS.LayerManager.PublishForm', {
@@ -84,7 +84,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                     autoLoad: true,
                     proxy: {
                         type: 'ajax',
-                        url: config.url + 'groups',
+                        url: config.url + 'groups', // Here we get the groups of the user
                         model: 'HSRS.LayerManager.PublishForm.GroupModel',
                         reader: {
                             type: 'json',
