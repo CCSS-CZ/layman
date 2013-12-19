@@ -69,6 +69,17 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
             }]
         });
 
+        Ext4.define('HSRS.LayerManager.PublishForm.AllGroupModel', {
+            extend: 'Ext4.data.Model',
+            fields: [{
+                name: 'name',
+                mapping: 'roleName'
+            },
+            {
+                name: 'title',
+                mapping: 'roleTitle'
+            }]
+        });
         var items = [
             /* Workspace combo box
              * User has to define workspace first
@@ -100,7 +111,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                     'usergroup': this.val
                                 });
                             }
-                            var read_groups = this.form.down('#read_groups');
+                            /*var read_groups = this.form.down('#read_groups');
                             read_groups.fromField.store.removeAll();
                             read_groups.toField.store.removeAll();
                             for (var i = 0, ilen = records.length;
@@ -110,7 +121,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                     '#read_groups').fromField.store.loadData(
                                     [records[i].copy()],
                                     true);
-                            }
+                            }*/
                         },
                         scope: {form: this, val: config.group}
                     },
@@ -131,6 +142,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
 
                             // mark selected group for read automatically
                             var read_groups = this.up().down('#read_groups');
+                            //read_groups.toField.store.removeAll();
                             var i = combo.store.find('name', newValue);
 
                             var sm = read_groups.fromField.boundList.getSelectionModel();
@@ -278,7 +290,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                ]
             },
                 {
-                    title: 'ADDvanced22',
+                    title: 'Advanced',
                     items: [
                         {
                             xtype: 'fieldset',
@@ -300,7 +312,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                     proxy: {
                                         type: 'ajax',
                                         url: config.url + 'allgroups', // Here we get all the groups
-                                        model: 'HSRS.LayerManager.PublishForm.GroupModel',
+                                        model: 'HSRS.LayerManager.PublishForm.AllGroupModel',
                                         reader: {
                                             type: 'json',
                                             idProperty: 'name'

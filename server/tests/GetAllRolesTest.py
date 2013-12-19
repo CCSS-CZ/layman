@@ -7,7 +7,7 @@ TEST_DIR = os.path.dirname(os.path.abspath(__file__))
 INSTALL_DIR = os.path.abspath(os.path.join(TEST_DIR,".."))
 sys.path.append(os.path.join(INSTALL_DIR))
 
-from layman.auth import LaymanAuthLiferay
+from layman.auth import LaymanAuthLiferay,LaymanAuthOpen
 import xml.etree.ElementTree as Xml
 
 class GetAllRolesTestCase(unittest.TestCase):
@@ -23,7 +23,8 @@ class GetAllRolesTestCase(unittest.TestCase):
 
     def test_GetAllRoles(self):
 
-        aut = LaymanAuthLiferay(self.config)
+        #aut = LaymanAuthLiferay(self.config)
+        aut = LaymanAuthOpen(self.config)
         roles = aut.getAllRolesStr()
         print roles       
 

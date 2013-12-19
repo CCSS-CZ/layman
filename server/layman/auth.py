@@ -388,7 +388,7 @@ class LaymanAuthOpen(LaymanAuth):
 
     def getRoles(self):
         """Take rule from configuration value"""
-        return [self.getRole()]
+        return [self.getRole(), {"roleName":"newRole", "roleTitle":"MyNewRole"}]
 
     def getRolesStr(self):
         """ returns string representation of getRoles() json
@@ -405,3 +405,16 @@ class LaymanAuthOpen(LaymanAuth):
 
     def getDBSchema(self, desired=None):
         return self.config.get("Authorization","role")
+
+    def getAllRoles(self):
+        allRoles = self.getRoles()
+        allRoles.append({"roleName":"dak","roleTitle":"Dakota"})
+        allRoles.append({"roleName":"lak","roleTitle":"Lakota"})
+        #print allRoles
+        return allRoles
+
+    def getAllRolesStr(self):
+        rolesJson = self.getAllRoles()
+        rolesStr = json.dumps(rolesJson)
+        return (200,rolesStr)
+
