@@ -43,7 +43,7 @@ class FileMan:
     # This will be somehow related to the authentication module, 
     # where we need several things specified for every user, 
     # such as FS working directory, GS workspace(s) and DB schema(s) 
-    def getFiles(self,targetDir):
+    def getFiles(self, targetDir):
         """Get the list of files
             Should return: 
             [
@@ -58,6 +58,10 @@ class FileMan:
 
             based on working directory, given by interal authorization
             """
+
+        # Make sure that the user directory exists
+        if not os.path.exists(targetDir):
+            os.makedirs(targetDir)
 
         # ls options
         # http://www.saltycrane.com/blog/2010/04/monitoring-filesystem-python-and-pyinotify/
