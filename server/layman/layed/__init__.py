@@ -352,14 +352,37 @@ class LayEd:
         # If it does not exist
         if head["status"] != "200":
 
-            # Create it
+            # Create and assign the group role
+            #
+            # Group role controls admin and write access to the workspace
+            # and is assigned to the group that owns the worskpace
+            #
+            # This is done in roles.xml
+            #
+            from layman.layed.gsxml import GsXml
+            gsx = GsXml(self.config)
+            groupRole = gsx.createGroupRole(group=workspace)
+
+            # Secure the workspace
+            #
+            # Set the workspace admin and write access to the group role created above 
+            # (Read access will be specified per layer when publishing)
+            #
+            # This is done in layers.properties
+            #           
+            from layman.layed.gssec import GsSec
+            gss = GsSec(self.config)
+            gss.secureWorkspace(ws=workspace, rolelist=[groupRole])
+
+            # Create the workspace
+            #
             ws = {}
             ws["workspace"] = {}
             ws["workspace"]["name"] = workspace
             wsStr = json.dumps(ws)
             (head, cont) = gsr.postWorkspaces(data=wsStr)
 
-            # Access Control Note
+            # Access Control Note -- Obsolete
             # ===================
             #
             # Here we have created the workspace. Regarding the access control, 
@@ -370,6 +393,7 @@ class LayEd:
             # a user with such a role can come here.
             #
             # FIXME: If we cancel LR-LM user if (replace by CAS), we need to secure the workspace elsewhere, e.g. here, see gsxml.py: gss.secureWorkspace()
+            # -- done as suggested 
 
             # If the creation failed
             if head["status"] != "201":
