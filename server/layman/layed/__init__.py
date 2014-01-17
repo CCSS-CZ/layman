@@ -399,8 +399,19 @@ class LayEd:
             if head["status"] != "201":
                 # Raise an exception
                 headStr = str(head)
-                message = "LayEd: createWorkspaceIfNotExists(): Cannot create workspace " + workspace + ". Geoserver replied with " + headStr + " and said '" + cont + "'"
+                message = "[LayEd][createWorkspaceIfNotExists] Cannot create workspace " + workspace + ". Geoserver replied with " + headStr + " and said '" + cont + "'"
                 raise LaymanError(500, message)
+
+            # Allow WMS
+            #
+            wms = {}
+            wms["wms"] = {}
+            wms["wms"]["enabled"] = True
+            wmsStr = json.dumps(wms)
+            (head, cont) = gsr.putService(service="wms", workspace=workspace, data=wmsStr)
+
+            if head["status"] not in [200, 201]:
+                logging.error("[LayEd][createWorkspaceIfNotExists] ERROR enabling WMS. Geoserver replied with %s and said %s" % (head, cont) )
 
     # Check the GS data store and create it if it does not exist
     # Database schema name is used as the name of the datastore

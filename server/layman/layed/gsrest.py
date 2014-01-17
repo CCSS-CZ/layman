@@ -240,12 +240,34 @@ class GsRest:
 
     def putWorkspace(self, name, data):
         url = self.url + "/workspaces/" + name + ".json"
-        headers, response =  self.h.request(url,'PUT',data, self.jsonHeader)
+        headers, response =  self.h.request(url,'PUT', data, self.jsonHeader)
         return headers, response
 
     def xdeleteDataStore(self, name):
         url = self.url + "/workspaces/" + name + ".json"
         headers, response =  self.h.request(url,'DELETE')
+        return headers, response
+
+    ### SERVICES ###
+
+    def getService(self, service, workspace):
+        url = self.url + "/services/" + service + "/workspaces/" + workspace + "/settings.json"    
+        headers, response =  self.h.request(url,'GET')
+        return headers, response
+
+    def postService(self, service, workspace, data):
+        url = self.url + "/services/" + service + "/workspaces/" + workspace + "/settings.json"    
+        headers, response =  self.h.request(url, 'POST', data, self.jsonHeader)
+        return headers, response
+
+    def putService(self, service, workspace, data):
+        url = self.url + "/services/" + service + "/workspaces/" + workspace + "/settings.json"    
+        headers, response =  self.h.request(url, 'PUT', data, self.jsonHeader)
+        return headers, response
+
+    def getService(self, service, workspace):
+        url = self.url + "/services/" + service + "/workspaces/" + workspace + "/settings.json"    
+        headers, response =  self.h.request(url, 'DELETE')
         return headers, response
 
     ### CONFIGURATION ###
