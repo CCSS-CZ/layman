@@ -103,7 +103,7 @@ class GsSec:
 
         # Touch - Remind GeoServer to reload the file
         import time
-        time.sleep(3)
+        time.sleep(1)
         os.utime(layPropPath, None)
 
     ### Set/Unset Rule ###
