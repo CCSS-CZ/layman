@@ -86,8 +86,10 @@ class GsSec:
         """ Write the self.laySec into layer.properties file
         """
         # TODO: Handle and preserve comments
-
-        with open(self.getLayerPropPath(), "w") as f:
+        
+        layPropPath = self.getLayerPropPath()
+        
+        with open(layPropPath, "w") as f:
         
             for (ws, val1) in self.laySec.iteritems():
                 for (layer, val2) in val1.iteritems():          # val1 - laySec[ws]
@@ -98,6 +100,9 @@ class GsSec:
                         f.write(rule)
 
         # the file should be automatically closed here
+
+        # Touch - Remind GeoServer to reload the file
+        os.utime(layPropPath, None)
 
     ### Set/Unset Rule ###
 
