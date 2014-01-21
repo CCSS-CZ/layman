@@ -102,6 +102,8 @@ class GsSec:
         # the file should be automatically closed here
 
         # Touch - Remind GeoServer to reload the file
+        import time
+        time.sleep(3)
         os.utime(layPropPath, None)
 
     ### Set/Unset Rule ###
