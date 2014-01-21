@@ -594,7 +594,7 @@ class LayEd:
             # cont: ''
 
             # if it failed, lets wait
-            if head["status"] == "500":    
+            if head["status"] == "500" and "ransform error" in cont:
                 logging.debug("[LayEd][createFtFromDb] Sleeping...")
                 time.sleep(sleeptime)
                 continue
