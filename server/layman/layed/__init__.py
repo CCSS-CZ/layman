@@ -359,7 +359,6 @@ class LayEd:
             #
             # This is done in roles.xml
             #
-            from layman.layed.gsxml import GsXml
             gsx = GsXml(self.config)
             groupRole = gsx.createGroupRole(group=workspace)
 
@@ -741,6 +740,7 @@ class LayEd:
         """
         logging.debug("[LayEd][getLayers]")
         gsr = GsRest(self.config)
+        gsx = GsXml(self.config)
         code = 200
 
         # GET Layers
@@ -845,12 +845,18 @@ class LayEd:
                     logging.warning("[LayEd][getLayers] Failed to parse response JSON. GeoServer replied with '%s' and said '%s'" % (str(headers), str(response)) )
                     continue
 
-                # Return both
-                bundle = {}   # Layer that will be returned
-                bundle["ws"] = ws
-                bundle["roleTitle"] = roleTitles[ws]
-                bundle["layer"] = layer["layer"]
-                bundle["layerData"] = {}
+                # Learn the groups allowed to read the layer
+                # Corresponds to posession of the role "READ_ws_layerName"
+                # (we get it from roles.xml, not from layers.properties file)
+                readGroups = gsx.getReadLayerGroups(group=ws, layer=lay["name"])
+
+                # Pack the reply
+                bundle = {}   
+                bundle["ws"] = ws                       # workspace ~ group
+                bundle["roleTitle"] = roleTitles[ws]    # group title
+                bundle["readGroups"] = readGroups       # list of groups allowed to read the layer
+                bundle["layer"] = layer["layer"]        # layer object
+                bundle["layerData"] = {}                # featureType || coverage
                 if "featureType" in ft.keys():
                     bundle["layerData"] = ft["featureType"]
                     #bundle["layerData"]["datatype"] =  "featureType" # this should not be here. 
@@ -894,10 +900,15 @@ class LayEd:
                     layer = {}
                     layer["name"] = name
 
+                    # Learn the groups allowed to read the layer
+                    # Corresponds to posession of the role "READ_ws_layerName"
+                    readGroups = gsx.getReadLayerGroups(group=ws, layer=lay["name"])
+
                     # Return both
                     bundle = {}   # Layer that will be returned
                     bundle["ws"] = ws
                     bundle["roleTitle"] = roleTitles[ws]
+                    bundle["readGroups"] = readGroups       # list of groups allowed to read the layer
                     bundle["layer"] = layer
                     bundle["layerData"] = {}
                     if "featureType" in ft.keys():

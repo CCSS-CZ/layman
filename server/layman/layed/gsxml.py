@@ -247,7 +247,33 @@ class GsXml:
         # Create and assign
         self.createAndAssignRole(group, role)
         return role        
-    
+   
+    def getReadLayerGroups(self, group, layer):
+        """ Get the list of all the groups that have 
+        the role "READ_<group>_<layer>" assigned.
+        """
+        readGroups = []
+        role = "READ_" + group + "_" + layer
+
+        # Read Roles XML
+        rrPath = self.getRolesPath()
+        rrTree = Xml.parse(rrPath)
+        rrRoot = rrTree.getroot()
+
+        # <ns0:groupList>
+        groupListElem = rrRoot.find("{http://www.geoserver.org/security/roles}groupList") 
+
+        # list of such <ns0:groupRoles> that have appropriate <ns0:roleRef> children
+        groupRolesElems = groupListElem.findall(".//{http://www.geoserver.org/security/roles}roleRef[@roleID='"+role+"']/..")
+        #groupRolesElems = groupListElem.findall(".//{http://www.geoserver.org/security/roles}roleRef/..")
+
+        # Get the names
+        for gre in groupRolesElems:
+            groupname = gre.get("groupname")
+            readGroups.append(groupname)
+
+        return readGroups
+ 
     def createAndAssignRole(self, group, role):
         """ Create role of the given name and assign it to the group. 
         """
