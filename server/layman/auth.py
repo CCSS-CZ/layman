@@ -380,15 +380,14 @@ class LaymanAuthOpen(LaymanAuth):
     def getGSWorkspace(self,desired=None):
         return self.config.get("Authorization","gsworkspace",self.getRole())
 
-    # TODO: should return JSON
     def getRole(self, desired=None):
         """Take rule from configuration value"""
-        return {"roleName":self.config.get("Authorization","role"),
-                "roleTitle":"In-auth.py-set title"}#self.config.get("Authorization","role")}
+        return {"roleName":"hasici",
+                "roleTitle":"Soptici"}
 
     def getRoles(self):
         """Take rule from configuration value"""
-        return [self.getRole(), {"roleName":"newRole", "roleTitle":"MyNewRole"}]
+        return [self.getRole(), {"roleName":"policajti", "roleTitle":"Svestky"}]
 
     def getRolesStr(self):
         """ returns string representation of getRoles() json

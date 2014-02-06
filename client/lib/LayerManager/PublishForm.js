@@ -91,7 +91,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                 id: 'usergroup',
                 anchor: '100%',
                 fieldLabel: 'Publish to',
-                store: Ext4.create('Ext4.data.JsonStore', {
+                store: Ext4.create('Ext4.data.JsonStore', { // FIXME - this should be done ONCE, not everytime the Publish/Update is clicked
                     autoLoad: true,
                     proxy: {
                         type: 'ajax',
@@ -102,7 +102,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                             idProperty: 'name'
                         }
                     },
-                    listeners: {
+                    listeners: { 
                         /* Set default user group after store load
                          */
                         load: function(combo, records, ok, opts) {
@@ -122,9 +122,29 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                     [records[i].copy()],
                                     true);
                             }*/
+
+                            /* Select read groups that were specified by the server
+                             * Tohle by mlo byt poveseny na read_groups store load - ale tam to kur*a nefacha...
+                             * FIXME - we should wait until All Groups response is loaded into the read_groups store                            
+                             */
+                            if (config.isFeatureType) { // If the layer is already published
+
+                                // Go through the provided list
+                                grantList = config.readGroups;
+                                for (var i=0, len=grantList.length; i<len; ++i) {
+                                    // Click the "Add" button       
+                                    // var read_groups = this.form.down('#read_groups');
+                                    var read_groups = Ext4.getCmp('read_groups');
+                                    var sm = read_groups.fromField.boundList.getSelectionModel();
+                                    // if (sm.store.data.length == 0) - jeste neni naloadovany all groups...
+                                    sm.select(grantList[i]);
+                                    read_groups.onAddBtnClick();
+                                }
+                            } /**/ 
+
                         },
                         scope: {form: this, val: config.group}
-                    },
+                    }, 
                     fields: ['name', 'title']
                 }),
                 listeners: {
@@ -292,6 +312,8 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                 {
                     title: 'Advanced',
                     items: [
+                        /* Read access
+                         */
                         {
                             xtype: 'fieldset',
                             anchor: '100%',
@@ -306,7 +328,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                 //fieldLabel: 'Enable read',
                                 buttons: ['add', 'remove'],
                                 height: 100,
-                                store: Ext4.create('Ext4.data.JsonStore', {
+                                store: Ext4.create('Ext4.data.JsonStore', { // FIXME - this should be done ONCE - not for every layer everytime a button is clicked
                                     autoLoad: true,
                                     // model: 'HSRS.LayerManager.PublishForm.GroupModel'
                                     proxy: {
@@ -318,6 +340,26 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                             idProperty: 'name'
                                         }
                                     },
+                                    /* listeners: { // FIXME It should be here but doesn't work here
+                                        /* Select read groups that were specified by the server
+                                         * /
+                                        load: function(p1, records, ok, opts) {
+
+                                            if (config.isFeatureType) { // If the layer is already published
+
+                                                // Go through the provided list
+                                                grantList = config.readGroups;
+                                                for (var i=0, len=grantList.length; i<len; ++i) {
+                                                    // Click the "Add" button       
+                                                    // var read_groups = this.form.down('#read_groups');
+                                                    var read_groups = Ext4.getCmp('read_groups');
+                                                    var sm = read_groups.fromField.boundList.getSelectionModel();
+                                                    sm.select(grantList[i]);
+                                                    read_groups.onAddBtnClick();
+                                                }
+                                            }  
+                                        }
+                                    },*/
                                     fields: ['name', 'title']
                                 }),
                                 displayField: 'title',
@@ -409,6 +451,21 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                 }]
             }
         ];
+
+        /* Select read groups that were specified by the server
+         * /
+        if (config.isFeatureType) { // If the layer is already published
+
+            // Go through the provided list
+            grantList = config.readGroups;
+            for (var i=0, len=grantList.length; i<len; ++i) {
+                // Click the "Add" button       
+                var read_groups = this.down('#read_groups');
+                var sm = read_groups.fromField.boundList.getSelectionModel();
+                sm.select(grantList[i]);
+                read_groups.onAddBtnClick();
+            }
+        }*/
 
         return items;
     },
@@ -583,6 +640,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
             var record = combo.store.getAt(ridx);
             this.layer = record.get('layer');
             this.layerData = record.get('layerData');
+            this.readGroups = record.get('readGroups');
             var metadataurl = '';
             if (this.layerData.metadataLinks) {
                 metadataurl = this.layerData.metadataLinks.metadataLink[0].content;

@@ -119,6 +119,7 @@ Ext4.define('HSRS.LayerManager.LayersPanel.LayerMenu', {
             prj: this.layerData.srs,
             layerData: this.layerData,
             layer: this.layer,
+            readGroups: this.record.raw.readGroups,
             keywords: keywordsSafe,
             metadataurl: metadataUrlSafe,
             attribution_text: this.layer.attribution.title,
