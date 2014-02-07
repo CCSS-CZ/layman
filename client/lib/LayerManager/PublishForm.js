@@ -126,7 +126,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                             /* Select read groups that were specified by the server
                              * Tohle by mlo byt poveseny na read_groups store load - ale tam to kur*a nefacha...
                              * FIXME - we should wait until All Groups response is loaded into the read_groups store                            
-                             */
+                             * /
                             if (config.isFeatureType) { // If the layer is already published
 
                                 // Go through the provided list
@@ -340,9 +340,9 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                             idProperty: 'name'
                                         }
                                     },
-                                    /* listeners: { // FIXME It should be here but doesn't work here
+                                    listeners: { // FIXME It should be here but doesn't work here
                                         /* Select read groups that were specified by the server
-                                         * /
+                                         */
                                         load: function(p1, records, ok, opts) {
 
                                             if (config.isFeatureType) { // If the layer is already published
@@ -359,7 +359,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                                 }
                                             }  
                                         }
-                                    },*/
+                                    },
                                     fields: ['name', 'title']
                                 }),
                                 displayField: 'title',
