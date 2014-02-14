@@ -373,8 +373,8 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                 valueField: 'name',
                                 allowBlank: true, // Shoudl this be rather false?
                                 msgTarget: 'side',
-                                fromTitle: 'Available groups',
-                                toTitle: 'Groups read'
+                                fromTitle: 'Deny',
+                                toTitle: 'Allow'
                             } ]
                         },
                         /* CRS field
