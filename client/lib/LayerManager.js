@@ -79,7 +79,7 @@ Ext4.define('HSRS.LayerManager', {
         var msg = 'Layer ['+ (data.title || data.name) + '] updated';
         if (data.publish_as != "newfile") {
 
-            msg += "<br /> Since new data was loaded, please make sure, layer style is still working";
+            msg += "<br /> As new data was loaded, please check the layer style if it still works as expected.";
         }
         Ext4.Msg.alert('Success', msg);
         this.layersPanel.store.load();

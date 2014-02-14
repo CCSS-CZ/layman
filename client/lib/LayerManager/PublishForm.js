@@ -339,27 +339,34 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                             type: 'json',
                                             idProperty: 'name'
                                         }
-                                    },
+                                    },/*
                                     listeners: { // FIXME It should be here but doesn't work here
                                         /* Select read groups that were specified by the server
-                                         */
+                                         * /
                                         load: function(p1, records, ok, opts) {
 
                                             if (config.isFeatureType) { // If the layer is already published
 
-                                                // Go through the provided list
+                                                // Go through the provided list, 
+                                                // select from Available groups,
+                                                // and click the Add button 
                                                 grantList = config.readGroups;
+                                                var read_groups = Ext4.getCmp('read_groups');
+                                                var sm = read_groups.fromField.boundList.getSelectionModel();
                                                 for (var i=0, len=grantList.length; i<len; ++i) {
                                                     // Click the "Add" button       
                                                     // var read_groups = this.form.down('#read_groups');
-                                                    var read_groups = Ext4.getCmp('read_groups');
-                                                    var sm = read_groups.fromField.boundList.getSelectionModel();
                                                     sm.select(grantList[i]);
                                                     read_groups.onAddBtnClick();
                                                 }
+                                                // read_groups.toField.store.reload();
+                                                // read_groups.render();
+                                                // read_groups.renderData();                   
+                                                // read_groups.doLayout(); 
                                             }  
-                                        }
-                                    },
+                                        },
+                                        scope: this
+                                    },*/
                                     fields: ['name', 'title']
                                 }),
                                 displayField: 'title',
@@ -447,7 +454,34 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                  }
                              ]
                          }
-                    ]
+                    ],
+                    listeners: {
+                        activate: function(panel, opts) {
+
+                                            if (config.isFeatureType) { // If the layer is already published
+
+                                                // Go through the provided list, 
+                                                // select from Available groups,
+                                                // and click the Add button 
+                                                grantList = config.readGroups;
+                                                var read_groups = Ext4.getCmp('read_groups');
+                                                var sm = read_groups.fromField.boundList.getSelectionModel();
+                                                for (var i=0, len=grantList.length; i<len; ++i) {
+                                                    // Click the "Add" button       
+                                                    // var read_groups = this.form.down('#read_groups');
+                                                    sm.select(grantList[i]);
+                                                    read_groups.onAddBtnClick();
+                                                }
+                                                // read_groups.toField.store.reload();
+                                                // read_groups.render();
+                                                // read_groups.renderData();                   
+                                                // read_groups.doLayout(); 
+                                            }  
+                        },
+                        scope: this
+                        /*(tabchange)
+                        (render)*/
+                    }
                 }]
             }
         ];
