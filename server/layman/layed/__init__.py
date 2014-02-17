@@ -320,7 +320,7 @@ class LayEd:
         layerName = name
 
         # Secure the layer (for the native group)
-        self.secureLayer(workspace, layerName)
+        role = self.secureLayer(workspace, layerName)
 
         # Grant Access (to foreigners)
         
@@ -1091,6 +1091,9 @@ class LayEd:
 
         if workspace not in grouplist:
             grouplist.append(workspace) # Make sure our home group is involved
+
+        gsx = GsXml(self.config)
+        role = gsx.getReadLayerRoleName(workspace, layerName) # Probably "READ_<ws>_<layer>"
 
         self.grantAccess(role, userlist, grouplist)
 

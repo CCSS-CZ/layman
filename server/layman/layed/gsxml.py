@@ -243,11 +243,19 @@ class GsXml:
         Returns role name.
         """
         # Role name
-        role = "READ_" + group + "_" + layer
+        role = self.getReadLayerRoleName(group, layer)
         # Create and assign
         self.createAndAssignRole(group, role)
         return role        
-   
+  
+    def getReadLayerRoleName(self, group, layer):
+        """ Get the name of the role that is defined for Read Layer Access.
+        This is defined on app logic level, we don't dive into layers.properties.
+        """
+        # Role name
+        role = "READ_" + group + "_" + layer
+        return role
+ 
     def getReadLayerGroups(self, group, layer):
         """ Get the list of all the groups that have 
         the role "READ_<group>_<layer>" assigned.
