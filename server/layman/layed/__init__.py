@@ -1079,18 +1079,20 @@ class LayEd:
         # PUT Layer
         self.updateLayer(workspace, layerName, data)
 
-        # Grant Access
-        # FIXME: Make sure the following works with Client
-        # Maybe we can change to something like data["GrantAccess"]["users"] and data["GrantAccess"]["groups"] instead        
-        #if hasattr(data, "read_groups"):
-        #    grouplist = map(lambda k: k.strip(), data.read_groups.split(",")) # Groups to be granted from the Client
-        #if hasattr(data, "read_users"):
-        #    userlist = map(lambda k: k.strip(), data.read_users.split(",")) # Users to be granted from the Client
+        # Access Granting
+        
+        grouplist = []
+        if hasattr(data, "readGroups"):
+            grouplist = map(lambda k: k.strip(), data.read_groups.split(",")) # Groups to be granted from the Client
 
-        #if workspace not in grouplist:
-        #    grouplist.append(workspace) # Make sure our home group is involved
+        userlist = []
+        if hasattr(data, "readUsers"):
+            userlist = map(lambda k: k.strip(), data.read_users.split(",")) # Users to be granted from the Client
 
-        #self.grantAccess(role, userlist, grouplist)
+        if workspace not in grouplist:
+            grouplist.append(workspace) # Make sure our home group is involved
+
+        self.grantAccess(role, userlist, grouplist)
 
         return (200, "Settings successfully updated")
 
