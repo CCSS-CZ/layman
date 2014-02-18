@@ -138,7 +138,7 @@ Ext4.define('HSRS.LayerManager.FilesPanel.FileMenu', {
             type: this.data.type,
             groups: this.groups,
             prj: this.data.prj,
-            tsrs: this.data.srid,
+            tsrs: this.srid,
             extent: this.data.extent,
             attributes: this.data.attributes,
             geomtype: this.data.geomtype
