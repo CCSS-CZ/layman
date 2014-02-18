@@ -91,7 +91,7 @@ class DbMan:
         sys.stderr = sys.__stderr__
         devnull.close()
 
-    def importVectorFile(self, filePath, dbSchema):
+    def importVectorFile(self, filePath, dbSchema, srs, tsrs):
         """import given file to database, ogr is used for data READING,
         psycopg2 for data WRITING directly into PostGIS
         If a table of the same name already exists, new name is assigned.
@@ -115,7 +115,7 @@ class DbMan:
         sys.stderr = devnull
         ogr2ogr_params = ["", "-lco", "SCHEMA=" + str(dbSchema),
                           "-lco", "PRECISION=NO",
-                          "-nln", name_out, "-f", "PostgreSQL"]
+                          "-nln", name_out, "-f", "PostgreSQL", "-s_srs", srs, "-t_srs", tsrs]
 
         if self._get_ogr2ogr_version() >= 1100000:
             ogr2ogr_params.extend(["-nlt", "PROMOTE_TO_MULTI"])
@@ -137,6 +137,7 @@ class DbMan:
 
         # TODO: Check the result
         # TODO: Exceptions handling
+        # TODO: Check if srs and tsrs is valid EPSG code
 
         return name_out
 

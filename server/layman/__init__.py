@@ -239,10 +239,11 @@ class LayMan:
                         dbSchema = self.auth.getDBSchema(inpt.usergroup)
                         gsWorkspace = self.auth.getGSWorkspace(inpt.usergroup)
                         crs = inpt.crs
+                        tsrs = inpt.tsrs
 
                         (code, layerName, message) = le.importAndPublish(fsUserDir, fsGroupDir,
                                                      dbSchema, gsWorkspace,
-                                                     fileName, crs, inpt)
+                                                     fileName, crs, tsrs, inpt)
                         # Set Location header
                         if code == 201 and layerName is not None:
                             location = layerName # TODO: provide full URI here             

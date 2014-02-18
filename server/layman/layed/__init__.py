@@ -68,7 +68,7 @@ class LayEd:
 
         return self.createStyleForLayer(workspace=gsWorkspace, dataStore=fileNameNoExt, layerName=fileNameNoExt)
 
-    def importAndPublish(self, fsUserDir, fsGroupDir, dbSchema, gsWorkspace, fileName, srs=None, data=None):
+    def importAndPublish(self, fsUserDir, fsGroupDir, dbSchema, gsWorkspace, fileName, srs=None, tsrs=None, data=None):
         """ Main publishing function. 
         Vectors import to PostreSQL and publish in GeoServer. 
         Rasters copy to GeoServer datastore dir and publish from there in GS.
@@ -105,6 +105,9 @@ class LayEd:
         else:
             logging.debug("[LayEd][importAndPublish] Using given SRS: %s" % srs)
 
+        if tsrs is None or "none" in tsrs.lower():
+            tsrs = srs
+
         # Identify the data type
         data_type = None
         from osgeo import ogr
@@ -115,10 +118,10 @@ class LayEd:
             data_type = "vector"
 
             # Import vector to PostGIS
-            tableName = self.importFromFileToDb(filePath, dbSchema)
+            tableName = self.importFromFileToDb(filePath, dbSchema, srs, tsrs)
             
             # Publish from PostGIS to GeoServer
-            (code, layerName, message) = self.publishFromDbToGs(dbSchema, tableName, gsWorkspace, srs, data)
+            (code, layerName, message) = self.publishFromDbToGs(dbSchema, tableName, gsWorkspace, tsrs, data)
 
         else:
             from osgeo import gdal
@@ -136,7 +139,7 @@ class LayEd:
 
         return (code, layerName, message)
 
-    def importFromFileToDb(self, filePath, dbSchema):
+    def importFromFileToDb(self, filePath, dbSchema, srs, tsrs):
         """ Import data from vector file to PostreSQL 
         If a table of the same name already exists, new table with modified name is created.
         """
@@ -148,7 +151,7 @@ class LayEd:
         from layman.layed.dbman import DbMan
         dbm = DbMan(self.config)
         
-        tableName = dbm.importVectorFile(filePath, dbSchema)
+        tableName = dbm.importVectorFile(filePath, dbSchema, srs, tsrs)
 
         logging.info("[LayEd][importFromFileToDb] Imported file '%s'" % filePath)
         logging.info("[LayEd][importFromFileToDb] in schema '%s'" % dbSchema)
