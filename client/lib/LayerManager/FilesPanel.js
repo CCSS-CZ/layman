@@ -11,6 +11,7 @@ Ext4.define('HSRS.LayerManager.FilesPanel', {
     extend: 'Ext4.grid.Panel',
     title: 'Files',
     url: '',
+    srid: undefined,
     groups: undefined,
 
     /**
@@ -160,6 +161,7 @@ Ext4.define('HSRS.LayerManager.FilesPanel', {
                 // display file menu
                 var menu = Ext4.create('HSRS.LayerManager.FilesPanel.FileMenu', {
                     url: this.url,
+                    srid: this.srid,
                     data: Ext4.JSON.decode(r.responseText),
                     groups: this.groups,
                     record: record,

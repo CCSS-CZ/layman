@@ -37,7 +37,7 @@ Ext4.define('HSRS.LayerManager.FilesPanel.Preview', {
 
 
         this.from = new OpenLayers.Projection(this.data.prj);
-        this.to = new OpenLayers.Projection('epsg:900913');
+        this.to = new OpenLayers.Projection('epsg:3857');
 
         this.addBBOX();
 

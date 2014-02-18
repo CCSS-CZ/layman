@@ -31,9 +31,11 @@ Ext4.define('HSRS.LayerManager', {
         };
 
         var url = config.url + (config.url[config.url.length - 1] == '/' ? '' : '/') + 'fileman/';
+        var srid = config.srid;
         this.filesPanel = Ext4.create('HSRS.LayerManager.FilesPanel', {
             //url: config.url,
             url: url,
+            srid: srid,
             listeners: {
                 scope: this,
                 'filepublished': this._onFilePublished,

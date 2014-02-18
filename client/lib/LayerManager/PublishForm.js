@@ -396,7 +396,13 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                         return true;
                                      },
                                      name: 'crs'
+                                 },
+                                 {
+                                     xtype: 'hidden',
+                                     name: 'tsrs',
+                                     value: config.srid
                                  }
+
                              ]
                          },
                         /* BBOX field set

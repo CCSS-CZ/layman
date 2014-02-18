@@ -15,6 +15,7 @@ Ext4.define('HSRS.LayerManager.FilesPanel.FileMenu', {
     url: undefined,
     record: undefined,
     prj: undefined,
+    tsrs: undefined,
     groups: undefined,
 
     /**
@@ -137,6 +138,7 @@ Ext4.define('HSRS.LayerManager.FilesPanel.FileMenu', {
             type: this.data.type,
             groups: this.groups,
             prj: this.data.prj,
+            tsrs: this.data.srid,
             extent: this.data.extent,
             attributes: this.data.attributes,
             geomtype: this.data.geomtype
