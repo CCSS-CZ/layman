@@ -400,7 +400,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                  {
                                      xtype: 'hidden',
                                      name: 'tsrs',
-                                     value: config.srid
+                                     value: config.tsrs
                                  }
 
                              ]
