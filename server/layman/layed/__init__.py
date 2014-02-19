@@ -1041,6 +1041,13 @@ class LayEd:
         logging.info("[LayEd][putLayerConfig] PUT Layer Config for %s:%s"% (workspace, layerName))
         logging.info("[LayEd][putLayerConfig] Client requests the following: %s"% (str(data)))
 
+        logging.debug("[LayEd][putLayerConfig] 1 data[readGroups]: %s"% str(data["readGroups"]))
+        logging.debug("[LayEd][putLayerConfig] 1 hasattr(readGroups): %s"% str(hasattr(data,"readGroups")) )
+        logging.debug("[LayEd][putLayerConfig] 1 data[usergroup]: %s"% str(data["usergroup"]))
+        logging.debug("[LayEd][putLayerConfig] 1 hasattr(usergroup): %s"% str(hasattr(data,"usergroup")) )
+        logging.debug("[LayEd][putLayerConfig] 1 hasattr(layer): %s"% str(hasattr(data,"layer")) )
+        logging.debug("[LayEd][putLayerConfig] 1 hasattr(layerData): %s"% str(hasattr(data,"layerData")) )
+
         gsr = GsRest(self.config)
 
         if "fileName" in data.keys():
@@ -1087,12 +1094,12 @@ class LayEd:
 
         # Access Granting
 
-        logging.debug("[LayEd][putLayerConfig] data[readGroups]: %s"% str(data["readGroups"]))
-        logging.debug("[LayEd][putLayerConfig] hasattr(readGroups): %s"% str(hasattr(data,"readGroups")) )
-        logging.debug("[LayEd][putLayerConfig] data[usergroup]: %s"% str(data["usergroup"]))
-        logging.debug("[LayEd][putLayerConfig] hasattr(usergroup): %s"% str(hasattr(data,"usergroup")) )
-        logging.debug("[LayEd][putLayerConfig] hasattr(layer): %s"% str(hasattr(data,"layer")) )
-        logging.debug("[LayEd][putLayerConfig] hasattr(layerData): %s"% str(hasattr(data,"layerData")) )
+        logging.debug("[LayEd][putLayerConfig] 2 data[readGroups]: %s"% str(data["readGroups"]))
+        logging.debug("[LayEd][putLayerConfig] 2 hasattr(readGroups): %s"% str(hasattr(data,"readGroups")) )
+        logging.debug("[LayEd][putLayerConfig] 2 data[usergroup]: %s"% str(data["usergroup"]))
+        logging.debug("[LayEd][putLayerConfig] 2 hasattr(usergroup): %s"% str(hasattr(data,"usergroup")) )
+        logging.debug("[LayEd][putLayerConfig] 2 hasattr(layer): %s"% str(hasattr(data,"layer")) )
+        logging.debug("[LayEd][putLayerConfig] 2 hasattr(layerData): %s"% str(hasattr(data,"layerData")) )
  
         grouplist = []
         if hasattr(data, "readGroups"):
