@@ -303,7 +303,7 @@ class GsXml:
         We assume, that the role, users and groups already exist.
         """
 
-        logging.debug("[GsXml][assignRoleToUsersAndGroups] Params: role '%s', userlist '%s', grouplist '%s'"% str(role), str(userlist), str(grouplist))
+        logging.debug("[GsXml][assignRoleToUsersAndGroups] Params: role '%s', userlist '%s', grouplist '%s'"% (str(role), str(userlist), str(grouplist)))
 
         # Read Roles XML
         rrPath = self.getRolesPath()

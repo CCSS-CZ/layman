@@ -667,7 +667,7 @@ class LayEd:
 
     def grantAccess(self, role, userlist, grouplist):
 
-        logging.debug("[LayEd][grantAccess] Params: role '%s', userlist '%s', grouplist '%s'"% str(role), str(userlist), str(grouplist))
+        logging.debug("[LayEd][grantAccess] Params: role '%s', userlist '%s', grouplist '%s'"% (str(role), str(userlist), str(grouplist)))
 
         gsx = GsXml(self.config)        
         gsx.assignRoleToUsersAndGroups(role, grouplist, userlist)
