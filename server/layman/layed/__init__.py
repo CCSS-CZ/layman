@@ -1095,8 +1095,8 @@ class LayEd:
         # Access Granting
 
         logging.debug("[LayEd][putLayerConfig] 2 data[readGroups]: %s"% str(data["readGroups"]))
-        logging.debug("[LayEd][putLayerConfig] 2 bool(data[readGroups]): %s"% bool(data["readGroups"]))
-        logging.debug("[LayEd][putLayerConfig] 2 bool(data[readGGGGroups]): %s"% bool(data["readGGGGroups"]))
+        logging.debug("[LayEd][putLayerConfig] 2 bool(readGroups in data): %s"% bool("readGroups" in data))
+        logging.debug("[LayEd][putLayerConfig] 2 bool(readGGGGroups in data ): %s"% bool("readGGGGroups" in data))
         logging.debug("[LayEd][putLayerConfig] 2 hasattr(readGroups): %s"% str(hasattr(data,"readGroups")) )
         logging.debug("[LayEd][putLayerConfig] 2 data[usergroup]: %s"% str(data["usergroup"]))
         logging.debug("[LayEd][putLayerConfig] 2 hasattr(usergroup): %s"% str(hasattr(data,"usergroup")) )
