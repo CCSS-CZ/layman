@@ -112,18 +112,11 @@ class GsRest:
         return headers, response
 
     def getLayer(self, workspace, name):
-        #print "*** GSREST *** getLayer ***"
         if workspace == None or workspace == "":
             url = self.url + "/layers/" + name + ".json"
         else:
             url = self.url + "/layers/" + workspace + ":" + name + ".json"
-        #print "*** url ***"
-        #print url
         headers, response =  self.h.request(url,'GET')
-        #print "*** headers ***"
-        #print headers
-        #print "*** response ***"
-        #print response
         return headers, response
 
     def putLayer(self, workspace, name, data):
@@ -137,15 +130,8 @@ class GsRest:
     def deleteLayer(self, workspace, name, recurse="false"):
         """ recurse - whether to delete referrenced styles. default: false
         """
-        ##print "*** GSREST *** deleteLayer ***"
         url = self.url + "/layers/" + workspace + ":" + name + ".json?recurse=" + recurse
-        ##print "*** url ***"
-        ##print url
         headers, response =  self.h.request(url,'DELETE')
-        ##print "*** headers ***"
-        ##print headers
-        ##print "*** response ***"
-        ##print response
         return headers, response
 
     ### FEATURE TYPES ###
@@ -288,8 +274,9 @@ class GsRest:
         """ Get given url, authenticated."""
         logging.debug("[GsRest][getUrl] GET URL: %s"% url)        
         head, cont =  self.h.request(url,'GET')
-        logging.debug("[GsRest][getUrl] Response headers: %s"% head)        
-        logging.debug("[GsRest][getUrl] Response content: %s"% cont)        
+        if (not head['status'] or head['status']!='200'):
+            logging.debug("[GsRest][getUrl] Response headers: %s"% head)        
+            logging.debug("[GsRest][getUrl] Response content: %s"% cont)        
         return head, cont
 
     def postUrl(self, url, data):
