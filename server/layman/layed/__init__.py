@@ -750,8 +750,9 @@ class LayEd:
 
         # GET Layers
         (headers, response) = gsr.getLayers()
-        logging.debug("[LayEd][getLayers] GS GET Layers response header: '%s'"% headers)
-        logging.debug("[LayEd][getLayers] GS GET Layers response content: '%s'"% response)
+        if (not headers['status'] or headers['status'] != '200'):
+            logging.debug("[LayEd][getLayers] GS GET Layers response header: '%s'"% headers)
+            logging.debug("[LayEd][getLayers] GS GET Layers response content: '%s'"% response)
 
         if headers["status"] != "200":
             headStr = str(headers)
@@ -1088,11 +1089,15 @@ class LayEd:
         
         grouplist = []
         if hasattr(data, "readGroups"):
-            grouplist = map(lambda k: k.strip(), data.read_groups.split(",")) # Groups to be granted from the Client
+            grouplist = map(lambda k: k.strip(), data.readGroups.split(",")) # Groups to be granted from the Client
+            logging.debug("[LayEd][putLayerConfig] Grant access groups: %s"% grouplist)
+        logging.debug("[LayEd][putLayerConfig] No groups provided to grant access")
 
         userlist = []
         if hasattr(data, "readUsers"):
-            userlist = map(lambda k: k.strip(), data.read_users.split(",")) # Users to be granted from the Client
+            userlist = map(lambda k: k.strip(), data.readUsers.split(",")) # Users to be granted from the Client
+            logging.debug("[LayEd][putLayerConfig] Grant access users: %s"% userlist)
+        logging.debug("[LayEd][putLayerConfig] No users provided to grant access")
 
         if workspace not in grouplist:
             grouplist.append(workspace) # Make sure our home group is involved
