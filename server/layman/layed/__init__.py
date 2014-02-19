@@ -1088,11 +1088,11 @@ class LayEd:
         # Access Granting
 
         logging.debug("[LayEd][putLayerConfig] data[readGroups]: %s"% str(data["readGroups"]))
-        logging.debug("[LayEd][putLayerConfig] hasattr(readGroups): %s"% str(hasattr(data,"readGroups"])) )
+        logging.debug("[LayEd][putLayerConfig] hasattr(readGroups): %s"% str(hasattr(data,"readGroups")) )
         logging.debug("[LayEd][putLayerConfig] data[usergroup]: %s"% str(data["usergroup"]))
-        logging.debug("[LayEd][putLayerConfig] hasattr(usergroup): %s"% str(hasattr(data,"usergroup"])) )
-        logging.debug("[LayEd][putLayerConfig] hasattr(layer): %s"% str(hasattr(data,"layer"])) )
-        logging.debug("[LayEd][putLayerConfig] hasattr(layerData): %s"% str(hasattr(data,"layerData"])) )
+        logging.debug("[LayEd][putLayerConfig] hasattr(usergroup): %s"% str(hasattr(data,"usergroup")) )
+        logging.debug("[LayEd][putLayerConfig] hasattr(layer): %s"% str(hasattr(data,"layer")) )
+        logging.debug("[LayEd][putLayerConfig] hasattr(layerData): %s"% str(hasattr(data,"layerData")) )
  
         grouplist = []
         if hasattr(data, "readGroups"):
