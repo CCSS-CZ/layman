@@ -1104,13 +1104,13 @@ class LayEd:
         logging.debug("[LayEd][putLayerConfig] 2 hasattr(layerData): %s"% str(hasattr(data,"layerData")) )
  
         grouplist = []
-        if hasattr(data, "readGroups"):
+        if "readGroups" in data:
             grouplist = map(lambda k: k.strip(), data.readGroups.split(",")) # Groups to be granted from the Client
             logging.debug("[LayEd][putLayerConfig] Grant access groups: %s"% grouplist)
         logging.debug("[LayEd][putLayerConfig] No groups provided to grant access")
 
         userlist = []
-        if hasattr(data, "readUsers"):
+        if "readUsers" in data:
             userlist = map(lambda k: k.strip(), data.readUsers.split(",")) # Users to be granted from the Client
             logging.debug("[LayEd][putLayerConfig] Grant access users: %s"% userlist)
         logging.debug("[LayEd][putLayerConfig] No users provided to grant access")
