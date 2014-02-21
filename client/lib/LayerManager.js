@@ -14,6 +14,8 @@ Ext4.define('HSRS.LayerManager', {
      */
     filesPanel: undefined,
 
+    dataPanel: undefined,
+
     /**
      * @name HSRS.LayerManager.filesPanel
      * @type HSRS.LayerManager.FilesPanel
@@ -30,6 +32,7 @@ Ext4.define('HSRS.LayerManager', {
             align: 'stretch'
         };
 
+        // Files Panel
         var url = config.url + (config.url[config.url.length - 1] == '/' ? '' : '/') + 'fileman/';
         var srid = config.srid;
         this.filesPanel = Ext4.create('HSRS.LayerManager.FilesPanel', {
@@ -44,8 +47,16 @@ Ext4.define('HSRS.LayerManager', {
             flex: 1
         });
 
-        url = config.url + (config.url[config.url.length - 1] == '/' ? '' : '/') + 'layed/';
+        // Data Panel
+        url = config.url + (config.url[config.url.length - 1] == '/' ? '' : '/') + 'data/';
+        this.dataPanel = Ext4.create('HSRS.LayerManager.DataPanel', {
+            url: url,
+            flex: 1
+            // TODO: listeners
+        });
 
+        // Layers Panel
+        url = config.url + (config.url[config.url.length - 1] == '/' ? '' : '/') + 'layed/';
         this.layersPanel = Ext4.create('HSRS.LayerManager.LayersPanel', {
             url: url,
             flex: 1,
@@ -57,7 +68,7 @@ Ext4.define('HSRS.LayerManager', {
 
         this.layersPanel.store.on('load', this._onLayersLoaded, this);
 
-        config.items = [this.filesPanel, this.layersPanel];
+        config.items = [this.filesPanel, this.dataPanel, this.layersPanel];
 
         this.callParent(arguments);
     },
