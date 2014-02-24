@@ -18,7 +18,8 @@ namespaces = {
     "sld": "http://www.opengis.net/sld"
 }
 
-# TODO: Move debug logging of GeoServer request/responses into the GsRest class
+# Refactor: We may want to split the class in two, 
+# the second one would deal with the "Data" panel
 
 # For now, with GeoServer only
 # For MapServer, common ancestor should be created
@@ -43,6 +44,49 @@ class LayEd:
         else:
             from layman import config
             self.config =  config
+
+    ### DATA ###
+
+    # Get the list of tables in the given schemas
+    # For future: Add some other resources (files, WMS)
+    def getData(self, roles):
+        """ 
+            roles:
+                [
+                    {
+                     roleName: hasici,
+                     roleTitle: FireMen
+                    },
+                    {
+                     roleName: policajti,
+                     roleTitle: Mirabelky
+                    }
+                ]    
+
+            roleName ~ schema
+        """
+        from layman.layed.dbman import DbMan
+        dbm = DbMan(self.config)
+        
+        # Map role names to schemas
+        schemas = map( lambda r: r["roleName"], roles )
+
+        # Get tables
+        tables = dbm.getTables(schemas)
+
+        # Add the role titles
+        # Db doesn't know about role titles. 
+        # We map it for client's convenience
+        rolemap = {}
+        for role in roles:
+            rolemap[ role["roleName"] ] = role["roleTitle"] 
+
+        for t in tables:
+            t["roleTitle"] = rolemap[ t["schema"] ] # roleName ~ schema
+
+        code = 200
+        retval = json.dumps(tables)        
+        return (code, retval)
 
     ### LAYERS ###
 

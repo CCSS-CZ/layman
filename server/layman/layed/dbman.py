@@ -17,6 +17,8 @@ import time
 from layman import raster2pgsql
 from layman import ogr2ogr
 
+#FIXME: Prevent SQL injection
+
 class DbMan:
     """PostGis db interface
     """
@@ -165,9 +167,6 @@ class DbMan:
 
         return name
 
-
-
-
     def importRasterFile(self, filePath, dbSchema):
         """Import raster file into POSTGIS database
         """
@@ -180,7 +179,7 @@ class DbMan:
 
             self.write_sql(sqlBatch)
 
-    def write_sql(self,sqlBatch):
+    def write_sql(self, sqlBatch):
         try:
             conn = psycopg2.connect(self.getConnectionString())
             cur = conn.cursor()
@@ -193,10 +192,10 @@ class DbMan:
             conn.close()
         except Exception as e:
             errStr = "Database (psycopg2) error: '"+str(e)+"'"
-            logging.debug("[DbMan][importFile] %s"% errStr)
+            logging.debug("[DbMan][write_sql] %s"% errStr)
             raise LaymanError(500, "DbMan: "+errStr)
 
-    def _get_raster_file_import_sql(self, filePath,dbSchema,table):
+    def _get_raster_file_import_sql(self, filePath, dbSchema, table):
         """Import raster file
         """
         import sys
@@ -261,6 +260,36 @@ class DbMan:
             errStr = "Database (psycopg2) error: '"+str(e)+"'"
             logging.debug("[DbMan][createSchemaIfNotExists] %s"% errStr)
             raise LaymanError(500, "DbMan: "+errStr)
+
+    # Get the list of tables from the schemas from the given list
+    def getTables(self, schemalist):
+
+        schemata = ",".join(map( lambda s: "'"+s+"'", schemalist )) # "'aaa','bbb','ccc'"
+        sql = "SELECT schemaname, relname FROM pg_stat_user_tables WHERE schemaname IN (" + schemata + ")" 
+
+        result = self.get_sql(sql) # [['hasici','pest'], ['policajti','azov'] ...]
+        tables = map( lambda rec: {"schema": rec[0], "table": rec[1]}, result )
+       
+        return tables        
+ 
+    def get_sql(self, sqlBatch):
+        try:
+            conn = psycopg2.connect(self.getConnectionString())
+            cur = conn.cursor()
+
+            cur.execute(sqlBatch)
+            retval = cur.fetchall()
+
+            conn.commit()
+            cur.close()
+            conn.close()
+
+            return retval
+
+        except Exception as e:
+            errStr = "Database (psycopg2) error: '" + str(e) + "'"
+            logging.debug("[DbMan][get_sql] %s"% errStr)
+            raise LaymanError(500, "DbMan: " + errStr)
 
     # Delete
     def deleteTable(self, dbSchema, tableName):

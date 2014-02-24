@@ -95,6 +95,15 @@ class LayMan:
                     roles = self.auth.getRoles()
                     (code,retval) = le.getLayers(roles)
 
+                # Get the list of tables in db (or other data)
+                elif path[0] == 'data':
+                    
+                    from layed import LayEd
+                    le = LayEd()
+
+                    roles = self.auth.getRoles()
+                    (code,retval) = le.getData(roles)
+
                 elif path[0] == 'layed':
 
                     from layed import LayEd
