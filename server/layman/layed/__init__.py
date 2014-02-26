@@ -1350,7 +1350,10 @@ class LayEd:
         style_name_elem = tree.xpath("//sld:NamedLayer/sld:UserStyle/sld:Name",namespaces=namespaces)
         if len(style_name_elem) > 0:
             style_name_elem[0].text = "%s" % (toStyle)
-            tree.xpath("//sld:NamedLayer/sld:UserStyle/sld:Title",namespaces=namespaces)[0].text =  "Style for layer %s:%s" %(toWorkspace, toStyle)
+
+        title_elem = tree.xpath("//sld:NamedLayer/sld:UserStyle/sld:Title",namespaces=namespaces)
+        if len(title_elem) > 0:
+            title_elem[0].text = "Style for layer %s:%s" %(toWorkspace, toStyle)
 
         styleSld = etree.tostring(tree.getroot())
 
