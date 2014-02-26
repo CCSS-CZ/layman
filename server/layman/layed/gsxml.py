@@ -13,7 +13,7 @@ class GsXml:
     """
 
     config = None
-    gsDir  = None 
+    gsDataDir  = None 
     """ Path to geoserver directory, e.g. "/data/geoserver/"
     """
     userPwd = None
@@ -28,7 +28,7 @@ class GsXml:
         """
         self._setConfig(config)
 
-        self.gsDir = self.config.get("GeoServer","gsdir")
+        self.gsDataDir = self.config.get("GeoServer","datadir")
         self.userPwd = self.config.get("GeoServer","userpwd")
 
     ### USERS & GROUPS ###
@@ -223,7 +223,7 @@ class GsXml:
         #    print "nenasel grupu"
 
     def getUserGroupPath(self):
-        path = self.gsDir + "data/security/usergroup/default/users.xml"
+        os.path.join(self.gsDataDir, "security", "usergroup", "default", "users.xml")
         return path
 
     ### ROLES ###
@@ -403,7 +403,7 @@ class GsXml:
             groupRolesElem.append(roleRefElem)
 
     def getRolesPath(self):
-        path = self.gsDir + "data/security/role/default/roles.xml"
+        path = os.path.join(self.gsDataDir, "security","role","default","roles.xml")
         return path
 
     ### LAYER STYLE ###
@@ -439,15 +439,14 @@ class GsXml:
         # close & return
 
     def getLayerPath(self, layerWorkspace, dataStoreName, layerName):      
-        path = self.gsDir + "data/workspaces/" + layerWorkspace + "/" + dataStoreName + "/" + layerName + "/layer.xml" 
-        # TODO: make it platform independent
+        path = os.path.join(self.gsDataDir, "workspaces", layerWorkspace, dataStoreName, layerName , "layer.xml")
         return path
 
     def getStyleXmlPath(self, styleWorkspace, styleName): 
         if styleWorkspace == None: # Style with no workspace
-            path = self.gsDir + "data/styles/" + styleName + ".xml"
+            path = os.path.join(self.gsDataDir, "styles", styleName, ".xml")
         else: # Style from a workspace
-            path = self.gsDir + "data/workspaces/" + styleWorkspace + "/styles/" + styleName + ".xml"
+            path = os.path.join(self.gsDataDir, "workspaces", styleWorkspace, "styles", styleName, ".xml")
         return path
 
     def reloadConfig(self):

@@ -10,7 +10,7 @@ class GsSec:
     """
 
     config = None
-    gsDir  = None 
+    gsDataDir  = None 
     """ Path to geoserver directory, e.g. "/data/geoserver/"
     """
 
@@ -25,7 +25,7 @@ class GsSec:
         """constructor
         """
         self._setConfig(config)
-        self.gsDir = self.config.get("GeoServer","gsdir")
+        self.gsDataDir = self.config.get("GeoServer","datadir")
 
         # Read the file layer.properties into self.laySec
         self.readLayerProp()
@@ -164,7 +164,7 @@ class GsSec:
     ### Auxiliary functions ###
 
     def getLayerPropPath(self):
-        return self.gsDir + "data/security/layers.properties"
+        return os.path.join( self.gsDataDir, "security","layers.properties")
 
     def reloadConfig(self):
         from gsrest import GsRest
