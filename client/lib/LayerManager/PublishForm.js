@@ -2,7 +2,7 @@
  * License: ...
  * @author: Jachym, Michal
  */
-            var zmicky = function(uuid) {
+            window.zmicky = function(uuid) {
                 document.getElementById("MetadataLink-inputEl").value = uuid;
             }
 
