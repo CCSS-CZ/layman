@@ -288,6 +288,18 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                         }
                                     },
                                     scope: this                                
+                               },
+                               {
+                                    text: 'Create new metadata record',
+                                    xtype: 'button',
+                                    rtl: true,
+                                    listeners: {
+                                        click: function() {
+                                            mickaUrl = "/php/metadata/index.php?request=GetRecords&format=text/html&language=&ak=new&cb=opener.fillMetadataLinkFromMicka"
+                                            window.open(mickaUrl, '_newtab');
+                                        }
+                                    },
+                                    scope: this                                
                                }
                             ]
                          }
