@@ -274,8 +274,12 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                 xtype: 'button',
                                 listeners: {
                                     click: function() {
-                                        var url = "http://erra.ccss.cz/php/metadata/index.php?request=GetRecords&format=text/html&language=cze&query=BBOX%3D%2714.189%2049.912%2014.656%2050.177%27&sortby=&cb=opener.fillMetadataLinkFromMicka"
-                                        window.open(url, '_newtab');
+                                        // Micka URL
+                                        parser = document.createElement('a')
+                                        parser.href = config.url
+                                        mickaUrl = parser.host + "/php/metadata/index.php?request=GetRecords&format=text/html&language=&query=&sortby=&cb=opener.fillMetadataLinkFromMicka"
+                                        // Open Micka
+                                        window.open(mickaUrl, '_newtab');
                                     }
                                 },
                                 scope: this
