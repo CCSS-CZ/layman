@@ -2,6 +2,9 @@
  * License: ...
  * @author: Jachym, Michal
  */
+            var zmicky = function(uuid) {
+                document.getElementById("MetadataLink-inputEl").value = uuid;
+            }
 
 Ext4.define('HSRS.LayerManager.PublishForm', {
 
