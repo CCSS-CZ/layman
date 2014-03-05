@@ -275,9 +275,9 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                 listeners: {
                                     click: function() {
                                         // Micka URL
-                                        parser = document.createElement('a')
-                                        parser.href = config.url
-                                        mickaUrl = parser.host + "/php/metadata/index.php?request=GetRecords&format=text/html&language=&query=&sortby=&cb=opener.fillMetadataLinkFromMicka"
+                                        // parser = document.createElement('a')
+                                        // parser.href = config.url
+                                        mickaUrl = "/php/metadata/index.php?request=GetRecords&format=text/html&language=&query=&sortby=&cb=opener.fillMetadataLinkFromMicka"
                                         // Open Micka
                                         window.open(mickaUrl, '_newtab');
                                     }
