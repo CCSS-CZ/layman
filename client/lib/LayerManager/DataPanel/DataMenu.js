@@ -22,7 +22,8 @@ Ext4.define('HSRS.LayerManager.DataPanel.DataMenu', {
 
         this.url = config.url.replace(/\/$/, config.record.get('name'));
 
-        config.title = config.record.get('name');
+        config.name = config.record.get('name');
+        config.schema = config.record.get('schema');
         config.items = [];
 
         config.items.push({
@@ -62,38 +63,13 @@ Ext4.define('HSRS.LayerManager.DataPanel.DataMenu', {
      * @private
      */
     _onPublishClicked: function() {
-/* TODO: _onPublishClicked
-        metadataUrlSafe = (this.layerData.metadataLinks && this.layerData.metadataLinks.metadataLink[0] && this.layerData.metadataLinks.metadataLink[0].content) 
-                    ? this.layerData.metadataLinks.metadataLink[0].content
-                    : undefined; 
-
-        keywordsSafe = (this.layerData.keywords)
-                    ? this.layerData.keywords.string.join(",")
-                    : undefined
 
         var publishForm = Ext4.create('HSRS.LayerManager.PublishForm', {
-            name: this.layer.name,
-            url: this.url.replace('fileman', 'layed'),
-            type: this.layer.type,
+            name: this.name,
+            url: this.url.replace('fileman', 'publish'),
             groups: this.groups,
-            abstract: this.layerData.description,
-            title: this.layerData.title,
-            group: this.record.get("workspace"),
-            isFeatureType: true,
-            prj: this.layerData.srs,
-            layerData: this.layerData,
-            layer: this.layer,
-            readGroups: this.record.raw.readGroups,
-            keywords: keywordsSafe,
-            metadataurl: metadataUrlSafe,
-            attribution_text: this.layer.attribution.title,
-            attribution_link: this.layer.attribution.href,
-            extent: [this.layerData.latLonBoundingBox.minx,
-                     this.layerData.latLonBoundingBox.miny,
-                     this.layerData.latLonBoundingBox.maxx,
-                     this.layerData.latLonBoundingBox.maxy],
-            //attributes: this.featureType.attributes.attribute,
-            geomtype: this.layer.type
+            group: this.schema,
+            isFeatureType: false, // FIXME: isFeatureType
         });
         publishForm._win = Ext4.create('Ext4.window.Window', {
             title: 'Edit layer attributes',
@@ -109,8 +85,8 @@ Ext4.define('HSRS.LayerManager.DataPanel.DataMenu', {
             {menu: this, publishForm: publishForm}
         );
         publishForm._win.show();
-  */ 
-                this.menu._onDataPublished.apply(this.menu, arguments);
+   
+        //        this.menu._onDataPublished.apply(this.menu, arguments);
      },
 
     /**

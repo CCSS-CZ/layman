@@ -122,26 +122,6 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                     [records[i].copy()],
                                     true);
                             }*/
-
-                            /* Select read groups that were specified by the server
-                             * Tohle by mlo byt poveseny na read_groups store load - ale tam to kur*a nefacha...
-                             * FIXME - we should wait until All Groups response is loaded into the read_groups store                            
-                             * /
-                            if (config.isFeatureType) { // If the layer is already published
-
-                                // Go through the provided list
-                                grantList = config.readGroups;
-                                for (var i=0, len=grantList.length; i<len; ++i) {
-                                    // Click the "Add" button       
-                                    // var read_groups = this.form.down('#read_groups');
-                                    var read_groups = Ext4.getCmp('read_groups');
-                                    var sm = read_groups.fromField.boundList.getSelectionModel();
-                                    // if (sm.store.data.length == 0) - jeste neni naloadovany all groups...
-                                    sm.select(grantList[i]);
-                                    read_groups.onAddBtnClick();
-                                }
-                            } /**/ 
-
                         },
                         scope: {form: this, val: config.group}
                     }, 
@@ -272,11 +252,27 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                            */
                            {
                                fieldLabel: 'Metadata link',
+                               itemId: 'MetadataLink',
+                               id: 'MetadataLink',
                                emptyText: 'http://',
                                anchor: '100%',
                                xtype: 'textfield',
                                name: 'metadataurl',
                                value: config.metadataurl || ''
+                           },
+                           /* Link to Micka button
+                            */
+                           {
+                                text: 'Choose existing',
+                                xtype: 'button',
+                                listeners: {
+                                    click: function() {
+                                        this.setText('I was clicked!');
+                                        var url = "http://erra.ccss.cz/php/metadata/index.php?request=GetRecords&format=text/html&language=cze&query=BBOX%3D%2714.189%2049.912%2014.656%2050.177%27&sortby=&cb=opener.zmicky"
+                                        window.open(url, '_newtab');
+                                    }
+                                },
+                                scope: this
                            }
                         ]
                     },
@@ -339,34 +335,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                             type: 'json',
                                             idProperty: 'name'
                                         }
-                                    },/*
-                                    listeners: { // FIXME It should be here but doesn't work here
-                                        /* Select read groups that were specified by the server
-                                         * /
-                                        load: function(p1, records, ok, opts) {
-
-                                            if (config.isFeatureType) { // If the layer is already published
-
-                                                // Go through the provided list, 
-                                                // select from Available groups,
-                                                // and click the Add button 
-                                                grantList = config.readGroups;
-                                                var read_groups = Ext4.getCmp('read_groups');
-                                                var sm = read_groups.fromField.boundList.getSelectionModel();
-                                                for (var i=0, len=grantList.length; i<len; ++i) {
-                                                    // Click the "Add" button       
-                                                    // var read_groups = this.form.down('#read_groups');
-                                                    sm.select(grantList[i]);
-                                                    read_groups.onAddBtnClick();
-                                                }
-                                                // read_groups.toField.store.reload();
-                                                // read_groups.render();
-                                                // read_groups.renderData();                   
-                                                // read_groups.doLayout(); 
-                                            }  
-                                        },
-                                        scope: this
-                                    },*/
+                                    },
                                     fields: ['name', 'title']
                                 }),
                                 displayField: 'title',
@@ -478,36 +447,23 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                                     sm.select(grantList[i]);
                                                     read_groups.onAddBtnClick();
                                                 }
-                                                // read_groups.toField.store.reload();
-                                                // read_groups.render();
-                                                // read_groups.renderData();                   
-                                                // read_groups.doLayout(); 
                                             }  
                         },
                         scope: this
-                        /*(tabchange)
-                        (render)*/
                     }
                 }]
             }
         ];
 
-        /* Select read groups that were specified by the server
-         * /
-        if (config.isFeatureType) { // If the layer is already published
-
-            // Go through the provided list
-            grantList = config.readGroups;
-            for (var i=0, len=grantList.length; i<len; ++i) {
-                // Click the "Add" button       
-                var read_groups = this.down('#read_groups');
-                var sm = read_groups.fromField.boundList.getSelectionModel();
-                sm.select(grantList[i]);
-                read_groups.onAddBtnClick();
-            }
-        }*/
-
         return items;
+    },
+
+    /* Fill the Metadata Link field 
+     * Callback function for Micka
+     */
+    _fillMetadataLink: function(uuid) {
+       metaField = this.getComponent('MetadataLink'); 
+       metaField.value = uuid;
     },
 
     /*
