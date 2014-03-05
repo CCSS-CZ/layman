@@ -202,6 +202,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                         //disabled: (config.isFeatureType ? false : true),
                         //id: 'publishing_set',
                         title: 'Metadata of "' + config.name + '"',
+                        layout: 'anchor',
                          items: [
                            /* set name if this is existing feature type
                             */
@@ -255,35 +256,41 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                id: 'keywords',
                                allowBlank: true
                            },
+                         {
+                             title: 'Metadata link',
+                             anchor: '100%',
+                             xtype: 'fieldset',
+                             layout: 'anchor',
+                             rtl: true,
+                             items: [
                           /* Metadata link field
                            */
-                           {
-                               fieldLabel: 'Metadata link',
-                               itemId: 'MetadataLink',
-                               id: 'MetadataLink',
-                               emptyText: 'http://',
-                               anchor: '100%',
-                               xtype: 'textfield',
-                               name: 'metadataurl',
-                               value: config.metadataurl || ''
-                           },
-                           /* Link to Micka button
-                            */
-                           {
-                                text: 'Choose existing',
-                                xtype: 'button',
-                                listeners: {
-                                    click: function() {
-                                        // Micka URL
-                                        // parser = document.createElement('a')
-                                        // parser.href = config.url
-                                        mickaUrl = "/php/metadata/index.php?request=GetRecords&format=text/html&language=&query=&sortby=&cb=opener.fillMetadataLinkFromMicka"
-                                        // Open Micka
-                                        window.open(mickaUrl, '_newtab');
-                                    }
-                                },
-                                scope: this
-                           }
+                               {
+                                   //fieldLabel: 'Metadata link',
+                                   itemId: 'MetadataLink',
+                                   id: 'MetadataLink',
+                                   emptyText: 'http://',
+                                   anchor: '100%',
+                                   xtype: 'textfield',
+                                   name: 'metadataurl',
+                                   value: config.metadataurl || ''
+                               },
+                               /* Link to Micka button
+                                */
+                               {
+                                    text: 'Select existing',
+                                    xtype: 'button',
+                                    rtl: true,
+                                    listeners: {
+                                        click: function() {
+                                            mickaUrl = "/php/metadata/index.php?request=GetRecords&format=text/html&language=&query=&sortby=&cb=opener.fillMetadataLinkFromMicka"
+                                            window.open(mickaUrl, '_newtab');
+                                        }
+                                    },
+                                    scope: this                                
+                               }
+                            ]
+                         }
                         ]
                     },
                   /* Attribution field set
