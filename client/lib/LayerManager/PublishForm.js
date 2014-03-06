@@ -188,7 +188,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                 xtype: 'tabpanel',
                 deferredRender:false,
                 id: 'publishing_set',
-                disabled: (config.type == "layer" ? false : true),
+                disabled: (config.type == "file" ? true : false),
                 plain: true,
                 activeTab: 0,
                 defaults: {
