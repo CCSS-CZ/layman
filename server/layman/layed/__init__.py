@@ -1087,24 +1087,12 @@ class LayEd:
 
         gsr = GsRest(self.config)
 
-        # Update Data 
+        # Update Data (database or filesystem)
 
         if "fileName" in data.keys():
             self.updateData(layerName, workspace, fsUserDir, fsGroupDir, dbSchema, data["fileName"])
-            #featureTypeJson = {}
-            #featureTypeJson["featureType"] = data["featureType"]
-            #ftString = json.dumps(featureTypeJson)
-            #(header, response) = gsr.putFeatureType(workspace, workspace,
-            #                                        layerName, ftString)
-            #if header["status"] != "200":
-            #    headStr = str(header)
-            #    message = "LayEd: putLayerConfig(): Cannot update layer bbox <br /> Geoserver replied with " + headStr + " and said " + response
-            #    raise LaymanError(500, message)
 
-        # TODO: check, that layer.resource.href
-        # is referrencing the proper feature type
-
-        # Update Data Settings
+        # Update Data Settings (geoserver - featureType.xml || coverage.xml)
 
         layerType = data["layer"]["type"]
 
@@ -1124,12 +1112,12 @@ class LayEd:
             errMsg = "Cannot update layer settings. Layer type '" + layerType+ "' is not supported."             
             raise LaymanError(500, errMsg)            
 
-        # Update Publishing Settings
+        # Update Publishing Settings (geoserver - layer.xml)
 
         # PUT Layer
         self.updateLayer(workspace, layerName, data)
 
-        # Access Granting
+        # Access Granting (geoserver - roles.xml)
 
         grouplist = []
         if "readGroups" in data:

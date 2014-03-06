@@ -16,7 +16,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                'HSRS.LayerManager.PublishForm.ItemSelector'],
     extend: 'Ext4.form.Panel',
     groups: undefined,
-    isFeatureType: false,
+    type: undefined, // "file", "data" or "layer"
     featureType: undefined,
     layer: undefined,
     _url: undefined,
@@ -29,12 +29,12 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
         config.layout = 'anchor';
         config.width = 500;
         config.frame = true;
-        config.url = config.isFeatureType ? config.url + config.name :
+        config.url = config.type == "layer" ? config.url + config.name :
                      config.url;
         this._url = config.url;
         config.buttons = [
             {
-                text: config.isFeatureType ? 'Update' : 'Publish',
+                text: config.type == "layer" ? 'Update' : 'Publish',
                 id: 'publish_button',
                 scope: this,
                 handler: this._onPublishClicked
@@ -93,7 +93,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
              */
             {
                 xtype: 'combobox',
-                disabled: (config.isFeatureType ? true : false),
+                disabled: config.type == "file" ? false : true,
                 name: 'usergroup',
                 id: 'usergroup',
                 anchor: '100%',
@@ -139,7 +139,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                      * selected
                      */
                     'change': function(combo, newValue, oldValue, eOpts) {
-                        if (!this.up().isFeatureType) {
+                        if (this.up().type == "file") {
                             var publish_as = this.up().down('#publish_as');
                             publish_as.enable();
                             publish_as.loadLayers(newValue);
@@ -172,7 +172,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                 name: 'publish_as',
                 url: config.url,
                 id: 'publish_as',
-                disabled: (config.isFeatureType ? true : true),
+                disabled: (config.type == "layer" ? true : true),
                 anchor: '100%',
                 fieldLabel: 'Publish as',
                 value: 'newlayer',
@@ -188,7 +188,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                 xtype: 'tabpanel',
                 deferredRender:false,
                 id: 'publishing_set',
-                disabled: (config.isFeatureType ? false : true),
+                disabled: (config.type == "layer" ? false : true),
                 plain: true,
                 activeTab: 0,
                 defaults: {
@@ -211,7 +211,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                id: 'layerName',
                                xtype: 'hidden',
                                anchor: '100%',
-                               value: (config.isFeatureType ?
+                               value: (config.type == "layer" ?
                                        config.name : undefined)
                            },
                            /* set name of the file if this is file name
@@ -220,10 +220,10 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                name: 'fileName',
                                id: 'fileName',
                                xtype: 'hidden',
-                               disabled: (config.isFeatureType ?
+                               disabled: (config.type == "layer" ?
                                           true : false),
                                anchor: '100%',
-                               value: (config.isFeatureType ?
+                               value: (config.type == "layer" ?
                                        undefined : config.name)
                            },
                           /* Title field
@@ -462,7 +462,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                     listeners: {
                         activate: function(panel, opts) {
 
-                                            if (config.isFeatureType) { // If the layer is already published
+                                            if (config.type == "layer") { // If the layer is already published
 
                                                 // Go through the provided list, 
                                                 // select from Available groups,
@@ -505,7 +505,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                    iconHeight: 50
                });
             
-            if (this.isFeatureType) { // If it already exists
+            if (this.type == "layer") { // If it already exists
 
                 // Update Layer Settings 
 
@@ -596,7 +596,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
             }
 
             // submit new files using http POST
-            else {
+            else if (this.type == "file") {
                 form.submit({
                     success: function(form, action) {
                             Ext4.MessageBox.hide();
@@ -618,6 +618,10 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                     },
                     scope: this
                 });
+            }
+
+            else if (this.type == "data") {
+                // TODO - publish
             }
         }
 
@@ -679,7 +683,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                 layerName: newValue
             });
 
-            this.isFeatureType = true;
+            this.type = "layer";
             this.down('#publish_button').setText('Update');
             this.url = this._url + newValue;
             this.down('#layerName').setValue(newValue);
@@ -699,7 +703,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
             });
             this._reseting = false;
 
-            this.isFeatureType = false;
+            // this.isFeatureType = false;
             this.down('#publish_button').setText('Publish');
             this.url = this._url;
             this.down('#layerName').setValue(newValue);

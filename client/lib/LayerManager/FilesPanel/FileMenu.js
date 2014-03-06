@@ -141,7 +141,8 @@ Ext4.define('HSRS.LayerManager.FilesPanel.FileMenu', {
             tsrs: this.srid,
             extent: this.data.extent,
             attributes: this.data.attributes,
-            geomtype: this.data.geomtype
+            geomtype: this.data.geomtype,
+            type: "file"
         });
         publishForm._win = Ext4.create('Ext4.window.Window', {
             title: 'Upload and publish file to GeoServer',

@@ -69,7 +69,7 @@ Ext4.define('HSRS.LayerManager.DataPanel.DataMenu', {
             url: this.url.replace('fileman', 'publish'),
             groups: this.groups,
             group: this.schema,
-            isFeatureType: false, // FIXME: isFeatureType
+            type: "data"
         });
         publishForm._win = Ext4.create('Ext4.window.Window', {
             title: 'Edit layer attributes',

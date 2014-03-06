@@ -115,7 +115,7 @@ Ext4.define('HSRS.LayerManager.LayersPanel.LayerMenu', {
             abstract: this.layerData.description,
             title: this.layerData.title,
             group: this.record.get("workspace"),
-            isFeatureType: true,
+            type: "layer",
             prj: this.layerData.srs,
             layerData: this.layerData,
             layer: this.layer,
