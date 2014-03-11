@@ -505,7 +505,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                    iconHeight: 50
                });
             
-            if (this.type == "layer") { // If it already exists
+            if (this.type == "layer") { // Layer panel
 
                 // Update Layer Settings 
 
@@ -596,7 +596,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
             }
 
             // submit new files using http POST
-            else if (this.type == "file") {
+            else if (this.type == "file" || this.type == "data") { // File Panel
                 form.submit({
                     success: function(form, action) {
                             Ext4.MessageBox.hide();
@@ -620,8 +620,17 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                 });
             }
 
-            else if (this.type == "data") {
+            else if (this.type == "data") { // Data Panel
                 // TODO - publish
+
+                // Zavolat interface "publish"
+                // Tam se posle POST, pro novu vrstvu projde, pro existujici zbuchne, takze fajn, hlaska se zpracuje potom
+                // Updateovani se doresi potom. Asi nebude, protoze data se updatuji samostatne a konfig v pravem panelu.
+                // Takze pujde jenom o to se podivat, jestli uz tam je a kdyztak publikovani disable.
+                //
+                // https://docs.google.com/document/d/1KOtKIIMfHXST5PKYW0-DWBoJ-ghERxBmQsMR-vzBOd0/edit
+                // LayMan: 290, LayEd:220,636, GsRest: 149
+                // http://docs.geoserver.org/stable/en/user/rest/api/featuretypes.html
             }
         }
 
