@@ -260,16 +260,6 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                value: config.title
                            },
                           /* Abstract field
-                          /* Title field
-                           */
-                           {
-                               fieldLabel: 'Title',
-                               xtype: 'textfield',
-                               anchor: '100%',
-                               name: 'title',
-                               value: config.title
-                           },
-                          /* Abstract field
                            */
                            {
                                fieldLabel: 'Abstract',
