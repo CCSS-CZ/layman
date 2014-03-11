@@ -258,7 +258,7 @@ class LayMan:
                             location = layerName # TODO: provide full URI here             
                             web.header("Location", location)
 
-                    elif name[0] == "publish" || name[0] == "data":
+                    elif name[0] == "publish" or name[0] == "data":
                         from layed import LayEd
                         le = LayEd(config)
                         inpt = web.input()
