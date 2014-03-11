@@ -204,7 +204,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                         title: 'Metadata of "' + config.name + '"',
                         layout: 'anchor',
                          items: [
-                           /* set name if this is existing feature type
+                           /* set name if this is layer
                             */
                            {
                                name: 'layerName',
@@ -214,18 +214,52 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                value: (config.type == "layer" ?
                                        config.name : undefined)
                            },
-                           /* set name of the file if this is file name
+                           /* set name of the file if this is file 
                             */
                            {
                                name: 'fileName',
                                id: 'fileName',
                                xtype: 'hidden',
-                               disabled: (config.type == "layer" ?
-                                          true : false),
+                               disabled: (config.type == "file" ?
+                                          false : true),
                                anchor: '100%',
-                               value: (config.type == "layer" ?
-                                       undefined : config.name)
+                               value: (config.type == "file" ?
+                                       config.name : undefined)
                            },
+                           /* set table/view name if this is data
+                            */
+                           {
+                               name: 'view',
+                               id: 'viewName',
+                               xtype: 'hidden',
+                               disabled: (config.type == "data" ?
+                                          false : true),
+                               anchor: '100%',
+                               value: (config.type == "data" ?
+                                       config.name : undefined)
+                           },
+                           /* set schema name if this is data
+                            */
+                           {
+                               name: 'schema',
+                               id: 'schemaName',
+                               xtype: 'hidden',
+                               disabled: (config.type == "data" ?
+                                          false : true),
+                               anchor: '100%',
+                               value: (config.type == "data" ?
+                                       config.schema : undefined)
+                           },
+                          /* Title field
+                           */
+                           {
+                               fieldLabel: 'Title',
+                               xtype: 'textfield',
+                               anchor: '100%',
+                               name: 'title',
+                               value: config.title
+                           },
+                          /* Abstract field
                           /* Title field
                            */
                            {
@@ -596,7 +630,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
             }
 
             // submit new files using http POST
-            else if (this.type == "file" || this.type == "data") { // File Panel
+            else if (this.type == "file") { // File Panel
                 form.submit({
                     success: function(form, action) {
                             Ext4.MessageBox.hide();
@@ -631,6 +665,29 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                 // https://docs.google.com/document/d/1KOtKIIMfHXST5PKYW0-DWBoJ-ghERxBmQsMR-vzBOd0/edit
                 // LayMan: 290, LayEd:220,636, GsRest: 149
                 // http://docs.geoserver.org/stable/en/user/rest/api/featuretypes.html
+                form.submit({
+                    success: function(form, action) {
+                            Ext4.MessageBox.hide();
+                            this.fireEvent('published', data);
+                    },
+                    failure: function(form, action) {
+                        Ext4.MessageBox.hide();
+                        var obj;
+                        try {
+                            obj = Ext4.decode(action.response.responseText);
+                        }
+                        catch (E) {
+                            obj = {
+                                message: ''
+                            };
+                        }
+                        Ext4.Msg.alert('Failed', 'Publishing data failed' +
+                            '<br />' + obj.message);
+                    },
+                    scope: this
+                });
+            }
+
             }
         }
 
