@@ -687,10 +687,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                     scope: this
                 });
             }
-
-            }
         }
-
     },
 
     /*
