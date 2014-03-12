@@ -97,12 +97,31 @@ class LayMan:
 
                 # Get the list of tables in db (or other data)
                 elif path[0] == 'data':
-                    
-                    from layed import LayEd
-                    le = LayEd()
+                
+                    # /data    
+                    if len(path) == 1:
+                        from layed import LayEd
+                        le = LayEd()
 
-                    roles = self.auth.getRoles()
-                    (code,retval) = le.getData(roles)
+                        roles = self.auth.getRoles()
+                        (code,retval) = le.getData(roles)
+
+                    elif len(path) == 2:
+
+                        # /layed/groups
+                        if path[1] == "groups":
+                            (code, retval) = self.auth.getRolesStr()
+
+                        # /layed/allgroups
+                        elif path[1] == "allgroups":
+                            (code, retval) = self.auth.getAllRolesStr()
+
+                        else:
+                            (code, retval) = self._callNotSupported(restMethod="GET", call=origName)
+
+                    else:
+                        (code, retval) = self._callNotSupported(restMethod="GET", call=origName)
+
 
                 elif path[0] == 'layed':
 
