@@ -37,13 +37,13 @@ Ext4.define('HSRS.LayerManager.DataPanel.DataMenu', {
             { xtype: 'menuseparator' }
         );
 
-        config.items.push({
+    /*    config.items.push({
                 text: 'Delete',
                 icon: HSRS.IMAGE_LOCATION + '/delete.png',
                 scope: this,
                 handler: this._onDeleteClicked
             });
-
+*/
         this.callParent(arguments);
 
         this.addEvents('datadeleted');
