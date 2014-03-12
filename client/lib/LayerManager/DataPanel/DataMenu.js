@@ -72,7 +72,7 @@ Ext4.define('HSRS.LayerManager.DataPanel.DataMenu', {
             type: "data"
         });
         publishForm._win = Ext4.create('Ext4.window.Window', {
-            title: 'Edit layer attributes',
+            title: 'Publish data to GeoServer',
             items: [publishForm]
         });
 
