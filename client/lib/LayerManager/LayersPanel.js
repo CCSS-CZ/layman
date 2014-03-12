@@ -114,20 +114,37 @@ Ext4.define('HSRS.LayerManager.LayersPanel', {
                     listeners: {
                         scope: this,
 
-                        // file deleted listener will popup confirmation window
+                        // layer deleted listener will popup confirmation window
                         'layerdeleted': function(record, evt) {
                             Ext4.MessageBox.confirm('Really remove selected layer?',
-                                    'Are you sure, you want to remove selected layer? <br />', 
+                                    'Are you sure, you want to remove selected layer and the underlying data? <br />', 
                                     function(btn, x, msg) {
                                         if (btn == 'yes') {
                                             this.lm.deleteLayer(this.record.get('layer').name,
                                                                 this.record.get('workspace'),
-                                                               this.record.get('layer').title);
+                                                                this.record.get('layer').title,
+                                                                true); // deleteTable = true
                                         }
                                     },
                                     {lm: this, record: record});
 
                                 },
+
+                        'layeronlydeleted': function(record, evt) {
+                            Ext4.MessageBox.confirm('Really remove selected layer?',
+                                    'Are you sure, you want to remove selected layer? <br />', 
+                                    function(btn, x, msg) {
+                                        if (btn == 'yes') {
+                                            this.lm.deleteLayer(this.record.get('layer').name,
+                                                                    this.record.get('workspace'),
+                                                                    this.record.get('layer').title,
+                                                                    false); // deleteTable = false
+                                        }
+                                    },
+                                    {lm: this, record: record});
+
+                                },
+
                         "layerupdated":this._onLayerUpdated
                     }
             });
@@ -141,7 +158,6 @@ Ext4.define('HSRS.LayerManager.LayersPanel', {
 
         myconfig.store.load();
 
-
         this.addEvents("layerupdated");
     },
 
@@ -152,8 +168,12 @@ Ext4.define('HSRS.LayerManager.LayersPanel', {
      * @param layer {String}  layer name.
      * @param layer {workspace} ws name.
      */
-    deleteLayer: function(layer,ws,title) {
+    deleteLayer: function(layer, ws, title, deleteTable) {
         var url = this.url + layer + '?usergroup='+ ws;
+
+        if (deleteTable == false) {
+            url = url + "&deleteTable=false"
+        }
 
         title = title || layer;
 

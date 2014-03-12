@@ -459,11 +459,17 @@ class LayMan:
                         le = LayEd()
                         layerName = path[1]
                         inpt = web.input(usergroup=None)
+                        
+                        deleteTable = True
+                        if "deleteTable" in inpt:
+                            if inpt["deleteTable"].lower() == "false":
+                                deleteTable = False
+                        
                         gsWorkspace = self.auth.getGSWorkspace(inpt.usergroup)
                         dbSchema    = self.auth.getDBSchema(inpt.usergroup)
                         logging.info("[LayMan][DELETE] Delete layer '%s'"% layerName )
                         logging.info("[LayMan][DELETE] Delete from workspace '%s'"% gsWorkspace)
-                        (code, message) = le.deleteLayer(gsWorkspace, layerName, dbSchema, deleteTable=True)
+                        (code, message) = le.deleteLayer(gsWorkspace, layerName, dbSchema, deleteTable)
 
                     # /publish/<layer>
                     elif path[0] == "publish" and len(path) == 2:

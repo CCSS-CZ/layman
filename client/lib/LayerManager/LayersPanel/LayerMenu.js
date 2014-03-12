@@ -62,15 +62,23 @@ Ext4.define('HSRS.LayerManager.LayersPanel.LayerMenu', {
         );
 
         config.items.push({
-                text: 'Delete',
+                text: 'Delete layer and data',
                 icon: HSRS.IMAGE_LOCATION + '/delete.png',
                 scope: this,
                 handler: this._onDeleteClicked
             });
 
+        config.items.push({
+                text: 'Delete layer only',
+                icon: HSRS.IMAGE_LOCATION + '/delete.png',
+                scope: this,
+                handler: this._onDeleteOnlyClicked
+            });
+
         this.callParent(arguments);
 
         this.addEvents('layerdeleted');
+        this.addEvents('layeronlydeleted');
         this.addEvents("layerupdated");
     },
 
@@ -80,6 +88,10 @@ Ext4.define('HSRS.LayerManager.LayersPanel.LayerMenu', {
      */
     _onDeleteClicked: function() {
         this.fireEvent('layerdeleted', this.record);
+    },
+
+    _onDeleteOnlyClicked: function() {
+        this.fireEvent('layeronlydeleted', this.record);
     },
 
     /**
