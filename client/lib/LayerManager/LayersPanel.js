@@ -25,14 +25,14 @@ Ext4.define('HSRS.LayerManager.LayersPanel', {
                     cls: 'x-btn-icon',
                     tooltip: 'Refresh file list',
                     icon: HSRS.IMAGE_LOCATION + '/arrow_refresh.png'
-                },
+                }/*,
                 {
                     scope: this,
                     handler: this._onDeleteClicked,
                     cls: 'x-btn-icon',
                     tooltip: 'Delete layer',
                     icon: HSRS.IMAGE_LOCATION + '/delete.png'
-                }
+                }*/
             ]
         });
 
