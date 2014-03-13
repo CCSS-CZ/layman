@@ -65,10 +65,17 @@ Ext4.define('HSRS.LayerManager.DataPanel', {
             },
             // data column
             {
-                text: 'Table/View',
+                text: 'Name',
                 sortable: true,
                 flex: 1,
                 dataIndex: 'name'
+            }
+            // type column
+            {
+                text: 'Type',
+                sortable: true,
+                flex: 1,
+                dataIndex: 'type'
             }
         ];
 

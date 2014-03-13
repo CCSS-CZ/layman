@@ -268,9 +268,20 @@ class DbMan:
         sql = "SELECT schemaname, relname FROM pg_stat_user_tables WHERE schemaname IN (" + schemata + ")" 
 
         result = self.get_sql(sql) # [['hasici','pest'], ['policajti','azov'] ...]
-        tables = map( lambda rec: {"schema": rec[0], "table": rec[1]}, result )
-       
+        tables = map( lambda rec: {"schema": rec[0], "name": rec[1]}, result )
+
         return tables        
+
+    # Get the list of views from the schemas from the given list
+    def getViews(self, schemalist):
+
+        schemata = ",".join(map( lambda s: "'"+s+"'", schemalist )) # "'aaa','bbb','ccc'"
+        sql = "SELECT schemaname, viewname FROM pg_views WHERE schemaname IN (" + schemata + ")" 
+
+        result = self.get_sql(sql) # [['hasici','pest'], ['policajti','azov'] ...]
+        views = map( lambda rec: {"schema": rec[0], "name": rec[1]}, result )
+
+        return views               
  
     def get_sql(self, sqlBatch):
         try:

@@ -47,7 +47,7 @@ class LayEd:
 
     ### DATA ###
 
-    # Get the list of tables in the given schemas
+    # Get the list of tables and views in the given schemas
     # For future: Add some other resources (files, WMS)
     def getData(self, roles):
         """ 
@@ -73,6 +73,16 @@ class LayEd:
 
         # Get tables
         tables = dbm.getTables(schemas)
+        for t in tables:
+            t["type"] = "table"
+
+        # Get views
+        views = dbm.getViews(schemas)
+        for v in views:
+            v["type"] = "view"
+
+        # Concat
+        data = tables + views
 
         # Add the role titles
         # Db doesn't know about role titles. 
@@ -81,11 +91,11 @@ class LayEd:
         for role in roles:
             rolemap[ role["roleName"] ] = role["roleTitle"] 
 
-        for t in tables:
-            t["roleTitle"] = rolemap[ t["schema"] ] # roleName ~ schema
-
+        for d in data:
+            d["roleTitle"] = rolemap[ d["schema"] ] # roleName ~ schema
+            
         code = 200
-        retval = json.dumps(tables)        
+        retval = json.dumps(data)        
         return (code, retval)
 
     ### LAYERS ###
