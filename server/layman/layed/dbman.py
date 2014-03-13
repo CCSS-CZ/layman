@@ -333,11 +333,10 @@ class DbMan:
             logging.debug("[DbMan][deleteTable] %s"% errStr)
             raise LaymanError(500, "DbMan: "+errStr)
 
-    def deleteView(self, dbSchema, viewName): {
+    def deleteView(self, dbSchema, viewName): 
         logParam = "viewName='"+viewName+"', dbSchema='"+dbSchema+"'"
         logging.debug("[DbMan][deleteView] %s"% logParam)
         self.deleteTable(dbSchema, viewName, "VIEW")
-    }
 
     def _get_ogr2ogr_version(self):
         """Returns version of OGR2OGR as (major,minor,release) triplet
