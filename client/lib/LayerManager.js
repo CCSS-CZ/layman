@@ -39,20 +39,23 @@ Ext4.define('HSRS.LayerManager', {
             //url: config.url,
             url: url,
             srid: srid,
+            flex: 1,
             listeners: {
                 scope: this,
                 'filepublished': this._onFilePublished,
                 'fileupdated': this._onLayerUpdated
-            },
-            flex: 1
+            }
         });
 
         // Data Panel
         url = config.url + (config.url[config.url.length - 1] == '/' ? '' : '/') + 'data/';
         this.dataPanel = Ext4.create('HSRS.LayerManager.DataPanel', {
             url: url,
-            flex: 1
-            // TODO: listeners
+            flex: 1,
+            listeners: {
+                scope: this,
+                'datapublished': this._onDataPublished
+            }
         });
 
         // Layers Panel
@@ -80,6 +83,12 @@ Ext4.define('HSRS.LayerManager', {
      */
     _onFilePublished: function(data) {
         Ext4.Msg.alert('Success', 'File ['+ data.fileName + '] published');
+        this.dataPanel.store.load();
+        this.layersPanel.store.load();
+    },
+
+    _onDataPublished: function(data) {
+        Ext4.Msg.alert('Success', 'Data ['+ data.name + '] published');
         this.layersPanel.store.load();
     },
 
