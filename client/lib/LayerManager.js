@@ -65,7 +65,8 @@ Ext4.define('HSRS.LayerManager', {
             flex: 1,
             listeners: {
                 scope: this,
-                'layerupdated': this._onLayerUpdated
+                'layerupdated': this._onLayerUpdated,
+                'layerdeleted': this._onLayerDeleted
             }
         });
 
@@ -105,6 +106,10 @@ Ext4.define('HSRS.LayerManager', {
         }
         Ext4.Msg.alert('Success', msg);
         this.layersPanel.store.load();
+    },
+
+    _onLayerDeleted: function() {
+        this.dataPanel.store.load();        
     },
 
     /**

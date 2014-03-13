@@ -159,6 +159,7 @@ Ext4.define('HSRS.LayerManager.LayersPanel', {
         myconfig.store.load();
 
         this.addEvents("layerupdated");
+        this.addEvents("layerdeleted");
     },
 
     /**
@@ -193,6 +194,7 @@ Ext4.define('HSRS.LayerManager.LayersPanel', {
                 Ext4.MessageBox.hide();
                 Ext4.Msg.alert('Success', 'Deleting layer succeeded');
                 this.store.load();
+                this.fireEvent('layerdeleted');
             },
             scope: this
         });
