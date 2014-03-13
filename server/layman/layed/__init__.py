@@ -1030,8 +1030,11 @@ class LayEd:
                         try: # TODO: distnct tables and views once we know it
                             dbm.deleteTable(dbSchema=schema, tableName=layer)
                         except Exception as e:
-                            logging.error("[LayEd][deleteLayer] DROP TABLE failed, trying DROP VIEW. Exception was: %s"% str(e))
-                            dbm.deleteView(dbSchema=schema, viewName=layer)
+                            if "DROP VIEW" in str(e):
+                                logging.error("[LayEd][deleteLayer] DROP TABLE failed, trying DROP VIEW. Exception was: %s"% str(e))
+                                dbm.deleteView(dbSchema=schema, viewName=layer)
+                            else:
+                                raise e
 
                 elif layer_type == "RASTER":
                     # Delete Coverage Store
