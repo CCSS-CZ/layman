@@ -69,7 +69,7 @@ Ext4.define('HSRS.LayerManager.DataPanel', {
                 sortable: true,
                 flex: 1,
                 dataIndex: 'name'
-            }
+            },
             // type column
             {
                 text: 'Type',
