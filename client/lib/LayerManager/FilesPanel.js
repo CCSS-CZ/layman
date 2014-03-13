@@ -88,7 +88,7 @@ Ext4.define('HSRS.LayerManager.FilesPanel', {
             {
                 text: 'Name',
                 sortable: true,
-                flex: 1,
+                flex: 0,
                 dataIndex: 'name'
             },
             // file type
