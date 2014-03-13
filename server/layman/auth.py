@@ -106,6 +106,10 @@ class LaymanAuth:
         logging.warning("[LaymanAuth][getallRoles] Call of Authorisation class ancestor. Was it intended? No authorisation will be granted here. Try descendants - e.g. LaymanAuthLiferay or LaymanAuthOpen.")
         return None
 
+    def canDelete(self):
+        logging.warning("[LaymanAuth][getallRoles] Call of Authorisation class ancestor. Was it intended? No authorisation will be granted here. Try descendants - e.g. LaymanAuthLiferay or LaymanAuthOpen.")
+        return None
+
     # Private Methods #
 
     def _setConfig(self,config):
@@ -351,6 +355,16 @@ class LaymanAuthLiferay(LaymanAuth):
 
     # Service Authorisation Methods #
 
+    def canDelete(self):
+        canDelete = False
+
+        roles = self.getRoles()
+        for r in roles:
+            if r["roleName"] == "administrator":
+                canDelete = True
+                break
+        return canDelete
+
     def canread(self):
         return self._getrights()["canread"] # Just an example!
 
@@ -375,6 +389,9 @@ class LaymanAuthOpen(LaymanAuth):
         return True 
 
     def canwrite(self):
+        return True
+
+    def canDelete(self):
         return True
 
     def getGSWorkspace(self,desired=None):

@@ -439,6 +439,10 @@ class LayMan:
                 path = [d for d in name.split(os.path.sep) if d]
                 if len(name) > 0:
 
+                    if path[0] != "fileman" and not self.auth.canDelete():
+                            logging.error("[LayMan][DELETE] Only admin can DELETE")
+                            raise AuthError(401, "Authorisation failed. Only Administrator can delete")
+
                     # /fileman/file.shp"
                     if path[0] == "fileman":
                             from fileman import FileMan
