@@ -61,16 +61,15 @@ Ext4.define('HSRS.LayerManager.DataPanel.DataMenu', {
         });
 
         publishForm.on('canceled', publishForm._win.close, publishForm._win);
-        publishForm.on('updated',
+        publishForm.on('published',
             function(e) {
                 this.publishForm._win.close();
-                this.menu._onLayerUpdated.apply(this.menu, arguments);
+                this.menu._onDataPublished.apply(this.menu, arguments);
             },
             {menu: this, publishForm: publishForm}
         );
         publishForm._win.show();
    
-        //        this.menu._onDataPublished.apply(this.menu, arguments);
      },
 
     /**
