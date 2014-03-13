@@ -303,8 +303,8 @@ class DbMan:
             raise LaymanError(500, "DbMan: " + errStr)
 
     # Delete
-    def deleteTable(self, dbSchema, tableName):
-        logParam = "tableName='"+tableName+"', dbSchema='"+dbSchema+"'"
+    def deleteTable(self, dbSchema, tableName, tableView = "TABLE"):
+        logParam = "tableName='"+tableName+"', dbSchema='"+dbSchema+"', tableView="+tableView
         logging.debug("[DbMan][deleteTable] %s"% logParam)
 
         try: # TODO: extract to one function
@@ -315,14 +315,14 @@ class DbMan:
             setSchemaSql = "SET search_path TO "+dbSchema+",public;"
 
             # delete table
-            deleteTableSql = "DROP TABLE \""+tableName+"\";"
+            deleteTableSql = "DROP " + tableView + " \""+tableName+"\";"
 
             # execute
             cur = conn.cursor()
             logging.debug("[DbMan][deleteTable] set schema: '%s'"% setSchemaSql)
-            cur.execute(setSchemaSql) # TODO check the success
+            cur.execute(setSchemaSql) 
             logging.debug("[DbMan][deleteTable] deleteTableSql: %s"% deleteTableSql)
-            cur.execute(deleteTableSql) # TODO check the success
+            cur.execute(deleteTableSql) 
             conn.commit()
 
             #close
@@ -333,7 +333,11 @@ class DbMan:
             logging.debug("[DbMan][deleteTable] %s"% errStr)
             raise LaymanError(500, "DbMan: "+errStr)
 
-        #TODO return table name
+    def deleteView(self, dbSchema, viewName): {
+        logParam = "viewName='"+viewName+"', dbSchema='"+dbSchema+"'"
+        logging.debug("[DbMan][deleteView] %s"% logParam)
+        self.deleteTable(dbSchema, viewName, "VIEW")
+    }
 
     def _get_ogr2ogr_version(self):
         """Returns version of OGR2OGR as (major,minor,release) triplet

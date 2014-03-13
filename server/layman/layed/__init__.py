@@ -1024,10 +1024,14 @@ class LayEd:
                     logging.debug("[LayEd][deleteLayer] DELETE Style  response content: %s"% response)
 
                     if deleteTable:
-                        # Drop Table in PostreSQL
+                        # Drop Table/View in PostreSQL
                         from layman.layed.dbman import DbMan
                         dbm = DbMan(self.config)
-                        dbm.deleteTable(dbSchema=schema, tableName=layer)
+                        try: # TODO: distnct tables and views once we know it
+                            dbm.deleteTable(dbSchema=schema, tableName=layer)
+                        except Exception as e:
+                            logging.error("[LayEd][deleteLayer] DROP TABLE failed, trying DROP VIEW. Exception was: %s"% str(e))
+                            dbm.deleteView(dbSchema=schema, viewName=layer)
 
                 elif layer_type == "RASTER":
                     # Delete Coverage Store
