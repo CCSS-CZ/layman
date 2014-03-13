@@ -88,8 +88,8 @@ Ext4.define('HSRS.LayerManager', {
         this.layersPanel.store.load();
     },
 
-    _onDataPublished: function(name) {
-        Ext4.Msg.alert('Success', 'Data ['+ name + '] published');
+    _onDataPublished: function(data) {
+        Ext4.Msg.alert('Success', 'Data ['+ data.name + '] published');
         this.layersPanel.store.load();
     },
 
