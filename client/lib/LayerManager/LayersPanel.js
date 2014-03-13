@@ -190,11 +190,23 @@ Ext4.define('HSRS.LayerManager.LayersPanel', {
         Ext4.Ajax.request({
             method: 'DELETE',
             url: (HSRS.ProxyHost ? HSRS.ProxyHost + escape(url) : url),
-            success: function() {
+            success: function(form, action) {
                 Ext4.MessageBox.hide();
                 Ext4.Msg.alert('Success', 'Deleting layer succeeded');
                 this.store.load();
                 this.fireEvent('layerdeleted');
+            },
+            failure: function(form, action) {
+                Ext4.MessageBox.hide();
+                var obj;
+                try {
+                    obj = Ext4.decode(form.responseText);
+                }
+                catch (E) {
+                    obj = {message: ''};
+                }
+                Ext4.Msg.alert('Failed', 'Delete error' +
+                '<br />' + obj.message);
             },
             scope: this
         });
