@@ -847,84 +847,86 @@ class LayEd:
         layersDone = {}  # lay[href]: ws
         duplicities = {} # lay[href]: count
 
-        # For every Layer
-        for lay in gsLayers["layers"]["layer"]:
-            logging.debug("[LayEd][getLayers] Trying layer '%s'"% lay["href"])
-            #print "Trying layer"
-            #print lay["href"]
+        if "layers" in gsLayers:
+            if "layer" in gsLayers["layers"]:
+                # For every Layer
+                for lay in gsLayers["layers"]["layer"]:
+                    logging.debug("[LayEd][getLayers] Trying layer '%s'"% lay["href"])
+                    #print "Trying layer"
+                    #print lay["href"]
 
-            # Check the duplicities
-            if lay["href"] in layersDone:
-                logging.debug("[LayEd][getLayers] Duplicity found: '%s'"% lay["href"])
-                if lay["href"] in duplicities:
-                    duplicities[ lay["href"] ] += 1
-                else:
-                    duplicities[ lay["href"] ] = 2
-                continue # dont store the same layer twice
-            else:
-                layersDone[ lay["href"] ] = ""
+                    # Check the duplicities
+                    if lay["href"] in layersDone:
+                        logging.debug("[LayEd][getLayers] Duplicity found: '%s'"% lay["href"])
+                        if lay["href"] in duplicities:
+                            duplicities[ lay["href"] ] += 1
+                        else:
+                            duplicities[ lay["href"] ] = 2
+                        continue # dont store the same layer twice
+                    else:
+                        layersDone[ lay["href"] ] = ""
 
-            # GET the Layer
-            (headers, response) = gsr.getUrl(lay["href"])
-            # Check the response
-            if headers["status"] != "200":
-                logging.warning("[LayEd][getLayers] Failed to get the Layer. GeoServer replied with '%s' and said '%s'" % (str(headers), str(response)) )
-                continue
-            # Load JSON
-            try:
-                layer = json.loads(response)  # Layer from GS
-            except Exception as e:
-                logging.warning("[LayEd][getLayers] Failed to parse response JSON. GeoServer replied with '%s' and said '%s'" % (str(headers), str(response)) )
-                continue
+                    # GET the Layer
+                    (headers, response) = gsr.getUrl(lay["href"])
+                    # Check the response
+                    if headers["status"] != "200":
+                        logging.warning("[LayEd][getLayers] Failed to get the Layer. GeoServer replied with '%s' and said '%s'" % (str(headers), str(response)) )
+                        continue
+                    # Load JSON
+                    try:
+                        layer = json.loads(response)  # Layer from GS
+                    except Exception as e:
+                        logging.warning("[LayEd][getLayers] Failed to parse response JSON. GeoServer replied with '%s' and said '%s'" % (str(headers), str(response)) )
+                        continue
 
-            # Check the workspace
-            ftUrl = layer["layer"]["resource"]["href"] # URL of Feature Type
-            urlParsed = urlparse(ftUrl)
-            path = urlParsed[2]                        # path
-            path = [d for d in path.split(os.path.sep) if d] # path parsed
-            if path[2] != "workspaces":                # something is wrong
-                logStr = repr(path)
-                logging.error("[LayEd][getLayers] Strange: path[2] != 'workspaces'. Path: %s"% logStr)
-            ws = path[3]   # workspace of the layer
-            logging.debug("[LayEd][getLayers] Layer's workspace: '%s'"% ws)
-            #print "layer's workspace"
-            #print ws
-            layersDone[ lay["href"] ] = ws
-            if ws in workspaces:
+                    # Check the workspace
+                    ftUrl = layer["layer"]["resource"]["href"] # URL of Feature Type
+                    urlParsed = urlparse(ftUrl)
+                    path = urlParsed[2]                        # path
+                    path = [d for d in path.split(os.path.sep) if d] # path parsed
+                    if path[2] != "workspaces":                # something is wrong
+                        logStr = repr(path)
+                        logging.error("[LayEd][getLayers] Strange: path[2] != 'workspaces'. Path: %s"% logStr)
+                    ws = path[3]   # workspace of the layer
+                    logging.debug("[LayEd][getLayers] Layer's workspace: '%s'"% ws)
+                    #print "layer's workspace"
+                    #print ws
+                    layersDone[ lay["href"] ] = ws
+                    if ws in workspaces:
 
-                # GET FeatureType
-                logging.debug("[LayEd][getLayers] MATCH! Get Feature Type: '%s'"% ftUrl)
-                (headers, response) = gsr.getUrl(ftUrl)
-                #logging.debug("[LayEd][getLayers] ftUrl: %s, headers: %s response: %s" % (str(ftUrl), str(headers), str(response)) )
-                if headers["status"] != "200":
-                    logging.warning("[LayEd][getLayers] Failed to get the FeatureType. GeoServer replied with '%s' and said '%s'" % (str(headers), str(response)) )
-                    continue
-                try:
-                    ft = json.loads(response)   # Feature Type
-                except Exception as e:
-                    logging.warning("[LayEd][getLayers] Failed to parse response JSON. GeoServer replied with '%s' and said '%s'" % (str(headers), str(response)) )
-                    continue
+                        # GET FeatureType
+                        logging.debug("[LayEd][getLayers] MATCH! Get Feature Type: '%s'"% ftUrl)
+                        (headers, response) = gsr.getUrl(ftUrl)
+                        #logging.debug("[LayEd][getLayers] ftUrl: %s, headers: %s response: %s" % (str(ftUrl), str(headers), str(response)) )
+                        if headers["status"] != "200":
+                            logging.warning("[LayEd][getLayers] Failed to get the FeatureType. GeoServer replied with '%s' and said '%s'" % (str(headers), str(response)) )
+                            continue
+                        try:
+                            ft = json.loads(response)   # Feature Type
+                        except Exception as e:
+                            logging.warning("[LayEd][getLayers] Failed to parse response JSON. GeoServer replied with '%s' and said '%s'" % (str(headers), str(response)) )
+                            continue
 
-                # Learn the groups allowed to read the layer
-                # Corresponds to posession of the role "READ_ws_layerName"
-                # (we get it from roles.xml, not from layers.properties file)
-                readGroups = gsx.getReadLayerGroups(group=ws, layer=lay["name"])
+                        # Learn the groups allowed to read the layer
+                        # Corresponds to posession of the role "READ_ws_layerName"
+                        # (we get it from roles.xml, not from layers.properties file)
+                        readGroups = gsx.getReadLayerGroups(group=ws, layer=lay["name"])
 
-                # Pack the reply
-                bundle = {}   
-                bundle["ws"] = ws                       # workspace ~ group
-                bundle["roleTitle"] = roleTitles[ws]    # group title
-                bundle["readGroups"] = readGroups       # list of groups allowed to read the layer
-                bundle["layer"] = layer["layer"]        # layer object
-                bundle["layerData"] = {}                # featureType || coverage
-                if "featureType" in ft.keys():
-                    bundle["layerData"] = ft["featureType"]
-                    #bundle["layerData"]["datatype"] =  "featureType" # this should not be here. 
-                    # can be detected from layer[type]. or, if really needed, should be set as bundle[datatype]
-                elif "coverage" in ft.keys():
-                    bundle["layerData"] = ft["coverage"]
-                    #bundle["layerData"]["datatype"] =  "coverage"
-                layers.append(bundle)
+                        # Pack the reply
+                        bundle = {}   
+                        bundle["ws"] = ws                       # workspace ~ group
+                        bundle["roleTitle"] = roleTitles[ws]    # group title
+                        bundle["readGroups"] = readGroups       # list of groups allowed to read the layer
+                        bundle["layer"] = layer["layer"]        # layer object
+                        bundle["layerData"] = {}                # featureType || coverage
+                        if "featureType" in ft.keys():
+                            bundle["layerData"] = ft["featureType"]
+                            #bundle["layerData"]["datatype"] =  "featureType" # this should not be here. 
+                            # can be detected from layer[type]. or, if really needed, should be set as bundle[datatype]
+                        elif "coverage" in ft.keys():
+                            bundle["layerData"] = ft["coverage"]
+                            #bundle["layerData"]["datatype"] =  "coverage"
+                        layers.append(bundle)
 
         # Now find the layers hidden by the duplicites
 
