@@ -43,7 +43,7 @@ HSRS.timer  = function(call,scope){
 
 HSRS.getUrlParams = function( url ) {
     var params = {}, queries, temp, i, l;
-    var queryString = url.substring( query.indexOf('?') + 1 );
+    var queryString = url.substring( url.indexOf('?') + 1 );
 
     // Split into key/value pairs
     queries = queryString.split("&");
