@@ -119,6 +119,9 @@ Ext4.define('HSRS.LayerManager.LayersPanel.LayerMenu', {
                     ? this.layerData.keywords.string.join(",")
                     : undefined
 
+        attributionTitleSafe = this.layer.attribution ? this.layer.attribution.title : undefined
+        attributionHrefSafe  = this.layer.attribution ? this.layer.attribution.href : undefined
+
         var publishForm = Ext4.create('HSRS.LayerManager.PublishForm', {
             name: this.layer.name,
             url: this.url.replace('fileman', 'layed'),
