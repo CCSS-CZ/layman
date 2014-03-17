@@ -293,13 +293,13 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                    //fieldLabel: 'Metadata link',
                                    itemId: 'MetadataLink',
                                    id: 'MetadataLink',
-                                   emptyText: 'http://',
+                                   //emptyText: 'http://',
                                    anchor: '100%',
                                    xtype: 'textfield',
                                    name: 'metadataurl',
-                                   value: config.metadataurl || ''
+                                   //value: config.metadataurl || ''
                                },
-                               /* Link to Micka button
+                               /* Selec existing Micka record
                                 */
                                {
                                     text: 'Select existing',
@@ -307,13 +307,30 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                     rtl: true,
                                     listeners: {
                                         click: function() {
-                                            //mickaUrl = "/php/metadata/index.php?request=GetRecords&format=text/html&language=&query=&sortby=&cb=opener.fillMetadataLinkFromMicka"
-                                            mickaUrl = "/php/metadata/?cb=opener.fillMetadataLinkFromMicka"
+                                            uuid = ""
+                                            
+                                            // Get current link - if any
+                                            metadatalinkTextField = Ext4.getCmp('MetadataLink');
+                                            currentLink = metadatalinkTextField.value; // http://erra.ccss.cz/php/metadata/?ak=xml&uuid=5153f659-17bc-45be-a09e-357f585671ec
+                                            // Parse out uuid
+                                            if (currentLink) {
+                                                params = HSRS.getUrlParams(currentLink);
+                                                if ("uuid" in params) {
+                                                    uuid = params["uuid"];                                                
+                                                }
+                                            }
+
+                                            // Open Micka
+                                            mickaUrl = uuid == "" ?
+                                                "/php/metadata/?cb=opener.fillMetadataLinkFromMicka" :
+                                                "/php/metadata/?request=GetRecords&format=text/html&query=identifieri=" + uuid + "&cb=opener.fillMetadataLinkFromMicka"
                                             window.open(mickaUrl, '_newtab');
                                         }
                                     },
                                     scope: this                                
                                },
+                               /* Create new Micka record
+                                */
                                {
                                     text: 'Create new metadata record',
                                     xtype: 'button',
