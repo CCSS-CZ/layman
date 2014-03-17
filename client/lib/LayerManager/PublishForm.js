@@ -307,7 +307,8 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                     rtl: true,
                                     listeners: {
                                         click: function() {
-                                            mickaUrl = "/php/metadata/index.php?request=GetRecords&format=text/html&language=&query=&sortby=&cb=opener.fillMetadataLinkFromMicka"
+                                            //mickaUrl = "/php/metadata/index.php?request=GetRecords&format=text/html&language=&query=&sortby=&cb=opener.fillMetadataLinkFromMicka"
+                                            mickaUrl = "/php/metadata/?cb=opener.fillMetadataLinkFromMicka"
                                             window.open(mickaUrl, '_newtab');
                                         }
                                     },
