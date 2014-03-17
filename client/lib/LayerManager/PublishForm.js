@@ -323,7 +323,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                             // Open Micka
                                             mickaUrl = uuid == "" ?
                                                 "/php/metadata/?cb=opener.fillMetadataLinkFromMicka" :
-                                                "/php/metadata/?request=GetRecords&format=text/html&query=identifieri=" + uuid + "&cb=opener.fillMetadataLinkFromMicka"
+                                                "/php/metadata/?request=GetRecords&format=text/html&query=identifier=" + uuid + "&cb=opener.fillMetadataLinkFromMicka"
                                             window.open(mickaUrl, '_newtab');
                                         }
                                     },
