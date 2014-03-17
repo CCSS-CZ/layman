@@ -41,6 +41,22 @@ HSRS.timer  = function(call,scope){
   };
 }; 
 
+HSRS.getUrlParams = function( url ) {
+    var params = {}, queries, temp, i, l;
+    var queryString = url.substring( query.indexOf('?') + 1 );
+
+    // Split into key/value pairs
+    queries = queryString.split("&");
+ 
+    // Convert the array of strings into an object
+    for ( i = 0, l = queries.length; i < l; i++ ) {
+        temp = queries[i].split('=');
+        params[temp[0]] = temp[1];
+    }
+ 
+    return params;
+};
+
 
 if (!('map' in Array.prototype)) {
     Array.prototype.map= function(mapper, that /*opt*/) {
