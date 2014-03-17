@@ -297,7 +297,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                    anchor: '100%',
                                    xtype: 'textfield',
                                    name: 'metadataurl',
-                                   //value: config.metadataurl || ''
+                                   value: config.metadataurl || ''
                                },
                                /* Selec existing Micka record
                                 */
