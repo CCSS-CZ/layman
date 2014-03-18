@@ -964,7 +964,7 @@ class LayEd:
 
                     # Learn the groups allowed to read the layer
                     # Corresponds to posession of the role "READ_ws_layerName"
-                    readGroups = gsx.getReadLayerGroups(group=ws, layer=lay["name"])
+                    readGroups = gsx.getReadLayerGroups(group=ws, layer=str(lay["name"]))
 
                     # Return both
                     bundle = {}   # Layer that will be returned
