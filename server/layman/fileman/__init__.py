@@ -423,6 +423,7 @@ class FileMan:
         (target_root,target_suffix) = os.path.splitext(target_name)
         zf  = zipfile.ZipFile(zfile)
 
+
         # exctarct zip into temporary location
         zf.extractall(path=self.tempdir)
 
@@ -440,7 +441,9 @@ class FileMan:
           
             target_root = root # don't rename, leave the original name
 
-            # rename file as desired
+            # Rails/rails.cpg => Rails_rails.cpg
+            target_root = "_".join(target_root.split(os.sep))
+            target_root = target_root[-36:] # limit the length
 
             logging.debug("[FileMan][_unzipFile] tempdir=%s, shape_file_part=%s, target_dir=%s, target_root=%s, suffix=%s" % (self.tempdir, shape_file_part, target_dir, target_root, suffix))
 
