@@ -534,6 +534,8 @@ class LayEd:
         If the styleName refer to a certain workspace, specify that as styleWs.
         """
 
+        logging.debug("[LayEd][createStyleForLayer] params: workspace %s, dataStore %s, layerName %s, styleName %s, styleWs %s" % (workspace, dataStore, layerName, str(styleName), str(styleWs)))
+
         gsr = GsRest(self.config)
 
         # Style not provided - clone the default one that has been automatically assigned to the layer by GeoServer
