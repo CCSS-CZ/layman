@@ -175,7 +175,7 @@ class LayEd:
             tableName = self.importFromFileToDb(filePath, dbSchema, srs, tsrs)
             
             # Publish from PostGIS to GeoServer
-            (code, layerName, message) = self.publishFromDbToGs(dbSchema, tableName, gsWorkspace, tsrs, data, secureLayer)
+            (code, layerName, message) = self.publishFromDbToGs(dbSchema, tableName, gsWorkspace, tsrs, data, None, None, secureLayer)
 
         else:
             from osgeo import gdal
@@ -186,7 +186,7 @@ class LayEd:
                 data_type = "raster"
 
                 # Publish from raster file to GeoServer
-                (code, layerName, message) = self.publishRasterToGs(filePath, gsWorkspace, ds, fileNameNoExt, srs, data, secureLayer)
+                (code, layerName, message) = self.publishRasterToGs(filePath, gsWorkspace, ds, fileNameNoExt, srs, data, None, None, secureLayer)
 
         if not data_type:
             raise LaymanError(500, "Data type (raster or vector) not recognized")
