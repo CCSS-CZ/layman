@@ -270,7 +270,7 @@ class LayMan:
                         tsrs = inpt.tsrs
 
                         secureLayer = True
-                        if inpt.secureLayer:
+                        if "secureLayer" in inpt:
                             if inpt.secureLayer.lower() == "false":
                                 secureLayer = False
 
@@ -304,7 +304,7 @@ class LayMan:
                         crs = inpt.crs
 
                         secureLayer = True
-                        if inpt.secureLayer:
+                        if "secureLayer" in inpt:
                             if inpt.secureLayer.lower() == "false":
                                 secureLayer = False
 
