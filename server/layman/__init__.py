@@ -306,7 +306,7 @@ class LayMan:
                         secureLayer = True
                         if inpt.secureLayer:
                             if inpt.secureLayer.lower() == "false":
-                            secureLayer = False
+                                secureLayer = False
 
                         # Optional parameters
                         styleName = None
