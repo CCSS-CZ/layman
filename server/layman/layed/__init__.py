@@ -122,7 +122,7 @@ class LayEd:
 
         return self.createStyleForLayer(workspace=gsWorkspace, dataStore=fileNameNoExt, layerName=fileNameNoExt)
 
-    def importAndPublish(self, fsUserDir, fsGroupDir, dbSchema, gsWorkspace, fileName, srs=None, tsrs=None, data=None):
+    def importAndPublish(self, fsUserDir, fsGroupDir, dbSchema, gsWorkspace, fileName, srs=None, tsrs=None, data=None, secureLayer=True):
         """ Main publishing function. 
         Vectors import to PostreSQL and publish in GeoServer. 
         Rasters copy to GeoServer datastore dir and publish from there in GS.
@@ -175,7 +175,7 @@ class LayEd:
             tableName = self.importFromFileToDb(filePath, dbSchema, srs, tsrs)
             
             # Publish from PostGIS to GeoServer
-            (code, layerName, message) = self.publishFromDbToGs(dbSchema, tableName, gsWorkspace, tsrs, data)
+            (code, layerName, message) = self.publishFromDbToGs(dbSchema, tableName, gsWorkspace, tsrs, data, secureLayer)
 
         else:
             from osgeo import gdal
@@ -186,7 +186,7 @@ class LayEd:
                 data_type = "raster"
 
                 # Publish from raster file to GeoServer
-                (code, layerName, message) = self.publishRasterToGs(filePath, gsWorkspace, ds, fileNameNoExt, srs, data)
+                (code, layerName, message) = self.publishRasterToGs(filePath, gsWorkspace, ds, fileNameNoExt, srs, data, secureLayer)
 
         if not data_type:
             raise LaymanError(500, "Data type (raster or vector) not recognized")
@@ -212,7 +212,7 @@ class LayEd:
 
         return tableName
 
-    def publishFromDbToGs(self, dbSchema, tableName, gsWorkspace, srs=None, data=None, styleName=None, styleWs=None):
+    def publishFromDbToGs(self, dbSchema, tableName, gsWorkspace, srs=None, data=None, styleName=None, styleWs=None, secureLayer=True):
         """ Publish vector data from PostGIS to GeoServer.
             A name of a view can be used as a tableName as well.
         """
@@ -227,7 +227,7 @@ class LayEd:
         dataStore = self.createVectorDataStoreIfNotExists(dbSchema, gsWorkspace)
 
         # Publish from DB to GS
-        layerName = self.createFtFromDb(gsWorkspace, dataStore, tableName, srs, data)
+        layerName = self.createFtFromDb(gsWorkspace, dataStore, tableName, srs, data, secureLayer)
 
         # Set attribution of the layer
         self.updateLayerAttribution(gsWorkspace, layerName, data)
@@ -242,7 +242,7 @@ class LayEd:
         message = "Layer published: " + layerName
         return (code, layerName, message)
 
-    def publishRasterToGs(self, filePath, gsWorkspace, ds, name, srs=None, data=None):
+    def publishRasterToGs(self, filePath, gsWorkspace, ds, name, srs=None, data=None, secureLayer=True):
         """ Publish raster files in GeoServer.
         """
         logParam = "filePath=%s gsWorkspace=%s ds=%s name=%s srs=%s" %\
@@ -260,7 +260,7 @@ class LayEd:
         layerName = self.createCoverageFromFile(gsworkspace=gsWorkspace,
                                                    store=name,
                                                    name=name,
-                                                   srs=srs, data=data)
+                                                   srs=srs, data=data, secureLayer=secureLayer)
 
         # Set attribution of the layer
         self.updateLayerAttribution(gsWorkspace, layerName, data)
@@ -333,7 +333,7 @@ class LayEd:
             message = "LayEd: createCoverageStoreIfNotExists(): Cannot create CoverageStore " + final_name + ". Geoserver replied with " + headStr + " and said '" + cont + "'"
             raise LaymanError(500, message)
 
-    def createCoverageFromFile(self, gsworkspace, store, name, srs, data=None):
+    def createCoverageFromFile(self, gsworkspace, store, name, srs, data=None, secureLayer=True):
 
         # Create coverage json
         coverJson = {
@@ -376,24 +376,26 @@ class LayEd:
         # FIXME: return layer name from location header       
         layerName = name
 
-        # Secure the layer (for the native group)
-        role = self.secureLayer(workspace, layerName)
+        if secureLayer:
 
-        # Grant Access (to foreigners)
-        
-        if hasattr(data, "read_groups"):
-            grouplist = map(lambda k: k.strip(), data.read_groups.split(",")) # Groups to be granted from the Client
-        else:
-            grouplist = []
-        if hasattr(data, "read_users"):
-            userlist = map(lambda k: k.strip(), data.read_users.split(",")) # Users to be granted from the Client
-        else:
-            userlist = []
+            # Secure the layer (for the native group)
+            role = self.secureLayer(workspace, layerName)
+    
+            # Grant Access (to foreigners)
+            
+            if hasattr(data, "read_groups"):
+                grouplist = map(lambda k: k.strip(), data.read_groups.split(",")) # Groups to be granted from the Client
+            else:
+                grouplist = []
+            if hasattr(data, "read_users"):
+                userlist = map(lambda k: k.strip(), data.read_users.split(",")) # Users to be granted from the Client
+            else:
+                userlist = []
 
-        if workspace not in grouplist:
-            grouplist.append(workspace) # Make sure our home group is involved
+            if workspace not in grouplist:
+                grouplist.append(workspace) # Make sure our home group is involved
 
-        self.grantAccess(role, userlist, grouplist)
+            self.grantAccess(role, userlist, grouplist)
 
         return layerName
 
@@ -592,7 +594,7 @@ class LayEd:
         # Tell GS to reload the configuration
         gsr.putReload()
 
-    def createFtFromDb(self, workspace, dataStore, tableName, srs, data=None):
+    def createFtFromDb(self, workspace, dataStore, tableName, srs, data=None, secureLayer=True):
         """ Create Feature Type from PostGIS database
             Given dataStore must exist in GS, connected to PG schema.
             layerName corresponds to table name in the schema.
@@ -679,24 +681,26 @@ class LayEd:
             else:
                 layerName = resourceName
 
-        # Secure the layer (for the native group) 
-        role = self.secureLayer(workspace, layerName)
+        if secureLayer:
 
-        # Grant Access (to foreigners)
+            # Secure the layer (for the native group) 
+            role = self.secureLayer(workspace, layerName)
+
+            # Grant Access (to foreigners)
         
-        if hasattr(data, "read_groups"):
-            grouplist = map(lambda k: k.strip(), data.read_groups.split(",")) # Groups to be granted from the Client
-        else:
-            grouplist = []
-        if hasattr(data, "read_users"):
-            userlist = map(lambda k: k.strip(), data.read_users.split(",")) # Users to be granted from the Client
-        else:
-            userlist = []
+            if hasattr(data, "read_groups"):
+                grouplist = map(lambda k: k.strip(), data.read_groups.split(",")) # Groups to be granted from the Client
+            else:
+                grouplist = []
+            if hasattr(data, "read_users"):
+                userlist = map(lambda k: k.strip(), data.read_users.split(",")) # Users to be granted from the Client
+            else:
+                userlist = []
 
-        if workspace not in grouplist:
-            grouplist.append(workspace) # Make sure our home group is involved
+            if workspace not in grouplist:
+                grouplist.append(workspace) # Make sure our home group is involved
 
-        self.grantAccess(role, userlist, grouplist)
+            self.grantAccess(role, userlist, grouplist)
 
         return layerName
 

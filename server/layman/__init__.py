@@ -269,9 +269,14 @@ class LayMan:
                         crs = inpt.crs
                         tsrs = inpt.tsrs
 
+                        secureLayer = True
+                        if inpt.secureLayer:
+                            if inpt.secureLayer.lower() == "false":
+                                secureLayer = False
+
                         (code, layerName, message) = le.importAndPublish(fsUserDir, fsGroupDir,
                                                      dbSchema, gsWorkspace,
-                                                     fileName, crs, tsrs, inpt)
+                                                     fileName, crs, tsrs, inpt, secureLayer)
                         # Set Location header
                         if code == 201 and layerName is not None:
                             location = layerName # TODO: provide full URI here             
@@ -298,6 +303,11 @@ class LayMan:
                         gsWorkspace = self.auth.getGSWorkspace(inpt.schema)
                         crs = inpt.crs
 
+                        secureLayer = True
+                        if inpt.secureLayer:
+                            if inpt.secureLayer.lower() == "false"
+                            secureLayer = False
+
                         # Optional parameters
                         styleName = None
                         styleWs = None                        
@@ -309,7 +319,7 @@ class LayMan:
                         (code, layerName, message) = le.publishFromDbToGs(dbSchema, 
                                                             viewName, 
                                                             gsWorkspace, 
-                                                            crs, inpt, styleName, styleWs)
+                                                            crs, inpt, styleName, styleWs, secureLayer)
 
                         # Set Location header
                         if code == 201 and layerName is not None:
