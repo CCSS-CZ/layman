@@ -360,7 +360,7 @@ class LaymanAuthLiferay(LaymanAuth):
 
         roles = self.getRoles()
         for r in roles:
-            if r["roleName"] == "administrator":
+            if r["roleName"] == "lmadmin":
                 canDelete = True
                 break
         return canDelete
