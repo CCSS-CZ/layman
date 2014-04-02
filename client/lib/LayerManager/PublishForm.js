@@ -583,13 +583,24 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                 }
 
                 // Metadata
-                if (!newLayerData.metadataLinks.metadataLink) {
-                    newLayerData.metadataLinks.metadataLink = []
+                if (vals.metadataurl.trim() != "") { // Link provided
+                    if (!newLayerData.metadataLinks.metadataLink) {
+                        newLayerData.metadataLinks.metadataLink = []
+                    }
+                    if (!newLayerData.metadataLinks.metadataLink[0]) {
+                        newLayerData.metadataLinks.metadataLink[0] = {}
+                    }
+                    newLayerData.metadataLinks.metadataLink[0].content =  vals.metadataurl;
+                    newLayerData.metadataLinks.metadataLink[0].type = "text/xml";
+                    newLayerData.metadataLinks.metadataLink[0].metadataType = "ISO19115:2003";                   
+
+                } else { // Link not given
+                    if (newLayerData.metadataLinks.metadataLink) { // something was there
+                        // erase the list
+                        newLayerData.metadataLinks.metadataLink = [] // this is nasty - GeoServer handles more than one metadata link
+                    }
+                    // else - nothing was there and link not given - nothing to do
                 }
-                if (!newLayerData.metadataLinks.metadataLink[0]) {
-                    newLayerData.metadataLinks.metadataLink[0] = {}
-                }
-                newLayerData.metadataLinks.metadataLink[0].content =  vals.metadataurl;
 
                 // Layer params
 
