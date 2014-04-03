@@ -392,8 +392,8 @@ class LayEd:
             else:
                 userlist = []
 
-            if workspace not in grouplist:
-                grouplist.append(workspace) # Make sure our home group is involved
+            if gsworkspace not in grouplist:
+                grouplist.append(gsworkspace) # Make sure our home group is involved
 
             self.grantAccess(role, userlist, grouplist)
 
