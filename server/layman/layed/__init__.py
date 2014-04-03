@@ -379,7 +379,7 @@ class LayEd:
         if secureLayer:
 
             # Secure the layer (for the native group)
-            role = self.secureLayer(workspace, layerName)
+            role = self.secureLayer(gsworkspace, layerName)
     
             # Grant Access (to foreigners)
             
