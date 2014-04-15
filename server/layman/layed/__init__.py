@@ -100,28 +100,7 @@ class LayEd:
 
     ### LAYERS ###
 
-    # Obsolete
-    def publishFromFileToGs(self, fsDir, gsWorkspace, fileName):
-        """ Publish from file to GeoServer with GS Config
-        """
-        # /path/to/file.shp
-        filePath = os.path.realpath( os.path.join( fsDir,fileName) )
-
-        # /path/to/file
-        filePathNoExt = os.path.splitext(filePath)[0]
-
-        # file
-        fileNameNoExt = os.path.splitext(fileName)[0]
-
-        # publish with gsconfig.py
-        from gsconfig import GsConfig
-        gsc = GsConfig(self.config)
-        gsc.createFeatureStore(filePathNoExt, gsWorkspace, dataStoreName = fileNameNoExt)
-        logging.info("[LayEd][publish] published layer '%s'"% fileNameNoExt)
-        logging.info("[LayEd][publish] in workspace '%s'"% gsWorkspace)
-
-        return self.createStyleForLayer(workspace=gsWorkspace, dataStore=fileNameNoExt, layerName=fileNameNoExt)
-
+    # Import and publish, rasters and vectors
     def importAndPublish(self, fsUserDir, fsGroupDir, dbSchema, gsWorkspace, fileName, srs=None, tsrs=None, data=None, secureLayer=True):
         """ Main publishing function. 
         Vectors import to PostreSQL and publish in GeoServer. 
@@ -186,7 +165,7 @@ class LayEd:
                 data_type = "raster"
 
                 # Publish from raster file to GeoServer
-                (code, layerName, message) = self.publishRasterToGs(filePath, gsWorkspace, ds, fileNameNoExt, srs, data, secureLayer)
+                (code, layerName, message) = self.publishRasterToGs(filePath, gsWorkspace, ds, fileNameNoExt, srs, data, None, None, secureLayer)
 
         if not data_type:
             raise LaymanError(500, "Data type (raster or vector) not recognized")
@@ -233,7 +212,7 @@ class LayEd:
         self.updateLayerAttribution(gsWorkspace, layerName, data)
 
         # Create and assgin new style
-        self.createStyleForLayer(gsWorkspace, dataStore, layerName, styleName, styleWs)
+        self.createStyleForLayer(gsWorkspace, layerName, styleName, styleWs)
 
         logging.info("[LayEd][publish] Published layer '%s'" % layerName)
         logging.info("[LayEd][publish] in workspace '%s'" % gsWorkspace)
@@ -242,7 +221,7 @@ class LayEd:
         message = "Layer published: " + layerName
         return (code, layerName, message)
 
-    def publishRasterToGs(self, filePath, gsWorkspace, ds, name, srs=None, data=None, secureLayer=True):
+    def publishRasterToGs(self, filePath, gsWorkspace, ds, name, srs=None, data=None, styleName=None, styleWs=None, secureLayer=True):
         """ Publish raster files in GeoServer.
         """
         logParam = "filePath=%s gsWorkspace=%s ds=%s name=%s srs=%s" %\
@@ -265,7 +244,9 @@ class LayEd:
         # Set attribution of the layer
         self.updateLayerAttribution(gsWorkspace, layerName, data)
 
-        # TODO: check the result
+        # Create and assgin new style
+        self.createStyleForLayer(gsWorkspace, layerName, styleName, styleWs)
+
         logging.info("[LayEd][publish] Published layer '%s'" % name)
         logging.info("[LayEd][publish] in workspace '%s'" % gsWorkspace)
 
@@ -526,7 +507,7 @@ class LayEd:
         
         return dbSchema
 
-    def createStyleForLayer(self, workspace, dataStore, layerName, styleName=None, styleWs=None):
+    def createStyleForLayer(self, workspace, layerName, styleName=None, styleWs=None):
         """ Create and assign new style for layer.
         Old style of the layer is cloned into the layer's workspace
         and is assigned to the layer.
@@ -534,7 +515,7 @@ class LayEd:
         If the styleName refer to a certain workspace, specify that as styleWs.
         """
 
-        logging.debug("[LayEd][createStyleForLayer] params: workspace %s, dataStore %s, layerName %s, styleName %s, styleWs %s" % (workspace, dataStore, layerName, str(styleName), str(styleWs)))
+        logging.debug("[LayEd][createStyleForLayer] params: workspace %s, layerName %s, styleName %s, styleWs %s" % (workspace, layerName, str(styleName), str(styleWs)))
 
         gsr = GsRest(self.config)
 
