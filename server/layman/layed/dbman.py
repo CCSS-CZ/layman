@@ -86,12 +86,16 @@ class DbMan:
                                filePath])
 
         logging.debug("[DbMan][updateVectorFile] Going to call ogr2ogr.main() with the following params: %s" % str(ogr2ogr_params))
-        ogr2ogr.main(ogr2ogr_params)
+        success = ogr2ogr.main(ogr2ogr_params)
         logging.debug("[DbMan][updateVectorFile] ogr2ogr.main() returned.")
 
         sys.stdout = sys.__stdout__
         sys.stderr = sys.__stderr__
         devnull.close()
+
+        if not success:
+            logging.error("[DbMan][importVectorFile] ogr2ogr failed.")
+            raise LaymanError(500, "Database import (ogr2ogr) failed. (Is the encoding correct?)")
 
     def importVectorFile(self, filePath, dbSchema, srs, tsrs):
         """import given file to database, ogr is used for data READING,
@@ -125,12 +129,16 @@ class DbMan:
         ogr2ogr_params.extend([self.getConnectionString(True),
                                filePath])
         logging.debug("[DbMan][importVectorFile] Going to call ogr2ogr.main() with the following params: %s" % str(ogr2ogr_params))
-        ogr2ogr.main(ogr2ogr_params)
-        logging.debug("[DbMan][importVectorFile] ogr2ogr.main() returned.")
+        success = ogr2ogr.main(ogr2ogr_params)
+        logging.debug("[DbMan][importVectorFile] ogr2ogr.main() returned. Success: %s" % str(success))
 
         sys.stdout = sys.__stdout__
         sys.stderr = sys.__stderr__
         devnull.close()
+
+        if not success:
+            logging.error("[DbMan][importVectorFile] ogr2ogr failed.")
+            raise LaymanError(500, "Database import (ogr2ogr) failed. (Is the encoding correct?)")
 
         # FIXME: We need to wait until the DB is ready and THEN return. 
         # Otherwise publishing fails and we get 
