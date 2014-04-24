@@ -80,7 +80,7 @@ class FileMan:
                                # do note use 'dir' - it is another function
             (name_root, suffix) = os.path.splitext(fn)
             # filter shx, dbf and prj files
-            if suffix in (".shx",".dbf",".prj",".sbn") and\
+            if suffix in (".shx",".dbf",".prj",".sbn", ".cpg") and\
                     name_root+".shp" in filenames:
                 continue
             filesize = os.path.getsize(targetDir+'/'+fn)
