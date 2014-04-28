@@ -557,8 +557,7 @@ class LayEd:
         styleJson = {}
         styleJson["layer"] = {}
         styleJson["layer"]["defaultStyle"] = {}
-        styleJson["layer"]["defaultStyle"]["name"] = layerName
-        styleJson["layer"]["defaultStyle"]["workspace"] = workspace
+        styleJson["layer"]["defaultStyle"]["name"] = workspace + "_" + layerName
         styleJson["layer"]["enabled"] = True
         styleStr = json.dumps(styleJson)
 
