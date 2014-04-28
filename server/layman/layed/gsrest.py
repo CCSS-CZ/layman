@@ -56,8 +56,8 @@ class GsRest:
 
         if workspace == None:
             url = self.url + "/styles.sld?name=" + styleName
-
-            headers, response = self.h.request(url, "POST", url, self.sldHeader)
+            logging.debug("[GsRest][postStyleSld] Going to POST style: url: '%s', SLD: '%s'" % (url, styleSld))
+            headers, response = self.h.request(url, "POST", styleSld, self.sldHeader)
 
         else:
             url = self.url + "/workspaces/" + workspace + "/styles"
