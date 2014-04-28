@@ -1361,9 +1361,11 @@ class LayEd:
         styleSld = etree.tostring(tree.getroot())
 
         # Create new style from the sld
+        logging.debug("[LayEd][cloneStyle] Going to create style. SLD: \"%s\" "% styleSld)            
         (headers, response) = gsr.postStyleSld(workspace=None, styleSld=styleSld, styleName=toStyle)
 
         if not headers["status"] in ["201","200"]:
+            logging.error("[LayEd][cloneStyle] This SLD failed: \"%s\" "% styleSld)            
             headStr = str(headers)
             message = "LayEd: cloneStyle(): Cannot create style " + toStyle + ".  Geoserver replied with " + headStr + " and said " + response
             raise LaymanError(500, message)
