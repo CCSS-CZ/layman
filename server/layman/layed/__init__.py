@@ -1346,17 +1346,17 @@ class LayEd:
             message = "LayEd: cloneStyle(): Cannot parse default SLD"
             raise LaymanError(500, message)
 
-        layer_name_elem = tree.xpath("//sld:NamedLayer/sld:Name",namespaces=namespaces)
-        if len(layer_name_elem) > 0:
-            layer_name_elem[0].text = "%s" % (layerName)
+        #layer_name_elem = tree.xpath("//sld:NamedLayer/sld:Name",namespaces=namespaces)
+        #if len(layer_name_elem) > 0:
+        #    layer_name_elem[0].text = "%s" % (layerName)
 
-        style_name_elem = tree.xpath("//sld:NamedLayer/sld:UserStyle/sld:Name",namespaces=namespaces)
-        if len(style_name_elem) > 0:
-            style_name_elem[0].text = "%s" % (toStyle)
+        #style_name_elem = tree.xpath("//sld:NamedLayer/sld:UserStyle/sld:Name",namespaces=namespaces)
+        #if len(style_name_elem) > 0:
+        #    style_name_elem[0].text = "%s" % (toStyle)
 
-        title_elem = tree.xpath("//sld:NamedLayer/sld:UserStyle/sld:Title",namespaces=namespaces)
-        if len(title_elem) > 0:
-            title_elem[0].text = "Style for layer %s:%s" %(toWorkspace, layerName)
+        #title_elem = tree.xpath("//sld:NamedLayer/sld:UserStyle/sld:Title",namespaces=namespaces)
+        #if len(title_elem) > 0:
+        #    title_elem[0].text = "Style for layer %s:%s" %(toWorkspace, layerName)
 
         styleSld = etree.tostring(tree.getroot())
 
