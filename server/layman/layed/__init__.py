@@ -509,11 +509,13 @@ class LayEd:
 
     def createStyleForLayer(self, workspace, layerName, styleName=None, styleWs=None):
         """ Create and assign new style for layer.
-        Old style of the layer is cloned into the layer's workspace
-        and is assigned to the layer.
+        Old style of the layer is cloned into a new one and is assigned to the layer.
+        New style has a name worskapce_name and is assigned to no worskapce. 
         If styleName is specified, this style is used for cloning instead.
         If the styleName refer to a certain workspace, specify that as styleWs.
         """
+        # Do not assign workspace to style. Global GS WMS does not work then.
+        # http://sourceforge.net/p/geoserver/mailman/geoserver-users/thread/fb7896e31a0490a0fe3f4cd4f9edfd54@ccss.cz/
 
         logging.debug("[LayEd][createStyleForLayer] params: workspace %s, layerName %s, styleName %s, styleWs %s" % (workspace, layerName, str(styleName), str(styleWs)))
 
@@ -1313,7 +1315,15 @@ class LayEd:
     def cloneStyle(self, fromStyleUrl, toWorkspace, toStyle):
         """ Create a copy of a style
             returns url (json) of new style
+            New style is called workspace_name and is assigned to no workspace.
         """
+        
+        # Do not assign workspace to a style. Global GS WMS does not work then.
+        # http://sourceforge.net/p/geoserver/mailman/geoserver-users/thread/fb7896e31a0490a0fe3f4cd4f9edfd54@ccss.cz/
+              
+        layerName = toStyle
+        toStyle = toWorkspace + '_' + toStyle
+ 
         gsr = GsRest(self.config)
 
         # url.json -> url.sld
@@ -1339,7 +1349,7 @@ class LayEd:
 
         layer_name_elem = tree.xpath("//sld:NamedLayer/sld:Name",namespaces=namespaces)
         if len(layer_name_elem) > 0:
-            layer_name_elem[0].text = "%s" % (toStyle)
+            layer_name_elem[0].text = "%s" % (layerName)
 
         style_name_elem = tree.xpath("//sld:NamedLayer/sld:UserStyle/sld:Name",namespaces=namespaces)
         if len(style_name_elem) > 0:
@@ -1347,12 +1357,12 @@ class LayEd:
 
         title_elem = tree.xpath("//sld:NamedLayer/sld:UserStyle/sld:Title",namespaces=namespaces)
         if len(title_elem) > 0:
-            title_elem[0].text = "Style for layer %s:%s" %(toWorkspace, toStyle)
+            title_elem[0].text = "Style for layer %s:%s" %(toWorkspace, layerName)
 
         styleSld = etree.tostring(tree.getroot())
 
         # Create new style from the sld
-        (headers, response) = gsr.postStyleSld(workspace=toWorkspace, styleSld=styleSld, styleName=toStyle)
+        (headers, response) = gsr.postStyleSld(workspace=None, styleSld=styleSld, styleName=toStyle)
 
         if not headers["status"] in ["201","200"]:
             headStr = str(headers)
