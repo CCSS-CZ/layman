@@ -233,7 +233,7 @@ class GsXml:
         Returns role name.
         """
         # Role name
-        role = "ROLE_" + group
+        role = self.getGroupRoleName(group)
         # Create and assign
         self.createAndAssignRole(group, role)
         return role        
@@ -256,6 +256,10 @@ class GsXml:
         role = "READ_" + group + "_" + layer
         return role
  
+    def getGroupRoleName(self, group):
+        role = "ROLE_" + group
+        return role
+
     def getReadLayerGroups(self, group, layer):
         """ Get the list of all the groups that have 
         the role "READ_<group>_<layer>" assigned.
