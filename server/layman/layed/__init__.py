@@ -1008,11 +1008,13 @@ class LayEd:
                 logging.debug("[LayEd][deleteLayer] DELETE resource response headers: %s"% headers)
                 logging.debug("[LayEd][deleteLayer] DELETE resource response content: %s"% response)
 
+                # Delete Style (we have created it when publishing)
+                styleName = workspace + '_' + layer
+                headers, response = gsr.deleteStyle(None, styleName, purge="true")
+                logging.debug("[LayEd][deleteLayer] DELETE Style response headers: %s"% headers)
+                logging.debug("[LayEd][deleteLayer] DELETE Style  response content: %s"% response)
+
                 if layer_type == "VECTOR":
-                    # Delete Style (we have created it when publishing)
-                    headers, response = gsr.deleteStyle(workspace, styleName=layer, purge="true")
-                    logging.debug("[LayEd][deleteLayer] DELETE Style response headers: %s"% headers)
-                    logging.debug("[LayEd][deleteLayer] DELETE Style  response content: %s"% response)
 
                     if deleteTable:
                         # Drop Table/View in PostreSQL
