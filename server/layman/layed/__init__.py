@@ -706,7 +706,7 @@ class LayEd:
         wsRole = gsx.getGroupRoleName(group=workspace)
         gss.secureLayer(ws=workspace, layer=layerName, rolelist=[readRole, wsRole])
         
-        return role
+        return readRole
 
     def grantAccess(self, role, userlist, grouplist):
 
