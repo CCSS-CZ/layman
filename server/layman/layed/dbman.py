@@ -363,6 +363,7 @@ class DbMan:
         self.write_sql(sqlBatch)
 
     def updateLayerPad():        
+        pass
 
     def deleteLayerPad(self, name, group):
         """ Delete layer in LayPad
@@ -374,10 +375,13 @@ class DbMan:
         self.write_sql(sqlBatch)
 
     def createDataPad():
+        pass
 
     def updateDataPad():
+        pass
 
     def deleteDataPad():
+        pass
 
 RASTER2PSQL_CONFIG = {}
 
