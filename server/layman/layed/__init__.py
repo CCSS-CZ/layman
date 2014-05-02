@@ -12,6 +12,7 @@ import shutil
 from gsrest import GsRest
 from gsxml import GsXml
 from gssec import GsSec
+from dbman import DbMan
 from layman.errors import LaymanError
 
 namespaces = {
@@ -1230,7 +1231,6 @@ class LayEd:
 
                     if deleteTable:
                         # Drop Table/View in PostreSQL
-                        from layman.layed.dbman import DbMan
                         dbm = DbMan(self.config)
                         try: # TODO: distnct tables and views once we know it
                             dbm.deleteTable(dbSchema=schema, tableName=layer)
