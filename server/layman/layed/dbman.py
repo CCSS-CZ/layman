@@ -349,8 +349,35 @@ class DbMan:
     def _get_ogr2ogr_version(self):
         """Returns version of OGR2OGR as (major,minor,release) triplet
         """
-
         return int(gdal.VersionInfo())
+
+    ### LAYPAD ###
+
+    def createLayerPad(self, name, group, owner, layertype, datagroup, dataname):
+        """ Create Layer in LayPad 
+        """
+        logParam =  "name: " + name + " group: " + group + " owner: " + owner + "type: " + layertype + " datagroup: " + datagroup + " dataname: " + dataname
+        loging.debug("[DbMan][createLayerPad] %s" % logParam)
+
+        sqlBatch = "insert into layman.layers (name, usergroup, owner, type, datagroup, dataname) values ('"+name+"','"+group+"','"+owner+"','"+layertype+"','"+datagroup+"','"+dataname+"');"
+        self.write_sql(sqlBatch)
+
+    def updateLayerPad():        
+
+    def deleteLayerPad(self, name, group):
+        """ Delete layer in LayPad
+        """
+        logParam =  "name: " + name + " group: " + group
+        loging.debug("[DbMan][deleteLayerPad] %s" % logParam)
+
+        sqlBatch = "delete from layman.layers where name='"+name+"' and usergroup='"+group+"';"
+        self.write_sql(sqlBatch)
+
+    def createDataPad():
+
+    def updateDataPad():
+
+    def deleteDataPad():
 
 RASTER2PSQL_CONFIG = {}
 

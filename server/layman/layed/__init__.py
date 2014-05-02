@@ -217,6 +217,10 @@ class LayEd:
         logging.info("[LayEd][publish] Published layer '%s'" % layerName)
         logging.info("[LayEd][publish] in workspace '%s'" % gsWorkspace)
 
+        # Note in LayPad
+        dbm = DbMan(self.config) # TODO: LayPad owner
+        dbm.createLayerPad(name=layerName, group=gsWorkspace, owner="NULL", layertype="vector", datagroup=dbSchema, dataname=tableName)
+
         code = 201
         message = "Layer published: " + layerName
         return (code, layerName, message)
@@ -249,6 +253,10 @@ class LayEd:
 
         logging.info("[LayEd][publish] Published layer '%s'" % name)
         logging.info("[LayEd][publish] in workspace '%s'" % gsWorkspace)
+
+        # Note in LayPad
+        dbm = DbMan(self.config) # TODO: LayPad owner, check datagroup and dataname for rasters
+        dbm.createLayerPad(name=layerName, group=gsWorkspace, owner="NULL", layertype="raster", datagroup=gsWorkspace, dataname=name)
 
         return (201, layerName, "Layer published")
 
@@ -746,19 +754,223 @@ class LayEd:
         if head["status"] != "200":
             logging.warning("Set layer attribution failed")
 
-    def getLayersGsConfig(self, workspace=None):
-        """returns list of layers"""
-        # May be we can remove this one
-        from gsconfig import GsConfig
-        gs = GsConfig()
-
-        code = 200
-        layers =  gs.getLayers() # todo: select only those from the given workspace
-        # note: Do we want to get layers or feature types? (two different things in gs)
-
-        return (code,layers)
-
     def getLayers(self, roles):
+        """ Get layers of the given workspaces.
+
+        params:
+            roles (json):
+            [
+               {
+                   roleTitle: "User",
+                   roleName: "User"
+               },
+               {
+                   roleTitle: "pozarnaja",
+                   roleName: "hasici"
+               }
+            ]
+            (can be obtained from Auth.getRoles())
+
+        returns (json encoded as string):
+        [
+            {
+                workspace: "police"
+                roleTitle: "Policie Ceske republiky"
+                layer: {...}      // geoserver layer object
+                layerData: {...}  // geoserver object - featureType, coverage...
+            },
+            ...
+        ]
+        """
+        logging.debug("[LayEd][getLayers]")
+        gsr = GsRest(self.config)
+        gsx = GsXml(self.config)
+        code = 200
+
+        # GET Layers
+        (headers, response) = gsr.getLayers()
+        if (not headers['status'] or headers['status'] != '200'):
+            logging.debug("[LayEd][getLayers] GS GET Layers response header: '%s'"% headers)
+            logging.debug("[LayEd][getLayers] GS GET Layers response content: '%s'"% response)
+
+        if headers["status"] != "200":
+            headStr = str(headers)
+            message = "[LayEd][getLayers] Get Layers failed. Geoserver replied with " + headStr + " and said: '" + response + "'"
+            raise LaymanError(500, message)
+
+        gsLayers = json.loads(response) # Layers from GS
+
+        # Filter ond organise the layers by workspaces
+        # For every Layer,
+        #   GET Layer,
+        #   Check the workspace,
+        #   GET FeatureType and
+        #   Return both
+
+        layers = []   # Layers that will be returned
+        logging.debug("[LayEd][getLayers] Requested workspaces:")
+
+        workspaces = [] # list of workspaces
+        roleTitles = {} # roles as dictionary with roleName key
+        #print "roles: " + repr(roles)
+        for r in roles:
+            #print "role: " + repr(r)
+            workspaces.append(r["roleName"])
+            roleTitles[r["roleName"]] = r["roleTitle"]
+            logging.debug("Workspace: %s"% r["roleName"])
+
+        # We also need to check for the duplicities:
+        # GS REST is not able to provide list of layers from given workspace.
+        # The duplicities in the GET Layers response must be handled manually:
+        # 1. Identify the duplicities
+        # 2. Insert only once
+        # 3. Note all duplicities
+        # 4. At the end, come through all the requested workspaces and in every ws check,
+        # if it contains the Feature Type of the same name. If yes, add it.
+        # Note, that there may be five different layers of the same name in five workspaces
+        # and say three allowed for the current user.
+        layersDone = {}  # lay[href]: ws
+        duplicities = {} # lay[href]: count
+
+        if "layers" in gsLayers:
+            if "layer" in gsLayers["layers"]:
+                # For every Layer
+                for lay in gsLayers["layers"]["layer"]:
+                    logging.debug("[LayEd][getLayers] Trying layer '%s'"% lay["href"])
+                    #print "Trying layer"
+                    #print lay["href"]
+
+                    # Check the duplicities
+                    if lay["href"] in layersDone:
+                        logging.debug("[LayEd][getLayers] Duplicity found: '%s'"% lay["href"])
+                        if lay["href"] in duplicities:
+                            duplicities[ lay["href"] ] += 1
+                        else:
+                            duplicities[ lay["href"] ] = 2
+                        continue # dont store the same layer twice
+                    else:
+                        layersDone[ lay["href"] ] = ""
+
+                    # GET the Layer
+                    (headers, response) = gsr.getUrl(lay["href"])
+                    # Check the response
+                    if headers["status"] != "200":
+                        logging.warning("[LayEd][getLayers] Failed to get the Layer. GeoServer replied with '%s' and said '%s'" % (str(headers), str(response)) )
+                        continue
+                    # Load JSON
+                    try:
+                        layer = json.loads(response)  # Layer from GS
+                    except Exception as e:
+                        logging.warning("[LayEd][getLayers] Failed to parse response JSON. GeoServer replied with '%s' and said '%s'" % (str(headers), str(response)) )
+                        continue
+
+                    # Check the workspace
+                    ftUrl = layer["layer"]["resource"]["href"] # URL of Feature Type
+                    urlParsed = urlparse(ftUrl)
+                    path = urlParsed[2]                        # path
+                    path = [d for d in path.split(os.path.sep) if d] # path parsed
+                    if path[2] != "workspaces":                # something is wrong
+                        logStr = repr(path)
+                        logging.error("[LayEd][getLayers] Strange: path[2] != 'workspaces'. Path: %s"% logStr)
+                    ws = path[3]   # workspace of the layer
+                    logging.debug("[LayEd][getLayers] Layer's workspace: '%s'"% ws)
+                    #print "layer's workspace"
+                    #print ws
+                    layersDone[ lay["href"] ] = ws
+                    if ws in workspaces:
+
+                        # GET FeatureType
+                        logging.debug("[LayEd][getLayers] MATCH! Get Feature Type: '%s'"% ftUrl)
+                        (headers, response) = gsr.getUrl(ftUrl)
+                        #logging.debug("[LayEd][getLayers] ftUrl: %s, headers: %s response: %s" % (str(ftUrl), str(headers), str(response)) )
+                        if headers["status"] != "200":
+                            logging.warning("[LayEd][getLayers] Failed to get the FeatureType. GeoServer replied with '%s' and said '%s'" % (str(headers), str(response)) )
+                            continue
+                        try:
+                            ft = json.loads(response)   # Feature Type
+                        except Exception as e:
+                            logging.warning("[LayEd][getLayers] Failed to parse response JSON. GeoServer replied with '%s' and said '%s'" % (str(headers), str(response)) )
+                            continue
+
+                        # Learn the groups allowed to read the layer
+                        # Corresponds to posession of the role "READ_ws_layerName"
+                        # (we get it from roles.xml, not from layers.properties file)
+                        readGroups = gsx.getReadLayerGroups(group=ws, layer=str(lay["name"]))
+
+                        # Pack the reply
+                        bundle = {}   
+                        bundle["ws"] = ws                       # workspace ~ group
+                        bundle["roleTitle"] = roleTitles[ws]    # group title
+                        bundle["readGroups"] = readGroups       # list of groups allowed to read the layer
+                        bundle["layer"] = layer["layer"]        # layer object
+                        bundle["layerData"] = {}                # featureType || coverage
+                        if "featureType" in ft.keys():
+                            bundle["layerData"] = ft["featureType"]
+                            #bundle["layerData"]["datatype"] =  "featureType" # this should not be here. 
+                            # can be detected from layer[type]. or, if really needed, should be set as bundle[datatype]
+                        elif "coverage" in ft.keys():
+                            bundle["layerData"] = ft["coverage"]
+                            #bundle["layerData"]["datatype"] =  "coverage"
+                        layers.append(bundle)
+
+        # Now find the layers hidden by the duplicites
+
+        #print "duplicities"
+        #print duplicities
+        # For every duplicity
+        for (dup, count) in duplicities.items():
+
+            logging.debug("[LayEd][getLayers] Trying duplicity '%s'"% dup)
+
+            # For every requested workspace
+            for ws in workspaces:
+                if ws == layersDone[ dup ]:
+                    continue # this workspace is already done
+
+                # Extract the layer/feature type name
+                dotPos = dup.rfind(".")
+                slashPos = dup.rfind("/")
+                name = dup[slashPos+1:dotPos]
+
+                # Try to get the Feature Type
+                # Here we go just for one datastore, the one representing the schema in the db
+                (head, resp) = gsr.getFeatureType(workspace=ws, datastore=ws, name=name)
+
+                #print "head status"
+                #print head["status"]
+                if head["status"] == "200": # match
+
+                    logging.debug("[LayEd][getLayers] Found in workspace '%s'"% ws)
+
+                    ft = json.loads(resp) # Feature Type
+                    # Fake layer - valid GS REST URI does not exist
+                    layer = {}
+                    layer["name"] = name
+
+                    # Learn the groups allowed to read the layer
+                    # Corresponds to posession of the role "READ_ws_layerName"
+                    readGroups = gsx.getReadLayerGroups(group=ws, layer=str(lay["name"]))
+
+                    # Return both
+                    bundle = {}   # Layer that will be returned
+                    bundle["ws"] = ws
+                    bundle["roleTitle"] = roleTitles[ws]
+                    bundle["readGroups"] = readGroups       # list of groups allowed to read the layer
+                    bundle["layer"] = layer
+                    bundle["layerData"] = {}
+                    if "featureType" in ft.keys():
+                        bundle["layerData"] = ft["featureType"]
+                        bundle["layerData"]["datatype"] = "featureType"
+                    if "coverage" in bundle:
+                        bundle["layerData"] = ft["coverage"]
+                        bundle["layerData"]["datatype"] = "coverage"
+                    layers.append(bundle)
+
+        layers = json.dumps(layers) # json -> string
+        return (code, layers)
+
+    # Old getLayers() - get every layer from GS
+    def getLayersCompleteJson(self, roles):
         """ Get layers of the given workspaces.
 
         params:
@@ -1032,6 +1244,10 @@ class LayEd:
                 elif layer_type == "RASTER":
                     # Delete Coverage Store
                     headers, response = gsr.deleteCoverageStore(workspace,layer)
+
+                # Delete in LayPad
+                dbm = DbMan(self.config) 
+                dbm.deleteLayerPad(name=layer, group=workspace)
 
                 # TODO: check the results
                 message = "Layer "+workspace+":"+layer+" deleted."
