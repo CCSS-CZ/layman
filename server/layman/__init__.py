@@ -262,6 +262,7 @@ class LayMan:
                             raise LaymanError(
                                 400, "'fileName' parameter missing")
                         fileName = inpt.fileName
+                        userName = self.auth.getUserName()
                         fsUserDir = self.auth.getFSUserDir()
                         fsGroupDir = self.auth.getFSGroupDir(inpt.usergroup)
                         dbSchema = self.auth.getDBSchema(inpt.usergroup)
@@ -276,7 +277,7 @@ class LayMan:
 
                         (code, layerName, message) = le.importAndPublish(fsUserDir, fsGroupDir,
                                                      dbSchema, gsWorkspace,
-                                                     fileName, crs, tsrs, inpt, secureLayer)
+                                                     fileName, crs, tsrs, inpt, secureLayer, userName)
                         # Set Location header
                         if code == 201 and layerName is not None:
                             location = layerName # TODO: provide full URI here             

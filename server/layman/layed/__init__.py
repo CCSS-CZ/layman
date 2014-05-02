@@ -102,7 +102,7 @@ class LayEd:
     ### LAYERS ###
 
     # Import and publish, rasters and vectors
-    def importAndPublish(self, fsUserDir, fsGroupDir, dbSchema, gsWorkspace, fileName, srs=None, tsrs=None, data=None, secureLayer=True):
+    def importAndPublish(self, fsUserDir, fsGroupDir, dbSchema, gsWorkspace, fileName, srs=None, tsrs=None, data=None, secureLayer=True, userName = "NULL"):
         """ Main publishing function. 
         Vectors import to PostreSQL and publish in GeoServer. 
         Rasters copy to GeoServer datastore dir and publish from there in GS.
@@ -155,7 +155,7 @@ class LayEd:
             tableName = self.importFromFileToDb(filePath, dbSchema, srs, tsrs)
             
             # Publish from PostGIS to GeoServer
-            (code, layerName, message) = self.publishFromDbToGs(dbSchema, tableName, gsWorkspace, tsrs, data, None, None, secureLayer)
+            (code, layerName, message) = self.publishFromDbToGs(dbSchema, tableName, gsWorkspace, tsrs, data, None, None, secureLayer, userName)
 
         else:
             from osgeo import gdal
@@ -166,7 +166,7 @@ class LayEd:
                 data_type = "raster"
 
                 # Publish from raster file to GeoServer
-                (code, layerName, message) = self.publishRasterToGs(filePath, gsWorkspace, ds, fileNameNoExt, srs, data, None, None, secureLayer)
+                (code, layerName, message) = self.publishRasterToGs(filePath, gsWorkspace, ds, fileNameNoExt, srs, data, None, None, secureLayeri, userName)
 
         if not data_type:
             raise LaymanError(500, "Data type (raster or vector) not recognized")
@@ -192,7 +192,7 @@ class LayEd:
 
         return tableName
 
-    def publishFromDbToGs(self, dbSchema, tableName, gsWorkspace, srs=None, data=None, styleName=None, styleWs=None, secureLayer=True):
+    def publishFromDbToGs(self, dbSchema, tableName, gsWorkspace, srs=None, data=None, styleName=None, styleWs=None, secureLayer=True, userName = "NULL"):
         """ Publish vector data from PostGIS to GeoServer.
             A name of a view can be used as a tableName as well.
         """
@@ -220,13 +220,13 @@ class LayEd:
 
         # Note in LayPad
         dbm = DbMan(self.config) # TODO: LayPad owner
-        dbm.createLayerPad(name=layerName, group=gsWorkspace, owner="NULL", layertype="vector", datagroup=dbSchema, dataname=tableName)
+        dbm.createLayerPad(name=layerName, group=gsWorkspace, owner=userName, layertype="vector", datagroup=dbSchema, dataname=tableName)
 
         code = 201
         message = "Layer published: " + layerName
         return (code, layerName, message)
 
-    def publishRasterToGs(self, filePath, gsWorkspace, ds, name, srs=None, data=None, styleName=None, styleWs=None, secureLayer=True):
+    def publishRasterToGs(self, filePath, gsWorkspace, ds, name, srs=None, data=None, styleName=None, styleWs=None, secureLayer=True, userName = "NULL"):
         """ Publish raster files in GeoServer.
         """
         logParam = "filePath=%s gsWorkspace=%s ds=%s name=%s srs=%s" %\
@@ -256,8 +256,8 @@ class LayEd:
         logging.info("[LayEd][publish] in workspace '%s'" % gsWorkspace)
 
         # Note in LayPad
-        dbm = DbMan(self.config) # TODO: LayPad owner, check datagroup and dataname for rasters
-        dbm.createLayerPad(name=layerName, group=gsWorkspace, owner="NULL", layertype="raster", datagroup=gsWorkspace, dataname=name)
+        dbm = DbMan(self.config) # TODO: check datagroup and dataname for rasters
+        dbm.createLayerPad(name=layerName, group=gsWorkspace, owner=userName, layertype="raster", datagroup=gsWorkspace, dataname=name)
 
         return (201, layerName, "Layer published")
 

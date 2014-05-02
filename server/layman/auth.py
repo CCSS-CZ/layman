@@ -41,6 +41,10 @@ class LaymanAuth:
 
     # User/Group configuration methods #
 
+    def getUserName(self):
+        logging.warning("[LaymanAuth][getUserName] Call of Authorisation class ancestor. Was it intended? No authorisation will be granted here. Try descendants - e.g. LaymanAuthLiferay or LaymanAuthOpen.")
+        return None
+
     def getFSDir(self):
         """Returns full abs path to target file manager directory according to
         configuration value and user
@@ -211,6 +215,16 @@ class LaymanAuthLiferay(LaymanAuth):
             raise AuthError(401, "Authentication failed: Liferay does not recognise given JSESSIONID")
 
     # User/Group configuration methods #
+
+    def getUserName(self):
+        if not self.authorised:
+            raise AuthError(401,"I am sorry, but you are not authorised")
+
+        if self.authJson["userInfo"] and self.authJson["userInfo"]["screenName"]:
+            screenName = self.authJson["userInfo"]["screenName"]
+            return screenName
+        else: 
+            raise AuthError(500, "Cannot determine the user name - Liferay did not provide user's screenName")
 
     def getFSUserDir(self):
         """Get user working directory. Dirname == screenName from Liferay
@@ -393,6 +407,9 @@ class LaymanAuthOpen(LaymanAuth):
 
     def canDelete(self):
         return True
+
+    def getUserName(self):
+        return "honza"
 
     def getGSWorkspace(self,desired=None):
         return self.config.get("Authorization","gsworkspace",self.getRole())
