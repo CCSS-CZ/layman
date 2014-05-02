@@ -166,7 +166,7 @@ class LayEd:
                 data_type = "raster"
 
                 # Publish from raster file to GeoServer
-                (code, layerName, message) = self.publishRasterToGs(filePath, gsWorkspace, ds, fileNameNoExt, srs, data, None, None, secureLayeri, userName)
+                (code, layerName, message) = self.publishRasterToGs(filePath, gsWorkspace, ds, fileNameNoExt, srs, data, None, None, secureLayer, userName)
 
         if not data_type:
             raise LaymanError(500, "Data type (raster or vector) not recognized")
