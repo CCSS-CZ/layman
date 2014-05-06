@@ -796,9 +796,8 @@ class LayEd:
 
         roleTitles = {} # roles as dictionary with roleName key
         for r in roles:
-            #print "role: " + repr(r)
             roleTitles[r["roleName"]] = r["roleTitle"]
-            logging.debug("Workspace: %s: %s"% (r["roleName"], r["roleTitle"])
+            logging.debug("Workspace: %s: %s"% (r["roleName"], r["roleTitle"]))
 
         # For every layer
         for lay in layers:
