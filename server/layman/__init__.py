@@ -93,7 +93,8 @@ class LayMan:
                     le = LayEd()
 
                     roles = self.auth.getRoles()
-                    (code,retval) = le.getLayers(roles)
+                    userName = self.auth.getUserName()
+                    (code,retval) = le.getLayers(roles, userName)
 
                 # Get the list of tables in db (or other data)
                 elif path[0] == 'data':
@@ -143,7 +144,8 @@ class LayMan:
                         else: # workspace given, go for one
                             role = self.auth.getRole(inpt.usergroup)
                             roles = [role]
-                        (code,retval) = le.getLayers(roles)
+                        userName = self.auth.getUserName()
+                        (code,retval) = le.getLayers(roles, userName)
 
                     elif len(path) == 2:
 
