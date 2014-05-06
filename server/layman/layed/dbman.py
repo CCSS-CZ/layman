@@ -374,6 +374,36 @@ class DbMan:
         sqlBatch = "delete from layman.layers where name='"+name+"' and usergroup='"+group+"';"
         self.write_sql(sqlBatch)
 
+    def getLayerPad(self, owner=None):
+        """ Get Layers from layman.layers
+            owner given - just for this user
+            owner not given - all the layers
+            Returns JSON:
+            [
+               {
+                    name: 
+                    usergroup:
+                    owner:
+                    type:
+                    datagroup:
+                    dataname:
+               },
+                ...
+
+            ]
+        """
+        logging.debug("[DbMan][getLayerPad] owner='%s'"% owner)
+
+        if owner is None:
+            sql = "SELECT name, usergroup, owner, type, datagroup, dataname FROM layman.layers;"
+        else:
+            sql = "SELECT name, usergroup, owner, type, datagroup, dataname FROM layman.layers where owner='"+owner+"';"
+
+        result = self.get_sql(sql) # [['rivers','hasici','hsrs','vector','hasici','rivers_01'], ... ]
+        layers = map( lambda rec: {"name": rec[0], "usergroup": rec[1], "owner": rec[2], "type": rec[3], "datagroup": rec[4], "dataname": rec[5]}, result )
+
+        return layers        
+
     def createDataPad():
         pass
 
