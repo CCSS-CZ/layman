@@ -84,7 +84,7 @@ Ext4.define('HSRS.LayerManager.LayersPanel', {
                 text: 'Layer',
                 sortable: true,
                 flex: 1,
-                dataIndex: 'title'
+                dataIndex: 'layertitle'
             },
             // type 
             {
