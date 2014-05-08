@@ -290,7 +290,7 @@ class LaymanAuthLiferay(LaymanAuth):
         roleStr = json.dumps(roleJson)
         return (500,roleStr)
 
-    def getRoles(self):
+    def getRoles(self, filtered=True):
         """ Returns list of roles: 
             [
                {
@@ -304,32 +304,62 @@ class LaymanAuthLiferay(LaymanAuth):
            ]
         """
         logging.debug("[LaymanAuthLiferay][getRoles]")
+
         if not self.authorised:
             logging.error("[LaymanAuthLiferay][getRoles] The user is not authorised")
             raise AuthError(401,"I am sorry, but you are not authorised")
+
         if self.authJson["userInfo"] and self.authJson["userInfo"]["roles"]:
             roles = self.authJson["userInfo"]["roles"]
             if len(roles) < 1:
                 logging.error("[LaymanAuthLiferay][getRoles] Cannot determine the workspace - Liferay provided empty list of roles")
                 raise AuthError(500,"Cannot determine the workspace - Liferay provided empty list of roles")            
-            #lower()
+
+            # lower()
             for rr in roles:
                 rr["roleName"] = rr["roleName"].lower()
+
+            # filter
+            if filtered:
+                roles = self.filterRoles(roles)
+
             rolesStr = json.dumps(roles)
             logging.debug("[LaymanAuthLiferay][getRoles] The roles: '%s'"% rolesStr)
             return roles
+
         else: 
             logging.error("[LaymanAuthLiferay][getRoles] Cannot determine the workspace - Liferay did not provide user's roles")
             raise AuthError(500,"Cannot determine the workspace - Liferay did not provide user's roles")
 
-    def getRolesStr(self):
+    def filterRoles(self, roles):        
+        """ filter roles based on the ignore list
+        """
+        # get configuration
+        ignore = self.config.get("Authorization", "ignoreroles")
+        if ignore is None or ignore == "":
+            return roles
+
+        # make list, trim and lower()
+        ignorelist = map(lambda g: g.strip().lower(), ignore.split(','))        
+
+        # filter
+        newRoles = []
+        for r in roles:
+            if r["roleName"] in ignorelist:
+                continue
+            else       
+                newRoles.append(r)
+ 
+        return newRoles
+
+    def getRolesStr(self, filtered=True):
         """ returns string representation of getRoles() json
         """
-        rolesJson = self.getRoles()
+        rolesJson = self.getRoles(filtered)
         rolesStr = json.dumps(rolesJson)
         return (200, rolesStr)
 
-    def getAllRoles(self):
+    def getAllRoles(self, filtered=True):
         """ Returns list of all roles as JSON. We assume this is not secret. """
 
         # Learn URL of AllRoles service
@@ -357,11 +387,15 @@ class LaymanAuthLiferay(LaymanAuth):
         for rr in roles:
             rr["roleName"] = rr["roleName"].lower()
 
+        # Filter
+        if filtered:
+            roles = self.filterRoles(roles)
+
         # Return roles
         logging.debug("[LaymanAuthLiferay][getAllRoles] Return roles: %s"% str(roles))
         return roles
 
-    def getAllRolesStr(self):
+    def getAllRolesStr(self, filtered=True):
         """ Returns list of all roles as string. We assume this is not secret. """
         allRolesJson = self.getAllRoles()
         allRolesStr = json.dumps(allRolesJson)
