@@ -14,7 +14,7 @@ create table layman.layers (
 	type varchar(255), -- vector, raster
 	datagroup varchar (255), -- schema or directory of the data source
 	dataname varchar (255), -- data source name (table, view or file)
-	constraint layers_group_name primary key (usergroup, name)
+	constraint layers_group_name primary key (layergroup, layername)
 );
 
 -- Evidence of data sources: 
@@ -27,13 +27,13 @@ create table layman.data (
 	owner varchar(255), -- owner of the layer
 	type varchar(255), -- vector, raster
 	updated timestamp, -- time of last update
-	constraint data_group_name primary key (usergroup, name)
+	constraint data_group_name primary key (datagroup, dataname)
 );
 
 -- some examples:
 
-insert into layman.layers (name, usergroup, owner, type, datagroup, dataname)
-values ('jmeno', 'skupina', 'majitel', 'vector', 'skupina', 'jmeno_00');
+insert into layman.layers (layername, layergroup, layertitle, owner, type, datagroup, dataname)
+values ('jmeno', 'skupina', 'titulek', 'majitel', 'vector', 'skupina', 'jmeno_00');
 
 delete from layman.layers 
 where name='jmeno' and usergroup='skupina';
