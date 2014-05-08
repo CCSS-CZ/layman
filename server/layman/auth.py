@@ -408,7 +408,7 @@ class LaymanAuthLiferay(LaymanAuth):
     def canDelete(self):
         canDelete = False
 
-        roles = self.getRoles()
+        roles = self.getRoles(filtered=False)
         for r in roles:
             if r["roleName"] == "lmadmin":
                 canDelete = True
