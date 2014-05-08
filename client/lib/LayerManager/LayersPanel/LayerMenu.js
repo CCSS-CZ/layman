@@ -95,7 +95,8 @@ Ext4.define('HSRS.LayerManager.LayersPanel.LayerMenu', {
      * @private
      */
     _onStyleClicked: function() {
-        var t = new Ext4.XTemplate(HSRS.STYLERURL);
+        stylerUrl = HSRS.STYLERURL.replace("layerData.name", "layername")
+        var t = new Ext4.XTemplate(stylerUrl);
         var url = t.apply(this.record.data);
         //window.open(url, '_newtab');
         window.location = url;
@@ -172,7 +173,9 @@ Ext4.define('HSRS.LayerManager.LayersPanel.LayerMenu', {
      * @private
      */
     _onViewClicked: function() {
-        var t = new Ext4.XTemplate(HSRS.VIEWURL);
+        viewUrl = HSRS.VIEWURL.replace("layerData.name", "layername");
+        //var t = new Ext4.XTemplate(HSRS.VIEWURL);
+        var t = new Ext4.XTemplate(viewUrl);
         var url = t.apply(this.record.data);
         //window.open(url, '_newtab');
         window.location = url;
