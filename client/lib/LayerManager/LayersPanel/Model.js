@@ -39,7 +39,7 @@ Ext4.data.Types.TYPELAYER = {
         return l;
     },
     sortType: function(v) {
-        return v.name;  // When sorting, order by latitude
+        return v.name;  
     },
     type: 'LayerObject'
 };
@@ -49,7 +49,7 @@ Ext4.data.Types.LAYERDATATYPE = {
         return new HSRSLayerDataObject(v);
     },
     sortType: function(v) {
-        return v.title;  // When sorting, order by latitude
+        return v.title;  
     },
     type: 'LayerDataType'
 };
@@ -60,12 +60,11 @@ Ext4.define('HSRS.LayerManager.LayersPanel.Model', {
             {name: 'workspace', mapping: 'layergroup', type: Ext4.data.Types.STRING},
             {name: 'wstitle', mapping: 'roleTitle', type: Ext4.data.Types.STRING},
             {name: 'title', mapping: 'layertitle', type: Ext4.data.Types.STRING},
-            {name: 'name',  mapping: 'layername', type: Ext4.data.Types.STRING}
+            {name: 'name',  mapping: 'layername', type: Ext4.data.Types.STRING},
             {name: 'type',  mapping: 'type', type: Ext4.data.Types.STRING},
             {name: 'owner',  mapping: 'owner', type: Ext4.data.Types.STRING},
             {name: 'datagroup',  mapping: 'datagroup', type: Ext4.data.Types.STRING},
             {name: 'dataname',  mapping: 'dataname', type: Ext4.data.Types.STRING}
         ]
-
 });
 

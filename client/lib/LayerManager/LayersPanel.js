@@ -70,33 +70,34 @@ Ext4.define('HSRS.LayerManager.LayersPanel', {
                 width: 22,
                 flex: 0,
                 sortable: true,
-                dataIndex: 'layer',
+                dataIndex: 'type',
                 align: 'center',
                 //add in the custom tpl for the rows
-                tpl: Ext4.create('Ext4.XTemplate', '{layer:this.formatIcon}', {
+                tpl: Ext4.create('Ext4.XTemplate', '{type:this.formatIcon}', {
                     formatIcon: function(v) {
-                        return '<img src="' + HSRS.IMAGE_LOCATION + v.type.toLowerCase() + '-type.png" />';
+                        return '<img src="' + HSRS.IMAGE_LOCATION + v.toLowerCase() + '-type.png" />';
                     }
                 })
             },
             // layer column
             {
                 text: 'Layer',
-                xtype: 'templatecolumn',
                 sortable: true,
                 flex: 1,
-                dataIndex: 'layerData',
-                tpl: Ext4.create('Ext4.XTemplate', '{layerData:this.formatTitle}', {
-                    formatTitle: function(v) {
-                        return v.title;
-                    }
-                })
+                dataIndex: 'title'
+            },
+            // type 
+            {
+                text: 'Type',
+                sortable: true,
+                flex: 1,
+                dataIndex: 'type'
             }
         ];
 
         // grouping according to workspaces
-         var groupingFeature = Ext4.create('Ext4.grid.feature.Grouping', {
-             groupHeaderTpl: '{name}',
+        var groupingFeature = Ext4.create('Ext4.grid.feature.Grouping', {
+            groupHeaderTpl: '{name}',
             hideGroupedHeader: true
         });
 
@@ -120,9 +121,9 @@ Ext4.define('HSRS.LayerManager.LayersPanel', {
                                     'Are you sure, you want to remove selected layer and the underlying data? <br />', 
                                     function(btn, x, msg) {
                                         if (btn == 'yes') {
-                                            this.lm.deleteLayer(this.record.get('layer').name,
+                                            this.lm.deleteLayer(this.record.get('layername'),
                                                                 this.record.get('workspace'),
-                                                                this.record.get('layer').title,
+                                                                this.record.get('layertitle'),
                                                                 true); // deleteTable = true
                                         }
                                     },
@@ -135,9 +136,9 @@ Ext4.define('HSRS.LayerManager.LayersPanel', {
                                     'Are you sure, you want to remove selected layer? <br />', 
                                     function(btn, x, msg) {
                                         if (btn == 'yes') {
-                                            this.lm.deleteLayer(this.record.get('layer').name,
+                                            this.lm.deleteLayer(this.record.get('layername'),
                                                                     this.record.get('workspace'),
-                                                                    this.record.get('layer').title,
+                                                                    this.record.get('layertitle'),
                                                                     false); // deleteTable = false
                                         }
                                     },
