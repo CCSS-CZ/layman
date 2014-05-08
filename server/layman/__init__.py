@@ -302,6 +302,7 @@ class LayMan:
                                 400, "'crs' parameter missing")
 
                         viewName = inpt.view
+                        userName = self.auth.getUserName()
                         dbSchema = self.auth.getDBSchema(inpt.schema)
                         gsWorkspace = self.auth.getGSWorkspace(inpt.schema)
                         crs = inpt.crs
@@ -322,7 +323,7 @@ class LayMan:
                         (code, layerName, message) = le.publishFromDbToGs(dbSchema, 
                                                             viewName, 
                                                             gsWorkspace, 
-                                                            crs, inpt, styleName, styleWs, secureLayer)
+                                                            crs, inpt, styleName, styleWs, secureLayer, userName)
 
                         # Set Location header
                         if code == 201 and layerName is not None:
