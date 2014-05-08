@@ -347,7 +347,7 @@ class LaymanAuthLiferay(LaymanAuth):
         for r in roles:
             if r["roleName"] in ignorelist:
                 continue
-            else       
+            else:       
                 newRoles.append(r)
  
         return newRoles
