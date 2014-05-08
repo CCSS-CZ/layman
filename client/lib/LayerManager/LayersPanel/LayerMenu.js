@@ -45,14 +45,14 @@ Ext4.define('HSRS.LayerManager.LayersPanel.LayerMenu', {
                 handler: this._onStyleClicked
             });
         }
-
+/*
         config.items.push({
                 text: 'Settings',
                 icon: HSRS.IMAGE_LOCATION + '/cog.png',
                 scope: this,
                 handler: this._onSettingsClicked
             });
-
+*/
         config.items.push(
             { xtype: 'menuseparator' }
         );
