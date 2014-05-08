@@ -359,7 +359,7 @@ class DbMan:
         logParam =  "name: " + name + " group: " + group + " owner: " + owner + "type: " + layertype + " datagroup: " + datagroup + " dataname: " + dataname
         logging.debug("[DbMan][createLayerPad] %s" % logParam)
 
-        sqlBatch = "insert into layman.layers (name, usergroup, owner, type, datagroup, dataname) values ('"+name+"','"+group+"','"+owner+"','"+layertype+"','"+datagroup+"','"+dataname+"');"
+        sqlBatch = "insert into layman.layers (layername, layergroup, owner, type, datagroup, dataname) values ('"+name+"','"+group+"','"+owner+"','"+layertype+"','"+datagroup+"','"+dataname+"');"
         self.write_sql(sqlBatch)
 
     def updateLayerPad():        
@@ -371,7 +371,7 @@ class DbMan:
         logParam =  "name: " + name + " group: " + group
         logging.debug("[DbMan][deleteLayerPad] %s" % logParam)
 
-        sqlBatch = "delete from layman.layers where name='"+name+"' and usergroup='"+group+"';"
+        sqlBatch = "delete from layman.layers where layername='"+name+"' and layergroup='"+group+"';"
         self.write_sql(sqlBatch)
 
     def getLayerPad(self, owner=None):

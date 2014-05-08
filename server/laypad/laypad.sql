@@ -7,8 +7,8 @@ create schema layman;
 -- Evidence of GeoServer Layers
 create table layman.layers (
 	-- id int not null auto_increment,
-	name varchar(255) not null, -- layer name
-	usergroup varchar(255) not null, -- workspace
+	layername varchar(255) not null, -- layer name
+	layergroup varchar(255) not null, -- workspace
 	owner varchar(255), -- owner of the layer
 	type varchar(255), -- vector, raster
 	datagroup varchar (255), -- schema or directory of the data source
@@ -21,8 +21,8 @@ create table layman.layers (
 --   Rasters - files in the filesystem
 create table layman.data (
 	-- id int not null auto_increment,
-	name varchar(255) not null, -- table or view or file
-	usergroup varchar(255) not null, -- schema or directory
+	dataname varchar(255) not null, -- table or view or file
+	datagroup varchar(255) not null, -- schema or directory
 	owner varchar(255), -- owner of the layer
 	type varchar(255), -- vector, raster
 	updated timestamp, -- time of last update
