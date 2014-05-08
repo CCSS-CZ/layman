@@ -801,7 +801,7 @@ class LayEd:
 
         # For every layer
         for lay in layers:
-            ws = lay["usergroup"]
+            ws = lay["layergroup"]
             if ws in roleTitles:
                 lay["roleTitle"] = roleTitles[ws]
             else:

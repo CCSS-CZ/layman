@@ -400,7 +400,7 @@ class DbMan:
             sql = "SELECT name, usergroup, owner, type, datagroup, dataname FROM layman.layers where owner='"+owner+"';"
 
         result = self.get_sql(sql) # [['rivers','hasici','hsrs','vector','hasici','rivers_01'], ... ]
-        layers = map( lambda rec: {"name": rec[0], "usergroup": rec[1], "owner": rec[2], "type": rec[3], "datagroup": rec[4], "dataname": rec[5]}, result )
+        layers = map( lambda rec: {"layername": rec[0], "layergroup": rec[1], "owner": rec[2], "type": rec[3], "datagroup": rec[4], "dataname": rec[5]}, result )
 
         return layers        
 
