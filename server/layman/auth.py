@@ -335,9 +335,11 @@ class LaymanAuthLiferay(LaymanAuth):
         """ filter roles based on the ignore list
         """
         # get configuration
-        ignore = self.config.get("Authorization", "ignoreroles")
-        if ignore is None or ignore == "":
-            return roles
+        try:
+            ignore = self.config.get("Authorization", "ignoreroles")
+        except Exception as e:
+            logging.warning("[LaymanAuthLiferay][filterRoles] No 'ignoreroles' list given in [Authorization] section of the config file")
+            return roles 
 
         # make list, trim and lower()
         ignorelist = map(lambda g: g.strip().lower(), ignore.split(','))        
