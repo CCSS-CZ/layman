@@ -260,7 +260,10 @@ class LayEd:
 
         # Note in LayPad
         dbm = DbMan(self.config) # TODO: check datagroup and dataname for rasters
-        dbm.createLayerPad(name=layerName, group=gsWorkspace, owner=userName, layertype="raster", datagroup=gsWorkspace, dataname=name)
+        layerTitle = layerName
+        if data is not None and "title" in data:
+            layerTitle = data["title"]
+        dbm.createLayerPad(name=layerName, title=layerTitle, group=gsWorkspace, owner=userName, layertype="raster", datagroup=gsWorkspace, dataname=name)
 
         return (201, layerName, "Layer published")
 
