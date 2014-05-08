@@ -9,8 +9,6 @@ Ext4.define('HSRS.LayerManager.LayersPanel.LayerMenu', {
 
     requires: [],
 
-    layerData: undefined,
-    layer: undefined,
     url: undefined,
     record: undefined,
 
@@ -18,15 +16,13 @@ Ext4.define('HSRS.LayerManager.LayersPanel.LayerMenu', {
      * @constructor
      */
     constructor: function(config) {
-        config.title = config.record.get('name');
+        // config.layername = config.record.get('layername');
+
         config.width = 200;
         config.plain = true;
-        config.layer = config.record.get('layer');
-        config.layerData = config.record.get('layerData');
 
-        this.url = config.url.replace(/\/$/, config.record.get('name'));
+        this.url = config.url.replace(/\/$/, config.record.get('layername'));
 
-        config.title = config.record.get('layerData').title;
         config.items = [];
 
         if (HSRS && HSRS.VIEWURL) {
