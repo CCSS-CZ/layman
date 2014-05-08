@@ -9,6 +9,7 @@ create table layman.layers (
 	-- id int not null auto_increment,
 	layername varchar(255) not null, -- layer name
 	layergroup varchar(255) not null, -- workspace
+    layertitle varchar(255), -- layer title
 	owner varchar(255), -- owner of the layer
 	type varchar(255), -- vector, raster
 	datagroup varchar (255), -- schema or directory of the data source
