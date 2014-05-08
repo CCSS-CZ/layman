@@ -353,13 +353,13 @@ class DbMan:
 
     ### LAYPAD ###
 
-    def createLayerPad(self, name, group, owner, layertype, datagroup, dataname):
+    def createLayerPad(self, name, title, group, owner, layertype, datagroup, dataname):
         """ Create Layer in LayPad 
         """
-        logParam =  "name: " + name + " group: " + group + " owner: " + owner + "type: " + layertype + " datagroup: " + datagroup + " dataname: " + dataname
+        logParam =  "name: " + name + "title: " +title+ " group: " + group + " owner: " + owner + "type: " + layertype + " datagroup: " + datagroup + " dataname: " + dataname
         logging.debug("[DbMan][createLayerPad] %s" % logParam)
 
-        sqlBatch = "insert into layman.layers (layername, layergroup, owner, type, datagroup, dataname) values ('"+name+"','"+group+"','"+owner+"','"+layertype+"','"+datagroup+"','"+dataname+"');"
+        sqlBatch = "insert into layman.layers (layername, layergroup, layertitle, owner, type, datagroup, dataname) values ('"+name+"','"+group+"','"+title+"','"+owner+"','"+layertype+"','"+datagroup+"','"+dataname+"');"
         self.write_sql(sqlBatch)
 
     def updateLayerPad():        
@@ -381,8 +381,9 @@ class DbMan:
             Returns JSON:
             [
                {
-                    name: 
-                    usergroup:
+                    layername: 
+                    layergroup:
+                    layertitle:
                     owner:
                     type:
                     datagroup:
@@ -395,12 +396,12 @@ class DbMan:
         logging.debug("[DbMan][getLayerPad] owner='%s'"% owner)
 
         if owner is None:
-            sql = "SELECT layername, layergroup, owner, type, datagroup, dataname FROM layman.layers;"
+            sql = "SELECT layername, layergroup, layertitle, owner, type, datagroup, dataname FROM layman.layers;"
         else:
-            sql = "SELECT layername, layergroup, owner, type, datagroup, dataname FROM layman.layers where owner='"+owner+"';"
+            sql = "SELECT layername, layergroup, layertitle, owner, type, datagroup, dataname FROM layman.layers where owner='"+owner+"';"
 
-        result = self.get_sql(sql) # [['rivers','hasici','hsrs','vector','hasici','rivers_01'], ... ]
-        layers = map( lambda rec: {"layername": rec[0], "layergroup": rec[1], "owner": rec[2], "type": rec[3], "datagroup": rec[4], "dataname": rec[5]}, result )
+        result = self.get_sql(sql) # [['rivers','hasici','Reky','hsrs','vector','hasici','rivers_01'], ... ]
+        layers = map( lambda rec: {"layername": rec[0], "layergroup": rec[1], "layertitle": rec[2], "owner": rec[3], "type": rec[4], "datagroup": rec[5], "dataname": rec[6]}, result )
 
         return layers        
 

@@ -220,7 +220,10 @@ class LayEd:
 
         # Note in LayPad
         dbm = DbMan(self.config) # TODO: LayPad owner
-        dbm.createLayerPad(name=layerName, group=gsWorkspace, owner=userName, layertype="vector", datagroup=dbSchema, dataname=tableName)
+        layerTitle = layerName
+        if data is not None and "title" in data:
+            layerTitle = data["title"]
+        dbm.createLayerPad(name=layerName, title=layerTitle, group=gsWorkspace, owner=userName, layertype="vector", datagroup=dbSchema, dataname=tableName)
 
         code = 201
         message = "Layer published: " + layerName
