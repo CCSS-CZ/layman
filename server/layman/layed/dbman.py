@@ -438,7 +438,7 @@ class DbMan:
             [
                {
                     name:
-                    group:
+                    schema:
                     owner:
                     type:
                     datatype:

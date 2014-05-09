@@ -50,7 +50,47 @@ class LayEd:
 
     # Get the list of tables and views in the given schemas
     # For future: Add some other resources (files, WMS)
-    def getData(self, roles):
+    def getData(self, roles, userName):
+        """ 
+            roles:
+                [
+                    {
+                     roleName: hasici,
+                     roleTitle: FireMen
+                    },
+                    {
+                     roleName: policajti,
+                     roleTitle: Mirabelky
+                    }
+                ]    
+
+            roleName ~ schema
+        """
+        from layman.layed.dbman import DbMan
+        dbm = DbMan(self.config)
+        
+        # Get Data
+        data = dbm.getDataPad(owner=userName)
+
+        # Add the role titles
+        # Db doesn't know about role titles. 
+        # We map it for client's convenience
+        rolemap = {}
+        for role in roles:
+            rolemap[ role["roleName"] ] = role["roleTitle"] 
+
+        for d in data:
+            d["roleTitle"] = rolemap[ d["schema"] ] # roleName ~ schema
+            
+        code = 200
+        retval = json.dumps(data)        
+        return (code, retval)
+
+    # Get the list of tables and views in the given schemas
+    # For future: Add some other resources (files, WMS)
+    #
+    # Direct version from database, not from DataPad. 
+    def getDataDirect(self, roles):
         """ 
             roles:
                 [
