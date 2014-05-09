@@ -279,7 +279,7 @@ class LayMan:
 
                         (code, layerName, message) = le.importAndPublish(fsUserDir, fsGroupDir,
                                                      dbSchema, gsWorkspace,
-                                                     fileName, crs, tsrs, inpt, secureLayer, userName)
+                                                     fileName, userName, crs, tsrs, inpt, secureLayer)
                         # Set Location header
                         if code == 201 and layerName is not None:
                             location = layerName # TODO: provide full URI here             
@@ -321,9 +321,8 @@ class LayMan:
                             styleWs = inpt.style_ws
 
                         (code, layerName, message) = le.publishFromDbToGs(dbSchema, 
-                                                            viewName, 
-                                                            gsWorkspace, 
-                                                            crs, inpt, styleName, styleWs, secureLayer, userName)
+                                                            viewName, gsWorkspace, userName
+                                                            crs, inpt, styleName, styleWs, secureLayer)
 
                         # Set Location header
                         if code == 201 and layerName is not None:

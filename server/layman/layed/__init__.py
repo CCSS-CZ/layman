@@ -102,7 +102,7 @@ class LayEd:
     ### LAYERS ###
 
     # Import and publish, rasters and vectors
-    def importAndPublish(self, fsUserDir, fsGroupDir, dbSchema, gsWorkspace, fileName, srs=None, tsrs=None, data=None, secureLayer=True, userName = "NULL"):
+    def importAndPublish(self, fsUserDir, fsGroupDir, dbSchema, gsWorkspace, fileName, userName, srs=None, tsrs=None, data=None, secureLayer=True):
         """ Main publishing function. 
         Vectors import to PostreSQL and publish in GeoServer. 
         Rasters copy to GeoServer datastore dir and publish from there in GS.
@@ -152,10 +152,10 @@ class LayEd:
             data_type = "vector"
 
             # Import vector to PostGIS
-            tableName = self.importFromFileToDb(filePath, dbSchema, srs, tsrs)
+            tableName = self.importFromFileToDb(filePath, dbSchema, userName, srs, tsrs)
             
             # Publish from PostGIS to GeoServer
-            (code, layerName, message) = self.publishFromDbToGs(dbSchema, tableName, gsWorkspace, tsrs, data, None, None, secureLayer, userName)
+            (code, layerName, message) = self.publishFromDbToGs(dbSchema, tableName, gsWorkspace, userName, tsrs, data, None, None, secureLayer)
 
         else:
             from osgeo import gdal
@@ -166,14 +166,14 @@ class LayEd:
                 data_type = "raster"
 
                 # Publish from raster file to GeoServer
-                (code, layerName, message) = self.publishRasterToGs(filePath, gsWorkspace, ds, fileNameNoExt, srs, data, None, None, secureLayer, userName)
+                (code, layerName, message) = self.publishRasterToGs(filePath, gsWorkspace, ds, fileNameNoExt, userName, srs, data, None, None, secureLayer)
 
         if not data_type:
             raise LaymanError(500, "Data type (raster or vector) not recognized")
 
         return (code, layerName, message)
 
-    def importFromFileToDb(self, filePath, dbSchema, srs, tsrs):
+    def importFromFileToDb(self, filePath, dbSchema, userName, srs, tsrs):
         """ Import data from vector file to PostreSQL 
         If a table of the same name already exists, new table with modified name is created.
         """
@@ -187,12 +187,15 @@ class LayEd:
         
         tableName = dbm.importVectorFile(filePath, dbSchema, srs, tsrs)
 
+        # Note in DataPad
+        dbm.createDataPad(name=tableName, group=dbSchema, owner=userName, dtype='table', datatype='vector')
+
         logging.info("[LayEd][importFromFileToDb] Imported file '%s'" % filePath)
         logging.info("[LayEd][importFromFileToDb] in schema '%s'" % dbSchema)
 
         return tableName
 
-    def publishFromDbToGs(self, dbSchema, tableName, gsWorkspace, srs=None, data=None, styleName=None, styleWs=None, secureLayer=True, userName = "NULL"):
+    def publishFromDbToGs(self, dbSchema, tableName, gsWorkspace, userName, srs=None, data=None, styleName=None, styleWs=None, secureLayer=True):
         """ Publish vector data from PostGIS to GeoServer.
             A name of a view can be used as a tableName as well.
         """
@@ -219,7 +222,7 @@ class LayEd:
         logging.info("[LayEd][publish] in workspace '%s'" % gsWorkspace)
 
         # Note in LayPad
-        dbm = DbMan(self.config) # TODO: LayPad owner
+        dbm = DbMan(self.config) 
         layerTitle = layerName
         if data is not None and "title" in data:
             layerTitle = data["title"]
@@ -229,7 +232,7 @@ class LayEd:
         message = "Layer published: " + layerName
         return (code, layerName, message)
 
-    def publishRasterToGs(self, filePath, gsWorkspace, ds, name, srs=None, data=None, styleName=None, styleWs=None, secureLayer=True, userName = "NULL"):
+    def publishRasterToGs(self, filePath, gsWorkspace, ds, name, userName, srs=None, data=None, styleName=None, styleWs=None, secureLayer=True):
         """ Publish raster files in GeoServer.
         """
         logParam = "filePath=%s gsWorkspace=%s ds=%s name=%s srs=%s" %\
@@ -302,6 +305,8 @@ class LayEd:
         # final check
         if not os.path.exists(final_name):
             raise LaymanError(500, "File seems to be copied into target dir, but not found" % final_name)
+
+        # TODO: Note in DataPad - raster files
 
         req = {
             "coverageStore":{
@@ -1087,6 +1092,8 @@ class LayEd:
                                 dbm.deleteView(dbSchema=schema, viewName=layer)
                             else:
                                 raise e
+                        # Delete DataPad
+                        dbm.deleteDataPad(name=layer, group=schema)
 
                 elif layer_type == "RASTER":
                     # Delete Coverage Store
