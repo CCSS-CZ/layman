@@ -405,8 +405,14 @@ class DbMan:
 
         return layers        
 
-    def createDataPad():
-        pass
+    def createDataPad(self, name, group, owner, datatype):
+        """ Create Data in DataPad 
+        """
+        logParam =  "name: " + name + " group: " + group + " owner: " + owner + "type: " + datatype 
+        logging.debug("[DbMan][createDataPad] %s" % logParam)
+
+        sqlBatch = "insert into layman.data (dataname, datagroup, owner, type) values ('"+name+"','"+group+"','"+owner+"','"+datatype+"');"
+        self.write_sql(sqlBatch)
 
     def updateDataPad():
         pass
