@@ -104,8 +104,9 @@ class LayMan:
                         from layed import LayEd
                         le = LayEd()
 
+                        userName = self.auth.getUserName()
                         roles = self.auth.getRoles()
-                        (code,retval) = le.getData(roles)
+                        (code,retval) = le.getData(roles, userName)
 
                     elif len(path) == 2:
 
