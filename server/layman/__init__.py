@@ -321,7 +321,7 @@ class LayMan:
                             styleWs = inpt.style_ws
 
                         (code, layerName, message) = le.publishFromDbToGs(dbSchema, 
-                                                            viewName, gsWorkspace, userName
+                                                            viewName, gsWorkspace, userName,
                                                             crs, inpt, styleName, styleWs, secureLayer)
 
                         # Set Location header
