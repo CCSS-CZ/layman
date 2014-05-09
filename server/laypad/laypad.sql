@@ -25,7 +25,8 @@ create table layman.data (
 	dataname varchar(255) not null, -- table or view or file
 	datagroup varchar(255) not null, -- schema or directory
 	owner varchar(255), -- owner of the layer
-	type varchar(255), -- vector, raster
+	type varchar(255), -- table, view, file
+    datatype varchar(255), -- vector, raster
 	updated timestamp, -- time of last update
 	constraint data_group_name primary key (datagroup, dataname)
 );

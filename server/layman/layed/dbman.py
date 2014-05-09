@@ -407,10 +407,12 @@ class DbMan:
 
     ### DATAPAD ###
 
-    def createDataPad(self, name, group, owner, datatype):
+    def createDataPad(self, name, group, owner, dtype, datatype):
         """ Create Data in DataPad 
+            dtype - table, view, file
+            datatype - vector, raster
         """
-        logParam =  "name: " + name + " group: " + group + " owner: " + owner + "type: " + datatype 
+        logParam =  "name: " + name + " group: " + group + " owner: " + owner + "dtype: " + dtype + "datatype: " + datatype 
         logging.debug("[DbMan][createDataPad] %s" % logParam)
 
         sqlBatch = "insert into layman.data (dataname, datagroup, owner, type) values ('"+name+"','"+group+"','"+owner+"','"+datatype+"');"
@@ -427,6 +429,34 @@ class DbMan:
 
     def updateDataPad():
         pass
+
+    def getDataPad(self, owner=None):
+        """ Get Data from layman.data
+            owner given - just for this user
+            owner not given - all the data
+            Returns JSON:
+            [
+               {
+                    name:
+                    group:
+                    owner:
+                    type:
+                    datatype:
+               },
+                ...
+            ]
+        """
+        logging.debug("[DbMan][getDataPad] owner='%s'"% owner)
+
+        if owner is None:
+            sql = "SELECT dataname, datagroup, owner, type, datatype FROM layman.data;"
+        else:
+            sql = "SELECT dataname, datagroup, owner, type, datatype FROM layman.data where owner='"+owner+"';"
+
+        result = self.get_sql(sql) # [['rivers_00','hasici','hsrs','table','vector'], ... ]
+        layers = map( lambda rec: {"name": rec[0], "schema": rec[1], "owner": rec[2], "type": rec[4], "datatype": rec[5]}, result )
+
+        return layers        
 
 RASTER2PSQL_CONFIG = {}
 
