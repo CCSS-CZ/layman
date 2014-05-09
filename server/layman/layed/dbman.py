@@ -415,7 +415,7 @@ class DbMan:
         logParam =  "name: " + name + " group: " + group + " owner: " + owner + "dtype: " + dtype + "datatype: " + datatype 
         logging.debug("[DbMan][createDataPad] %s" % logParam)
 
-        sqlBatch = "insert into layman.data (dataname, datagroup, owner, type) values ('"+name+"','"+group+"','"+owner+"','"+datatype+"');"
+        sqlBatch = "insert into layman.data (dataname, datagroup, owner, type, datatype) values ('"+name+"','"+group+"','"+owner+"','"+dtype+"','"+datatype+"');"
         self.write_sql(sqlBatch)
 
     def deleteDataPad(self, name, group):
