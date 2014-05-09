@@ -405,6 +405,8 @@ class DbMan:
 
         return layers        
 
+    ### DATAPAD ###
+
     def createDataPad(self, name, group, owner, datatype):
         """ Create Data in DataPad 
         """
@@ -414,10 +416,16 @@ class DbMan:
         sqlBatch = "insert into layman.data (dataname, datagroup, owner, type) values ('"+name+"','"+group+"','"+owner+"','"+datatype+"');"
         self.write_sql(sqlBatch)
 
-    def updateDataPad():
-        pass
+    def deleteDataPad(self, name, group):
+        """ Delete data in DataPad
+        """
+        logParam =  "name: " + name + " group: " + group
+        logging.debug("[DbMan][deleteDataPad] %s" % logParam)
 
-    def deleteDataPad():
+        sqlBatch = "delete from layman.data where dataname='"+name+"' and datagroup='"+group+"';"
+        self.write_sql(sqlBatch)
+
+    def updateDataPad():
         pass
 
 RASTER2PSQL_CONFIG = {}
