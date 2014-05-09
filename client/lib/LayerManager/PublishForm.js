@@ -248,7 +248,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                           false : true),
                                anchor: '100%',
                                value: (config.type == "data" ?
-                                       this.group : undefined)
+                                       config.group : undefined)
                            },
                           /* Title field
                            */
