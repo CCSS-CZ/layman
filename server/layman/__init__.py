@@ -273,7 +273,7 @@ class LayMan:
                         crs = inpt.crs
                         tsrs = inpt.tsrs
 
-                        secureLayer = True
+                        secureLayer = False
                         if "secureLayer" in inpt:
                             if inpt.secureLayer.lower() == "false":
                                 secureLayer = False
@@ -308,7 +308,7 @@ class LayMan:
                         gsWorkspace = self.auth.getGSWorkspace(inpt.schema)
                         crs = inpt.crs
 
-                        secureLayer = True
+                        secureLayer = False
                         if "secureLayer" in inpt:
                             if inpt.secureLayer.lower() == "false":
                                 secureLayer = False
