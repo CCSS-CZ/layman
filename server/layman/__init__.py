@@ -275,8 +275,8 @@ class LayMan:
 
                         secureLayer = False
                         if "secureLayer" in inpt:
-                            if inpt.secureLayer.lower() == "false":
-                                secureLayer = False
+                            if inpt.secureLayer.lower() == "true":
+                                secureLayer = True
 
                         (code, layerName, message) = le.importAndPublish(fsUserDir, fsGroupDir,
                                                      dbSchema, gsWorkspace,
@@ -310,8 +310,8 @@ class LayMan:
 
                         secureLayer = False
                         if "secureLayer" in inpt:
-                            if inpt.secureLayer.lower() == "false":
-                                secureLayer = False
+                            if inpt.secureLayer.lower() == "true":
+                                secureLayer = True
 
                         # Optional parameters
                         styleName = None
