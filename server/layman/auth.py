@@ -405,7 +405,7 @@ class LaymanAuthLiferay(LaymanAuth):
 
     # Service Authorisation Methods #
 
-    def canDelete(self):
+    def canDelete(self, owner=None):
         canDelete = False
 
         roles = self.getRoles(filtered=False)
@@ -413,6 +413,12 @@ class LaymanAuthLiferay(LaymanAuth):
             if r["roleName"] == "lmadmin":
                 canDelete = True
                 break
+        
+        if owner is not None:
+            userName = self.getUserName()
+            if owner.lower() == userName.lower():
+                canDelete = True       
+
         return canDelete
 
     def canread(self):
