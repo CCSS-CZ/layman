@@ -433,7 +433,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                      emptyText: "EPSG:",
                                      value: (config.prj == "None:None" || config.prj == '' ? "" : config.prj),
                                      validator: function(val) {
-                                        msg = "Please fill in the SRS in the 'Advanced' tab, e.g: 'EPSG:4326'"
+                                        msg = "Please specify the SRS, e.g 'EPSG:4326'";
                                         var a = val.split(":");
                                         if (a.length == 2) {
                                             a[0] = a[0].trim().toLowerCase(); 
@@ -715,6 +715,8 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                     scope: this
                 });
             }
+        } else {
+            Ext4.Msg.alert('Some fields are invalid', 'Please correct the invalid fields');
         }
     },
 
