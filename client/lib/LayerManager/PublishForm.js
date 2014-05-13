@@ -724,7 +724,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                 });
             }
         } else {
-            Ext4.Msg.alert('Some fields are invalid', 'Please correct the invalid fields');
+            Ext4.Msg.alert('Some fields are invalid', 'Please correct the invalid fields. (Check all the tabs)');
         }
     },
 
