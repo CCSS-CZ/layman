@@ -29,6 +29,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
         config.layout = 'anchor';
         config.width = 500;
         config.frame = true;
+        config.timeout = 120;
         config.url = config.type == "layer" ? config.url + config.name :
                      config.url;
         this._url = config.url;
