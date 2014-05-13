@@ -433,8 +433,16 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                      emptyText: "EPSG:",
                                      value: (config.prj == "None:None" || config.prj == '' ? "" : config.prj),
                                      validator: function(val) {
-                                        // TODO
-                                        return true;
+                                        msg = "Please fill in the SRS in the 'Advanced' tab, e.g: 'EPSG:4326'"
+                                        var a = val.split(":");
+                                        if (a.length == 2) {
+                                            a[0] = a[0].trim().toLowerCase(); 
+                                            a[1] = a[1].trim();
+                                            if ( (a[0] == "epsg") && !isNaN(parseInt(a[1])) && isFinite(a[1]) ) {
+                                                return true;
+                                            }
+                                        }
+                                        return msg;
                                      },
                                      name: 'crs'
                                  },
