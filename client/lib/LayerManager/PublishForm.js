@@ -258,7 +258,15 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                xtype: 'textfield',
                                anchor: '100%',
                                name: 'title',
-                               value: config.title
+                               value: config.title,
+                               validator: function(val) {
+                                    v = val.trim()
+                                    if (v=="") {
+                                        return "Please fill in the title";
+                                    } else {
+                                        return true;
+                                    }
+                               }
                            },
                           /* Abstract field
                            */
