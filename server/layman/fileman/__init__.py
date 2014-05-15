@@ -241,8 +241,13 @@ class FileMan:
                 if zipfile.is_zipfile(filePath):
                     (fileName,msg) = self._unzipFile(filePath)
                 else:
-                    # TODO: halndle spaces in filename
-                    pass    
+                    # replace spaces in filename
+                    fileNameSplit = fileName.split(" ")
+                    if len(fileNameSplit) > 1:
+                        newFileName = "_".join(fileNameSplit)
+                        newFilePath = os.path.join(dirPath, newFileName)
+                        shutil.move(filePath, newFilePath)
+                        
                 if fileName:
                     logging.info("File [%s] successfully uploaded"% fileName)
                     return ("created","File uploaded:'%s'" % fileName)
