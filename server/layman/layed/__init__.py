@@ -590,7 +590,7 @@ class LayEd:
         # Create ft json
         ftJson = {}
         ftJson["featureType"] = {}
-        ftJson["featureType"]["name"] = "'"+tableName+"'"
+        ftJson["featureType"]["name"] = tableName
         ftJson["featureType"]["srs"] = srs
 
         if hasattr(data, "title"):
