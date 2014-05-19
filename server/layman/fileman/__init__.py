@@ -240,6 +240,14 @@ class FileMan:
                 msg = None
                 if zipfile.is_zipfile(filePath):
                     (fileName,msg) = self._unzipFile(filePath)
+                else:
+                    # replace spaces in filename
+                    fileNameSplit = fileName.split(" ")
+                    if len(fileNameSplit) > 1:
+                        newFileName = "_".join(fileNameSplit)
+                        newFilePath = os.path.join(dirPath, newFileName)
+                        shutil.move(filePath, newFilePath)
+                        
                 if fileName:
                     logging.info("File [%s] successfully uploaded"% fileName)
                     return ("created","File uploaded:'%s'" % fileName)
@@ -441,8 +449,9 @@ class FileMan:
           
             target_root = root # don't rename, leave the original name
 
-            # Rails/rails.cpg => Rails_rails.cpg
+            # Rails/jhmd rails.cpg => Rails_jhmd_rails.cpg
             target_root = "_".join(target_root.split(os.sep))
+            target_root = "_".join(target_root.split(" "))
             target_root = target_root[-36:] # limit the length
 
             logging.debug("[FileMan][_unzipFile] tempdir=%s, shape_file_part=%s, target_dir=%s, target_root=%s, suffix=%s" % (self.tempdir, shape_file_part, target_dir, target_root, suffix))
