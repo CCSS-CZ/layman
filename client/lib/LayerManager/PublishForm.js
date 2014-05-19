@@ -386,7 +386,17 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                             anchor: '100%',
                             layout: 'anchor',
                             title: 'Read access',
-                            items: [ {
+                            items: [ 
+                              {
+                                xtype: 'checkbox',
+                                boxLabel: 'Secure layer',
+                                name: 'secureLayer',
+                                id: 'secureLayer',
+                                checked: true,
+                                inputValue: true,
+                                uncheckedValue: false
+                              },
+                              {
                                 xtype: 'itemselector',
                                 name: 'read_groups',
                                 id: 'read_groups',
@@ -415,7 +425,8 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                 msgTarget: 'side',
                                 fromTitle: 'Deny',
                                 toTitle: 'Allow'
-                            } ]
+                              }
+                            ]
                         },
                         /* CRS field
                          */
