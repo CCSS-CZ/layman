@@ -390,7 +390,9 @@ class FileMan:
 
         # Hack for epsg:3857
         hackStr = sr.ExportToProj4()
-        if hackStr == 'PROJCS["WGS_84_Pseudo_Mercator",GEOGCS["GCS_WGS_1984",DATUM["WGS_1984",SPHEROID["WGS_84",6378137,298.257223563]],PRIMEM["Greenwich",0],UNIT["Degree",0.017453292519943295],AUTHORITY["EPSG","4326"]],PROJECTION["Mercator_1SP"],PARAMETER["central_meridian",0],PARAMETER["false_easting",0],PARAMETER["false_northing",0],UNIT["Meter",1],PARAMETER["latitude_of_origin",0.0]]':
+        if hackStr == '+proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs ':
+            return "EPSG:3857"
+        if hackStr == '+proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +a=6378137 +b=6378137 +units=m +no_defs ':
             return "EPSG:3857"
 
         if sr.IsGeographic() == 1:  # this is a geographic srs
