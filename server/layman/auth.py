@@ -260,8 +260,9 @@ class LaymanAuthLiferay(LaymanAuth):
                 if desired == r["roleName"]:
                     theRole = r
 
-            #lower
+            #lower and spaces
             theRole["roleName"] = theRole["roleName"].lower()
+            theRole["roleName"] = "_".join(theRole["roleName"].split(' '))
             roleName = theRole["roleName"]
             logging.debug("[LaymanAuthLiferay][getRole] The role: '%s'"% roleName)
             return theRole
@@ -298,9 +299,10 @@ class LaymanAuthLiferay(LaymanAuth):
             if len(roles) < 1:
                 logging.error("[LaymanAuthLiferay][getRoles] Cannot determine the workspace - Liferay provided empty list of roles")
                 raise AuthError(500,"Cannot determine the workspace - Liferay provided empty list of roles")            
-            #lower()
+            #lower() and spaces
             for rr in roles:
                 rr["roleName"] = rr["roleName"].lower()
+                rr["roleName"] = "_".join(rr["roleName"].split(' '))
             rolesStr = json.dumps(roles)
             logging.debug("[LaymanAuthLiferay][getRoles] The roles: '%s'"% rolesStr)
             return roles
@@ -339,9 +341,10 @@ class LaymanAuthLiferay(LaymanAuth):
         
         roles = allRolesJson["roles"]
 
-        # lower()
+        # lower() and spaces
         for rr in roles:
             rr["roleName"] = rr["roleName"].lower()
+            rr["roleName"] = "_".join(rr["roleName"].split(' '))
 
         # Return roles
         logging.debug("[LaymanAuthLiferay][getAllRoles] Return roles: %s"% str(roles))
