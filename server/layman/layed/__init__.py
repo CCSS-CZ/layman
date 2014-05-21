@@ -644,6 +644,11 @@ class LayEd:
                 break
 
         if head["status"] != "201":
+
+            # Check for "already published"
+            if "Resource named" in cont and "already exists" in cont:
+                raise LaymanError(409, "This layer is already published")
+
             # Raise an exception
             headStr = str(head)
             message = """LayEd: createFtFromDb(): Cannot create FeatureType %s.
