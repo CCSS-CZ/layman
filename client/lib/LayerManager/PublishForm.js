@@ -711,8 +711,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                 message: ''
                             };
                         }
-                        Ext4.Msg.alert('Failed', 'Publishing data failed' +
-                            '<br />' + obj.message);
+                        Ext4.Msg.alert('Failed', obj.message);
                     },
                     scope: this
                 });
