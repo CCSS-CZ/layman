@@ -205,8 +205,10 @@ class LayEd:
         # Check the GS data store and create it if it does not exist
         dataStore = self.createVectorDataStoreIfNotExists(dbSchema, gsWorkspace)
 
-        # Publish from DB to GS
-        layerName = self.createFtFromDb(gsWorkspace, dataStore, tableName, srs, data, secureLayer)
+        # Publish from DB to GS       
+        (code, layerName, message) = self.createFtFromDb(gsWorkspace, dataStore, tableName, srs, data, secureLayer)
+        if code == 409: # already published
+            return (code, tableName, message)
 
         # Set attribution of the layer
         self.updateLayerAttribution(gsWorkspace, layerName, data)
@@ -647,7 +649,7 @@ class LayEd:
 
             # Check for "already published"
             if "Resource named" in cont and "already exists" in cont:
-                raise LaymanError(409, "This layer is already published")
+                return (409, "", "This layer is already published")
 
             # Raise an exception
             headStr = str(head)
@@ -691,7 +693,7 @@ class LayEd:
 
             self.grantAccess(role, userlist, grouplist)
 
-        return layerName
+        return (201, layerName, "created")
 
     def secureLayer(self, workspace, layerName):
         """ Secure read access to the layer. 
