@@ -394,7 +394,15 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                 id: 'secureLayer',
                                 checked: true,
                                 inputValue: true,
-                                uncheckedValue: false
+                                uncheckedValue: false,
+                                handler: function(field, value) {
+                                    if (value) {
+                                       Ext4.getCmp('read_groups').enable();         
+                                    }
+                                    else {
+                                       Ext4.getCmp('read_groups').disable();         
+                                    }
+                                }
                               },
                               {
                                 xtype: 'itemselector',
