@@ -283,7 +283,7 @@ class GsXml:
         for gre in groupRolesElems:
             groupname = gre.get("groupname")           
             readGroups.append(groupname)
-            logging.debug("[GsXml]getReadLayerGroups[]Layer %s:s is given to * %s *"% (group, layer, groupname))
+            logging.debug("[GsXml]getReadLayerGroups[]Layer %s:%s is given to * %s *"% (group, layer, groupname))
 
         return readGroups
  
