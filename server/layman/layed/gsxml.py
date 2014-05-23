@@ -240,7 +240,8 @@ class GsXml:
 
     def createReadLayerRole(self, group, layer):
         """ Create READ_<group>_<layer> role and assign it to the group. 
-        Returns role name.
+        If it is already there, do nothing.
+        Returns role name. 
         """
         # Role name
         role = self.getReadLayerRoleName(group, layer)
@@ -288,7 +289,8 @@ class GsXml:
         return readGroups
  
     def createAndAssignRole(self, group, role):
-        """ Create role of the given name and assign it to the group. 
+        """ Create role of the given name and assign it to the group.
+        If it is already there, do nothing. 
         """
         # Read Roles XML
         rrPath = self.getRolesPath()
@@ -296,11 +298,12 @@ class GsXml:
         rrRoot = rrTree.getroot()
 
         # Create role and assign it to the group
-        self._createRole(role, rrRoot)
-        self._assignRoleToGroup(group, role, rrRoot)
+        changed1 = self._createRole(role, rrRoot)
+        changed2 = self._assignRoleToGroup(group, role, rrRoot)
 
         # Write
-        rrTree.write(rrPath)
+        if changed1 or changed2:
+            rrTree.write(rrPath)
 
     def assignRoleToUsersAndGroups(self, role, grouplist, userlist):
         """ Assign Role To Users And Groups.
@@ -381,16 +384,23 @@ class GsXml:
     def _createRole(self, role, rrRoot):
         """ Create Role. If exists, do nothing. """
 
+        changed = False
+
         # Check for the role
         roleElem = rrRoot.find("./{http://www.geoserver.org/security/roles}roleList/{http://www.geoserver.org/security/roles}role[@id='"+role+"']")
         if roleElem is None:
             # Create the role
             roleElem     = Xml.Element("{http://www.geoserver.org/security/roles}role", {"id":role}) 
             roleListElem = rrRoot.find("./{http://www.geoserver.org/security/roles}roleList")
-            roleListElem.append(roleElem)       
+            roleListElem.append(roleElem)      
+            changed = True
+        
+        return changed 
 
     def _assignRoleToGroup(self, group, role, rrRoot):
         """ Assign role to group. If already assigned, do nothing. """
+
+        changed = False
 
         # Check the group record
         groupRolesElem = rrRoot.find("./{http://www.geoserver.org/security/roles}groupList/{http://www.geoserver.org/security/roles}groupRoles[@groupname='"+group+"']")
@@ -399,6 +409,7 @@ class GsXml:
             groupRolesElem = Xml.Element("{http://www.geoserver.org/security/roles}groupRoles", {"groupname":group})
             groupListElem  = rrRoot.find("./{http://www.geoserver.org/security/roles}groupList")
             groupListElem.append(groupRolesElem)
+            changed = True
 
         # Check if the role is already assigned
         roleRefElem = groupRolesElem.find("./{http://www.geoserver.org/security/roles}roleRef[@roleID='"+role+"']")
@@ -406,6 +417,9 @@ class GsXml:
             # Assign the role
             roleRefElem = Xml.Element("{http://www.geoserver.org/security/roles}roleRef", {"roleID":role})
             groupRolesElem.append(roleRefElem)
+            changed = True
+
+        return changed
 
     def getRolesPath(self):
         path = os.path.join(self.gsDataDir, "security","role","default","roles.xml")

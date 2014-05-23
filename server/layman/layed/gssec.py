@@ -36,7 +36,7 @@ class GsSec:
     def readLayerProp(self):
         """ Read the file layer.properties into self.laySec
         """
-        # FIXME: Preserve catalogue mode! (default is hide, that's we we need just now)
+        # FIXME: Preserve catalogue mode! (default is hide, that's what we need just now)
 
         # TODO: Handle and preserve comments
 
@@ -120,7 +120,12 @@ class GsSec:
 
     def unsetRule(self, ws, layer, right):
         """ Removes (or comments out) the specified rule """
-        # TODO
+        
+        if ws in self.laySec:
+            if layer in self.laySec[ws]:
+                if right in self.laySec[ws][layer]:
+                    # Remove the rule    
+                    self.laySec[ws][layer].remove(right)
 
     ### Get access rights ###
 
@@ -158,6 +163,13 @@ class GsSec:
         Overwrites whatever may be already there.
         """
         self.setRule(ws, layer, "r", rolelist)
+
+        self.writeLayerProp()
+
+    def unsecureLayer(self, ws, layer):
+        """ Make the layer public by unsetting the read access rule
+        """
+        self.unsetRule(ws, layer, "r")
 
         self.writeLayerProp()
 

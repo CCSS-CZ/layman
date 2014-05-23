@@ -701,19 +701,29 @@ class LayEd:
         Create READ_<ws>_<layer> role and assign it to the group.
         Set <ws>.<layer>.r=READ_<ws>_<layer> in layers.properties.
 
-        It shouldn't matter if the configuration is accidentaly already there.   
+        It Does not matter if it is alrady there.   
         """
         gsx = GsXml(self.config)
         gss = GsSec(self.config)
 
         # Create READ_<ws>_<layer> role and assign it to the group
+        # If it is already there, it does nothing (still returns the readRole).
         readRole = gsx.createReadLayerRole(group=workspace, layer=layerName)
      
         # Set <ws>.<layer>.r=READ_<ws>_<layer>,ROLE_<ws>
+        # If it is already there, it is overwritten anyhow.
         wsRole = gsx.getGroupRoleName(group=workspace)
         gss.secureLayer(ws=workspace, layer=layerName, rolelist=[readRole, wsRole])
         
         return readRole
+
+    def unsecureLayer(self, workspace, layerName):
+        """ Unsecure layer. 
+        Removes the rule controlling the read access in layers.properties 
+        """
+        gss = GsSec(self.config)
+
+        gss.unsecureLayer(workspace, layerName)
 
     def grantAccess(self, role, userlist, grouplist):
 
@@ -1136,30 +1146,45 @@ class LayEd:
         # PUT Layer
         self.updateLayer(workspace, layerName, data)
 
-        # Access Granting (geoserver - roles.xml)
+        # Layer security 
+        if secureLayer in data: 
+            if data["secureLayer"].lower() == "true":
 
-        grouplist = []
-        if "readGroups" in data:
-            grouplist = map(lambda k: k.strip(), data["readGroups"].split(",")) # Groups to be granted from the Client
-            logging.debug("[LayEd][putLayerConfig] Grant access groups: %s"% grouplist)
+                # Secure Layer
+                self.secureLayer(workspace, layerName)
+
+                # Access Granting
+                grouplisit = []
+                if "readGroups" in data:
+                    grouplist = map(lambda k: k.strip(), data["readGroups"].split(",")) # Groups to be granted from the Client
+                    logging.debug("[LayEd][putLayerConfig] Grant access groups: %s"% grouplist)
+                else:
+                    logging.debug("[LayEd][putLayerConfig] No groups provided to grant access")
+
+                userlist = []
+                if "readUsers" in data:
+                    userlist = map(lambda k: k.strip(), data["readUsers"].split(",")) # Users to be granted from the Client
+                    logging.debug("[LayEd][putLayerConfig] Grant access users: %s"% userlist)
+                else:
+                    logging.debug("[LayEd][putLayerConfig] No users provided to grant access")
+
+                if workspace not in grouplist:
+                    grouplist.append(workspace) # Make sure our home group is involved
+
+                gsx = GsXml(self.config)
+                role = gsx.getReadLayerRoleName(workspace, layerName) # Probably "READ_<ws>_<layer>"
+
+                self.grantAccess(role, userlist, grouplist)
+
+            else:            
+                # Unsecure Layer
+                self.unsecureLayer(workspace, layerName)
         else:
-            logging.debug("[LayEd][putLayerConfig] No groups provided to grant access")
+            # TODO - make default behaviour configurable (un/secureLayer)
 
-        userlist = []
-        if "readUsers" in data:
-            userlist = map(lambda k: k.strip(), data["readUsers"].split(",")) # Users to be granted from the Client
-            logging.debug("[LayEd][putLayerConfig] Grant access users: %s"% userlist)
-        else:
-            logging.debug("[LayEd][putLayerConfig] No users provided to grant access")
-
-        if workspace not in grouplist:
-            grouplist.append(workspace) # Make sure our home group is involved
-
-        gsx = GsXml(self.config)
-        role = gsx.getReadLayerRoleName(workspace, layerName) # Probably "READ_<ws>_<layer>"
-
-        self.grantAccess(role, userlist, grouplist)
-
+            # Unsecure Layer
+            self.unsecureLayer(workspace, layerName)
+            
         return (200, "Settings successfully updated")
 
     # PUT Coverage

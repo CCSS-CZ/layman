@@ -632,19 +632,24 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
 
                 // Access Control
 
+                // Secure Layer
+                newSecureLayer = vals.secureLayer;
+
                 // Read groups
                 newReadGroups = vals.read_groups;
+
 
                 // PUT Layer Config 
 
                 Ext4.Ajax.request({
                     url: this.url,
                     jsonData: {
-                        usergroup:  this.group,     // group=workspace
-                        fileName:   vals.fileName,  // wtf?
-                        layer:      newLayer,       // "layer" json of geoserver
-                        layerData:  newLayerData,   // "featureType" or "coverage" json of geoserver
-                        readGroups: newReadGroups   // Groups that should have the Read Access
+                        usergroup:   this.group,     // group=workspace
+                        fileName:    vals.fileName,  // wtf?
+                        layer:       newLayer,       // "layer" json of geoserver
+                        layerData:   newLayerData,   // "featureType" or "coverage" json of geoserver
+                        secureLayer: newSecureLayer, // If the layer should be secured
+                        readGroups:  newReadGroups   // Groups that should have the Read Access
                     },
                     method: 'PUT',
                     success: function(form, action) {
