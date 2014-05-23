@@ -906,7 +906,9 @@ class LayEd:
                         # Learn the groups allowed to read the layer
                         # Corresponds to posession of the role "READ_ws_layerName"
                         # (we get it from roles.xml, not from layers.properties file)
+                        
                         readGroups = gsx.getReadLayerGroups(group=ws, layer=str(lay["name"]))
+                        logging.debug("[LayEd][getLayers] Layer %s:%s is granted to: %s"% (ws, str(lay["name"), str(readGroups)) )
 
                         # Pack the reply
                         bundle = {}   
