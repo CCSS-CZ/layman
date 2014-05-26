@@ -806,6 +806,7 @@ class LayEd:
         logging.debug("[LayEd][getLayers]")
         gsr = GsRest(self.config)
         gsx = GsXml(self.config)
+        gss = GsSec(self.config)
         code = 200
 
         # GET Layers
@@ -913,10 +914,12 @@ class LayEd:
                             logging.warning("[LayEd][getLayers] Failed to parse response JSON. GeoServer replied with '%s' and said '%s'" % (str(headers), str(response)) )
                             continue
 
+                        # Is the layer secured?
+                        secured = gss.isSecured(ws, lay["name"])
+
                         # Learn the groups allowed to read the layer
                         # Corresponds to posession of the role "READ_ws_layerName"
-                        # (we get it from roles.xml, not from layers.properties file)
-                        
+                        # (we get it from roles.xml, not from layers.properties file)                       
                         readGroups = gsx.getReadLayerGroups(group=ws, layer=str(lay["name"]))
                         logging.debug("[LayEd][getLayers] Layer %s:%s is granted to: %s" % (ws, str(lay["name"]), str(readGroups)) )
 
@@ -924,7 +927,8 @@ class LayEd:
                         bundle = {}   
                         bundle["ws"] = ws                       # workspace ~ group
                         bundle["roleTitle"] = roleTitles[ws]    # group title
-                        bundle["readGroups"] = readGroups       # list of groups allowed to read the layer
+                        bundle["secureLayer"] = secured         # if the layer is secured 
+                        bundle["readGroups"] = readGroups       # list of groups allowed to read the layer (can be set even if the layer is not secured. no effect, but it remembers the config.)
                         bundle["layer"] = layer["layer"]        # layer object
                         bundle["layerData"] = {}                # featureType || coverage
                         if "featureType" in ft.keys():
@@ -970,6 +974,9 @@ class LayEd:
                     layer = {}
                     layer["name"] = name
 
+                    # Is the layer secured?
+                    secured = gss.isSecured(ws, lay["name"])
+
                     # Learn the groups allowed to read the layer
                     # Corresponds to posession of the role "READ_ws_layerName"
                     readGroups = gsx.getReadLayerGroups(group=ws, layer=str(lay["name"]))
@@ -978,6 +985,7 @@ class LayEd:
                     bundle = {}   # Layer that will be returned
                     bundle["ws"] = ws
                     bundle["roleTitle"] = roleTitles[ws]
+                    bundle["secureLayer"] = secured         # if the layer is secured 
                     bundle["readGroups"] = readGroups       # list of groups allowed to read the layer
                     bundle["layer"] = layer
                     bundle["layerData"] = {}

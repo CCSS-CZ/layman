@@ -140,7 +140,9 @@ class GsSec:
         else:
             return None
 
-        # TODO: This ^ does not take into acount the '*' settings - WRONG!!!
+        # TODO: This ^ does not take into acount the '*' settings - Not complete!
+        # (Still it is usable as long as we don't mix '*' and explicit notations -
+        # GS has problems to intepret such a mixture anyhow)
 
     ### Syntactic sugar ###
 
@@ -172,6 +174,16 @@ class GsSec:
         self.unsetRule(ws, layer, "r")
 
         self.writeLayerProp()
+
+    def isSecured(self, ws, layer):
+        """ Check if the layer is secured - 
+        i.e. if the <ws>.<layer>.r rule is set
+        """
+        roles = self.getRoles(ws, layer, "r")
+        if roles is None:
+            return False
+        else:
+            return True
 
     ### Auxiliary functions ###
 
