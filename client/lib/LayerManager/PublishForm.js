@@ -410,7 +410,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                 name: 'read_groups',
                                 id: 'read_groups',
                                 disabled: config.secureLayer ?
-                                          !config.secureLayer : false
+                                          !config.secureLayer : false,
                                 anchor: '100%',
                                 //width: '100%',
                                 //fieldLabel: 'Enable read',
