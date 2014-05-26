@@ -776,6 +776,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
             this.layer = record.get('layer');
             this.layerData = record.get('layerData');
             this.readGroups = record.get('readGroups');
+            this.secureLayer = record.get('secureLayer');
             var metadataurl = '';
             if (this.layerData.metadataLinks) {
                 metadataurl = this.layerData.metadataLinks.metadataLink[0].content;
