@@ -1148,7 +1148,7 @@ class LayEd:
 
         # Layer security 
         if "secureLayer" in data: 
-            if data["secureLayer"].lower() == "true":
+            if data["secureLayer"]:
 
                 # Secure Layer
                 self.secureLayer(workspace, layerName)
