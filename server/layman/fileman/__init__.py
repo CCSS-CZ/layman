@@ -388,6 +388,13 @@ class FileMan:
     def _get_prj(self,sr):
         logging.debug("[FileMan][_get_prj]")
 
+        # Hack for epsg:3857
+        hackStr = sr.ExportToProj4()
+        if hackStr == '+proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs ':
+            return "EPSG:3857"
+        if hackStr == '+proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +a=6378137 +b=6378137 +units=m +no_defs ':
+            return "EPSG:3857"
+
         if sr.IsGeographic() == 1:  # this is a geographic srs
             logging.debug("[FileMan][_get_prj] Geographic SRS")
             cstype = 'GEOGCS'
@@ -399,7 +406,6 @@ class FileMan:
         logging.debug("[FileMan][_get_prj] Authority name: %s, Authority code: %s" % (an, ac) )
 
         return "%s:%s"%(an,ac)
-
 
     def _deleteShapeFile(self, fileName):
         """Delete all files, belonging to this shapefile

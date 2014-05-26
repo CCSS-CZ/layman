@@ -249,8 +249,10 @@ class LayEd:
         # Check the GS data store and create it if it does not exist
         dataStore = self.createVectorDataStoreIfNotExists(dbSchema, gsWorkspace)
 
-        # Publish from DB to GS
-        layerName = self.createFtFromDb(gsWorkspace, dataStore, tableName, srs, data, secureLayer)
+        # Publish from DB to GS       
+        (code, layerName, message) = self.createFtFromDb(gsWorkspace, dataStore, tableName, srs, data, secureLayer)
+        if code == 409: # already published
+            return (code, tableName, message)
 
         # Set attribution of the layer
         self.updateLayerAttribution(gsWorkspace, layerName, data)
@@ -704,6 +706,11 @@ class LayEd:
                 break
 
         if head["status"] != "201":
+
+            # Check for "already published"
+            if "Resource named" in cont and "already exists" in cont:
+                return (409, "", "This layer is already published")
+
             # Raise an exception
             headStr = str(head)
             message = """LayEd: createFtFromDb(): Cannot create FeatureType %s.
@@ -746,7 +753,7 @@ class LayEd:
 
             self.grantAccess(role, userlist, grouplist)
 
-        return layerName
+        return (201, layerName, "created")
 
     def secureLayer(self, workspace, layerName):
         """ Secure read access to the layer. 
@@ -754,19 +761,29 @@ class LayEd:
         Create READ_<ws>_<layer> role and assign it to the group.
         Set <ws>.<layer>.r=READ_<ws>_<layer> in layers.properties.
 
-        It shouldn't matter if the configuration is accidentaly already there.   
+        It Does not matter if it is alrady there.   
         """
         gsx = GsXml(self.config)
         gss = GsSec(self.config)
 
         # Create READ_<ws>_<layer> role and assign it to the group
+        # If it is already there, it does nothing (still returns the readRole).
         readRole = gsx.createReadLayerRole(group=workspace, layer=layerName)
      
         # Set <ws>.<layer>.r=READ_<ws>_<layer>,ROLE_<ws>
+        # If it is already there, it is overwritten anyhow.
         wsRole = gsx.getGroupRoleName(group=workspace)
         gss.secureLayer(ws=workspace, layer=layerName, rolelist=[readRole, wsRole])
         
         return readRole
+
+    def unsecureLayer(self, workspace, layerName):
+        """ Unsecure layer. 
+        Removes the rule controlling the read access in layers.properties 
+        """
+        gss = GsSec(self.config)
+
+        gss.unsecureLayer(workspace, layerName)
 
     def grantAccess(self, role, userlist, grouplist):
 
@@ -894,6 +911,7 @@ class LayEd:
         logging.debug("[LayEd][getLayers]")
         gsr = GsRest(self.config)
         gsx = GsXml(self.config)
+        gss = GsSec(self.config)
         code = 200
 
         # GET Layers
@@ -1001,16 +1019,21 @@ class LayEd:
                             logging.warning("[LayEd][getLayers] Failed to parse response JSON. GeoServer replied with '%s' and said '%s'" % (str(headers), str(response)) )
                             continue
 
+                        # Is the layer secured?
+                        secured = gss.isSecured(ws, lay["name"])
+
                         # Learn the groups allowed to read the layer
                         # Corresponds to posession of the role "READ_ws_layerName"
-                        # (we get it from roles.xml, not from layers.properties file)
+                        # (we get it from roles.xml, not from layers.properties file)                       
                         readGroups = gsx.getReadLayerGroups(group=ws, layer=str(lay["name"]))
+                        logging.debug("[LayEd][getLayers] Layer %s:%s is granted to: %s" % (ws, str(lay["name"]), str(readGroups)) )
 
                         # Pack the reply
                         bundle = {}   
                         bundle["ws"] = ws                       # workspace ~ group
                         bundle["roleTitle"] = roleTitles[ws]    # group title
-                        bundle["readGroups"] = readGroups       # list of groups allowed to read the layer
+                        bundle["secureLayer"] = secured         # if the layer is secured 
+                        bundle["readGroups"] = readGroups       # list of groups allowed to read the layer (can be set even if the layer is not secured. no effect, but it remembers the config.)
                         bundle["layer"] = layer["layer"]        # layer object
                         bundle["layerData"] = {}                # featureType || coverage
                         if "featureType" in ft.keys():
@@ -1056,6 +1079,9 @@ class LayEd:
                     layer = {}
                     layer["name"] = name
 
+                    # Is the layer secured?
+                    secured = gss.isSecured(ws, lay["name"])
+
                     # Learn the groups allowed to read the layer
                     # Corresponds to posession of the role "READ_ws_layerName"
                     readGroups = gsx.getReadLayerGroups(group=ws, layer=str(lay["name"]))
@@ -1064,6 +1090,7 @@ class LayEd:
                     bundle = {}   # Layer that will be returned
                     bundle["ws"] = ws
                     bundle["roleTitle"] = roleTitles[ws]
+                    bundle["secureLayer"] = secured         # if the layer is secured 
                     bundle["readGroups"] = readGroups       # list of groups allowed to read the layer
                     bundle["layer"] = layer
                     bundle["layerData"] = {}
@@ -1237,30 +1264,45 @@ class LayEd:
         # PUT Layer
         self.updateLayer(workspace, layerName, data)
 
-        # Access Granting (geoserver - roles.xml)
+        # Layer security 
+        if "secureLayer" in data: 
+            if data["secureLayer"]:
 
-        grouplist = []
-        if "readGroups" in data:
-            grouplist = map(lambda k: k.strip(), data["readGroups"].split(",")) # Groups to be granted from the Client
-            logging.debug("[LayEd][putLayerConfig] Grant access groups: %s"% grouplist)
+                # Secure Layer
+                self.secureLayer(workspace, layerName)
+
+                # Access Granting
+                grouplisit = []
+                if "readGroups" in data:
+                    grouplist = map(lambda k: k.strip(), data["readGroups"].split(",")) # Groups to be granted from the Client
+                    logging.debug("[LayEd][putLayerConfig] Grant access groups: %s"% grouplist)
+                else:
+                    logging.debug("[LayEd][putLayerConfig] No groups provided to grant access")
+
+                userlist = []
+                if "readUsers" in data:
+                    userlist = map(lambda k: k.strip(), data["readUsers"].split(",")) # Users to be granted from the Client
+                    logging.debug("[LayEd][putLayerConfig] Grant access users: %s"% userlist)
+                else:
+                    logging.debug("[LayEd][putLayerConfig] No users provided to grant access")
+
+                if workspace not in grouplist:
+                    grouplist.append(workspace) # Make sure our home group is involved
+
+                gsx = GsXml(self.config)
+                role = gsx.getReadLayerRoleName(workspace, layerName) # Probably "READ_<ws>_<layer>"
+
+                self.grantAccess(role, userlist, grouplist)
+
+            else:            
+                # Unsecure Layer
+                self.unsecureLayer(workspace, layerName)
         else:
-            logging.debug("[LayEd][putLayerConfig] No groups provided to grant access")
+            # TODO - make default behaviour configurable (un/secureLayer)
 
-        userlist = []
-        if "readUsers" in data:
-            userlist = map(lambda k: k.strip(), data["readUsers"].split(",")) # Users to be granted from the Client
-            logging.debug("[LayEd][putLayerConfig] Grant access users: %s"% userlist)
-        else:
-            logging.debug("[LayEd][putLayerConfig] No users provided to grant access")
-
-        if workspace not in grouplist:
-            grouplist.append(workspace) # Make sure our home group is involved
-
-        gsx = GsXml(self.config)
-        role = gsx.getReadLayerRoleName(workspace, layerName) # Probably "READ_<ws>_<layer>"
-
-        self.grantAccess(role, userlist, grouplist)
-
+            # Unsecure Layer
+            self.unsecureLayer(workspace, layerName)
+            
         return (200, "Settings successfully updated")
 
     # PUT Coverage

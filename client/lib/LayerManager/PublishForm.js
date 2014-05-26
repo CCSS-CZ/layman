@@ -395,10 +395,31 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                             anchor: '100%',
                             layout: 'anchor',
                             title: 'Read access',
-                            items: [ {
+                            items: [ 
+                              {
+                                xtype: 'checkbox',
+                                boxLabel: 'Secure layer',
+                                name: 'secureLayer',
+                                id: 'secureLayer',
+                                checked: 'secureLayer' in config ?
+                                         config.secureLayer : true,
+                                inputValue: true,
+                                uncheckedValue: false,
+                                handler: function(field, value) {
+                                    if (value) {
+                                       Ext4.getCmp('read_groups').enable();         
+                                    }
+                                    else {
+                                       Ext4.getCmp('read_groups').disable();         
+                                    }
+                                }
+                              },
+                              {
                                 xtype: 'itemselector',
                                 name: 'read_groups',
                                 id: 'read_groups',
+                                disabled: 'secureLayer' in config ?
+                                          !config.secureLayer : false,
                                 anchor: '100%',
                                 //width: '100%',
                                 //fieldLabel: 'Enable read',
@@ -424,7 +445,8 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                 msgTarget: 'side',
                                 fromTitle: 'Deny',
                                 toTitle: 'Allow'
-                            } ]
+                              }
+                            ]
                         },
                         /* CRS field
                          */
@@ -630,19 +652,24 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
 
                 // Access Control
 
+                // Secure Layer
+                newSecureLayer = vals.secureLayer;
+
                 // Read groups
                 newReadGroups = vals.read_groups;
+
 
                 // PUT Layer Config 
 
                 Ext4.Ajax.request({
                     url: this.url,
                     jsonData: {
-                        usergroup:  this.group,     // group=workspace
-                        fileName:   vals.fileName,  // wtf?
-                        layer:      newLayer,       // "layer" json of geoserver
-                        layerData:  newLayerData,   // "featureType" or "coverage" json of geoserver
-                        readGroups: newReadGroups   // Groups that should have the Read Access
+                        usergroup:   this.group,     // group=workspace
+                        fileName:    vals.fileName,  // wtf?
+                        layer:       newLayer,       // "layer" json of geoserver
+                        layerData:   newLayerData,   // "featureType" or "coverage" json of geoserver
+                        secureLayer: newSecureLayer, // If the layer should be secured
+                        readGroups:  newReadGroups   // Groups that should have the Read Access
                     },
                     method: 'PUT',
                     success: function(form, action) {
@@ -717,8 +744,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                 message: ''
                             };
                         }
-                        Ext4.Msg.alert('Failed', 'Publishing data failed' +
-                            '<br />' + obj.message);
+                        Ext4.Msg.alert('Failed', obj.message);
                     },
                     scope: this
                 });
@@ -769,6 +795,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
             this.layer = record.get('layer');
             this.layerData = record.get('layerData');
             this.readGroups = record.get('readGroups');
+            this.secureLayer = record.get('secureLayer');
             var metadataurl = '';
             if (this.layerData.metadataLinks) {
                 metadataurl = this.layerData.metadataLinks.metadataLink[0].content;
