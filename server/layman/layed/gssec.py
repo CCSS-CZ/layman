@@ -125,7 +125,7 @@ class GsSec:
             if layer in self.laySec[ws]:
                 if right in self.laySec[ws][layer]:
                     # Remove the rule    
-                    self.laySec[ws][layer].remove(right)
+                    del self.laySec[ws][layer][right]
 
     ### Get access rights ###
 
