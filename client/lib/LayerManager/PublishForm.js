@@ -392,7 +392,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                 boxLabel: 'Secure layer',
                                 name: 'secureLayer',
                                 id: 'secureLayer',
-                                checked: config.secureLayer ?
+                                checked: secureLayer in config ?
                                          config.secureLayer : true,
                                 inputValue: true,
                                 uncheckedValue: false,
@@ -409,7 +409,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                 xtype: 'itemselector',
                                 name: 'read_groups',
                                 id: 'read_groups',
-                                disabled: config.secureLayer ?
+                                disabled: secureLayer in config ?
                                           !config.secureLayer : false,
                                 anchor: '100%',
                                 //width: '100%',
