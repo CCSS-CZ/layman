@@ -128,9 +128,8 @@ class LayEd:
         if cpg is not None and cpg != "":
             # Create <filename>.cpg file with code page specifeid. E.g. "1251"
             pageFile = filePathNoExt + ".cpg"
-            pf = open(pageFile, "w")
-            pf.write(cpg+"\n\n")
-            pf.close 
+            with open(pageFile, "w") as pf:
+                pf.write(cpg+"\n\n")
 
         # Native SRS
         if srs is None or "none" in srs.lower(): # python uses lazy evaluation
