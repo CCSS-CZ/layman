@@ -152,6 +152,7 @@ class LayEd:
             pf.close 
             import time
             time.sleep(1)
+            os.utime(pageFile, None)
 
         # Identify the data type
         data_type = None
