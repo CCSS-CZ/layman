@@ -148,8 +148,10 @@ class LayEd:
             # Create <filename>.cpg file with code page specifeid. E.g. "1251"
             pageFile = filePathNoExt + ".cpg"
             pf = open(pageFile, "w")
-            pf.write(cpg+os.linesep+os.linesep)
+            pf.write(cpg+"\n\n")
             pf.close 
+            import time
+            time.sleep(1)
 
         # Identify the data type
         data_type = None
