@@ -459,7 +459,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                  {
                                      fieldLabel: 'Native SRS',
                                      anchor: '100%',
-                                     xtype: 'textfield',
+                                     xtype: 'combobox',
                                      emptyText: "EPSG:",
                                      value: (config.prj == "None:None" || config.prj == '' ? "" : config.prj),
                                      validator: function(val) {
@@ -474,7 +474,17 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                         }
                                         return msg;
                                      },
-                                     name: 'crs'
+                                     name: 'crs',
+                                     editable: true,
+                                     displayField: 'name',
+                                     valueField: 'code',
+                                     store: Ext4.create('Ext4.data.Store', {
+                                        fields: ['code', 'name'],
+                                        data : [
+                                            {"code":"EPSG:3857", "name":"EPSG:3857"},
+                                            {"code":"EPSG:4326", "name":"EPSG:4326"}
+                                        ]
+                                    })
                                  },
                                  {
                                      xtype: 'hidden',
@@ -485,7 +495,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                     fieldLabel: 'Code page',
                                     anchor: '100%',
                                     xtype: 'combobox',
-                                    name: 'cpg',  
+                                    name: 'cpg',
                                     disabled: config.type == "file" ? false : true,
                                     displayField: 'name',
                                     valueField: 'code',
@@ -494,12 +504,12 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                         fields: ['code', 'name'],
                                         data : [
                                             {"code":"UTF-8", "name":"UTF-8"},
-                                            {"code":"1250", "name":"1250: CEE Latin"},
-                                            {"code":"1251", "name":"1251: Cyrillic"},
-                                            {"code":"1252", "name":"1252: West European Latin"},
-                                            {"code":"1253", "name":"1253: Greek"},
-                                            {"code":"1254", "name":"1254: Turkish"},
-                                            {"code":"1257", "name":"1257: Baltic"},
+                                            {"code":"1250", "name":"1250 - Central and Eeaster European Latin"},
+                                            {"code":"1251", "name":"1251 - Cyrillic"},
+                                            {"code":"1252", "name":"1252 - West European Latin"},
+                                            {"code":"1253", "name":"1253 - Greek"},
+                                            {"code":"1254", "name":"1254 - Turkish"},
+                                            {"code":"1257", "name":"1257 - Baltic"},
                                         ]
                                     })
                                 }
