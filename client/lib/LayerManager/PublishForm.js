@@ -451,7 +451,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                         /* CRS field
                          */
                          {
-                             title: 'Coordinate Reference Systems',
+                             title: 'Data specification',
                              anchor: '100%',
                              xtype: 'fieldset',
                              layout: 'anchor',
@@ -480,8 +480,14 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                      xtype: 'hidden',
                                      name: 'tsrs',
                                      value: config.tsrs
-                                 }
-
+                                 },
+                                {
+                                    fieldLabel: 'Code page',
+                                    anchor: '100%',
+                                    xtype: 'textfield',
+                                    name: 'cpg',  
+                                    disabled: config.type == "file" ? false : true,
+                                }
                              ]
                          },
                         /* BBOX field set

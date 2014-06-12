@@ -142,7 +142,7 @@ class LayEd:
     ### LAYERS ###
 
     # Import and publish, rasters and vectors
-    def importAndPublish(self, fsUserDir, fsGroupDir, dbSchema, gsWorkspace, fileName, userName, srs=None, tsrs=None, data=None, secureLayer=True):
+    def importAndPublish(self, fsUserDir, fsGroupDir, dbSchema, gsWorkspace, fileName, userName, srs=None, tsrs=None, cpg=None, data=None, secureLayer=True):
         """ Main publishing function. 
         Vectors import to PostreSQL and publish in GeoServer. 
         Rasters copy to GeoServer datastore dir and publish from there in GS.
@@ -165,6 +165,14 @@ class LayEd:
         # file
         fileNameNoExt = os.path.splitext(fileName)[0].lower()      
 
+        # Code page
+        if cpg is not None and cpg != "":
+            # Create <filename>.cpg file with code page specifeid. E.g. "1251"
+            pageFile = filePathNoExt + ".cpg"
+            with open(pageFile, "w") as pf:
+                pf.write(cpg+"\n\n")
+
+        # Native SRS
         if srs is None or "none" in srs.lower(): # python uses lazy evaluation
             # Identify the SRS
             from layman.fileman import FileMan
@@ -179,6 +187,7 @@ class LayEd:
         else:
             logging.debug("[LayEd][importAndPublish] Using given SRS: %s" % srs)
 
+        # Target SRS
         if tsrs is None or "none" in tsrs.lower():
             tsrs = srs
 
@@ -471,7 +480,6 @@ class LayEd:
             #
             # This is done in layers.properties
             #           
-            from layman.layed.gssec import GsSec
             gss = GsSec(self.config)
             gss.secureWorkspace(ws=workspace, rolelist=[groupRole])
 
@@ -1166,9 +1174,14 @@ class LayEd:
                     # Delete Coverage Store
                     headers, response = gsr.deleteCoverageStore(workspace,layer)
 
+<<<<<<< HEAD
                 # Delete in LayPad
                 dbm = DbMan(self.config) 
                 dbm.deleteLayerPad(name=layer, group=workspace)
+=======
+                # Delete security settings
+                self.unsecureLayer(workspace, layer)        
+>>>>>>> 1.0.x
 
                 # TODO: check the results
                 message = "Layer "+workspace+":"+layer+" deleted."
