@@ -148,8 +148,7 @@ class LayEd:
             # Create <filename>.cpg file with code page specifeid. E.g. "1251"
             pageFile = filePathNoExt + ".cpg"
             pf = open(pageFile, "w")
-            pf.write(cpg)
-            pf.write("\r\n")
+            pf.write(cpg+"\n\n")
             pf.close 
 
         # Identify the data type
