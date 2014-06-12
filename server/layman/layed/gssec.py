@@ -119,7 +119,7 @@ class GsSec:
         self.laySec[ws][layer][right] = rolelist
 
     def unsetRule(self, ws, layer, right):
-        """ Removes (or comments out) the specified rule """
+        """ Removes the specified rule """
         
         if ws in self.laySec:
             if layer in self.laySec[ws]:

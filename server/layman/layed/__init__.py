@@ -420,7 +420,6 @@ class LayEd:
             #
             # This is done in layers.properties
             #           
-            from layman.layed.gssec import GsSec
             gss = GsSec(self.config)
             gss.secureWorkspace(ws=workspace, rolelist=[groupRole])
 
@@ -1068,6 +1067,9 @@ class LayEd:
                 elif layer_type == "RASTER":
                     # Delete Coverage Store
                     headers, response = gsr.deleteCoverageStore(workspace,layer)
+
+                # Delete security settings
+                self.unsecureLayer(workspace, layer)        
 
                 # TODO: check the results
                 message = "Layer "+workspace+":"+layer+" deleted."
