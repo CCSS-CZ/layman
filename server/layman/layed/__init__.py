@@ -149,6 +149,7 @@ class LayEd:
             pageFile = filePathNoExt + ".cpg"
             pf = open(pageFile, "w")
             pf.write(cpg)
+            pf.write("\n")
             pf.close 
 
         # Identify the data type
