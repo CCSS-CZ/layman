@@ -101,7 +101,7 @@ class LayEd:
     ### LAYERS ###
 
     # Import and publish, rasters and vectors
-    def importAndPublish(self, fsUserDir, fsGroupDir, dbSchema, gsWorkspace, fileName, srs=None, tsrs=None, data=None, secureLayer=True):
+    def importAndPublish(self, fsUserDir, fsGroupDir, dbSchema, gsWorkspace, fileName, srs=None, tsrs=None, cpg=None, data=None, secureLayer=True):
         """ Main publishing function. 
         Vectors import to PostreSQL and publish in GeoServer. 
         Rasters copy to GeoServer datastore dir and publish from there in GS.
@@ -124,6 +124,7 @@ class LayEd:
         # file
         fileNameNoExt = os.path.splitext(fileName)[0].lower()      
 
+        # Native SRS
         if srs is None or "none" in srs.lower(): # python uses lazy evaluation
             # Identify the SRS
             from layman.fileman import FileMan
@@ -138,8 +139,17 @@ class LayEd:
         else:
             logging.debug("[LayEd][importAndPublish] Using given SRS: %s" % srs)
 
+        # Target SRS
         if tsrs is None or "none" in tsrs.lower():
             tsrs = srs
+
+        # Code page
+        if cpg is not None and cpg != "":
+            # Create <filename>.cpg file with code page specifeid. E.g. "1251"
+            pageFile = filePathNoExt + ".cpg"
+            pf = open(pageFile, "w")
+            pf.write(cpg)
+            pf.close 
 
         # Identify the data type
         data_type = None

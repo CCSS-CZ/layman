@@ -266,8 +266,9 @@ class LayMan:
                         fsGroupDir = self.auth.getFSGroupDir(inpt.usergroup)
                         dbSchema = self.auth.getDBSchema(inpt.usergroup)
                         gsWorkspace = self.auth.getGSWorkspace(inpt.usergroup)
-                        crs = inpt.crs
-                        tsrs = inpt.tsrs
+                        crs = inpt.crs # native crs
+                        tsrs = inpt.tsrs # target srs
+                        cpg = inpt.cpg # code page
 
                         secureLayer = True
                         if "secureLayer" in inpt:
@@ -276,7 +277,7 @@ class LayMan:
 
                         (code, layerName, message) = le.importAndPublish(fsUserDir, fsGroupDir,
                                                      dbSchema, gsWorkspace,
-                                                     fileName, crs, tsrs, inpt, secureLayer)
+                                                     fileName, crs, tsrs, cpg, inpt, secureLayer)
                         # Set Location header
                         if code == 201 and layerName is not None:
                             location = layerName # TODO: provide full URI here             
