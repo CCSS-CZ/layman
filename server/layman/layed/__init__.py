@@ -151,8 +151,7 @@ class LayEd:
             pf.write(cpg+"\n\n")
             pf.close 
             import time
-            time.sleep(1)
-            os.utime(pageFile, None)
+            time.sleep(10)
 
         # Identify the data type
         data_type = None
