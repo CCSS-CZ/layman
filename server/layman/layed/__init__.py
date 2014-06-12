@@ -124,6 +124,14 @@ class LayEd:
         # file
         fileNameNoExt = os.path.splitext(fileName)[0].lower()      
 
+        # Code page
+        if cpg is not None and cpg != "":
+            # Create <filename>.cpg file with code page specifeid. E.g. "1251"
+            pageFile = filePathNoExt + ".cpg"
+            pf = open(pageFile, "w")
+            pf.write(cpg+"\n\n")
+            pf.close 
+
         # Native SRS
         if srs is None or "none" in srs.lower(): # python uses lazy evaluation
             # Identify the SRS
@@ -142,16 +150,6 @@ class LayEd:
         # Target SRS
         if tsrs is None or "none" in tsrs.lower():
             tsrs = srs
-
-        # Code page
-        if cpg is not None and cpg != "":
-            # Create <filename>.cpg file with code page specifeid. E.g. "1251"
-            pageFile = filePathNoExt + ".cpg"
-            pf = open(pageFile, "w")
-            pf.write(cpg+"\n\n")
-            pf.close 
-            import time
-            time.sleep(10)
 
         # Identify the data type
         data_type = None
