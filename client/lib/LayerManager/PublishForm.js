@@ -451,14 +451,24 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                  {
                                      fieldLabel: 'Native SRS',
                                      anchor: '100%',
-                                     xtype: 'textfield',
+                                     xtype: 'combobox',
                                      emptyText: "EPSG:",
                                      value: (config.prj == "None:None" || config.prj == '' ? "" : config.prj),
                                      validator: function(val) {
                                         // TODO
                                         return true;
                                      },
-                                     name: 'crs'
+                                     name: 'crs',
+                                     editable: true,
+                                     displayField: 'name',
+                                     valueField: 'code',
+                                     store: Ext4.create('Ext4.data.Store', {
+                                        fields: ['code', 'name'],
+                                        data : [
+                                            {"code":"EPSG:3857", "name":"EPSG:3857"},
+                                            {"code":"EPSG:4326", "name":"EPSG:4326"}
+                                        ]
+                                    })
                                  },
                                  {
                                      xtype: 'hidden',
