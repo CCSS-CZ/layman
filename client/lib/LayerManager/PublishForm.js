@@ -468,9 +468,24 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                 {
                                     fieldLabel: 'Code page',
                                     anchor: '100%',
-                                    xtype: 'textfield',
-                                    name: 'cpg',  
+                                    xtype: 'combobox',
+                                    name: 'cpg',
                                     disabled: config.type == "file" ? false : true,
+                                    displayField: 'name',
+                                    valueField: 'code',
+                                    editable: true,
+                                    store: Ext4.create('Ext4.data.Store', {
+                                        fields: ['code', 'name'],
+                                        data : [
+                                            {"code":"UTF-8", "name":"UTF-8"},
+                                            {"code":"1250", "name":"1250 - Central and Eeaster European Latin"},
+                                            {"code":"1251", "name":"1251 - Cyrillic"},
+                                            {"code":"1252", "name":"1252 - West European Latin"},
+                                            {"code":"1253", "name":"1253 - Greek"},
+                                            {"code":"1254", "name":"1254 - Turkish"},
+                                            {"code":"1257", "name":"1257 - Baltic"},
+                                        ]
+                                    })
                                 }
                              ]
                          },
