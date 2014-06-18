@@ -95,9 +95,10 @@ Ext4.define('HSRS.LayerManager.LayersPanel', {
         ];
 
         // grouping according to workspaces
-         var groupingFeature = Ext4.create('Ext4.grid.feature.Grouping', {
-             groupHeaderTpl: '{name}',
-            hideGroupedHeader: true
+        var groupingFeature = Ext4.create('Ext4.grid.feature.Grouping', {
+            groupHeaderTpl: '{name}',
+            hideGroupedHeader: true,
+            collapsible: false
         });
 
         config = Ext4.Object.merge(myconfig, config);
