@@ -1174,14 +1174,12 @@ class LayEd:
                     # Delete Coverage Store
                     headers, response = gsr.deleteCoverageStore(workspace,layer)
 
-<<<<<<< HEAD
+                # Delete security settings
+                self.unsecureLayer(workspace, layer)       
+ 
                 # Delete in LayPad
                 dbm = DbMan(self.config) 
                 dbm.deleteLayerPad(name=layer, group=workspace)
-=======
-                # Delete security settings
-                self.unsecureLayer(workspace, layer)        
->>>>>>> 1.0.x
 
                 # TODO: check the results
                 message = "Layer "+workspace+":"+layer+" deleted."
