@@ -1,4 +1,4 @@
-Ext4.define('HSRSLayerObject', {
+Ext4.define('HSRSLayerObject', { // Obsolete
         extend: 'Ext4.Base',
         resource: undefined,
         name: undefined,
@@ -11,7 +11,7 @@ Ext4.define('HSRSLayerObject', {
         }
 });
 
-Ext4.define('HSRSLayerDataObject', {
+Ext4.define('HSRSLayerDataObject', { // Obsolete
         extend: 'Ext4.Base',
         aaa: 'CoverageTypeObject',
         nativeBoundingBox: undefined, //
@@ -33,7 +33,7 @@ Ext4.define('HSRSLayerDataObject', {
         }
 });
 
-Ext4.data.Types.TYPELAYER = {
+Ext4.data.Types.TYPELAYER = { // Obsolete
     convert: function(v, model) {
         var l = new HSRSLayerObject(v);
         return l;
@@ -44,7 +44,7 @@ Ext4.data.Types.TYPELAYER = {
     type: 'LayerObject'
 };
 
-Ext4.data.Types.LAYERDATATYPE = {
+Ext4.data.Types.LAYERDATATYPE = { // Obsolete
     convert: function(v, model) {
         return new HSRSLayerDataObject(v);
     },
