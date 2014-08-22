@@ -9,7 +9,7 @@ Ext4.define('HSRS.LayerManager.FilesPanel', {
     ],
 
     extend: 'Ext4.grid.Panel',
-    title: 'Files',
+    title: HS.i18n('Files'),
     url: '',
     srid: undefined,
     groups: undefined,

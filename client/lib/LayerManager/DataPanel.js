@@ -1,7 +1,7 @@
 Ext4.define('HSRS.LayerManager.DataPanel', {
 
     extend: 'Ext4.grid.Panel',
-    title: 'Data',
+    title: HS.i18n('Data'),
 
     requires: [
         'Ext4.data.JsonStore',
