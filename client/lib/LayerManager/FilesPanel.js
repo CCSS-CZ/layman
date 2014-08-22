@@ -26,21 +26,21 @@ Ext4.define('HSRS.LayerManager.FilesPanel', {
                     scope: this,
                     handler: this._onRefreshClicked,
                     cls: 'x-btn-icon',
-                    tooltip: 'Refresh file list',
+                    tooltip: HS.i18n('Refresh file list'),
                     icon: HSRS.IMAGE_LOCATION + '/arrow_refresh.png'
                 },
                 {
                     scope: this,
                     handler: this._onUploadClicked,
                     cls: 'x-btn-icon',
-                    tooltip: 'Upload new file',
+                    tooltip: HS.i18n('Upload new file'),
                     icon: HSRS.IMAGE_LOCATION + '/add.png'
                 },
                 {
                     scope: this,
                     handler: this._onDeleteClicked,
                     cls: 'x-btn-icon',
-                    tooltip: 'Delete file',
+                    tooltip: HS.i18n('Delete file'),
                     icon: HSRS.IMAGE_LOCATION + '/delete.png'
                 }
             ]
@@ -86,7 +86,7 @@ Ext4.define('HSRS.LayerManager.FilesPanel', {
             //},
             // filename column
             {
-                text: 'Name',
+                text: HS.i18n('Name'),
                 sortable: true,
                 flex: 0,
                 dataIndex: 'name'
@@ -95,7 +95,7 @@ Ext4.define('HSRS.LayerManager.FilesPanel', {
             {
                 xtype: 'templatecolumn',
                 width: 100,
-                text: 'Type',
+                text: HS.i18n('Type'),
                 flex: 0,
                 sortable: true,
                 dataIndex: 'mimetype',
@@ -123,7 +123,7 @@ Ext4.define('HSRS.LayerManager.FilesPanel', {
             // file size
             {
                 xtype: 'templatecolumn',
-                text: 'Size',
+                text:  HS.i18n('Size'),
                 sortable: true,
                 flex: 0,
                 width: 75,
@@ -137,7 +137,7 @@ Ext4.define('HSRS.LayerManager.FilesPanel', {
             // date
             {
                 xtype: 'templatecolumn',
-                text: 'Date',
+                text:  HS.i18n('Date'),
                 sortable: true,
                 flex: 0,
                 width: 100,
@@ -172,8 +172,8 @@ Ext4.define('HSRS.LayerManager.FilesPanel', {
 
                         // file deleted listener will popup confirmation window
                         'filedeleted': function(record, evt) {
-                            Ext4.MessageBox.confirm('Really remove selected file?',
-                                    'Are you sure, you want to remove selected file? <br />'+
+                            Ext4.MessageBox.confirm( HS.i18n('Really remove selected file?'),
+                                     HS.i18n('Are you sure, you want to remove selected file?') + ' [' + record.get('name') +'] <br />'+
                                     record.get('name'),
                                     function(btn, x, msg) {
                                         if (btn == 'yes') {
@@ -245,7 +245,7 @@ Ext4.define('HSRS.LayerManager.FilesPanel', {
         },this);
 
         this.fileUploader._win = Ext4.create('Ext4.window.Window', {
-            title: 'File upload',
+            title: HS.i18n('File upload'),
             height: 150,
             width: 400,
             layout: 'fit',
@@ -266,8 +266,8 @@ Ext4.define('HSRS.LayerManager.FilesPanel', {
         var records = this.getSelectionModel().getSelection();
 
         if (records.length > 0) {
-            Ext4.MessageBox.confirm('Really remove selected files?',
-                    'Are you sure, you want to remove selected files? <br />'+
+            Ext4.MessageBox.confirm(HS.i18n('Really remove selected files?'),
+                    HS.i18n('Are you sure, you want to remove selected files?') + ' <br />'+
                     records.map(function(r) {return r.get('name');}).join('<br />'),
                     function(btn, x, msg) {
                         if (btn == 'yes') {

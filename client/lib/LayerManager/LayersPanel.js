@@ -23,7 +23,7 @@ Ext4.define('HSRS.LayerManager.LayersPanel', {
                     scope: this,
                     handler: this._onRefreshClicked,
                     cls: 'x-btn-icon',
-                    tooltip: 'Refresh file list',
+                    tooltip: HS.i18n('Refresh'),
                     icon: HSRS.IMAGE_LOCATION + '/arrow_refresh.png'
                 }/*,
                 {
@@ -58,7 +58,7 @@ Ext4.define('HSRS.LayerManager.LayersPanel', {
         myconfig.columns = [
             // ws column
             {
-                text: 'Workspace',
+                text: HS.i18n('Workspace'),
                 sortable: true,
                 flex: 1,
                 dataIndex: 'wstitle'
@@ -81,7 +81,7 @@ Ext4.define('HSRS.LayerManager.LayersPanel', {
             },
             // layer column
             {
-                text: 'Layer',
+                text: HS.i18n('Layer'),
                 xtype: 'templatecolumn',
                 sortable: true,
                 flex: 1,
@@ -117,8 +117,8 @@ Ext4.define('HSRS.LayerManager.LayersPanel', {
 
                         // layer deleted listener will popup confirmation window
                         'layerdeleted': function(record, evt) {
-                            Ext4.MessageBox.confirm('Really remove selected layer?',
-                                    'Are you sure, you want to remove selected layer and the underlying data? <br />', 
+                            Ext4.MessageBox.confirm(HS.i18n('Really remove selected layer?'),
+                                    HS.i18n('Are you sure, you want to remove selected layer and the underlying data?')+ ' [' + this.record.get('layer').name +'] <br />', 
                                     function(btn, x, msg) {
                                         if (btn == 'yes') {
                                             this.lm.deleteLayer(this.record.get('layer').name,
@@ -132,8 +132,8 @@ Ext4.define('HSRS.LayerManager.LayersPanel', {
                                 },
 
                         'layeronlydeleted': function(record, evt) {
-                            Ext4.MessageBox.confirm('Really remove selected layer?',
-                                    'Are you sure, you want to remove selected layer? <br />', 
+                            Ext4.MessageBox.confirm(HS.i18n('Really remove selected layer?'),
+                                    HS.i18n('Are you sure, you want to remove selected layer?') + ' [' + this.record.get('layer').name +'] <br />', 
                                     function(btn, x, msg) {
                                         if (btn == 'yes') {
                                             this.lm.deleteLayer(this.record.get('layer').name,
@@ -180,7 +180,7 @@ Ext4.define('HSRS.LayerManager.LayersPanel', {
         title = title || layer;
 
         Ext4.MessageBox.show({
-               msg: 'Deleting layer ['+title+'] ...',
+               msg: HS.i18n('Deleting layer') +' ['+title+'] ...',
                width:300,
                wait:true,
                waitConfig: {interval:200},
@@ -193,7 +193,7 @@ Ext4.define('HSRS.LayerManager.LayersPanel', {
             url: (HSRS.ProxyHost ? HSRS.ProxyHost + escape(url) : url),
             success: function(form, action) {
                 Ext4.MessageBox.hide();
-                Ext4.Msg.alert('Success', 'Deleting layer succeeded');
+                Ext4.Msg.alert(HS.i18n('Success'), HS.i18n('Deleting layer succeeded'));
                 this.store.load();
                 this.fireEvent('layerdeleted');
             },

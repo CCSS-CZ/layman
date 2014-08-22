@@ -35,18 +35,18 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
         this._url = config.url;
         config.buttons = [
             {
-                text: config.type == "layer" ? 'Update' : 'Publish',
+                text: config.type == "layer" ? HS.i18n('Update') : HS.i18n('Publish'),
                 id: 'publish_button',
                 scope: this,
                 handler: this._onPublishClicked
             },
             {
-                text: 'Reset',
+                text: HS.i18n('Reset'),
                 scope: this,
                 handler: this._onResetClicked
             },
             {
-                text: 'Cancel',
+                text: HS.i18n('Cancel'),
                 scope: this,
                 handler: this._onCancelClicked
             }
@@ -98,7 +98,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                 name: 'usergroup',
                 id: 'usergroup',
                 anchor: '100%',
-                fieldLabel: 'Publish to',
+                fieldLabel: HS.i18n('Publish to'),
                 store: Ext4.create('Ext4.data.JsonStore', { // FIXME - this should be done ONCE, not everytime the Publish/Update is clicked
                     autoLoad: true,
                     proxy: {
@@ -175,7 +175,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                 id: 'publish_as',
                 disabled: (config.type == "layer" ? true : true),
                 anchor: '100%',
-                fieldLabel: 'Publish as',
+                fieldLabel: HS.i18n('Publish as'),
                 value: 'newlayer',
                 listeners: {
                     change: this._onLayerChangeHandler,
@@ -202,7 +202,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                         xtype: 'fieldset',
                         //disabled: (config.isFeatureType ? false : true),
                         //id: 'publishing_set',
-                        title: 'Metadata of "' + config.name + '"',
+                        title: HS.i18n('Metadata of') + ' "' + config.name + '"',
                         layout: 'anchor',
                          items: [
                            /* set name if this is layer
@@ -254,7 +254,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                           /* Title field
                            */
                            {
-                               fieldLabel: 'Title',
+                               fieldLabel: HS.i18n('Title'),
                                xtype: 'textfield',
                                anchor: '100%',
                                name: 'title',
@@ -263,7 +263,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                           /* Abstract field
                            */
                            {
-                               fieldLabel: 'Abstract',
+                               fieldLabel: HS.i18n('Abstract'),
                                xtype: 'textarea',
                                anchor: '100%',
                                name: 'abstract',
@@ -273,7 +273,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                           /* Keywords field
                            */
                            {
-                               fieldLabel: 'Keywords',
+                               fieldLabel: HS.i18n('Keywords'),
                                xtype: 'textfield',
                                anchor: '100%',
                                name: 'keywords',
@@ -282,7 +282,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                allowBlank: true
                            },
                          {
-                             title: 'Metadata link',
+                             title: HS.i18n('Metadata link'),
                              anchor: '100%',
                              xtype: 'fieldset',
                              layout: 'anchor',
@@ -303,7 +303,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                /* Selec existing Micka record
                                 */
                                {
-                                    text: 'Select existing',
+                                    text: HS.i18n('Select existing'),
                                     xtype: 'button',
                                     rtl: true,
                                     listeners: {
@@ -333,7 +333,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                /* Create new Micka record
                                 */
                                {
-                                    text: 'Create new metadata record',
+                                    text: HS.i18n('Create new metadata record'),
                                     xtype: 'button',
                                     rtl: true,
                                     listeners: {
@@ -351,13 +351,13 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                   /* Attribution field set
                    */
                    {
-                       title: 'Attribution',
+                       title: HS.i18n('Attribution'),
                        anchor: '100%',
                        xtype: 'fieldset',
                        layout: 'anchor',
                        items: [
                            {
-                               fieldLabel: 'Attribution text',
+                               fieldLabel: HS.i18n('Attribution text'),
                                anchor: '100%',
                                xtype: 'textfield',
                                value: config.attribution_text ?
@@ -365,7 +365,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                name: 'attribution_text'
                            },
                            {
-                               fieldLabel: 'Attribution link',
+                               fieldLabel: HS.i18n('Attribution link'),
                                anchor: '100%',
                                xtype: 'textfield',
                                emptyText: 'http://',
@@ -378,7 +378,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                ]
             },
                 {
-                    title: 'Advanced',
+                    title: HS.i18n('Advanced'),
                     items: [
                         /* Read access
                          */
@@ -386,11 +386,11 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                             xtype: 'fieldset',
                             anchor: '100%',
                             layout: 'anchor',
-                            title: 'Read access',
+                            title: HS.i18n('Read access'),
                             items: [ 
                               {
                                 xtype: 'checkbox',
-                                boxLabel: 'Secure layer',
+                                boxLabel: HS.i18n('Secure layer'),
                                 name: 'secureLayer',
                                 id: 'secureLayer',
                                 checked: 'secureLayer' in config ?
@@ -435,21 +435,21 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                 valueField: 'name',
                                 allowBlank: true, // Shoudl this be rather false?
                                 msgTarget: 'side',
-                                fromTitle: 'Deny',
-                                toTitle: 'Allow'
+                                fromTitle: HS.i18n('Deny'),
+                                toTitle: HS.i18n('Allow')
                               }
                             ]
                         },
                         /* CRS field
                          */
                          {
-                             title: 'Data specification',
+                             title: HS.i18n('Data specification'),
                              anchor: '100%',
                              xtype: 'fieldset',
                              layout: 'anchor',
                              items: [
                                  {
-                                     fieldLabel: 'Native SRS',
+                                     fieldLabel: HS.i18n('Native SRS'),
                                      anchor: '100%',
                                      xtype: 'combobox',
                                      emptyText: "EPSG:",
@@ -476,7 +476,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                      value: config.tsrs
                                  },
                                 {
-                                    fieldLabel: 'Code page',
+                                    fieldLabel: HS.i18n('Code page'),
                                     anchor: '100%',
                                     xtype: 'combobox',
                                     name: 'cpg',
@@ -502,7 +502,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                         /* BBOX field set
                          */
                          {
-                             title: 'Bounding Box',
+                             title: HS.i18n('Bounding Box'),
                              xtype: 'fieldset',
                              anchor: '100%',
                              items: [
@@ -592,8 +592,8 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
 
         if (form.isValid()) {
             Ext4.MessageBox.show({
-                   msg: 'Importing data to database, creating new layer ...',
-                   progressText: 'Importing file ...',
+                   msg: HS.i18n('Publishing ...'),
+                   progressText: HS.i18n('Publishing ...'),
                    width: 300,
                    wait: true,
                    waitConfig: {interval: 200},
@@ -700,7 +700,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                         catch (E) {
                             obj = {message: ''};
                         }
-                        Ext4.Msg.alert('Failed', 'Settings update failed' +
+                        Ext4.Msg.alert(HS.i18n('Failed'), HS.i18n('Settings update failed') +
                             '<br />' + obj.message);
                     },
                     scope: this
@@ -725,7 +725,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                 message: ''
                             };
                         }
-                        Ext4.Msg.alert('Failed', 'Publishing file failed' +
+                        Ext4.Msg.alert(HS.i18n('Failed'), HS.i18n('Publishing failed') +
                             '<br />' + obj.message);
                     },
                     scope: this
@@ -759,7 +759,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                 message: ''
                             };
                         }
-                        Ext4.Msg.alert('Failed', obj.message);
+                        Ext4.Msg.alert(HS.i18n('Failed'), obj.message);
                     },
                     scope: this
                 });
@@ -845,7 +845,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
             this._reseting = false;
 
             // this.isFeatureType = false;
-            this.down('#publish_button').setText('Publish');
+            this.down('#publish_button').setText(HS.i18n('Publish'));
             this.url = this._url;
             this.down('#layerName').setValue(newValue);
         }

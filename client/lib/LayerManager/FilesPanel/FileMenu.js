@@ -32,49 +32,49 @@ Ext4.define('HSRS.LayerManager.FilesPanel.FileMenu', {
             {
                 plain: true,
                 text: HSRS.formatSize(config.data.size),
-                renderTpl: ['<b>Size: </b>{text}']
+                renderTpl: ['<b>'+HS.i18n('Size') +':</b>{text}']
             },
             {
                 plain: true,
                 text: config.data.prj,
-                renderTpl: ['<b>Projection: </b>{text}']
+                renderTpl: ['<b>'+HS.i18n('Projection') +': </b>{text}']
             },
             {
                 plain: true,
                 text: config.data.date,
-                renderTpl: ['<b>Date: </b>{text}']
+                renderTpl: ['<b>'+HS.i18n('Date') +': </b>{text}']
             },
             {
                 plain: true,
                 text: config.data.mimetype,
-                renderTpl: ['<b>Type: </b>{text}']
+                renderTpl: ['<b>'+HS.i18n('Type') +': </b>{text}']
             },
             {
                 plain: true,
                 text: config.data.features_count,
-                renderTpl: ['<b>Features count: </b>{text}']
+                renderTpl: ['<b>'+HS.i18n('Features count') +': </b>{text}']
             },
             {
                 plain: true,
                 text: config.data.type,
-                renderTpl: ['<b>Geometry type </b>{text}']
+                renderTpl: ['<b>'+HS.i18n('Geometry type') +' </b>{text}']
             },
             { xtype: 'menuseparator' },
             {
-                text: 'Publish',
+                text: HS.i18n('Publish'),
                 icon: HSRS.IMAGE_LOCATION + '/map_go.png',
                 scope: this,
                 disabled: config.data.extent ? false : true,
                 handler: this._onUploadClicked
             },
             {
-                text: 'Download',
+                text: HS.i18n('Download'),
                 icon: HSRS.IMAGE_LOCATION + '/download.png',
                 href: this.url + '/' + config.data.name,
                 hrefTarget: '_blank'
             },
             {
-                text: 'Delete',
+                text: HS.i18n('Delete'),
                 icon: HSRS.IMAGE_LOCATION + '/delete.png',
                 scope: this,
                 handler: this._onDeleteClicked
@@ -84,7 +84,7 @@ Ext4.define('HSRS.LayerManager.FilesPanel.FileMenu', {
         if (window.OpenLayers && config.data.extent) {
             config.items.push({ xtype: 'menuseparator' });
             config.items.push({
-                    text: 'Show extent',
+                    text: HS.i18n('Show extent'),
                     icon: HSRS.IMAGE_LOCATION + '/map.png',
                     scope: this,
                     handler: this._previewClicked
@@ -116,7 +116,7 @@ Ext4.define('HSRS.LayerManager.FilesPanel.FileMenu', {
                     data: this.data
                 });
         preview._win = Ext4.create('Ext4.window.Window', {
-            title: 'Preview of '+ this.data.name + ' extent',
+            title: HS.i18n('Extent preview'),
             width: 512,
             height: 300,
             layout: 'fit',
@@ -145,7 +145,7 @@ Ext4.define('HSRS.LayerManager.FilesPanel.FileMenu', {
             type: "file"
         });
         publishForm._win = Ext4.create('Ext4.window.Window', {
-            title: 'Upload and publish file to GeoServer',
+            title: HS.i18n('Import and publish'),
             items: [publishForm]
         });
 

@@ -23,7 +23,7 @@ Ext4.define('HSRS.LayerManager.DataPanel', {
                     scope: this,
                     handler: this._onRefreshClicked,
                     cls: 'x-btn-icon',
-                    tooltip: 'Refresh',
+                    tooltip: HS.i18n('Refresh'),
                     icon: HSRS.IMAGE_LOCATION + '/arrow_refresh.png'
                 }
 /*    ,            {   // Delete
@@ -58,21 +58,21 @@ Ext4.define('HSRS.LayerManager.DataPanel', {
         myconfig.columns = [
             // ws column
             {
-                text: 'Schema',
+                text: HS.i18n('Schema'),
                 sortable: true,
                 flex: 1,
                 dataIndex: 'schemaTitle'
             },
             // data column
             {
-                text: 'Name',
+                text: HS.i18n('Name'),
                 sortable: true,
                 flex: 1,
                 dataIndex: 'name'
             },
             // type column
             {
-                text: 'Type',
+                text: HS.i18n('Type'),
                 sortable: true,
                 flex: 1,
                 dataIndex: 'type'
@@ -102,8 +102,8 @@ Ext4.define('HSRS.LayerManager.DataPanel', {
 
                         // file deleted listener will popup confirmation window
                         'datadeleted': function(record, evt) {
-                            Ext4.MessageBox.confirm('Really delete selected data?',
-                                    'Are you sure, you want to remove selected data? <br />', 
+                            Ext4.MessageBox.confirm(HS.i18n('Really delete selected data?'),
+                                    HS.i18n('Are you sure, you want to remove selected data?') +' <br />', 
                                     function(btn, x, msg) {
                                         if (btn == 'yes') {/* TODO: lm.deleteData
                                             this.lm.deleteData(this.record.get('layer').name,
@@ -114,7 +114,7 @@ Ext4.define('HSRS.LayerManager.DataPanel', {
                                     {lm: this, record: record});
 
                                 },
-                        "datapublished":this._onDataPublished
+
                     }
             });
 
@@ -137,7 +137,7 @@ Ext4.define('HSRS.LayerManager.DataPanel', {
         var url = this.url + layer + '?usergroup='+ schema;
 
         Ext4.MessageBox.show({
-               msg: 'Deleting data ['+table+'] ...',
+               msg: HS.i18n('Deleting data') + ' ['+table+'] ...',
                width:300,
                wait:true,
                waitConfig: {interval:200},
@@ -150,7 +150,7 @@ Ext4.define('HSRS.LayerManager.DataPanel', {
             url: (HSRS.ProxyHost ? HSRS.ProxyHost + escape(url) : url),
             success: function() {
                 Ext4.MessageBox.hide();
-                Ext4.Msg.alert('Success', 'Deleting data succeeded');
+                Ext4.Msg.alert(HS.i18n('Success'), HS.i18n('Deleting data succeeded'));
                 this.store.load();
             },
             scope: this

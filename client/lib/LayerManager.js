@@ -86,13 +86,13 @@ Ext4.define('HSRS.LayerManager', {
      * @function
      */
     _onFilePublished: function(data) {
-        Ext4.Msg.alert('Success', 'File ['+ data.fileName + '] published');
+        Ext4.Msg.alert(HS.i18n('Success'), HS.i18n('File published') + ' ['+ data.fileName + ']');
         this.dataPanel.store.load();
         this.layersPanel.store.load();
     },
 
     _onDataPublished: function(data) {
-        Ext4.Msg.alert('Success', 'Data ['+ (data.title || data.view) + '] published');
+        Ext4.Msg.alert(HS.i18n('Success'), HS.i18n('Data published') + ' ['+ (data.title || data.view) + ']');
         this.layersPanel.store.load();
     },
 
@@ -102,12 +102,12 @@ Ext4.define('HSRS.LayerManager', {
      * @function
      */
     _onLayerUpdated: function(data) {
-        var msg = 'Layer ['+ (data.title || data.name) + '] updated';
+        var msg = HS.i18n('Layer updated') + ' ['+ (data.title || data.name) + ']';
         if (data.publish_as != "newfile") {
 
-            msg += "<br /> As new data was loaded, please check the layer style if it still works as expected.";
+            msg += "<br />"+ HS.i18n("As new data was loaded, please check the layer style if it still works as expected.");
         }
-        Ext4.Msg.alert('Success', msg);
+        Ext4.Msg.alert(HS.i18n('Success'), msg);
         this.layersPanel.store.load();
     },
 
