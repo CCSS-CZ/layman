@@ -1,3 +1,3 @@
-HS.Lang.cze['Files'] = '';
-HS.Lang.cze['Data'] = '';
-HS.Lang.cze['Layers'] = '';
+HS.Lang.xyz['Files'] = '';
+HS.Lang.xyz['Data'] = '';
+HS.Lang.xyz['Layers'] = '';
