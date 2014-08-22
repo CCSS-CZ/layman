@@ -32,6 +32,9 @@ Ext4.define('HSRS.LayerManager', {
             align: 'stretch'
         };
 
+        // Languages, save to cookie
+        HS.setLang(HS.getLang(), true);
+
         // Files Panel
         var url = config.url + (config.url[config.url.length - 1] == '/' ? '' : '/') + 'fileman/';
         var srid = config.srid;
