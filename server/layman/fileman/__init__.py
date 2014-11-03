@@ -58,7 +58,8 @@ class FileMan:
 
             based on working directory, given by interal authorization
             """
-
+        logging.debug("[FileMan][getFiles]")
+ 
         # Make sure that the user directory exists
         if not os.path.exists(targetDir):
             os.makedirs(targetDir)
@@ -98,6 +99,7 @@ class FileMan:
     def guess_type(self, target_dir, fn):
         """Gues mimetype
         """
+        logging.debug("[FileMan][guess_type]")
         
         fileToGuess = "file://"+target_dir+'/'+fn
         retval = "" # mimetype
