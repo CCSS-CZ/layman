@@ -98,20 +98,29 @@ class FileMan:
     def guess_type(self, target_dir, fn):
         """Gues mimetype
         """
-        filetype = mimetypes.guess_type("file://"+target_dir+'/'+fn)
+        
+        fileToGuess = "file://"+target_dir+'/'+fn
+        retval = "" # mimetype
+
+        filetype = mimetypes.guess_type(fileToGuess)
         if filetype[0]:
-            return filetype[0]
+            logging.debug("[FileMan][guess_type] File %s recognised as %s."% (fileToGuess, filetype[0]))
+            retval = filetype[0]
         else:
             ext = os.path.splitext(fn)[1].lower()
+            logging.debug("[FileMan][guess_type] File %s not recognised. Extension: %s "% (fileToGuess, ext))
 
             if ext == ".shp":
-                return "application/x-qgis"
+                retval = "application/x-qgis"
             elif ext == ".gml":
-                return "application/gml+xml"
+                retval = "application/gml+xml"
             elif ext == ".tiff":
-                return "image/tiff"
+                retval = "image/tiff"
             elif ext == ".tab":
-                return "application/x-mapinfo"
+                retval = "application/x-mapinfo"
+
+        logging.debug("[FileMan][guess_type] For file %s returning mime type of '%s'."% (fileToGuess, retval))
+        return retval
 
     def getFile(self,fileName):
         """Return file itself
