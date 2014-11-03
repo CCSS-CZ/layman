@@ -114,6 +114,9 @@ Ext4.define('HSRS.LayerManager.FilesPanel', {
                             case 'application/gml+xml':
                                 type = 'OGC GML';
                                 break;
+                            case 'application/x-mapinfo':
+                                type = 'MapInfo';
+                                break;    
                         }
                         return type;
 

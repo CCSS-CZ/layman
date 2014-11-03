@@ -110,6 +110,8 @@ class FileMan:
                 return "application/gml+xml"
             elif ext == ".tiff":
                 return "image/tiff"
+            elif ext == ".tab":
+                return "application/x-mapinfo"
 
     def getFile(self,fileName):
         """Return file itself
