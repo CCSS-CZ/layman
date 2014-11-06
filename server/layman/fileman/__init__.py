@@ -103,18 +103,18 @@ class FileMan:
     def guess_type(self, target_dir, fn):
         """Gues mimetype
         """
-        logging.debug("[FileMan][guess_type]")
+        #logging.debug("[FileMan][guess_type]")
         
         fileToGuess = "file://"+target_dir+'/'+fn
         retval = "" # mimetype
 
         filetype = mimetypes.guess_type(fileToGuess)
         if filetype[0]:
-            logging.debug("[FileMan][guess_type] File %s recognised as %s."% (fileToGuess, filetype[0]))
+            #logging.debug("[FileMan][guess_type] File %s recognised as %s."% (fileToGuess, filetype[0]))
             retval = filetype[0]
         else:
             ext = os.path.splitext(fn)[1].lower()
-            logging.debug("[FileMan][guess_type] File %s not recognised. Extension: %s "% (fileToGuess, ext))
+            #logging.debug("[FileMan][guess_type] File %s not recognised. Extension: %s "% (fileToGuess, ext))
 
             if ext == ".shp":
                 retval = "application/x-qgis"
