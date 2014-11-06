@@ -80,9 +80,13 @@ class FileMan:
                                # python function
                                # do note use 'dir' - it is another function
             (name_root, suffix) = os.path.splitext(fn)
-            # filter shx, dbf and prj files
+            # hide shapefile auxiliary files
             if suffix in (".shx",".dbf",".prj",".sbn", ".cpg", ".sbx", ".gvl", ".lyr", ".qpj") and\
                     name_root+".shp" in filenames:
+                continue
+            # hide mapinfo auxiliary files
+            if suffix in (".dat", ".id", ".ind", ".map", "") and\
+                    name_root+".tab" in filenames:
                 continue
             filesize = os.path.getsize(targetDir+'/'+fn)
             time_sec = os.path.getmtime(targetDir+'/'+fn) 
@@ -130,7 +134,7 @@ class FileMan:
 
         # TODO: set propper Content/type
         try:
-            if fileName.find(".shp"):
+            if fileName.find(".shp") or fileName.find(".tab"):
                 (path,fn) = os.path.split(fileName)
                 old_path = os.path.abspath(os.path.curdir)
                 os.chdir(path)
@@ -291,8 +295,8 @@ class FileMan:
         try:
             (name_root, suffix) = os.path.splitext(fileName)
 
-            if suffix == ".shp":
-                self._deleteShapeFile(fileName)
+            if suffix == ".shp" or suffix == ".tab":
+                self._deleteShpTabFiles(fileName)
             else:
                 os.remove(fileName)
 
@@ -420,7 +424,7 @@ class FileMan:
 
         return "%s:%s"%(an,ac)
 
-    def _deleteShapeFile(self, fileName):
+    def _deleteShpTabFiles(self, fileName):
         """Delete all files, belonging to this shapefile
         """
         (name_root, suffix) = os.path.splitext(fileName)
@@ -440,7 +444,7 @@ class FileMan:
             self.config =  config
 
     def _unzipFile(self, zfile):
-        """Extract shapefiles from zipped file
+        """Extract zipped files
         """
         
         logging.debug("[FileMan][_unzipFile] zfile=%s" % repr(zfile))
@@ -468,6 +472,7 @@ class FileMan:
           
             target_root = root # don't rename, leave the original name
 
+            # flat the directories
             # Rails/jhmd rails.cpg => Rails_jhmd_rails.cpg
             target_root = "_".join(target_root.split(os.sep))
             target_root = "_".join(target_root.split(" "))
@@ -494,7 +499,7 @@ class FileMan:
            
             logging.debug("[FileMan][_unzipFile] Going to append %s" % shape_file_part) 
             tempfiles.append(shape_file_part)
-            if suffix == ".shp":
+            if suffix == ".shp" or ".tab":
                 fileName = shape_file_part
             logging.debug("[FileMan][_unzipFile] Loop END")
 
@@ -518,7 +523,7 @@ class FileMan:
                 if os.path.exists(os.path.join(self.tempdir, file_name)):
                     os.remove(os.path.join(self.tempdir, file_name))
             # clear
-            return (None, "No shapefile content")
+            return (None, "No shapefile or mapinfo content") # do we need that??
         else:
             return (fileName, "%s unzipped" % zfile)
 
