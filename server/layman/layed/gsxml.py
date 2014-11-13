@@ -387,7 +387,16 @@ class GsXml:
         changed = False
 
         # Check for the role
-        roleElem = rrRoot.find("./{http://www.geoserver.org/security/roles}roleList/{http://www.geoserver.org/security/roles}role[@id='"+role+"']")
+        if sys.hexversion >= 0x02070000: # Python 2.7 or more
+            roleElem = rrRoot.find("./{http://www.geoserver.org/security/roles}roleList/{http://www.geoserver.org/security/roles}role[@id='"+role+"']")
+        else: # Python 2.6 or less
+            roles = rrRoot.findall("./{http://www.geoserver.org/security/roles}roleList/{http://www.geoserver.org/security/roles}role")
+            roleElem = None
+            if roles is not None:
+                for crole in roles:
+                    if crole.get('id') == role:
+                        roleElem = crole
+
         if roleElem is None:
             # Create the role
             roleElem     = Xml.Element("{http://www.geoserver.org/security/roles}role", {"id":role}) 
@@ -403,7 +412,16 @@ class GsXml:
         changed = False
 
         # Check the group record
-        groupRolesElem = rrRoot.find("./{http://www.geoserver.org/security/roles}groupList/{http://www.geoserver.org/security/roles}groupRoles[@groupname='"+group+"']")
+        if sys.hexversion >= 0x02070000: # Python 2.7 or more
+        	groupRolesElem = rrRoot.find("./{http://www.geoserver.org/security/roles}groupList/{http://www.geoserver.org/security/roles}groupRoles[@groupname='"+group+"']")
+        else: # Python 2.6 or less
+            groups = rrRoot.findall("./{http://www.geoserver.org/security/roles}groupList/{http://www.geoserver.org/security/roles}groupRoles")
+            groupRolesElem = None
+            if groups is not None:
+                for cgroup in groups:
+                    if cgroup.get('groupname') == group:
+                        groupRolesElem = cgroup
+
         if groupRolesElem is None:
             # Create the group record
             groupRolesElem = Xml.Element("{http://www.geoserver.org/security/roles}groupRoles", {"groupname":group})
@@ -412,7 +430,15 @@ class GsXml:
             changed = True
 
         # Check if the role is already assigned
-        roleRefElem = groupRolesElem.find("./{http://www.geoserver.org/security/roles}roleRef[@roleID='"+role+"']")
+        if sys.hexversion >= 0x02070000: # Python 2.7 or more
+        	roleRefElem = groupRolesElem.find("./{http://www.geoserver.org/security/roles}roleRef[@roleID='"+role+"']")
+        else: # Python 2.6 or less
+        	roleRefs = groupRolesElem.find("./{http://www.geoserver.org/security/roles}roleRef")
+            roleRefElem = None
+            if roleRefs is not None:
+                for croleRef in roleRefs:
+                    if croleRef.get('roleID') == role:
+                        roleRefElem = croleRef
         if roleRefElem is None:
             # Assign the role
             roleRefElem = Xml.Element("{http://www.geoserver.org/security/roles}roleRef", {"roleID":role})
