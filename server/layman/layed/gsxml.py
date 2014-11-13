@@ -433,7 +433,7 @@ class GsXml:
         if sys.hexversion >= 0x02070000: # Python 2.7 or more
         	roleRefElem = groupRolesElem.find("./{http://www.geoserver.org/security/roles}roleRef[@roleID='"+role+"']")
         else: # Python 2.6 or less
-        	roleRefs = groupRolesElem.find("./{http://www.geoserver.org/security/roles}roleRef")
+            roleRefs = groupRolesElem.find("./{http://www.geoserver.org/security/roles}roleRef")
             roleRefElem = None
             if roleRefs is not None:
                 for croleRef in roleRefs:
