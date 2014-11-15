@@ -149,7 +149,7 @@ class DbMan:
         # TODO: Exceptions handling
         # TODO: Check if srs and tsrs is valid EPSG code
 
-        logging.debug("[DbMan][importVectorFile] File %s imported as table %s:%s" % str(filePath, dbSchema, name_out))
+        logging.debug("[DbMan][importVectorFile] File %s imported as table %s:%s" % (filePath, dbSchema, name_out))
 
         return name_out
 
