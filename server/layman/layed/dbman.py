@@ -129,6 +129,8 @@ class DbMan:
         ogr2ogr_params.extend([self.getConnectionString(True),
                                filePath])
         logging.debug("[DbMan][importVectorFile] Going to call ogr2ogr.main() with the following params: %s" % str(ogr2ogr_params))
+        # FIXME: We need to learn the real new name of the table here. 
+        # E.g. "some-name" is transferred to "some_name" and we don't have a clue.
         success = ogr2ogr.main(ogr2ogr_params)
         logging.debug("[DbMan][importVectorFile] ogr2ogr.main() returned. Success: %s" % str(success))
 
