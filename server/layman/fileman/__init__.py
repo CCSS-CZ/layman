@@ -258,10 +258,11 @@ class FileMan:
                 if zipfile.is_zipfile(filePath):
                     (fileName,msg) = self._unzipFile(filePath)
                 else:
-                    # replace spaces in filename
-                    fileNameSplit = fileName.split(" ")
-                    if len(fileNameSplit) > 1:
-                        newFileName = "_".join(fileNameSplit)
+                    # replace special characters in the filename
+                    # we allow only letters, numbers, underscore and dot
+                    import re
+                    newFileName = re.sub('[^a-zA-Z0-9_.]', '_', fileName)
+                    if newFileName != fileName:
                         newFilePath = os.path.join(dirPath, newFileName)
                         shutil.move(filePath, newFilePath)
                         
@@ -425,7 +426,7 @@ class FileMan:
         return "%s:%s"%(an,ac)
 
     def _deleteShpTabFiles(self, fileName):
-        """Delete all files, belonging to this shapefile
+        """Delete all files, belonging to this shapefile or mapinfo
         """
         (name_root, suffix) = os.path.splitext(fileName)
         (d,root) = os.path.split(name_root)
@@ -475,8 +476,14 @@ class FileMan:
             # flat the directories
             # Rails/jhmd rails.cpg => Rails_jhmd_rails.cpg
             target_root = "_".join(target_root.split(os.sep))
-            target_root = "_".join(target_root.split(" "))
-            target_root = target_root[-36:] # limit the length
+
+            # replace special characters
+            # we allow only letters, numbers, underscore and dot
+            import re
+            target_root = re.sub('[^a-zA-Z0-9_.]', '_', target_root)
+
+            # limit the length
+            target_root = target_root[-36:]
 
             logging.debug("[FileMan][_unzipFile] tempdir=%s, shape_file_part=%s, target_dir=%s, target_root=%s, suffix=%s" % (self.tempdir, shape_file_part, target_dir, target_root, suffix))
 
