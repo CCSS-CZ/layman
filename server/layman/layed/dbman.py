@@ -94,7 +94,7 @@ class DbMan:
         devnull.close()
 
         if not success:
-            logging.error("[DbMan][importVectorFile] ogr2ogr failed.")
+            logging.error("[DbMan][updateVectorFile] ogr2ogr failed.")
             raise LaymanError(500, "Database import (ogr2ogr) failed. (Is the encoding correct?)")
 
     def importVectorFile(self, filePath, dbSchema, srs, tsrs):
@@ -148,6 +148,8 @@ class DbMan:
         # TODO: Check the result
         # TODO: Exceptions handling
         # TODO: Check if srs and tsrs is valid EPSG code
+
+        logging.debug("[DbMan][importVectorFile] File %s imported as table %s:%s" % str(filePath, dbSchema, name_out))
 
         return name_out
 
