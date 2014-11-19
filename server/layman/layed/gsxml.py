@@ -307,7 +307,6 @@ class GsXml:
         if sys.hexversion >= 0x02070000: # Python 2.7 or more
             groupRolesElems = groupListElem.findall(".//{http://www.geoserver.org/security/roles}roleRef[@roleID='"+role+"']/..")
         else: # Python 2.6 or less
-            # FIXME: ".." missing
             groupRolesElems = self._xPath26Findall(groupListElem, ".//{http://www.geoserver.org/security/roles}roleRef", "roleID", role, "..")
         #groupRolesElems = groupListElem.findall(".//{http://www.geoserver.org/security/roles}roleRef/..")
 
