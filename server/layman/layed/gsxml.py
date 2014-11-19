@@ -308,7 +308,7 @@ class GsXml:
             groupRolesElems = groupListElem.findall(".//{http://www.geoserver.org/security/roles}roleRef[@roleID='"+role+"']/..")
         else: # Python 2.6 or less
             # FIXME: ".." missing
-            groupRolesElems = self._xPath26Findall(groupListElem, ".//{http://www.geoserver.org/security/roles}roleRef", "roleID", role)
+            groupRolesElems = self._xPath26Findall(groupListElem, ".//{http://www.geoserver.org/security/roles}roleRef", "roleID", role, "..")
         #groupRolesElems = groupListElem.findall(".//{http://www.geoserver.org/security/roles}roleRef/..")
 
         # Get the names
@@ -541,11 +541,17 @@ class GsXml:
                     elem = celem
         return elem
 
-    def _xPath26Findall(self, xml, chain, var, value):
-        elems = xml.findall(chain)
-        elem = []
-        if elems is not None:
-            for celem in elems:
-                if celem.get(var) == value:
-                    elem.append(celem)
-        return elem
+    def _xPath26Findall(self, xml, chain1, var, value, chain2):
+        """ Findall with XPath for Python 2.6 or lower
+            xml.findall(chain1[@var=value]/chain2)            
+        """
+        elems1 = xml.findall(chain1)
+        elems2 = []
+        if elems1 is not None:
+            for e1 in elems1:
+                if e1.get(var) == value:
+                    es2 = e1.findall(chain2)
+                    elems2 += e2
+
+        return elems2
+
