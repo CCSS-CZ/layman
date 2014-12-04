@@ -107,8 +107,8 @@ class LayEd:
         Rasters copy to GeoServer datastore dir and publish from there in GS.
             Group ~ db Schema ~ gs Data Store ~ gs Workspace
         """
-        logParam = "fsUserDir=%s fsGroupDir=%s dbSchema=%s gsWorkspace=%s fileName=%s" %\
-                   (fsUserDir, fsGroupDir, dbSchema, gsWorkspace, fileName)
+        logParam = "fsUserDir=%s fsGroupDir=%s dbSchema=%s gsWorkspace=%s fileName=%s srs=%s tsrs=%s cpg=%s secureLayer=%s" %\
+                   (fsUserDir, fsGroupDir, dbSchema, gsWorkspace, fileName, str(srs), str(tsrs), str(cpg), str(secureLayer))
         logging.debug("[LayEd][importAndPublish] Params: %s"% logParam)
 
         code = 500
@@ -130,6 +130,7 @@ class LayEd:
             pageFile = filePathNoExt + ".cpg"
             with open(pageFile, "w") as pf:
                 pf.write(cpg+"\n\n")
+            logging.debug("[LayEd][importAndPublish] Created .cpg file with %s codepage" % cpg)
 
         # Native SRS
         if srs is None or "none" in srs.lower(): # python uses lazy evaluation
