@@ -10,7 +10,6 @@ from osgeo import gdal
 from StringIO import StringIO
 import os
 import sys
-from osgeo import gdal
 
 import time
 
@@ -41,21 +40,47 @@ class DbMan:
             from layman import config
             self.config =  config
 
-    def getConnectionString(self, ogr=False):
+    def getConnectionString(self, ogr=False, cpg=None):
         dbname = self.config.get("DbMan","dbname")
         dbuser = self.config.get("DbMan","dbuser")
         dbhost = self.config.get("DbMan","dbhost")
         dbpass = self.config.get("DbMan","dbpass")
         dbport = self.config.get("DbMan","dbport")
-        logStr = "dbname='"+dbname+"' user='"+dbuser+"' host='"+dbhost+"' pass='"+dbpass+"' port='"+dbport+"'" # FIXME: remove password
+        logStr = "dbname='"+dbname+"' user='"+dbuser+"' host='"+dbhost+"' port='"+dbport+"'" 
         logging.debug("[DbMan][getConnectionString] Connection details: %s"% logStr)
 
+        pgCpg = None
+        if cpg is not None:
+            pgCpg = self._convertCpgForPG(cpg)
+
         if ogr:
-            return "PG: host=%s dbname=%s user=%s password=%s port=%s" %\
+            retval = "PG: host=%s dbname=%s user=%s password=%s port=%s" %\
                    (dbhost, dbname, dbuser, dbpass, dbport)
+            if pgCpg is not None:
+                retval += " client_encoding=%s" % pgCpg
         else:
-            return "dbname='%s' user='%s' host='%s' password='%s'" %\
+            retval = "dbname='%s' user='%s' host='%s' password='%s'" %\
                    (dbname, dbuser, dbhost, dbpass)
+            if pgCpg is not None:
+                retval += " client_encoding='%s'" % pgCpg
+
+        logging.debug("[DbMan][getConnectionString] Connection string: %s"% retval) # FIXME: don't log the password
+        return retval
+
+    def _convertCpgForPG(self, cpg):
+        """ Convert cpgs given in various ways to PG understandable matter, as defined here:
+        http://www.postgresql.org/docs/9.2/static/multibyte.html """
+
+        #TODO: improve
+        cpgDic = {}
+        cpgDic["1251"] = "WIN1251"
+
+        retval = ""
+        if cpg is not None:
+            if cpg in cpgDic:
+                retval = cpgDic[cpg]
+
+        return retval
 
     # Import
     def importFile(self, filePath, dbSchema, data_type="vector"):
@@ -67,6 +92,7 @@ class DbMan:
     def updateVectorFile(self, filePath, dbSchema, table_name):
         """Update existing postgresql table with given file
         """
+        # TODO: fix codepage fro mapinfo
         logParam = "filePath='%s', dbSchema='%s'" % (filePath, dbSchema)
         logging.debug("[DbMan][updateVectorFile] %s" % logParam)
 
@@ -97,12 +123,11 @@ class DbMan:
             logging.error("[DbMan][updateVectorFile] ogr2ogr failed.")
             raise LaymanError(500, "Database import (ogr2ogr) failed. (Is the encoding correct?)")
 
-    def importVectorFile(self, filePath, dbSchema, srs, tsrs):
-        """import given file to database, ogr is used for data READING,
-        psycopg2 for data WRITING directly into PostGIS
+    def importVectorFile(self, filePath, dbSchema, srs, tsrs, cpg):
+        """import given file to database
         If a table of the same name already exists, new name is assigned.
         """
-        logParam = "filePath='%s', dbSchema='%s'" % (filePath, dbSchema)
+        logParam = "filePath='%s', dbSchema='%s' srs=%s tsrs=%s cpg=%s" % (filePath, dbSchema, str(srs), str(tsrs), str(cpg))
         logging.debug("[DbMan][importVectorFile] %s" % logParam)
 
         self.createSchemaIfNotExists(dbSchema)
@@ -113,6 +138,10 @@ class DbMan:
         name_out = self._find_new_layername(dbSchema, name_out)
 
         os.environ["GDAL_DATA"] = self.config.get("Gdal","gdal_data")
+
+        # TODO - Mapinfo - get the proper geometry type
+
+        # TODO - Mapinfo - set the proper encoding
 
         logging.debug("[DbMan][importVectorFile] Going to import layer to db...")
         # hack -> everthing to devnull
@@ -126,7 +155,7 @@ class DbMan:
         if self._get_ogr2ogr_version() >= 1100000:
             ogr2ogr_params.extend(["-nlt", "PROMOTE_TO_MULTI"])
 
-        ogr2ogr_params.extend([self.getConnectionString(True),
+        ogr2ogr_params.extend([self.getConnectionString(True, cpg), # TODO - we dont need to set cpg for shapefile (it is set in .cpg file)
                                filePath])
         logging.debug("[DbMan][importVectorFile] Going to call ogr2ogr.main() with the following params: %s" % str(ogr2ogr_params))
         # FIXME: We need to learn the real new name of the table here. 
