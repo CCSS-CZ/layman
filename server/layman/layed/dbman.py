@@ -75,7 +75,7 @@ class DbMan:
 
         #TODO: improve
         cpgDic = {}
-        cpgDic["1251"] = "WIN1251"
+        cpgDic["1251"] = "latin1" #"WIN1251" FIXME
 
         pgCpg = None
         if cpg is not None:
