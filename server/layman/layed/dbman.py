@@ -158,6 +158,8 @@ class DbMan:
         if self._get_ogr2ogr_version() >= 1100000:
             ogr2ogr_params.extend(["-nlt", "PROMOTE_TO_MULTI"])
 
+        # postgis ignores client_encoding in the connection string.
+        # try 'export PGCLIENTENCODING=win1251' instead
         ogr2ogr_params.extend([self.getConnectionString(True, cpg), # TODO - we dont need to set cpg for shapefile (it is set in .cpg file)
                                filePath])
         logging.debug("[DbMan][importVectorFile] Going to call ogr2ogr.main() with the following params: %s" % str(ogr2ogr_params))
