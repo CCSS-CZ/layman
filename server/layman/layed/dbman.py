@@ -77,13 +77,13 @@ class DbMan:
         cpgDic = {}
         cpgDic["1251"] = "WIN1251"
 
-        retval = ""
+        pgCpg = None
         if cpg is not None:
             if cpg in cpgDic:
                 retval = cpgDic[cpg]
 
         logging.debug("[DbMan][_convertCpgForPG] pgCpg identified: %s" % pgCpg)
-        return retval
+        return pgCpg
 
     # Import
     def importFile(self, filePath, dbSchema, data_type="vector"):
