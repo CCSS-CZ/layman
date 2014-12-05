@@ -71,6 +71,8 @@ class DbMan:
         """ Convert cpgs given in various ways to PG understandable matter, as defined here:
         http://www.postgresql.org/docs/9.2/static/multibyte.html """
 
+        logging.debug("[DbMan][_convertCpgForPG] cpg given: %s" % cpg)
+
         #TODO: improve
         cpgDic = {}
         cpgDic["1251"] = "WIN1251"
@@ -80,6 +82,7 @@ class DbMan:
             if cpg in cpgDic:
                 retval = cpgDic[cpg]
 
+        logging.debug("[DbMan][_convertCpgForPG] pgCpg identified: %s" % pgCpg)
         return retval
 
     # Import
