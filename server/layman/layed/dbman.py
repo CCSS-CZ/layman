@@ -40,7 +40,7 @@ class DbMan:
             from layman import config
             self.config =  config
 
-    def getConnectionString(self, ogr=False, cpg=None):
+    def getConnectionString(self, ogr=False):
         dbname = self.config.get("DbMan","dbname")
         dbuser = self.config.get("DbMan","dbuser")
         dbhost = self.config.get("DbMan","dbhost")
@@ -49,22 +49,13 @@ class DbMan:
         logStr = "dbname='"+dbname+"' user='"+dbuser+"' host='"+dbhost+"' port='"+dbport+"'" 
         logging.debug("[DbMan][getConnectionString] Connection details: %s"% logStr)
 
-        pgCpg = None
-        if cpg is not None:
-            pgCpg = self._convertCpgForPG(cpg)
-
         if ogr:
             retval = "PG: host=%s dbname=%s user=%s password=%s port=%s" %\
                    (dbhost, dbname, dbuser, dbpass, dbport)
-            #if pgCpg is not None:
-            #    retval += " client_encoding=%s" % pgCpg
         else:
             retval = "dbname='%s' user='%s' host='%s' password='%s'" %\
                    (dbname, dbuser, dbhost, dbpass)
-            #if pgCpg is not None:
-            #    retval += " client_encoding='%s'" % pgCpg
 
-        logging.debug("[DbMan][getConnectionString] Connection string: %s"% retval) # FIXME: don't log the password
         return retval
 
     def _convertCpgForPG(self, cpg):
@@ -73,16 +64,30 @@ class DbMan:
 
         logging.debug("[DbMan][_convertCpgForPG] cpg given: '%s'" % cpg)
 
-        #TODO: improve
+        if cpg is None:
+            return None
+
         cpgDic = {}
-        cpgDic["1251"] = "latin1" #"WIN1251" FIXME
+        cpgDic["UTF-8"] = "UTF8" 
+        cpgDic["1250"] = "WIN1250" 
+        cpgDic["1251"] = "WIN1251" # 1251 code is used in LayMan Client PublishForm
+        cpgDic["WindowsCyrillic"] = "WIN1251" # WindowsCyrillic is used in Mapinfo .TAB file
+        cpgDic["1252"] = "WIN1252" 
+        cpgDic["1253"] = "WIN1253" 
+        cpgDic["1254"] = "WIN1254" 
+        cpgDic["1255"] = "WIN1255" 
+        cpgDic["1256"] = "WIN1256" 
+        cpgDic["1257"] = "WIN1257" 
+        cpgDic["1258"] = "WIN1258" 
+        cpgDic["1259"] = "WIN1259" 
 
-        pgCpg = None
-        if cpg is not None:
-            if cpg in cpgDic:
-                pgCpg = cpgDic[cpg]
+        pgCpg = cpg
+        if cpg in cpgDic:
+            pgCpg = cpgDic[cpg]
+            logging.debug("[DbMan][_convertCpgForPG] pgCpg identified: %s" % pgCpg)
+        else:
+            logging.debug("[DbMan][_convertCpgForPG] cpg '%s' not known, pgCpg set to '%s'" % (cpg, pgCpg))
 
-        logging.debug("[DbMan][_convertCpgForPG] pgCpg identified: %s" % pgCpg)
         return pgCpg
 
     # Import
@@ -164,7 +169,7 @@ class DbMan:
 
         # postgis ignores client_encoding in the connection string.
         # try 'export PGCLIENTENCODING=win1251' instead
-        ogr2ogr_params.extend([self.getConnectionString(True, cpg), # TODO - we dont need to set cpg for shapefile (it is set in .cpg file)
+        ogr2ogr_params.extend([self.getConnectionString(True), 
                                filePath])
         logging.debug("[DbMan][importVectorFile] Going to call ogr2ogr.main() with the following params: %s" % str(ogr2ogr_params))
         # FIXME: We need to learn the real new name of the table here. 
