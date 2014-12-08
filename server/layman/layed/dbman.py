@@ -56,13 +56,13 @@ class DbMan:
         if ogr:
             retval = "PG: host=%s dbname=%s user=%s password=%s port=%s" %\
                    (dbhost, dbname, dbuser, dbpass, dbport)
-            if pgCpg is not None:
-                retval += " client_encoding=%s" % pgCpg
+            #if pgCpg is not None:
+            #    retval += " client_encoding=%s" % pgCpg
         else:
             retval = "dbname='%s' user='%s' host='%s' password='%s'" %\
                    (dbname, dbuser, dbhost, dbpass)
-            if pgCpg is not None:
-                retval += " client_encoding='%s'" % pgCpg
+            #if pgCpg is not None:
+            #    retval += " client_encoding='%s'" % pgCpg
 
         logging.debug("[DbMan][getConnectionString] Connection string: %s"% retval) # FIXME: don't log the password
         return retval
