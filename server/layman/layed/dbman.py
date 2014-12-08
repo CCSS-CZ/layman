@@ -90,6 +90,19 @@ class DbMan:
 
         return pgCpg
 
+    def exportClientEncoding(self, cpg):
+        """ Export client encoding to tell PostGIS what it should expect
+        This is needed for Mapinfo. 
+        For shapefile it is sufficient just to create the .cpg file. """
+
+        if cpg is not None:
+            pgCpg = _convertCpgForPG(cpg)
+            if pgCpg is not None:
+                os.environ["PGCLIENTENCODING"] = pgCpg
+                logging.debug("[DbMan][importVectorFile] Env. var. 'PGCLIENTENCODING' set to '%s'" % os.environ["PGCLIENTENCODING"])
+
+        # TODO - cpg comes from the GUI. For Mapinfo, it can be picked up from the .TAB file automatically
+
     # Import
     def importFile(self, filePath, dbSchema, data_type="vector"):
         if data_type == "vector":
@@ -100,11 +113,14 @@ class DbMan:
     def updateVectorFile(self, filePath, dbSchema, table_name):
         """Update existing postgresql table with given file
         """
-        # TODO: fix codepage fro mapinfo
         logParam = "filePath='%s', dbSchema='%s'" % (filePath, dbSchema)
         logging.debug("[DbMan][updateVectorFile] %s" % logParam)
 
         os.environ["GDAL_DATA"] = self.config.get("Gdal","gdal_data")
+
+        # Export client encoding to tell PostGIS what it should expect
+        self.exportClientEncoding(cpg)
+
         devnull = open(os.devnull, "w")
         sys.stdout = sys.__stderr__
         sys.stderr = devnull
@@ -146,14 +162,11 @@ class DbMan:
         name_out = self._find_new_layername(dbSchema, name_out)
 
         os.environ["GDAL_DATA"] = self.config.get("Gdal","gdal_data")
-        # FIXME - make it properly (check the file type, handle other encodings)
-        if cpg == "1251":
-            os.environ["PGCLIENTENCODING"] = "WIN1251"
-            logging.debug("[DbMan][importVectorFile] Env var PGCLIENTENCODING set to '%s'" % os.environ["PGCLIENTENCODING"])    
+
+        # Export client encoding to tell PostGIS what it should expect
+        self.exportClientEncoding(cpg)
 
         # TODO - Mapinfo - get the proper geometry type
-
-        # TODO - Mapinfo - set the proper encoding
 
         logging.debug("[DbMan][importVectorFile] Going to import layer to db...")
         # hack -> everthing to devnull

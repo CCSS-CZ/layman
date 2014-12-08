@@ -185,6 +185,10 @@ class FileMan:
          :return: (status, json_structure)
         """
 
+        # TODO - try to detect the encoding and send it to the client
+        # shapefile - from the .cpg file, 
+        # mapinfo - from the .TAB file
+
         if os.path.isfile(fileName): 
             time_sec = os.path.getmtime(fileName) 
             time_struct = time.localtime(time_sec)
