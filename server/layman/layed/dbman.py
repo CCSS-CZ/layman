@@ -141,6 +141,10 @@ class DbMan:
         name_out = self._find_new_layername(dbSchema, name_out)
 
         os.environ["GDAL_DATA"] = self.config.get("Gdal","gdal_data")
+        # FIXME - make it properly (check the file type, handle other encodings)
+        if cpg == "1251":
+            os.environ["PGCLIENTENCODING"] = "WIN1251"
+            logging.debug("[DbMan][importVectorFile] Env var PGCLIENTENCODING set to '%s'" % os.environ["PGCLIENTENCODING"])    
 
         # TODO - Mapinfo - get the proper geometry type
 
