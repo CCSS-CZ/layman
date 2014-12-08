@@ -96,10 +96,10 @@ class DbMan:
         For shapefile it is sufficient just to create the .cpg file. """
 
         if cpg is not None:
-            pgCpg = _convertCpgForPG(cpg)
+            pgCpg = self._convertCpgForPG(cpg)
             if pgCpg is not None:
                 os.environ["PGCLIENTENCODING"] = pgCpg
-                logging.debug("[DbMan][importVectorFile] Env. var. 'PGCLIENTENCODING' set to '%s'" % os.environ["PGCLIENTENCODING"])
+                logging.debug("[DbMan][exportClientEncoding] Env. var. 'PGCLIENTENCODING' set to '%s'" % os.environ["PGCLIENTENCODING"])
 
         # TODO - cpg comes from the GUI. For Mapinfo, it can be picked up from the .TAB file automatically
 
