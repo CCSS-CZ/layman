@@ -11,7 +11,7 @@ create table layman.layers (
 	layergroup varchar(255) not null, -- workspace
     layertitle varchar(255), -- layer title
 	owner varchar(255), -- owner of the layer
-	type varchar(255), -- vector, raster
+	type varchar(255), -- vector, raster TODO: Distinguish tables and views. Distinguish points, lines and polygons.
 	datagroup varchar (255), -- schema or directory of the data source
 	dataname varchar (255), -- data source name (table, view or file)
 	constraint layers_group_name primary key (layergroup, layername)
