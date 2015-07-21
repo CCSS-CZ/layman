@@ -10,7 +10,6 @@ from osgeo import gdal
 from StringIO import StringIO
 import os
 import sys
-from osgeo import gdal
 
 import time
 
@@ -47,15 +46,62 @@ class DbMan:
         dbhost = self.config.get("DbMan","dbhost")
         dbpass = self.config.get("DbMan","dbpass")
         dbport = self.config.get("DbMan","dbport")
-        logStr = "dbname='"+dbname+"' user='"+dbuser+"' host='"+dbhost+"' pass='"+dbpass+"' port='"+dbport+"'" # FIXME: remove password
+        logStr = "dbname='"+dbname+"' user='"+dbuser+"' host='"+dbhost+"' port='"+dbport+"'" 
         logging.debug("[DbMan][getConnectionString] Connection details: %s"% logStr)
 
         if ogr:
-            return "PG: host=%s dbname=%s user=%s password=%s port=%s" %\
+            retval = "PG: host=%s dbname=%s user=%s password=%s port=%s" %\
                    (dbhost, dbname, dbuser, dbpass, dbport)
         else:
-            return "dbname='%s' user='%s' host='%s' password='%s'" %\
+            retval = "dbname='%s' user='%s' host='%s' password='%s'" %\
                    (dbname, dbuser, dbhost, dbpass)
+
+        return retval
+
+    def _convertCpgForPG(self, cpg):
+        """ Convert cpgs given in various ways to PG understandable matter, as defined here:
+        http://www.postgresql.org/docs/9.2/static/multibyte.html """
+
+        logging.debug("[DbMan][_convertCpgForPG] cpg given: '%s'" % cpg)
+
+        if cpg is None:
+            return None
+
+        cpgDic = {}
+        cpgDic["UTF-8"] = "UTF8" 
+        cpgDic["1250"] = "WIN1250" 
+        cpgDic["1251"] = "WIN1251" # 1251 code is used in LayMan Client PublishForm
+        cpgDic["WindowsCyrillic"] = "WIN1251" # WindowsCyrillic is used in Mapinfo .TAB file
+        cpgDic["1252"] = "WIN1252" 
+        cpgDic["1253"] = "WIN1253" 
+        cpgDic["1254"] = "WIN1254" 
+        cpgDic["1255"] = "WIN1255" 
+        cpgDic["1256"] = "WIN1256" 
+        cpgDic["1257"] = "WIN1257" 
+        cpgDic["1258"] = "WIN1258" 
+        cpgDic["1259"] = "WIN1259" 
+
+        pgCpg = cpg
+        if cpg in cpgDic:
+            pgCpg = cpgDic[cpg]
+            logging.debug("[DbMan][_convertCpgForPG] pgCpg identified: %s" % pgCpg)
+        else:
+            logging.debug("[DbMan][_convertCpgForPG] cpg '%s' not known, pgCpg set to '%s'" % (cpg, pgCpg))
+
+        return pgCpg
+
+    def exportClientEncoding(self, cpg):
+        """ Export client encoding to tell PostGIS what it should expect
+        This is needed for Mapinfo. 
+        For shapefile it is sufficient just to create the .cpg file. """
+
+        if cpg is not None:
+            pgCpg = self._convertCpgForPG(cpg)
+            if pgCpg is not None:
+                os.environ["PGCLIENTENCODING"] = pgCpg
+                logging.debug("[DbMan][exportClientEncoding] Env. var. 'PGCLIENTENCODING' set to '%s'" % os.environ["PGCLIENTENCODING"])
+
+        # TODO - cpg comes from the GUI. For Mapinfo, it can be picked up from the .TAB file automatically
 
     # Import
     def importFile(self, filePath, dbSchema, data_type="vector"):
@@ -71,6 +117,10 @@ class DbMan:
         logging.debug("[DbMan][updateVectorFile] %s" % logParam)
 
         os.environ["GDAL_DATA"] = self.config.get("Gdal","gdal_data")
+
+        # Export client encoding to tell PostGIS what it should expect
+        self.exportClientEncoding(cpg)
+
         devnull = open(os.devnull, "w")
         sys.stdout = sys.__stderr__
         sys.stderr = devnull
@@ -94,15 +144,14 @@ class DbMan:
         devnull.close()
 
         if not success:
-            logging.error("[DbMan][importVectorFile] ogr2ogr failed.")
+            logging.error("[DbMan][updateVectorFile] ogr2ogr failed.")
             raise LaymanError(500, "Database import (ogr2ogr) failed. (Is the encoding correct?)")
 
-    def importVectorFile(self, filePath, dbSchema, srs, tsrs):
-        """import given file to database, ogr is used for data READING,
-        psycopg2 for data WRITING directly into PostGIS
+    def importVectorFile(self, filePath, dbSchema, srs, tsrs, cpg):
+        """import given file to database
         If a table of the same name already exists, new name is assigned.
         """
-        logParam = "filePath='%s', dbSchema='%s'" % (filePath, dbSchema)
+        logParam = "filePath='%s', dbSchema='%s' srs=%s tsrs=%s cpg=%s" % (filePath, dbSchema, str(srs), str(tsrs), str(cpg))
         logging.debug("[DbMan][importVectorFile] %s" % logParam)
 
         self.createSchemaIfNotExists(dbSchema)
@@ -113,6 +162,11 @@ class DbMan:
         name_out = self._find_new_layername(dbSchema, name_out)
 
         os.environ["GDAL_DATA"] = self.config.get("Gdal","gdal_data")
+
+        # Export client encoding to tell PostGIS what it should expect
+        self.exportClientEncoding(cpg)
+
+        # TODO - Mapinfo - get the proper geometry type
 
         logging.debug("[DbMan][importVectorFile] Going to import layer to db...")
         # hack -> everthing to devnull
@@ -126,9 +180,13 @@ class DbMan:
         if self._get_ogr2ogr_version() >= 1100000:
             ogr2ogr_params.extend(["-nlt", "PROMOTE_TO_MULTI"])
 
-        ogr2ogr_params.extend([self.getConnectionString(True),
+        # postgis ignores client_encoding in the connection string.
+        # try 'export PGCLIENTENCODING=win1251' instead
+        ogr2ogr_params.extend([self.getConnectionString(True), 
                                filePath])
         logging.debug("[DbMan][importVectorFile] Going to call ogr2ogr.main() with the following params: %s" % str(ogr2ogr_params))
+        # FIXME: We need to learn the real new name of the table here. 
+        # E.g. "some-name" is transferred to "some_name" and we don't have a clue.
         success = ogr2ogr.main(ogr2ogr_params)
         logging.debug("[DbMan][importVectorFile] ogr2ogr.main() returned. Success: %s" % str(success))
 
@@ -148,6 +206,8 @@ class DbMan:
         # TODO: Check the result
         # TODO: Exceptions handling
         # TODO: Check if srs and tsrs is valid EPSG code
+
+        logging.debug("[DbMan][importVectorFile] File %s imported as table %s:%s" % (filePath, dbSchema, name_out))
 
         return name_out
 

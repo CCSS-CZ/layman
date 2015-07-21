@@ -58,7 +58,8 @@ class FileMan:
 
             based on working directory, given by interal authorization
             """
-
+        logging.debug("[FileMan][getFiles]")
+ 
         # Make sure that the user directory exists
         if not os.path.exists(targetDir):
             os.makedirs(targetDir)
@@ -79,9 +80,13 @@ class FileMan:
                                # python function
                                # do note use 'dir' - it is another function
             (name_root, suffix) = os.path.splitext(fn)
-            # filter shx, dbf and prj files
-            if suffix in (".shx",".dbf",".prj",".sbn", ".cpg") and\
+            # hide shapefile auxiliary files
+            if suffix in (".shx",".dbf",".prj",".sbn", ".cpg", ".sbx", ".gvl", ".lyr", ".qpj") and\
                     name_root+".shp" in filenames:
+                continue
+            # hide mapinfo auxiliary files
+            if suffix in (".dat", ".id", ".ind", ".map", "") and\
+                    name_root+".tab" in filenames:
                 continue
             filesize = os.path.getsize(targetDir+'/'+fn)
             time_sec = os.path.getmtime(targetDir+'/'+fn) 
@@ -98,18 +103,30 @@ class FileMan:
     def guess_type(self, target_dir, fn):
         """Gues mimetype
         """
-        filetype = mimetypes.guess_type("file://"+target_dir+'/'+fn)
+        #logging.debug("[FileMan][guess_type]")
+        
+        fileToGuess = "file://"+target_dir+'/'+fn
+        retval = "" # mimetype
+
+        filetype = mimetypes.guess_type(fileToGuess)
         if filetype[0]:
-            return filetype[0]
+            logging.debug("[FileMan][guess_type] File %s recognised as %s."% (fileToGuess, filetype[0]))
+            retval = filetype[0]
         else:
             ext = os.path.splitext(fn)[1].lower()
+            logging.debug("[FileMan][guess_type] File %s not recognised. Extension: %s "% (fileToGuess, ext))
 
             if ext == ".shp":
-                return "application/x-qgis"
+                retval = "application/x-qgis"
             elif ext == ".gml":
-                return "application/gml+xml"
+                retval = "application/gml+xml"
             elif ext == ".tiff":
-                return "image/tiff"
+                retval = "image/tiff"
+            elif ext == ".tab":
+                retval = "application/x-mapinfo"
+
+        logging.debug("[FileMan][guess_type] For file %s returning mime type of '%s'."% (fileToGuess, retval))
+        return retval
 
     def getFile(self,fileName):
         """Return file itself
@@ -117,7 +134,7 @@ class FileMan:
 
         # TODO: set propper Content/type
         try:
-            if fileName.find(".shp"):
+            if fileName.find(".shp") or fileName.find(".tab"):
                 (path,fn) = os.path.split(fileName)
                 old_path = os.path.abspath(os.path.curdir)
                 os.chdir(path)
@@ -167,6 +184,10 @@ class FileMan:
 
          :return: (status, json_structure)
         """
+
+        # TODO - try to detect the encoding and send it to the client
+        # shapefile - from the .cpg file, 
+        # mapinfo - from the .TAB file
 
         if os.path.isfile(fileName): 
             time_sec = os.path.getmtime(fileName) 
@@ -241,10 +262,11 @@ class FileMan:
                 if zipfile.is_zipfile(filePath):
                     (fileName,msg) = self._unzipFile(filePath)
                 else:
-                    # replace spaces in filename
-                    fileNameSplit = fileName.split(" ")
-                    if len(fileNameSplit) > 1:
-                        newFileName = "_".join(fileNameSplit)
+                    # replace special characters in the filename
+                    # we allow only letters, numbers, underscore and dot
+                    import re
+                    newFileName = re.sub('[^a-zA-Z0-9_.]', '_', fileName)
+                    if newFileName != fileName:
                         newFilePath = os.path.join(dirPath, newFileName)
                         shutil.move(filePath, newFilePath)
                         
@@ -278,8 +300,8 @@ class FileMan:
         try:
             (name_root, suffix) = os.path.splitext(fileName)
 
-            if suffix == ".shp":
-                self._deleteShapeFile(fileName)
+            if suffix == ".shp" or suffix == ".tab":
+                self._deleteShpTabFiles(fileName)
             else:
                 os.remove(fileName)
 
@@ -407,8 +429,8 @@ class FileMan:
 
         return "%s:%s"%(an,ac)
 
-    def _deleteShapeFile(self, fileName):
-        """Delete all files, belonging to this shapefile
+    def _deleteShpTabFiles(self, fileName):
+        """Delete all files, belonging to this shapefile or mapinfo
         """
         (name_root, suffix) = os.path.splitext(fileName)
         (d,root) = os.path.split(name_root)
@@ -427,7 +449,7 @@ class FileMan:
             self.config =  config
 
     def _unzipFile(self, zfile):
-        """Extract shapefiles from zipped file
+        """Extract zipped files
         """
         
         logging.debug("[FileMan][_unzipFile] zfile=%s" % repr(zfile))
@@ -455,10 +477,17 @@ class FileMan:
           
             target_root = root # don't rename, leave the original name
 
+            # flat the directories
             # Rails/jhmd rails.cpg => Rails_jhmd_rails.cpg
             target_root = "_".join(target_root.split(os.sep))
-            target_root = "_".join(target_root.split(" "))
-            target_root = target_root[-36:] # limit the length
+
+            # replace special characters
+            # we allow only letters, numbers, underscore and dot
+            import re
+            target_root = re.sub('[^a-zA-Z0-9_.]', '_', target_root)
+
+            # limit the length
+            target_root = target_root[-36:]
 
             logging.debug("[FileMan][_unzipFile] tempdir=%s, shape_file_part=%s, target_dir=%s, target_root=%s, suffix=%s" % (self.tempdir, shape_file_part, target_dir, target_root, suffix))
 
@@ -481,7 +510,7 @@ class FileMan:
            
             logging.debug("[FileMan][_unzipFile] Going to append %s" % shape_file_part) 
             tempfiles.append(shape_file_part)
-            if suffix == ".shp":
+            if suffix == ".shp" or ".tab":
                 fileName = shape_file_part
             logging.debug("[FileMan][_unzipFile] Loop END")
 
@@ -505,7 +534,7 @@ class FileMan:
                 if os.path.exists(os.path.join(self.tempdir, file_name)):
                     os.remove(os.path.join(self.tempdir, file_name))
             # clear
-            return (None, "No shapefile content")
+            return (None, "No shapefile or mapinfo content") # do we need that??
         else:
             return (fileName, "%s unzipped" % zfile)
 

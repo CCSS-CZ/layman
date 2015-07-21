@@ -148,8 +148,8 @@ class LayEd:
         Rasters copy to GeoServer datastore dir and publish from there in GS.
             Group ~ db Schema ~ gs Data Store ~ gs Workspace
         """
-        logParam = "fsUserDir=%s fsGroupDir=%s dbSchema=%s gsWorkspace=%s fileName=%s" %\
-                   (fsUserDir, fsGroupDir, dbSchema, gsWorkspace, fileName)
+        logParam = "fsUserDir=%s fsGroupDir=%s dbSchema=%s gsWorkspace=%s fileName=%s srs=%s tsrs=%s cpg=%s secureLayer=%s" %\
+                   (fsUserDir, fsGroupDir, dbSchema, gsWorkspace, fileName, str(srs), str(tsrs), str(cpg), str(secureLayer))
         logging.debug("[LayEd][importAndPublish] Params: %s"% logParam)
 
         code = 500
@@ -165,12 +165,15 @@ class LayEd:
         # file
         fileNameNoExt = os.path.splitext(fileName)[0].lower()      
 
-        # Code page
+        # Code page - TODO: for shapefile only
         if cpg is not None and cpg != "":
             # Create <filename>.cpg file with code page specifeid. E.g. "1251"
             pageFile = filePathNoExt + ".cpg"
             with open(pageFile, "w") as pf:
                 pf.write(cpg+"\n\n")
+            logging.debug("[LayEd][importAndPublish] Created .cpg file with %s codepage" % cpg)
+
+        # TODO - mapinfo codepage - 'cpg' param comes from the GUI. it can also be detected from the .TAB file
 
         # Native SRS
         if srs is None or "none" in srs.lower(): # python uses lazy evaluation
@@ -201,7 +204,7 @@ class LayEd:
             data_type = "vector"
 
             # Import vector to PostGIS
-            tableName = self.importFromFileToDb(filePath, dbSchema, userName, srs, tsrs)
+            tableName = self.importFromFileToDb(filePath, dbSchema, userName, srs, tsrs, cpg)
             
             # Publish from PostGIS to GeoServer
             (code, layerName, message) = self.publishFromDbToGs(dbSchema, tableName, gsWorkspace, userName, tsrs, data, None, None, secureLayer)
@@ -222,7 +225,7 @@ class LayEd:
 
         return (code, layerName, message)
 
-    def importFromFileToDb(self, filePath, dbSchema, userName, srs, tsrs):
+    def importFromFileToDb(self, filePath, dbSchema, userName, srs, tsrs, cpg):
         """ Import data from vector file to PostreSQL 
         If a table of the same name already exists, new table with modified name is created.
         """
@@ -234,7 +237,7 @@ class LayEd:
         from layman.layed.dbman import DbMan
         dbm = DbMan(self.config)
         
-        tableName = dbm.importVectorFile(filePath, dbSchema, srs, tsrs)
+        tableName = dbm.importVectorFile(filePath, dbSchema, srs, tsrs, cpg)
 
         # Note in DataPad
         dbm.createDataPad(name=tableName, group=dbSchema, owner=userName, dtype='table', datatype='vector')

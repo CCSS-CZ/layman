@@ -27,7 +27,7 @@ Ext4.define('HSRS.LayerManager.DataPanel.DataMenu', {
         config.items = [];
 
         config.items.push({
-                text: 'Publish',
+                text: HS.i18n('Publish'),
                 icon: HSRS.IMAGE_LOCATION + '/map_go.png',
                 scope: this,
                 handler: this._onPublishClicked
@@ -56,7 +56,7 @@ Ext4.define('HSRS.LayerManager.DataPanel.DataMenu', {
             type: "data"
         });
         publishForm._win = Ext4.create('Ext4.window.Window', {
-            title: 'Publish data to GeoServer',
+            title: HS.i18n('Publish'),
             items: [publishForm]
         });
 

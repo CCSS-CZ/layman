@@ -47,7 +47,10 @@ class GsXml:
         ugRoot = ugTree.getroot()
 
         # Serach for the user
-        userElem = ugRoot.find("./{http://www.geoserver.org/security/users}users/user[@name='"+user+"']")
+        if sys.hexversion >= 0x02070000: # Python 2.7 or more
+            userElem = ugRoot.find("./{http://www.geoserver.org/security/users}users/user[@name='"+user+"']")
+        else: # Python 2.6 or less
+            userElem = self._xPath26Find(ugRoot, "./{http://www.geoserver.org/security/users}users/user", "name", user)
         if (userElem):
             return(409, "User "+user+" already exists")
 
@@ -78,7 +81,10 @@ class GsXml:
         ugRoot = ugTree.getroot()
 
         # Serach for the user
-        userElem = ugRoot.find("./{http://www.geoserver.org/security/users}users/{http://www.geoserver.org/security/users}user[@name='"+user+"']")
+        if sys.hexversion >= 0x02070000: # Python 2.7 or more
+            userElem = ugRoot.find("./{http://www.geoserver.org/security/users}users/{http://www.geoserver.org/security/users}user[@name='"+user+"']")
+        else: # Python 2.6 or less
+            userElem = self._xPath26Find(ugRoot,"./{http://www.geoserver.org/security/users}users/{http://www.geoserver.org/security/users}user","name",user)
 
         if (userElem is None):
             #print "USER NOT FOUND"
@@ -94,8 +100,11 @@ class GsXml:
         for grEl in groupElems:
 
             #print repr(grEl) + "\n"
+            if sys.hexversion >= 0x02070000: # Python 2.7 or more
+                wasMember = grEl.find("{http://www.geoserver.org/security/users}member[@username='"+user+"']") is not None 
+            else: # Python 2.6 or less
+                wasMember = self._xPath26Find(grEl, "{http://www.geoserver.org/security/users}member", "username", user) is not None 
 
-            wasMember = grEl.find("{http://www.geoserver.org/security/users}member[@username='"+user+"']") is not None 
             groupName = grEl.attrib["name"]
             if self.caseSensitive is False:
                 groupName = groupName.lower()
@@ -134,16 +143,21 @@ class GsXml:
         ugTree = Xml.parse(ugPath)
         ugRoot = ugTree.getroot()
 
-        # Serach for the user
-        xPath = "./{http://www.geoserver.org/security/users}users/{http://www.geoserver.org/security/users}user[@name='"+user+"']"
-        userElem = ugRoot.find(xPath)
-        #print "xPath: " + repr(xPath)
+        # Search for the user
+        if sys.hexversion >= 0x02070000: # Python 2.7 or more
+            userElem = ugRoot.find("./{http://www.geoserver.org/security/users}users/{http://www.geoserver.org/security/users}user[@name='"+user+"']")
+        else: # Python 2.6 or less
+            userElem = self._xPath26Find(ugRoot, "./{http://www.geoserver.org/security/users}users/{http://www.geoserver.org/security/users}user","name",user)
+
         #print "userElem: " + repr(userElem)
 
         # erase group membership
         groupElems = ugRoot.findall("./{http://www.geoserver.org/security/users}groups/{http://www.geoserver.org/security/users}group")
         for grEl in groupElems:
-            memberElem = grEl.find("{http://www.geoserver.org/security/users}member[@username='"+user+"']") 
+            if sys.hexversion >= 0x02070000: # Python 2.7 or more
+                memberElem = grEl.find("{http://www.geoserver.org/security/users}member[@username='"+user+"']") 
+            else: # Python 2.6 or less
+                memberElem = self._xPath26Find(grEl,"{http://www.geoserver.org/security/users}member", "username", user) 
             if memberElem is not None:  
                 grEl.remove(memberElem)
         
@@ -172,7 +186,10 @@ class GsXml:
         If the group already exists, make sure that the group role does exist and is properly assigned. But don't touch the workspace security settings."""
 
         # Search for the group
-        groupElem = ugRoot.find("./{http://www.geoserver.org/security/users}groups/{http://www.geoserver.org/security/users}group[@name='"+group+"']")
+        if sys.hexversion >= 0x02070000: # Python 2.7 or more
+            groupElem = ugRoot.find("./{http://www.geoserver.org/security/users}groups/{http://www.geoserver.org/security/users}group[@name='"+group+"']")
+        else: # Python 2.6 or less
+            groupElem = self._xPath26Find(ugRoot, "./{http://www.geoserver.org/security/users}groups/{http://www.geoserver.org/security/users}group", "name", group)
         brandNew = False
         if groupElem is None: 
             # Create the group
@@ -198,8 +215,12 @@ class GsXml:
         #    <member username="hasic1"/>
         # </group>
                
-        groupElem = ugRoot.find("./{http://www.geoserver.org/security/users}groups/{http://www.geoserver.org/security/users}group[@name='"+group+"']")
-        memberElem = groupElem.find("{http://www.geoserver.org/security/users}member[@username='"+user+"']")
+        if sys.hexversion >= 0x02070000: # Python 2.7 or more
+            groupElem = ugRoot.find("./{http://www.geoserver.org/security/users}groups/{http://www.geoserver.org/security/users}group[@name='"+group+"']")
+            memberElem = grEl.find("{http://www.geoserver.org/security/users}member[@username='"+user+"']") 
+        else: # Python 2.6 or less
+            groupElem = self._xPath26Find(ugRoot, "./{http://www.geoserver.org/security/users}groups/{http://www.geoserver.org/security/users}group", "name", group)
+            memberElem = self._xPath26Find(grEl,"{http://www.geoserver.org/security/users}member", "username", user) 
         if memberElem is not None: # if the group is already assigned
             return     # do nothing
 
@@ -209,10 +230,16 @@ class GsXml:
     def _removeGroupFromUser(self, user, group, ugRoot):
         """ Remove group membership """
 
-        groupElem = ugRoot.find("./{http://www.geoserver.org/security/users}groups/{http://www.geoserver.org/security/users}group[@name='"+group+"']")
+        if sys.hexversion >= 0x02070000: # Python 2.7 or more
+            groupElem = ugRoot.find("./{http://www.geoserver.org/security/users}groups/{http://www.geoserver.org/security/users}group[@name='"+group+"']")
+        else: # Python 2.6 or less
+            groupElem = self._xPath26Find(ugRoot, "./{http://www.geoserver.org/security/users}groups/{http://www.geoserver.org/security/users}group", "name", group)
         if groupElem is not None:
             #print "nasel grupu"
-            memberElem = groupElem.find("{http://www.geoserver.org/security/users}member[@username='"+user+"']")
+            if sys.hexversion >= 0x02070000: # Python 2.7 or more
+                memberElem = grEl.find("{http://www.geoserver.org/security/users}member[@username='"+user+"']") 
+            else: # Python 2.6 or less
+                memberElem = self._xPath26Find(grEl,"{http://www.geoserver.org/security/users}member", "username", user) 
 
             if memberElem is not None:
                 #print "nasel membra"
@@ -277,7 +304,10 @@ class GsXml:
         groupListElem = rrRoot.find("{http://www.geoserver.org/security/roles}groupList") 
 
         # list of such <ns0:groupRoles> that have appropriate <ns0:roleRef> children
-        groupRolesElems = groupListElem.findall(".//{http://www.geoserver.org/security/roles}roleRef[@roleID='"+role+"']/..")
+        if sys.hexversion >= 0x02070000: # Python 2.7 or more
+            groupRolesElems = groupListElem.findall(".//{http://www.geoserver.org/security/roles}roleRef[@roleID='"+role+"']/..")
+        else: # Python 2.6 or less
+            groupRolesElems = self._xPath26Findall(groupListElem, ".//{http://www.geoserver.org/security/roles}roleRef", "roleID", role, "..")
         #groupRolesElems = groupListElem.findall(".//{http://www.geoserver.org/security/roles}roleRef/..")
 
         # Get the names
@@ -345,7 +375,12 @@ class GsXml:
         ugRolesElems = rrRoot.findall("./{http://www.geoserver.org/security/roles}"+ug+"List/{http://www.geoserver.org/security/roles}"+ug+"Roles")
         for ugrEl in ugRolesElems:
 
-            roleRefEl = ugrEl.find("{http://www.geoserver.org/security/roles}roleRef[@roleID='"+role+"']")
+            # Check for the role
+            if sys.hexversion >= 0x02070000: # Python 2.7 or more
+                roleRefEl = ugrEl.find("{http://www.geoserver.org/security/roles}roleRef[@roleID='"+role+"']")
+            else: # Python 2.6 or less
+                roleRefEl = self._xPath26Find(ugrEl, "{http://www.geoserver.org/security/roles}roleRef", "roleID", role)
+
             wasMember = roleRefEl is not None 
             ugName = ugrEl.attrib[ug+"name"]
             if self.caseSensitive is False:
@@ -387,7 +422,11 @@ class GsXml:
         changed = False
 
         # Check for the role
-        roleElem = rrRoot.find("./{http://www.geoserver.org/security/roles}roleList/{http://www.geoserver.org/security/roles}role[@id='"+role+"']")
+        if sys.hexversion >= 0x02070000: # Python 2.7 or more
+            roleElem = rrRoot.find("./{http://www.geoserver.org/security/roles}roleList/{http://www.geoserver.org/security/roles}role[@id='"+role+"']")
+        else: # Python 2.6 or less
+            roleElem = self._xPath26Find(rrRoot, "./{http://www.geoserver.org/security/roles}roleList/{http://www.geoserver.org/security/roles}role", "id", role)
+
         if roleElem is None:
             # Create the role
             roleElem     = Xml.Element("{http://www.geoserver.org/security/roles}role", {"id":role}) 
@@ -403,7 +442,11 @@ class GsXml:
         changed = False
 
         # Check the group record
-        groupRolesElem = rrRoot.find("./{http://www.geoserver.org/security/roles}groupList/{http://www.geoserver.org/security/roles}groupRoles[@groupname='"+group+"']")
+        if sys.hexversion >= 0x02070000: # Python 2.7 or more
+            groupRolesElem = rrRoot.find("./{http://www.geoserver.org/security/roles}groupList/{http://www.geoserver.org/security/roles}groupRoles[@groupname='"+group+"']")
+        else: # Python 2.6 or less
+            groupRolesElem = self._xPath26Find(rrRoot,"./{http://www.geoserver.org/security/roles}groupList/{http://www.geoserver.org/security/roles}groupRoles","groupname",group)
+
         if groupRolesElem is None:
             # Create the group record
             groupRolesElem = Xml.Element("{http://www.geoserver.org/security/roles}groupRoles", {"groupname":group})
@@ -412,7 +455,11 @@ class GsXml:
             changed = True
 
         # Check if the role is already assigned
-        roleRefElem = groupRolesElem.find("./{http://www.geoserver.org/security/roles}roleRef[@roleID='"+role+"']")
+        if sys.hexversion >= 0x02070000: # Python 2.7 or more
+            roleRefElem = groupRolesElem.find("./{http://www.geoserver.org/security/roles}roleRef[@roleID='"+role+"']")
+        else: # Python 2.6 or less
+            roleRefElem = self._xPath26Find(groupRolesElem,"./{http://www.geoserver.org/security/roles}roleRef","roleID",role)
+
         if roleRefElem is None:
             # Assign the role
             roleRefElem = Xml.Element("{http://www.geoserver.org/security/roles}roleRef", {"roleID":role})
@@ -483,3 +530,27 @@ class GsXml:
         else:
             from layman import config
             self.config = config
+
+    def _xPath26Find(self, xml, chain, var, value):
+        elems = xml.findall(chain)
+        elem = None
+        if elems is not None:
+            for celem in elems:
+                if celem.get(var) == value:
+                    elem = celem
+        return elem
+
+    def _xPath26Findall(self, xml, chain1, var, value, chain2):
+        """ Findall with XPath for Python 2.6 or lower
+            xml.findall(chain1[@var=value]/chain2)            
+        """
+        elems1 = xml.findall(chain1)
+        elems2 = []
+        if elems1 is not None:
+            for e1 in elems1:
+                if e1.get(var) == value:
+                    es2 = e1.findall(chain2)
+                    elems2 += e2
+
+        return elems2
+

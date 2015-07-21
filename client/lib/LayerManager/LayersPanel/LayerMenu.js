@@ -28,7 +28,7 @@ Ext4.define('HSRS.LayerManager.LayersPanel.LayerMenu', {
         if (HSRS && HSRS.VIEWURL) {
             config.items.push(
                 {
-                    text: 'Add to map',
+                    text: HS.i18n('Add to map'),
                     icon: HSRS.IMAGE_LOCATION + '/map_go.png',
                     scope: this,
                     handler: this._onViewClicked
@@ -39,7 +39,7 @@ Ext4.define('HSRS.LayerManager.LayersPanel.LayerMenu', {
 
         if (HSRS && HSRS.STYLERURL) {
             config.items.push({
-                text: 'Styler',
+                text: HS.i18n('Styler'),
                 icon: HSRS.IMAGE_LOCATION + '/style.png',
                 scope: this,
                 handler: this._onStyleClicked
@@ -47,7 +47,7 @@ Ext4.define('HSRS.LayerManager.LayersPanel.LayerMenu', {
         }
 
         config.items.push({
-                text: 'Settings',
+                text: HS.i18n('Settings'),
                 icon: HSRS.IMAGE_LOCATION + '/cog.png',
                 scope: this,
                 handler: this._onSettingsClicked
@@ -58,14 +58,14 @@ Ext4.define('HSRS.LayerManager.LayersPanel.LayerMenu', {
         );
 
         config.items.push({
-                text: 'Delete layer and data',
+                text: HS.i18n('Delete layer and data'),
                 icon: HSRS.IMAGE_LOCATION + '/delete.png',
                 scope: this,
                 handler: this._onDeleteClicked
             });
 
         config.items.push({
-                text: 'Delete layer only',
+                text: HS.i18n('Delete layer only'),
                 icon: HSRS.IMAGE_LOCATION + '/delete.png',
                 scope: this,
                 handler: this._onDeleteOnlyClicked

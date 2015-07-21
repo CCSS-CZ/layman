@@ -14,7 +14,7 @@ Ext4.define('HSRS.LayerManager.PublishForm.LayersCombo', {
             data:[
                 Ext4.create("HSRS.LayerManager.LayersPanel.Model",{
                     name:"newlayer",
-                    title:"New layer"
+                    title: HS.i18n("New layer")
                 })
             ],
             proxy: {
