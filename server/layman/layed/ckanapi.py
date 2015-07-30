@@ -17,7 +17,7 @@ class CkanApi:
 
     config = None
     h = None        # Http()
-    url = None      # http://erra.ccss.cz/geoserver/rest
+    url = None      # http://ckan.ccss.cz/api/3
 
     jsonHeader = {
         "Content-type": "application/json"#,

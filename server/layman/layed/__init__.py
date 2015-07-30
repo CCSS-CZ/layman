@@ -139,6 +139,33 @@ class LayEd:
         retval = json.dumps(data)        
         return (code, retval)
 
+    ### CKAN ###
+
+    def getCkanPackages(self, roles, userName):
+        """ 
+            roles:
+                [
+                    {
+                     roleName: hasici,
+                     roleTitle: FireMen
+                    },
+                    {
+                     roleName: policajti,
+                     roleTitle: Mirabelky
+                    }
+                ]    
+
+            roleName ~ organization ??
+        """
+        from layman.layed.ckanapi import CkanApi
+        ckan = CkanApi(self.config)
+
+        # Get packages
+        (head, resp) = ckan.getPackageList()
+
+        code = head["status"]
+        return (code, resp)
+    
     ### LAYERS ###
 
     # Import and publish, rasters and vectors

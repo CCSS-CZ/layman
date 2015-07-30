@@ -124,6 +124,20 @@ class LayMan:
                     else:
                         (code, retval) = self._callNotSupported(restMethod="GET", call=origName)
 
+                # Get the list of ckan packages
+                elif path[0] == 'ckan':
+
+                    # /ckan
+                    if len(path) == 1:
+                        from layed import LayEd
+                        le = LayEd()
+
+                        userName = self.auth.getUserName()
+                        roles = self.auth.getRoles()
+                        (code,retval) = le.getCkanPackages(roles, userName)
+
+                    else:
+                        (code, retval) = self._callNotSupported(restMethod="GET", call=origName)
 
                 elif path[0] == 'layed':
 
