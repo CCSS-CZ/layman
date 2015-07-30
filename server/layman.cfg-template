@@ -25,3 +25,7 @@ gsdir=/data/geoserver/
 datadir=/data/geoserver/data_dir/
 userpwd=crypt1:2DFyNWnqJIfUL0j8bGMUeA==
 #workspace=
+
+[CKAN]
+CkanApiUrl=http://ckan.ccss.cz/api/3
+
