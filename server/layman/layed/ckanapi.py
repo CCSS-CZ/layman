@@ -83,17 +83,17 @@ class CkanApi:
         # username = self.config.get("GeoServer","user")
         # password = self.config.get("GeoServer","password")
         # self.h.add_credentials(username, password)
-        netloc = urlparse(self.url).netloc
-        self.h.authorizations.append(
-                httplib2.BasicAuthentication(
-                        (username, password),
-                        netloc,
-                        self.url,
-                        {},
-                        None,
-                        None,
-                        self.h
-                        ))
+        #netloc = urlparse(self.url).netloc
+        #self.h.authorizations.append(
+        #        httplib2.BasicAuthentication(
+        #                (username, password),
+        #                netloc,
+        #                self.url,
+        #                {},
+        #                None,
+        #                None,
+        #                self.h
+        #                ))
 
     def _setConfig(self,config):
         """Get and set configuration files parser
