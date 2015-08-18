@@ -150,7 +150,6 @@ class LayEd:
         """
         from layman.layed.ckanapi import CkanApi
         ckan = CkanApi(self.config)
-        print "sending get packages..."
         # Get package list from CKAN
         (head, resp) = ckan.getPackageList(limit, offset)
 
@@ -163,7 +162,6 @@ class LayEd:
         # Load JSON
         packageList = json.loads(resp)
 
-        print "reply received"
         # Check success
         if not packageList["success"]:
             # Raise an exception
@@ -177,7 +175,6 @@ class LayEd:
 
         # For each dataset 
         for dsName in packageList["result"]:
-            print dsName
             # Get the details
             (head, resp) = ckan.getPackageShow(id=dsName)
 
