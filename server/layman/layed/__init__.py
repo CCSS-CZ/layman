@@ -141,29 +141,108 @@ class LayEd:
 
     ### CKAN ###
 
-    def getCkanPackages(self, roles, userName):
-        """ 
-            roles:
-                [
-                    {
-                     roleName: hasici,
-                     roleTitle: FireMen
-                    },
-                    {
-                     roleName: policajti,
-                     roleTitle: Mirabelky
-                    }
-                ]    
-
-            roleName ~ organization ??
+    def getCkanPackages(self, roles, userName, limit="0", offset="0"):
+        """ Get the list of CKAN packages. 
+        Calls package_list for the given limit and then,
+        for every package listed, calls package_show and 
+        extracts name, title and notes (description).
+        These are returned in a list.
         """
         from layman.layed.ckanapi import CkanApi
         ckan = CkanApi(self.config)
+        print "sending get packages..."
+        # Get package list from CKAN
+        (head, resp) = ckan.getPackageList(limit, offset)
 
-        # Get packages
-        (head, resp) = ckan.getPackageList()
+        # Check status
+        if head["status"] != "200":
+            headStr = str(head)
+            message = "[LayEd][getCkanPackages] Cannot GET CKAN packages. CKAN replied with %s and said '%s'" % (headStr,resp)
+            raise LaymanError(500, message)
 
-        code = head["status"]
+        # Load JSON
+        packageList = json.loads(resp)
+
+        print "reply received"
+        # Check success
+        if not packageList["success"]:
+            # Raise an exception
+            headStr = str(head)
+            message = "[LayEd][getCkanPackages] Cannot GET CKAN packages. CKAN replied with %s and said '%s'" % (headStr,resp)
+            raise LaymanError(500, message)
+        
+        # Our reply will be formed from the list of datasets, 
+        # accompanied by the details
+        ckanPackages = []
+
+        # For each dataset 
+        for dsName in packageList["result"]:
+            print dsName
+            # Get the details
+            (head, resp) = ckan.getPackageShow(id=dsName)
+
+            # Check status
+            if head["status"] != "200":
+                headStr = str(head)
+                logging.warning("[LayEd][getCkanPackages] Cannot show package '%s'. CKAN replied with %s and said '%s'" % (dsName, headStr, resp))
+                continue
+
+            # Load JSON
+            packageShow = json.loads(resp)
+
+            # Check success
+            if not packageShow["success"]:
+                headStr = str(head)
+                logging.warning("[LayEd][getCkanPackages] Cannot show package '%s'. CKAN replied with %s and said '%s'" % (dsName, headStr, resp))
+                continue
+
+            # Add dataset to our response
+            try:
+                newDataset = {  "name": packageShow["result"]["name"],
+                                "title":  packageShow["result"]["title"],
+                                "notes":  packageShow["result"]["notes"]}
+                ckanPackages.append(newDataset)
+
+            except Exception as e:
+                headStr = str(head)
+                logging.warning("[LayEd][getCkanPackages] Error parsing CKAN reply for 'package_show'. Skipping package %s. CKAN replied with %s and said '%s'" % (dsName, headStr, resp))
+                continue
+
+        # Dump our json result
+        strCkanPackages = json.dumps(ckanPackages)
+
+        # Return the list of CKAN packages
+        code = 200
+        return (code, strCkanPackages)
+    
+    ### LAYERS ###
+
+    # Import and publish, rasters and vectors
+    def importAndPublish(self, fsUserDir, fsGroupDir, dbSchema, gsWorkspace, fileName, userName, srs=None, tsrs=None, cpg=None, data=None, secureLayer=True):
+        """ Main publishing function. 
+        Vectors import to PostreSQL and publish in GeoServer. 
+        Rasters copy to GeoServer datastore dir and publish from there in GS.
+            Group ~ db Schema ~ gs Data Store ~ gs Workspace
+        """
+        logParam = "fsUserDir=%s fsGroupDir=%s dbSchema=%s gsWorkspace=%s fileName=%s srs=%s tsrs=%s cpg=%s secureLayer=%s" %\
+                   (fsUserDir, fsGroupDir, dbSchema, gsWorkspace, fileName, str(srs), str(tsrs), str(cpg), str(secureLayer))
+        logging.debug("[LayEd][importAndPublish] Params: %s"% logParam)
+
+        code = 500
+        message = "Strange - message was not set"
+        layerName = "NONAME"
+
+        # /path/to/file.shp
+        filePath = os.path.realpath( os.path.join(fsUserDir,fileName) )
+
+        # /path/to/file
+        filePathNoExt = os.path.splitext(filePath)[0]
+
+        # file
+        fileNameNoExt = os.path.splitext(fileName)[0].lower()      
+
+
+        code = 200
         return (code, resp)
     
     ### LAYERS ###

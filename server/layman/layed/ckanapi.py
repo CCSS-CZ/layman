@@ -34,12 +34,21 @@ class CkanApi:
 
     # Package list
     # eg: http://ckan.ccss.cz/api/3/action/package_list
-    def getPackageList(self):
+    def getPackageList(self, limit="0", offset="0"):
         """ Get package list """
         url = self.url + "/action/package_list"
+        if limit != "0":
+            url = url + "?limit=" + limit + "&offset=" + offset
         headers, response =  self.h.request(url,'GET')
         return headers, response
 
+    def getPackageShow(self, id):
+        """ Show particlaur package
+        id - id of the package. Can be retrieved by getPackageList """
+        url = self.url + "/action/package_show?id=" + id
+        headers, response =  self.h.request(url,'GET')
+        return headers, response
+        
     ### GENERAL ###
 
     def getUrl(self, url):
