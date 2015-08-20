@@ -196,7 +196,7 @@ Ext4.define('HSRS.LayerManager.DataPanel', {
 
         ckanPanel.on('canceled', ckanPanel._win.close, ckanPanel._win);
 
-        publishForm._win.show();
+        ckanPanel._win.show();
     }
 
 });
