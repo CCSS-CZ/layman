@@ -180,7 +180,22 @@ Ext4.define('HSRS.LayerManager.DataPanel', {
      },
     
     _onCkanClicked: function() {
-        // TODO - open CKAN window
+
+        // Open CKAN window
+
+        url = config.url + (config.url[config.url.length - 1] == '/' ? '' : '/') + 'ckan/';
+        var ckanPanel = Ext4.create('HSRS.LayerManager.CkanPanel', {
+            url: url
+        });
+
+        ckanPanel._win = Ext4.create('Ext4.window.Window', {
+            title: HS.i18n('CKAN'),
+            items: [ckanPanel]
+        });
+
+        ckanPanel.on('canceled', ckanPanel._win.close, ckanPanel._win);
+
+        publishForm._win.show();
     }
 
 });
