@@ -954,13 +954,17 @@ class LayEd:
             ]
             (can be obtained from Auth.getRoles())
 
-        returns (json encoded as string): -- obsolete
+        returns (json encoded as string): 
         [
             {
-                workspace: "police"
-                roleTitle: "Policie Ceske republiky"
-                layer: {...}      // geoserver layer object
-                layerData: {...}  // geoserver object - featureType, coverage...
+                datagroup: "aagroup",   // underlying data group
+                dataname: "dem",        // underlying data name
+                layergroup: "aagroup",
+                layername: "dem",
+                layertitle: "demo tiff",
+                owner: "hsrs",
+                roleTitle: "AA Group",
+                type: "raster"
             },
             ...
         ]

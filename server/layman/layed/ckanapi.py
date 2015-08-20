@@ -9,8 +9,6 @@ import logging
 import httplib2
 from urlparse import urlparse
 
-# TODO: Debug logging of requests/responses should be done here, not in the LayEd class
-
 class CkanApi:
     """Ckan API v.3 
     """
@@ -32,7 +30,7 @@ class CkanApi:
 
     ### CKAN API v.3
 
-    # Package list
+    # package_list - list of packages (=datasets)
     # eg: http://ckan.ccss.cz/api/3/action/package_list
     def getPackageList(self, limit="0", offset="0"):
         """ Get package list """
@@ -42,6 +40,7 @@ class CkanApi:
         headers, response =  self.h.request(url,'GET')
         return headers, response
 
+    # package_show - details for the given package (=dataset)
     def getPackageShow(self, id):
         """ Show particlaur package
         id - id of the package. Can be retrieved by getPackageList """
