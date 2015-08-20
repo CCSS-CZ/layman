@@ -183,8 +183,8 @@ Ext4.define('HSRS.LayerManager.DataPanel', {
 
         // Open CKAN window
 
-        // TODO url = myconfig.url + (myconfig.url[config.url.length - 1] == '/' ? '' : '/') + 'ckan/';
-        url = "http://erra.ccss.cz/cgi-bin/layman/layman/ckan"
+        url = myconfig.url.replace('data','ckan');
+        // url = "http://erra.ccss.cz/cgi-bin/layman/layman/ckan"
         var ckanPanel = Ext4.create('HSRS.LayerManager.CkanPanel', {
             url: url
         });
