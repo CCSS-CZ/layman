@@ -212,35 +212,6 @@ class LayEd:
         code = 200
         return (code, strCkanPackages)
     
-    ### LAYERS ###
-
-    # Import and publish, rasters and vectors
-    def importAndPublish(self, fsUserDir, fsGroupDir, dbSchema, gsWorkspace, fileName, userName, srs=None, tsrs=None, cpg=None, data=None, secureLayer=True):
-        """ Main publishing function. 
-        Vectors import to PostreSQL and publish in GeoServer. 
-        Rasters copy to GeoServer datastore dir and publish from there in GS.
-            Group ~ db Schema ~ gs Data Store ~ gs Workspace
-        """
-        logParam = "fsUserDir=%s fsGroupDir=%s dbSchema=%s gsWorkspace=%s fileName=%s srs=%s tsrs=%s cpg=%s secureLayer=%s" %\
-                   (fsUserDir, fsGroupDir, dbSchema, gsWorkspace, fileName, str(srs), str(tsrs), str(cpg), str(secureLayer))
-        logging.debug("[LayEd][importAndPublish] Params: %s"% logParam)
-
-        code = 500
-        message = "Strange - message was not set"
-        layerName = "NONAME"
-
-        # /path/to/file.shp
-        filePath = os.path.realpath( os.path.join(fsUserDir,fileName) )
-
-        # /path/to/file
-        filePathNoExt = os.path.splitext(filePath)[0]
-
-        # file
-        fileNameNoExt = os.path.splitext(fileName)[0].lower()      
-
-
-        code = 200
-        return (code, resp)
     
     ### LAYERS ###
 
@@ -279,7 +250,7 @@ class LayEd:
         # TODO - mapinfo codepage - 'cpg' param comes from the GUI. it can also be detected from the .TAB file
 
         # Native SRS
-        if srs is None or "none" in srs.lower(): # python uses lazy evaluation
+        if srs is None or "none" in srs.lower(): # should be ok, python uses lazy evaluation
             # Identify the SRS
             from layman.fileman import FileMan
             fm = FileMan(self.config)
@@ -596,19 +567,6 @@ class LayEd:
             ws["workspace"]["name"] = workspace
             wsStr = json.dumps(ws)
             (head, cont) = gsr.postWorkspaces(data=wsStr)
-
-            # Access Control Note -- Obsolete
-            # ===================
-            #
-            # Here we have created the workspace. Regarding the access control, 
-            # this workspace should had been already secured even before it has been created.
-            # Setting ws.*.w=ROLE_[group] is done upon a group creation in LR through the LR-LM user if. (liferay-layman user interface)
-            # Only after this group has been assigned (that means it has to exist, 
-            # that means that securing of the workspace have been already triggered) 
-            # a user with such a role can come here.
-            #
-            # FIXME: If we cancel LR-LM user if (replace by CAS), we need to secure the workspace elsewhere, e.g. here, see gsxml.py: gss.secureWorkspace()
-            # -- done as suggested 
 
             # If the creation failed
             if head["status"] != "201":
