@@ -148,10 +148,15 @@ class LayEd:
         extracts name, title and notes (description).
         These are returned in a list.
         """
+        #print "prvni dotaz"
+
         from layman.layed.ckanapi import CkanApi
         ckan = CkanApi(self.config)
+
         # Get package list from CKAN
         (head, resp) = ckan.getPackageList(limit, offset)
+
+        #print "odpoved"
 
         # Check status
         if head["status"] != "200":
@@ -172,6 +177,8 @@ class LayEd:
         # Our reply will be formed from the list of datasets, 
         # accompanied by the details
         ckanPackages = []
+
+        #print "jedem"
 
         # For each dataset 
         for dsName in packageList["result"]:
@@ -195,10 +202,13 @@ class LayEd:
 
             # Add dataset to our response
             try:
-                newDataset = {  "name": packageShow["result"]["name"],
+                newDataset = {  "organizationName": packageShow["result"]["organization"]["name"],
+                                "organizationTitle": packageShow["result"]["organization"]["title"],
+                                "name": packageShow["result"]["name"],
                                 "title":  packageShow["result"]["title"],
                                 "notes":  packageShow["result"]["notes"]}
                 ckanPackages.append(newDataset)
+                #print packageShow["result"]["name"]
 
             except Exception as e:
                 headStr = str(head)
