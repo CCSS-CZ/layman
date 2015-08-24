@@ -8,6 +8,8 @@ Ext4.define('HSRS.LayerManager', {
         'HSRS.LayerManager.LayersPanel'
     ],
 
+    ckanPanel: undefined,
+
     /**
      * @name HSRS.LayerManager.filesPanel
      * @type HSRS.LayerManager.FilesPanel
@@ -31,6 +33,17 @@ Ext4.define('HSRS.LayerManager', {
             reserveScrollbar: true,
             align: 'stretch'
         };
+
+        // CKAN Panel
+        url = config.url + (config.url[config.url.length - 1] == '/' ? '' : '/') + 'ckan/';
+        this.ckanPanel = Ext4.create('HSRS.LayerManager.CkanPanel', {
+            url: url,
+            flex: 1,
+            listeners: {
+                scope: this,
+                'ckandownloaded': this._onCkanDownloaded
+            }
+        });
 
         // Files Panel
         var url = config.url + (config.url[config.url.length - 1] == '/' ? '' : '/') + 'fileman/';
@@ -72,9 +85,14 @@ Ext4.define('HSRS.LayerManager', {
 
         this.layersPanel.store.on('load', this._onLayersLoaded, this);
 
-        config.items = [this.filesPanel, this.dataPanel, this.layersPanel];
+        config.items = [this.ckanPanel, this.filesPanel, this.dataPanel, this.layersPanel];
 
         this.callParent(arguments);
+    },
+
+    _onCkanDownloaded: function(data) {
+        Ext4.Msg.alert(HS.i18n('Success'), HS.i18n('Dataset downloaded') + ' ['+ (data.title || data.name) + ']');
+        this.filesPanel.store.load();
     },
 
     /**
