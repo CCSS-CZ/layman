@@ -16,6 +16,20 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
 
         myconfig = {};
 
+        // Toolbar
+        myconfig.tbar = Ext4.create('Ext4.toolbar.Toolbar', {
+            items: [
+                {   // Refresh
+                    scope: this,
+                    handler: this._onRefreshClicked,
+                    cls: 'x-btn-icon',
+                    tooltip: HS.i18n('Refresh'),
+                    icon: HSRS.IMAGE_LOCATION + '/arrow_refresh.png'
+                }
+            ]
+        });
+
+
         // Store
         myconfig.store = Ext4.create('Ext4.data.Store', {
             model: 'HSRS.LayerManager.CkanPanel.Model',
@@ -70,33 +84,17 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
         config.features = [groupingFeature];
 
         this.callParent(arguments);
-/*
+
         var makeMenu = function(view, record, elem, idx, e, opts) {
 
-                // display file menu
-                var menu = Ext4.create('HSRS.LayerManager.DataPanel.DataMenu', {
-                    url: this.url,
-                    record: record,
-                    listeners: {
-                        scope: this,
-
-                        // file deleted listener will popup confirmation window
-                        'datadeleted': function(record, evt) {
-                            Ext4.MessageBox.confirm(HS.i18n('Really delete selected data?'),
-                                    HS.i18n('Are you sure, you want to remove selected data?') +' <br />', 
-                                    function(btn, x, msg) {
-                                        if (btn == 'yes') {/* TODO: lm.deleteData
-                                            this.lm.deleteData(this.record.get('layer').name,
-                                                                this.record.get('workspace'),
-                                                               this.record.get('layer').title);* /
-                                        }
-                                    },
-                                    {lm: this, record: record});
-
-                                },
-
+            // display ckan menu
+            var menu = Ext4.create('HSRS.LayerManager.CkanPanel.CkanMenu', {
+                url: this.url,
+                record: record,
+                listeners: {
+                    scope: this
                     }
-            });
+                });
 
             menu.showAt(e.xy[0], e.xy[1], elem);
             Ext4.EventManager.stopEvent(e);
@@ -104,29 +102,29 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
 
         this.on('itemcontextmenu', makeMenu, this);
         this.on('itemclick', makeMenu, this);
-*/
+
         myconfig.store.load();
 
-//        this.addEvents("datapublished");
-    } //,
+        this.addEvents("ckandownloaded");
+    },
 
 
     /**
-     * file published handler
+     * ckan download handler
      * @private
      * @function
      */
-/*    _onDataPublished: function(data) {
-        this.fireEvent('datapublished', data);
-    },*/
+    _onCkanDownloaded: function(data) {
+        this.fireEvent('ckandownloaded', data);
+    },
 
     /**
      * button refresh handler
      * @private
      */
-/*     _onRefreshClicked: function() {
+     _onRefreshClicked: function() {
         this.store.load();
-     },*/
+     }
 
 });
 
