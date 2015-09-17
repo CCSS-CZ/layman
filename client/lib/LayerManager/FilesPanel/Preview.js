@@ -47,7 +47,7 @@ Ext4.define('HSRS.LayerManager.FilesPanel.Preview', {
     addBBOX: function() {
 
         // wait.till projection is loaded
-        if (this.to.proj.readyToUse === false) {
+        if (this.from.proj.readyToUse === false || this.to.proj.readyToUse === false) {
             timer = new HSRS.timer(this.addBBOX, this);
             timer.pause();
         }
@@ -55,18 +55,21 @@ Ext4.define('HSRS.LayerManager.FilesPanel.Preview', {
         else {
 
             // fix the region - whole world does not work properly
-            if (this.data.extent[0] <= -168.75) {
-                this.data.extent[0] = -168.75;
+            if (this.from.proj.srsProjNumber == "4326") {
+                if (this.data.extent[0] <= -168.75) {
+                    this.data.extent[0] = -168.75;
+                }
+                if (this.data.extent[1] <= -57) {
+                    this.data.extent[1] = -57;
+                }
+                if (this.data.extent[2] >= 178.6) {
+                    this.data.extent[2] = 178.6;
+                }
+                if (this.data.extent[3] >= 75.3) {
+                    this.data.extent[3] = 75.3;
+                }
             }
-            if (this.data.extent[1] <= -57) {
-                this.data.extent[1] = -57;
-            }
-            if (this.data.extent[2] >= 178.6) {
-                this.data.extent[2] = 178.6;
-            }
-            if (this.data.extent[3] >= 75.3) {
-                this.data.extent[3] = 75.3;
-            }
+
             var bounds = new OpenLayers.Bounds(
                 this.data.extent[0],
                 this.data.extent[1],
