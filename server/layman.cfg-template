@@ -29,3 +29,5 @@ userpwd=crypt1:2DFyNWnqJIfUL0j8bGMUeA==
 [CKAN]
 CkanApiUrl=http://ckan.ccss.cz/api/3
 
+[PROJ]
+ProjEPSG=/usr/share/proj/epsg
