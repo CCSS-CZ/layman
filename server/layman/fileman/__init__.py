@@ -12,6 +12,7 @@ from osgeo import ogr
 from osgeo import gdal
 from osgeo import osr
 import web
+import re
 
 from layman.errors import LaymanError
 
@@ -377,8 +378,6 @@ class FileMan:
         sr = layer.GetSpatialRef()
         logging.debug("[FileMan][_get_vector_attributes] Spatial Reference from layer.GetSpatialRef() : %s" % repr(sr) )
         if sr:
-            sr.AutoIdentifyEPSG()
-            logging.debug("[FileMan][_get_vector_attributes] Spatial Reference after sr.AutoIdentifyEPSG() : %s" % repr(sr) )
             attrs["prj"]= self._get_prj(sr)
         else:
             attrs["prj"] = "unknown"
@@ -417,6 +416,12 @@ class FileMan:
         if hackStr == '+proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +a=6378137 +b=6378137 +units=m +no_defs ':
             return "EPSG:3857"
 
+        epsg = self.config.get('PROJ', 'ProjEPSG')
+        code = None
+        if sr == 5:  # invalid WKT
+            return "unknown"
+        if sr.IsLocal() == 1:  # this is a local definition
+            return "unknown"
         if sr.IsGeographic() == 1:  # this is a geographic srs
             logging.debug("[FileMan][_get_prj] Geographic SRS")
             cstype = 'GEOGCS'
@@ -425,9 +430,27 @@ class FileMan:
             cstype = 'PROJCS'
         an = sr.GetAuthorityName(cstype)
         ac = sr.GetAuthorityCode(cstype)
-        logging.debug("[FileMan][_get_prj] Authority name: %s, Authority code: %s" % (an, ac) )
-
-        return "%s:%s"%(an,ac)
+        if an is not None and ac is not None:  # return the EPSG code
+            logging.debug("[FileMan][_get_prj] Authority name: %s, Authority code: %s" % (an, ac) )
+            return '%s:%s' % \
+                (sr.GetAuthorityName(cstype), sr.GetAuthorityCode(cstype))
+        else:  # try brute force approach by grokking proj epsg definition file
+            sr_out = sr.ExportToProj4()
+            if sr_out:
+                f = open(epsg)
+                for line in f:
+                    if line.find(sr_out) != -1:
+                        m = re.search('<(\\d+)>', line)
+                        if m:
+                            code = m.group(1)
+                            break
+                if code:  # match
+                    logging.debug("[FileMan][_get_prj] EPSG:%s" % code )
+                    return 'EPSG:%s' % code
+                else:  # no match
+                    return "unknown"
+            else:
+                return "unknown"
 
     def _deleteShpTabFiles(self, fileName):
         """Delete all files, belonging to this shapefile or mapinfo
