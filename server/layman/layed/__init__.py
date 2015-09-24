@@ -80,8 +80,11 @@ class LayEd:
             rolemap[ role["roleName"] ] = role["roleTitle"] 
 
         for d in data:
-            d["roleTitle"] = rolemap[ d["schema"] ] # roleName ~ schema
-            
+            if d["schema"] in rolemap:
+                d["roleTitle"] = rolemap[ d["schema"] ] # roleName ~ schema
+            else:
+                d["roleTitle"] = d["schema"] 
+
         code = 200
         retval = json.dumps(data)        
         return (code, retval)
