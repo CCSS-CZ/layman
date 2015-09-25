@@ -113,7 +113,7 @@ class LayEd:
         groups = map( lambda r: r["roleName"], roles )
 
         #    1. Get the current state of the DataPad 
-        print "jedna..."
+        #print "jedna..."
 
         """ [
                {
@@ -135,7 +135,7 @@ class LayEd:
         dataPadSet = set(dataPadTuples) 
 
         #    2. Get the current state of the database
-        print "dva..."
+        #print "dva..."
 
         """ [
              {
@@ -155,30 +155,30 @@ class LayEd:
         dbSet = set(dbTuples)
 
         #    3. From DataPad, delete anything that is no more in the database
-        print "tri..."
+        #print "tri..."
 
         # Now we have two comparable sets of records and can subtract them        
         deleteSet = dataPadSet - dbSet
-        print "delete set: "+str(deleteSet)
+        #print "delete set: "+str(deleteSet)
 
         # Delete from DataPad
         for t in deleteSet: # FIXME: Each deleteDataPad() opens and closes new db connection. This can be optimised.
-            print "deleting " + str (t)
+            #print "deleting " + str (t)
             logging.info("[LayEd][syncDataPad] Deleting from DataPad: %s "% str(t))
             dbm.deleteDataPad(t[0], t[1], t[2])
 
         #    4. Into DataPad, add all the layers that are not recorded there, 
         #        but are present in the database in the appropriate schemas. 
         #        Unclear columns (owner, updated, ...) leave as NULL
-        print "ctyri..."
+        #print "ctyri..."
 
         # Insert set
         insertSet = dbSet - dataPadSet
-        print "insert set: " + insertSet
+        #print "insert set: " + insertSet
         
         # Insert into DataPad   
         for t in insertSet: # FIXME: Each createDataPad() opens and closes new db connection. This can be optimised.
-            print "inserting " + str(t)
+            #print "inserting " + str(t)
             logging.info("[LayEd][syncDataPad] Insert into DataPad: %s "% str(t))
             dbm.createDataPad(name=t[2], group=t[0], owner=None, dtype=t[1], datatype="vector")
 
