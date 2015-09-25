@@ -372,10 +372,12 @@ class DbMan:
 
     # Delete
     def deleteTable(self, dbSchema, tableName, tableView = "TABLE"):
+        """ tableView = [TABLE|VIEW]
+        """
         logParam = "tableName='"+tableName+"', dbSchema='"+dbSchema+"', tableView="+tableView
         logging.debug("[DbMan][deleteTable] %s"% logParam)
 
-        try: # TODO: extract to one function
+        try: 
             # connect
             conn = psycopg2.connect(self.getConnectionString())
 
@@ -472,28 +474,38 @@ class DbMan:
             dtype - table, view, file
             datatype - vector, raster
         """
-        logParam =  "name: " + name + " group: " + group + " owner: " + owner + "dtype: " + dtype + "datatype: " + datatype 
+        logParam =  "name: " + name + " group: " + group + " owner: " + str(owner) + "dtype: " + dtype + "datatype: " + datatype 
         logging.debug("[DbMan][createDataPad] %s" % logParam)
 
-        sqlBatch = "insert into layman.data (dataname, datagroup, owner, type, datatype) values ('"+name+"','"+group+"','"+owner+"','"+dtype+"','"+datatype+"');"
+        sqlBatch = "insert into layman.data (dataname, datagroup, owner, type, datatype) values ('"+name+"','"+group+"',"+ self._stringOrNull(owner) +",'"+dtype+"','"+datatype+"');"
         self.write_sql(sqlBatch)
 
-    def deleteDataPad(self, name, group):
+    def _stringOrNull(self, value=None):
+        if value is None:
+            return "NULL"
+        else:
+            return "'"+ value +"'"
+
+    def deleteDataPad(self, group, dtype, name):
         """ Delete data in DataPad
         """
-        logParam =  "name: " + name + " group: " + group
+        logParam =  "name: " + name + " group: " + group + "type:" + dtype
         logging.debug("[DbMan][deleteDataPad] %s" % logParam)
 
-        sqlBatch = "delete from layman.data where dataname='"+name+"' and datagroup='"+group+"';"
+        sqlBatch = "delete from layman.data where dataname='"+name+"' and datagroup='"+group+"' and type='"+dtype+"';"
         self.write_sql(sqlBatch)
 
     def updateDataPad():
         pass
 
-    def getDataPad(self, owner=None):
+    def getDataPad(self, restrictBy=None, groups=None, owner=None):
         """ Get Data from layman.data
-            owner given - just for this user
-            owner not given - all the data
+
+            restrictBy = ['owner'|'roles'|None]
+                'owner' - just this owner (user) // owner must be given
+                'groups' - just this roles (schemas) // list of roles must be given
+                None    - all
+          
             Returns JSON:
             [
                {
@@ -508,15 +520,26 @@ class DbMan:
         """
         logging.debug("[DbMan][getDataPad] owner='%s'"% owner)
 
-        if owner is None:
+        if restrictBy is None:
             sql = "SELECT dataname, datagroup, owner, type, datatype FROM layman.data;"
-        else:
+
+        elif restrictBy.lower() in ["owner","user"]:
+            if owner is None:
+                logging.error("[DbMan][getDataPad] getDataPad() called with restrictBy owner, but no owner given")
+                raise LaymanError(500, "Cannot get Data, no owner was specified for getDataPad()")
             sql = "SELECT dataname, datagroup, owner, type, datatype FROM layman.data where owner='"+owner+"';"
 
-        result = self.get_sql(sql) # [['rivers_00','hasici','hsrs','table','vector'], ... ]
-        layers = map( lambda rec: {"name": rec[0], "schema": rec[1], "owner": rec[2], "type": rec[3], "datatype": rec[4]}, result )
+        elif restrictBy.lower() in ["roles", "groups", "schemas"]:
+            if groups is None:
+                logging.error("[DbMan][getDataPad] getDataPad() called with restrictBy roles, but no roles given")
+                raise LaymanError(500, "Cannot get Data, no roles were specified for getDataPad()")        
+            groups = ",".join(map( lambda g: "'"+g+"'", groups )) # "'aaa','bbb','ccc'"
+            sql = "SELECT dataname, datagroup, owner, type, datatype FROM layman.data where datagroup IN (" + groups +")"
 
-        return layers        
+        result = self.get_sql(sql) # [['rivers_00','hasici','hsrs','table','vector'], ... ]
+        data = map( lambda rec: {"name": rec[0], "schema": rec[1], "owner": rec[2], "type": rec[3], "datatype": rec[4]}, result )
+
+        return data        
 
 RASTER2PSQL_CONFIG = {}
 

@@ -65,12 +65,17 @@ class LayEd:
                 ]    
 
             roleName ~ schema
+
+            returns:
+
+            [ {"name": "pest_00", "datatype": "vector", "owner": "hsrs", "roleTitle": "AA Group", "type": "table", "schema": "aagroup"}, ...]        
+
         """
         from layman.layed.dbman import DbMan
         dbm = DbMan(self.config)
         
         # Get Data
-        data = dbm.getDataPad(owner=userName)
+        data = dbm.getDataPad(restrictBy='owner', groups=None, owner=userName)
 
         # Add the role titles
         # Db doesn't know about role titles. 
@@ -89,8 +94,97 @@ class LayEd:
         retval = json.dumps(data)        
         return (code, retval)
 
+    def syncDataPad(self, roles):
+        """ Synchronise DataPad with current state of the database.
+            Synchronises all the groups the current user is member of. 
+
+            1. Get the current state of the DataPad 
+            2. Get the current state of the database
+            3. From DataPad, delete anything that is no more in the database
+            4. Into DataPad, add all the layers that are not recorded there, 
+                but are present in the database in the appropriate schemas. 
+                Unclear columns (owner, updated, ...) leave as NULL
+
+        """
+        from layman.layed.dbman import DbMan
+        dbm = DbMan(self.config)
+        
+        # Map roles to group list             
+        groups = map( lambda r: r["roleName"], roles )
+
+        #    1. Get the current state of the DataPad 
+        print "jedna..."
+
+        """ [
+               {
+                    name:
+                    schema:
+                    owner:
+                    type:
+                    datatype:
+               },
+                ...
+            ] """  
+        dataPadData = dbm.getDataPad(restrictBy='groups', groups=groups)
+
+        # Take schema type and name.
+        # Tuples are hashable, we need that for sets.
+        dataPadTuples = map( lambda d: (d["schema"], d["type"], d["name"]), dataPadData )
+
+        # Set of dataPad Data
+        dataPadSet = set(dataPadTuples) 
+
+        #    2. Get the current state of the database
+        print "dva..."
+
+        """ [
+             {
+                "type": "table", 
+                "name": "pest_04", 
+                "schema": "aagroup"
+             }, 
+             ...
+            ] 
+        """
+        dbData = self.getDataForSync(groups) 
+
+        # Tuples are hashable, we need that for sets
+        dbTuples = map( lambda d: (d["schema"], d["type"], d["name"]), dbData )
+
+        # Set of database Data
+        dbSet = set(dbTuples)
+
+        #    3. From DataPad, delete anything that is no more in the database
+        print "tri..."
+
+        # Now we have two comparable sets of records and can subtract them        
+        deleteSet = dataPadSet - dbSet
+        print "delete set: "+str(deleteSet)
+
+        # Delete from DataPad
+        for t in deleteSet: # FIXME: Each deleteDataPad() opens and closes new db connection. This can be optimised.
+            print "deleting " + str (t)
+            logging.info("[LayEd][syncDataPad] Deleting from DataPad: %s "% str(t))
+            dbm.deleteDataPad(t[0], t[1], t[2])
+
+        #    4. Into DataPad, add all the layers that are not recorded there, 
+        #        but are present in the database in the appropriate schemas. 
+        #        Unclear columns (owner, updated, ...) leave as NULL
+        print "ctyri..."
+
+        # Insert set
+        insertSet = dbSet - dataPadSet
+        print "insert set: " + insertSet
+        
+        # Insert into DataPad   
+        for t in insertSet: # FIXME: Each createDataPad() opens and closes new db connection. This can be optimised.
+            print "inserting " + str(t)
+            logging.info("[LayEd][syncDataPad] Insert into DataPad: %s "% str(t))
+            dbm.createDataPad(name=t[2], group=t[0], owner=None, dtype=t[1], datatype="vector")
+
+        return (200, "DataPad synchronised")
+
     # Get the list of tables and views in the given schemas
-    # For future: Add some other resources (files, WMS)
     #
     # Direct version from database, not from DataPad. 
     def getDataDirect(self, roles):
@@ -108,6 +202,8 @@ class LayEd:
                 ]    
 
             roleName ~ schema
+            
+            returns: [{"roleTitle": "AA Group", "type": "table", "name": "pest_04", "schema": "aagroup"}, ...]
         """
         from layman.layed.dbman import DbMan
         dbm = DbMan(self.config)
@@ -141,6 +237,36 @@ class LayEd:
         code = 200
         retval = json.dumps(data)        
         return (code, retval)
+
+    # Get the list of tables and views in the given schemas
+    # For future: Add some other resources (files, WMS)
+    #
+    # Direct version from database, not from DataPad.
+    #
+    # Used for synchronisation of DataPad
+    # Returns JSON, not string
+    def getDataForSync(self, groups):
+        """ 
+            groups - list of groups 
+            returns: [{"type": "table", "name": "pest_04", "schema": "aagroup"}, ...]
+        """
+        from layman.layed.dbman import DbMan
+        dbm = DbMan(self.config)
+        
+        # Get tables
+        tables = dbm.getTables(groups)
+        for t in tables:
+            t["type"] = "table"
+
+        # Get views
+        views = dbm.getViews(groups)
+        for v in views:
+            v["type"] = "view"
+
+        # Concat
+        data = tables + views
+
+        return data
 
     ### CKAN ###
 
@@ -1240,16 +1366,19 @@ class LayEd:
                     if deleteTable:
                         # Drop Table/View in PostreSQL
                         dbm = DbMan(self.config)
+                        dtype = "table"
                         try: # TODO: distnct tables and views once we know it
-                            dbm.deleteTable(dbSchema=schema, tableName=layer)
+                            dbm.deleteTable(dbSchema=schema, tableName=layer)                        
+                            dtype = "table"
                         except Exception as e:
                             if "DROP VIEW" in str(e):
                                 logging.error("[LayEd][deleteLayer] DROP TABLE failed, trying DROP VIEW. Exception was: %s"% str(e))
                                 dbm.deleteView(dbSchema=schema, viewName=layer)
+                                dtype = "view"
                             else:
                                 raise e
                         # Delete DataPad
-                        dbm.deleteDataPad(name=layer, group=schema)
+                        dbm.deleteDataPad(group=schema, dtype=dtype, name=layer)
 
                 elif layer_type == "RASTER":
                     # Delete Coverage Store

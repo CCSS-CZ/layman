@@ -38,17 +38,32 @@ class LayEdTestCase(unittest.TestCase):
                     }
                 ]  
 
+        print "*** roles ***"
         print roles
 
+        print "***  getData() ... ***"
         head, cont = self.le.getData(roles, userName='hsrs')
-        print "***  getData() ***"
         print "headers"
         print head
         print "response"
         print cont
 
-        head, cont = self.le.getDataDirect(roles)
-        print "***  getDataDirect() ***"
+        #head, cont = self.le.getDataDirect(roles)
+        #print "***  getDataDirect() ***"
+        #print "headers"
+        #print head
+        #print "response"
+        #print cont
+
+        print "*** syncing ... ***"
+        head, cont = self.le.syncDataPad(roles)
+        print "headers"
+        print head
+        print "response"
+        print cont
+
+        print "***  getData() ... ***"
+        head, cont = self.le.getData(roles, userName='hsrs')
         print "headers"
         print head
         print "response"
