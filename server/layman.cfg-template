@@ -5,6 +5,7 @@
 service=Liferay
 url=http://erra.ccss.cz/g4i-portlet/service/sso/validate/
 allroles=http://erra.ccss.cz/g4i-portlet/service/list/roles/en
+ignoreroles=administrator,guest,lmadmin,organization administrator,organization owner,organization user,owner,power user,site administrator,site member,site owner,user,mickaadmin,mickawrite,poi,user_role
 
 [FileMan]
 homedir=/var/www/wwwlibs/layman/
@@ -26,8 +27,12 @@ datadir=/data/geoserver/data_dir/
 userpwd=crypt1:2DFyNWnqJIfUL0j8bGMUeA==
 #workspace=
 
+[Gdal]
+gdal_data=/usr/share/gdal/1.10/
+
 [CKAN]
 CkanApiUrl=http://ckan.ccss.cz/api/3
 
 [PROJ]
 ProjEPSG=/usr/share/proj/epsg
+
