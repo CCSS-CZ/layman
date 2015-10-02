@@ -335,7 +335,19 @@ class LayEd:
                                 "organizationTitle": packageShow["result"]["organization"]["title"],
                                 "name": packageShow["result"]["name"],
                                 "title":  packageShow["result"]["title"],
-                                "notes":  packageShow["result"]["notes"]}
+                                "notes":  packageShow["result"]["notes"]
+                             }
+                resources = []
+                for r in packageShow["result"]["resources"]:
+                    newRes = {  "description": r["description"],
+                                "format": r["format"],
+                                "id": r["id"],
+                                "name": r["name"],
+                                "url": r["url"]
+                             }
+                    resources.append(newRes)
+                newDataset["resources"] = resources
+                
                 ckanPackages.append(newDataset)
                 #print packageShow["result"]["name"]
 
