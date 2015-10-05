@@ -41,7 +41,7 @@ Ext4.define('HSRS.LayerManager.CkanPanel.CkanMenu', {
         */
 
         config.items.push({
-            text: config.record.get('title')
+            text: '<b>' + config.record.get('title') + '</b>'
         });
 
         config.items.push({
