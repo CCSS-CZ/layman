@@ -16,7 +16,7 @@ Ext4.define('HSRS.LayerManager.CkanPanel.CkanMenu', {
      * @constructor
      */
     constructor: function(config) {
-        config.title = config.record.get('title');
+        config.title = "Dataset details";
         //config.width = 200;
         config.plain = true;
 
@@ -41,11 +41,11 @@ Ext4.define('HSRS.LayerManager.CkanPanel.CkanMenu', {
         */
 
         config.items.push({
-            text: "Dataset:"
+            text: config.record.get('title')
         });
 
         config.items.push({
-            text: config.record.get('name')
+            text: config.record.get('notes')
         });
 
         config.items.push({
