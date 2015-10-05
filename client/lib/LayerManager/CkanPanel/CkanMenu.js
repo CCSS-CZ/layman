@@ -17,7 +17,7 @@ Ext4.define('HSRS.LayerManager.CkanPanel.CkanMenu', {
      */
     constructor: function(config) {
         config.title = config.record.get('title');
-        config.width = 200;
+        //config.width = 200;
         config.plain = true;
 
         this.url = config.url.replace(/\/$/, config.record.get('name'));
@@ -27,6 +27,7 @@ Ext4.define('HSRS.LayerManager.CkanPanel.CkanMenu', {
 
         config.items = [];
 
+        /*
         config.items.push({
                 text: HS.i18n('Download'),
                 // icon: HSRS.IMAGE_LOCATION + '/map_go.png',
@@ -37,13 +38,14 @@ Ext4.define('HSRS.LayerManager.CkanPanel.CkanMenu', {
         config.items.push(
             { xtype: 'menuseparator' }
         );
+        */
 
         // Resources
         resources = arguments[0].record.raw.resources;
         for (var i=0, l=resources.length; i<l; ++i) {
 
             config.items.push({
-                text: resources[i].name
+                text: '<a href="'+ resources[i].url + '">' + resources[i].name + '</a>'
             });
         }    
 
