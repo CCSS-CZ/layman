@@ -38,6 +38,15 @@ Ext4.define('HSRS.LayerManager.CkanPanel.CkanMenu', {
             { xtype: 'menuseparator' }
         );
 
+        // Resources
+        resources = arguments[0].record.raw.resources;
+        for (var i=0, l=resources.length; i<l; ++i) {
+
+            config.items.push({
+                text: resources[i].name
+            });
+        }    
+
         this.callParent(arguments);
 
         this.addEvents('ckandownloaded');
