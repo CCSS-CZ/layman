@@ -53,7 +53,9 @@ Ext4.define('HSRS.LayerManager.CkanPanel.CkanMenu', {
         for (var i=0, l=resources.length; i<l; ++i) {
 
             config.items.push({
-                text: '<a href="'+ resources[i].url + '">' + resources[i].name + '</a>'
+                text: resources[i].name,
+                href: resources[i].url
+                // hrefTarget: '_blank' 
             });
         }    
 
