@@ -45,10 +45,6 @@ Ext4.define('HSRS.LayerManager.CkanPanel.CkanMenu', {
         });
 
         config.items.push({
-            text: config.record.get('notes')
-        });
-
-        config.items.push({
             text: "Resources:"
         });
 
