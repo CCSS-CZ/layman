@@ -22,7 +22,7 @@ Ext4.define('HSRS.LayerManager.CkanPanel.CkanMenu', {
 
         this.url = config.url.replace(/\/$/, config.record.get('name'));
 
-        config.name = config.record.get('name');
+        config.name = "Dataset details";
         // config.schema = config.record.get('schema'); // replace with organization ?
 
         config.items = [];
@@ -39,6 +39,18 @@ Ext4.define('HSRS.LayerManager.CkanPanel.CkanMenu', {
             { xtype: 'menuseparator' }
         );
         */
+
+        config.items.push({
+            text: "Dataset:"
+        });
+
+        config.items.push({
+            text: config.record.get('name')
+        });
+
+        config.items.push({
+            text: "Resources:"
+        });
 
         // Resources
         resources = arguments[0].record.raw.resources;
