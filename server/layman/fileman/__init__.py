@@ -215,40 +215,23 @@ class FileMan:
     # POST methods
     #
 
-    def postFile(self,filePath,data):
+    def postFileFromPayload(self, dirPath, fileName, data):
         """Create a file and return 201 Created.
            Should the file already exist, do nothing and return 409 Conflict
 
            :return: (status, response)
         """
-            
-        logging.debug("FileMan.postFile() filePath: %s"% filePath)
-
-        #fileName = os.path.split(filePath)[-1]
-
-        pathParsed = os.path.split(filePath)
-        fileName = pathParsed[-1]
-        dirPath = pathParsed[-2]
-
-        logging.debug("[FileMan][postFile] pathParsed: %s"% str(pathParsed))
         logging.debug("[FileMan][postFile] fileName: %s"% fileName)
         logging.debug("[FileMan][postFile] dirPath: %s"% dirPath)
 
+        filePath = os.path.realpath(os.path.join(dirPath, fileName))
+
         # make sure that the directory exists
-        dirExists = os.path.exists(dirPath) and os.path.isdir(dirPath)
-        if not dirExists:
-            try:
-                os.makedirs(dirPath)
-                logging.info("[FileMan][postFile] Created user directory: %s"% dirPath)
-            except Exception as e:
-               errMsg = "[FileMan][postFile] Cannot create user directory %s: %s" % (dirPath, str(e))
-               logging.error(errMsg)
-               raise LaymanError(500, errMsg) 
+        self._makeSureDirExists(dirPath)
 
         # The file is there, DO NOT overwrite
-        # WRONG - filePath is .zip - and that does not exist...
+        # NOT ENOUGH - filePath is .zip - and that does not exist...
         if os.path.exists(filePath):
-
             return ("conflict",
                     "Sorry, the file [%s] already exists, use PUT method if you wish to overwrite it" % fileName)
 
@@ -259,19 +242,9 @@ class FileMan:
                 f.write(data)
                 f.close()
 
-                # handle zip files
-                msg = None
-                if zipfile.is_zipfile(filePath):
-                    (fileName,msg) = self._unzipFile(filePath)
-                else:
-                    # replace special characters in the filename
-                    # we allow only letters, numbers, underscore and dot
-                    import re
-                    newFileName = re.sub('[^a-zA-Z0-9_.]', '_', fileName)
-                    if newFileName != fileName:
-                        newFilePath = os.path.join(dirPath, newFileName)
-                        shutil.move(filePath, newFilePath)
-                        
+                # handle zip files (or at least replace special characters)
+                (msg, fileName) = self._treatNewFile(filePath, fileDir, fileName)
+
                 if fileName:
                     logging.info("File [%s] successfully uploaded"% fileName)
                     return ("created","File uploaded:'%s'" % fileName)
@@ -282,40 +255,92 @@ class FileMan:
                 logging.error(e)
                 raise LaymanError("internalerror","FileMan: postFile(): %s" % str(e))
 
-    def postFileFromUrl(self, fromUrl, fileName=None):
+    def postFileFromUrl(self, dirPath, fromUrl, fileName=None):
+        """ POST /files/<user> ?source=url - download given URL
+        """
+        # make sure that the directory exists
+        self._makeSureDirExists(dirPath)
 
-        def getFileName(url, openUrl):
-            filename = None
-            if 'Content-Disposition' in openUrl.info():
-                # If the response has Content-Disposition, try to get filename from it
-                cd = dict(map(
-                    lambda x: x.strip().split('=') if '=' in x else (x.strip(),''),
-                    openUrl.info()['Content-Disposition'].split(';')))
-                if 'filename' in cd:
-                    filename = cd['filename'].strip("\"'")
-            
-            # if no filename was found above, parse it out from the URL
-            if not filename:
-                urlParsed = urlparse.urlsplit(openUrl.url)
-                filename = os.path.basename(urlParsed[2])
-                if not filename or filename == "":
-                    filename = urlParsed[1] # netloc: "lakofila.cz"
-
-            return filename
-
-        # TODO:
-        #       - Learn the user dir
-        #       - Create the dir if it does not exist
-        #       - Check if the file already exists
-        #       - Unzip the zipfile
-
+        # open the url
         r = urllib2.urlopen(urllib2.Request(fromUrl))
+
         try:
-            fileName = fileName or getFileName(fromUrl, r)
-            with open(fileName, 'wb') as f:
+            # learn the name (and desired location) of the file to be saved
+            fileName = fileName or self._getFileNameFromUrl(fromUrl, r)
+            filePath = os.path.realpath(os.path.join(dirPath, fileName))
+
+            # Check if the file is already there. If so, DO NOT overwrite
+            # NOT ENOUGH - filePath can be .zip - and that does not exist...
+            if os.path.exists(filePath):
+                return ("conflict",
+                        "Sorry, the file [%s] already exists, use PUT method if you wish to overwrite it" % fileName)
+
+            # Write the file
+            with open(filePath, 'wb') as f:
                 res = shutil.copyfileobj(r, f)
+
+            # handle zip files (or at least replace special characters)
+            (msg, fileName) = self._treatNewFile(filePath, dirPath, fileName)
+
+            if fileName:
+                logging.info("File [%s] successfully downloaded"% fileName)
+                return ("created","File downloaded:'%s'" % fileName)
+            else:
+                logging.error(msg)
+                return ("internalerror","Error while downloading/unzipping file: '%s'" % msg)
+        except Exception as e:
+            logging.error(e)
+
         finally:
             r.close()
+
+    # make sure that the directory exists
+    def _makeSureDirExists(self, dirPath):
+        dirExists = os.path.exists(dirPath) and os.path.isdir(dirPath)
+        if not dirExists:
+            try:
+                os.makedirs(dirPath)
+                logging.info("[FileMan][_makeSureDirExists] Created user directory: %s"% dirPath)
+            except Exception as e:
+               errMsg = "[FileMan][_makeSureDirExists] Cannot create user directory %s: %s" % (dirPath, str(e))
+               logging.error(errMsg)
+               raise LaymanError(500, errMsg) 
+
+    def _getFileNameFromUrl(self, url, openUrl):
+        filename = None
+        if 'Content-Disposition' in openUrl.info():
+            # If the response has Content-Disposition, try to get filename from it
+            cd = dict(map(
+                lambda x: x.strip().split('=') if '=' in x else (x.strip(),''),
+                openUrl.info()['Content-Disposition'].split(';')))
+            if 'filename' in cd:
+                filename = cd['filename'].strip("\"'")
+         
+        # if no filename was found above, parse it out from the URL
+        if not filename:
+            urlParsed = urlparse.urlsplit(openUrl.url)
+            filename = os.path.basename(urlParsed[2])
+            if not filename or filename == "":
+                filename = urlParsed[1] # netloc: "lakofila.cz"
+
+        return filename
+
+    def _treatNewFile(self, filePath, dirPath, fileName):
+
+        msg = None
+        if zipfile.is_zipfile(filePath):
+            # handle zip files
+            (fileName,msg) = self._unzipFile(filePath)
+        else:
+            # replace special characters in the filename
+            # we allow only letters, numbers, underscore and dot
+            import re
+            newFileName = re.sub('[^a-zA-Z0-9_.]', '_', fileName)
+            if newFileName != fileName:
+                newFilePath = os.path.join(dirPath, newFileName)
+                shutil.move(filePath, newFilePath)
+                
+        return (msg, fileName)                
 
     def putFile(self,fileName,data):
         """Update an existing file. 

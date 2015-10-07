@@ -253,6 +253,9 @@ class LayMan:
 
                         # Request params
                         inpt = web.input(filename={}, newfilename="")
+                        
+                        # User dir
+                        fsUserDir = self.auth.getFSUserDir()
 
                         # Chek 'source' parameter ['url'|'payload']
                         if "source" in inpt and inpt["source"].lower() == "url":    
@@ -263,14 +266,13 @@ class LayMan:
                                 message = "URL source requested, but URL not given"
                             else:
                                 # Get file from URL 
-                                (code, message) = fm.postFileFromUrl(inpt["url"])
+                                (code, message) = fm.postFileFromUrl(fsUserDir, inpt["url"])
                         else:
                             # Get file data from request payload
                             newFilename = inpt["newfilename"]
                             if not newFilename:
                                 newFilename = inpt["filename"].filename
-                            newFilename = self._getTargetFile(newFilename,False)
-                            (code, message) = fm.postFile(newFilename, inpt["filename"].file.read()) 
+                            (code, message) = fm.postFileFromPayload(fsUserDir, newFilename, inpt["filename"].file.read()) 
                    
                         web.header("Content-type", "text/html")
 
