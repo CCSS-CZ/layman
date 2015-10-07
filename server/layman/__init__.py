@@ -270,8 +270,7 @@ class LayMan:
                             if not newFilename:
                                 newFilename = inpt["filename"].filename
                             newFilename = self._getTargetFile(newFilename,False)
-                            (code, message) = fm.postFile(newFilename, inpt["filename"].file.read())  # FIXME Security: we
-                                                                                 # shoudl read file size up to X megabytes
+                            (code, message) = fm.postFile(newFilename, web.data()) 
                    
                         web.header("Content-type", "text/html")
 
