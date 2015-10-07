@@ -255,7 +255,7 @@ class LayMan:
                         inpt = web.input(filename={}, newfilename="")
 
                         # Chek 'source' parameter ['url'|'payload']
-                        if inpt["source"] and inpt["source"].lower() == "url":    
+                        if "source" in inpt and inpt["source"].lower() == "url":    
                             # Check URL param
                             if not inpt["url"] or inpt["url"] == "":
                                 # Get from url requested, but url not given
