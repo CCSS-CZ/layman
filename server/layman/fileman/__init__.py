@@ -255,12 +255,9 @@ class FileMan:
         # The file is not there, create it
         else:
             try:
-                #f = open(filePath, "wb")
-                #f.write(data)
-                #f.close()
-
-                with open(filePath, 'wb') as f:
-                    shutil.copyfileobj(data, f)
+                f = open(filePath, "wb")
+                f.write(data)
+                f.close()
 
                 # handle zip files
                 msg = None
