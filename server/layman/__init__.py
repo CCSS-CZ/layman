@@ -250,15 +250,29 @@ class LayMan:
                     if name[0] == "fileman":
                         from fileman import FileMan
                         fm = FileMan()
-                        # Jachyme, what we expect here to receive from the client?
-                        # Where is it documented?
+
+                        # Request params
                         inpt = web.input(filename={}, newfilename="")
-                        newFilename = inpt["newfilename"]
-                        if not newFilename:
-                            newFilename = inpt["filename"].filename
-                        newFilename = self._getTargetFile(newFilename,False)
-                        (code, message) = fm.postFile(newFilename, inpt["filename"].file.read())  # FIXME Security: we
-                                                                         # shoudl read file size up to X megabytes
+
+                        # Chek 'source' parameter ['url'|'payload']
+                        if inpt["source"] and inpt["source"].lower() == "url":    
+                            # Check URL param
+                            if not inpt["url"] or inpt["url"] == "":
+                                # Get from url requested, but url not given
+                                code = 400
+                                message = "URL source requested, but URL not given"
+                            else:
+                                # Get file from URL 
+                                (code, message) = fm.postFileFromUrl(inpt["url"])
+                        else:
+                            # Get file data from request payload
+                            newFilename = inpt["newfilename"]
+                            if not newFilename:
+                                newFilename = inpt["filename"].filename
+                            newFilename = self._getTargetFile(newFilename,False)
+                            (code, message) = fm.postFile(newFilename, inpt["filename"].file.read())  # FIXME Security: we
+                                                                                 # shoudl read file size up to X megabytes
+                   
                         web.header("Content-type", "text/html")
 
                     # POST /layman/user

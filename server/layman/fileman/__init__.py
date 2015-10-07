@@ -3,7 +3,6 @@
 
 import os, sys
 import shutil
-#import glob
 import mimetypes, time
 import json
 import logging
@@ -13,6 +12,8 @@ from osgeo import gdal
 from osgeo import osr
 import web
 import re
+import urllib2
+import urlparse
 
 from layman.errors import LaymanError
 
@@ -280,6 +281,42 @@ class FileMan:
             except Exception as e:
                 logging.error(e)
                 raise LaymanError("internalerror","FileMan: postFile(): %s" % str(e))
+
+    def postFileFromUrl(self, fromUrl, fileName=None):
+
+        def getFileName(url, openUrl):
+            filename = None
+            if 'Content-Disposition' in openUrl.info():
+                # If the response has Content-Disposition, try to get filename from it
+                cd = dict(map(
+                    lambda x: x.strip().split('=') if '=' in x else (x.strip(),''),
+                    openUrl.info()['Content-Disposition'].split(';')))
+                if 'filename' in cd:
+                    filename = cd['filename'].strip("\"'")
+            
+            # if no filename was found above, parse it out from the URL
+            if not filename:
+                urlParsed = urlparse.urlsplit(openUrl.url)
+                filename = os.path.basename(urlParsed[2])
+                if not filename or filename == "":
+                    filename = urlParsed[1] # netloc: "lakofila.cz"
+
+            return filename
+
+        # TODO:
+        #       - Learn the user dir
+        #       - Create the dir if it does not exist
+        #       - Check if the file already exists
+        #       - Unzip the zipfile
+
+        r = urllib2.urlopen(urllib2.Request(fromUrl))
+        try:
+            fileName = fileName or getFileName(fromUrl, r)
+            print 'filename: "'+ fileName +'"'
+            with open(fileName, 'wb') as f:
+                res = shutil.copyfileobj(r, f)
+        finally:
+            r.close()
 
     def putFile(self,fileName,data):
         """Update an existing file. 
