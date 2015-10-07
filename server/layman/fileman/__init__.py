@@ -255,9 +255,12 @@ class FileMan:
         # The file is not there, create it
         else:
             try:
-                f = open(filePath, "wb")
-                f.write(data)
-                f.close()
+                #f = open(filePath, "wb")
+                #f.write(data)
+                #f.close()
+
+                with open(filePath, 'wb') as f:
+                    shutil.copyfileobj(data, f)
 
                 # handle zip files
                 msg = None
@@ -312,7 +315,6 @@ class FileMan:
         r = urllib2.urlopen(urllib2.Request(fromUrl))
         try:
             fileName = fileName or getFileName(fromUrl, r)
-            print 'filename: "'+ fileName +'"'
             with open(fileName, 'wb') as f:
                 res = shutil.copyfileobj(r, f)
         finally:
