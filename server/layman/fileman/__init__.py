@@ -243,7 +243,7 @@ class FileMan:
                 f.close()
 
                 # handle zip files (or at least replace special characters)
-                (msg, fileName) = self._treatNewFile(filePath, fileDir, fileName)
+                (msg, fileName) = self._treatNewFile(filePath, dirPath, fileName)
 
                 if fileName:
                     logging.info("File [%s] successfully uploaded"% fileName)
