@@ -93,7 +93,7 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
                 record: record,
                 listeners: {
                     scope: this,
-                    'copytofiles': function(record, evt) {}
+                    'copytofiles': this._onCopyToFiles
                     }
                 });
 
@@ -105,19 +105,26 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
         this.on('itemclick', makeMenu, this);
 
         myconfig.store.load();
-
-        this.addEvents("ckandownloaded");
     },
 
+    _onCopyToFiles: function() {
 
-    /**
-     * ckan download handler
-     * @private
-     * @function
-     */
-    _onCkanDownloaded: function(data) {
-        this.fireEvent('ckandownloaded', data);
-    },
+        //TODO: get fileman url
+        var filemanUrl = "http://erra.ccss.cz/cgi-bin/layman/layman/fileman/"
+        var url = filemanUrl + '?source=url&url=' + urlToGet;
+        console.log(url);
+        Ext4.Ajax.request({
+            method: 'POST',
+            url: (HSRS.ProxyHost ? HSRS.ProxyHost + escape(url) : url),
+            success: function() {
+                // TODO - handle returned message
+            },
+            scope: this
+        });
+
+        // TODO: Re-load Files Panel
+        // this.store.load();
+    }
 
     /**
      * button refresh handler
