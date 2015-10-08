@@ -45,7 +45,7 @@ Ext4.define('HSRS.LayerManager.CkanPanel.CkanMenu', {
             };
 
             if (resources[i].format != "") {
-                newItem.text = '[' + resources[i].format + '] ' + newItem.text;
+                newItem.text += '  [' + resources[i].format + ']';
             }
 
             config.items.push(newItem);
