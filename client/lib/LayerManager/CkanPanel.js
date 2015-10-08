@@ -124,7 +124,7 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
 
         // TODO: Re-load Files Panel
         // this.store.load();
-    }
+    },
 
     /**
      * button refresh handler
