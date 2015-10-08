@@ -91,7 +91,7 @@ Ext4.define('HSRS.LayerManager', {
     },
 
     _onCkanDownloaded: function(data) {
-        Ext4.Msg.alert(HS.i18n('Success'), HS.i18n('Dataset downloaded') + ' ['+ (data.title || data.name) + ']');
+        //Ext4.Msg.alert(HS.i18n('Success'), HS.i18n('Dataset downloaded') + ' ['+ (data.title || data.name) + ']');
         this.filesPanel.store.load();
     },
 

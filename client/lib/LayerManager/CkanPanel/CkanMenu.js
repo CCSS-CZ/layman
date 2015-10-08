@@ -64,15 +64,6 @@ Ext4.define('HSRS.LayerManager.CkanPanel.CkanMenu', {
     _onResourceClicked: function() {
 
         this.obj.fireEvent('copytofiles', this.urlToGet);
-     },
-
-    /**
-     * on ckan downloaded
-     * @private
-     * @function
-     */
-    _onCkanDownloaded: function(data) {
-        this.fireEvent('ckandownloaded', data);
-    }
+     }
 
 });

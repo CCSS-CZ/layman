@@ -84,6 +84,7 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
         config.features = [groupingFeature];
 
         this.callParent(arguments);
+        this.addEvents('ckandownloaded');
 
         var makeMenu = function(view, record, elem, idx, e, opts) {
 
@@ -121,8 +122,7 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
             scope: this
         });
 
-        // TODO: Re-load Files Panel
-        // this.store.load();
+        this.fireEvent('ckandownloaded');
     },
 
     /**
