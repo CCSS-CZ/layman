@@ -107,7 +107,7 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
         myconfig.store.load();
     },
 
-    _onCopyToFiles: function() {
+    _onCopyToFiles: function(urlToGet) {
 
         //TODO: get fileman url
         var filemanUrl = "http://erra.ccss.cz/cgi-bin/layman/layman/fileman/"
