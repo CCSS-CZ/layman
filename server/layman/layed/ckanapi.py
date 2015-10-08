@@ -37,8 +37,12 @@ class CkanApi:
         url = self.url + "/action/package_list"
         if limit != "0":
             url = url + "?limit=" + limit + "&offset=" + offset
-        headers, response =  self.h.request(url,'GET')
-        return headers, response
+        logging.debug("[CkanApi][getPackageList] GET URL: %s"% url)        
+        head, cont =  self.h.request(url,'GET')
+        if (not head['status'] or head['status']!='200'):
+            logging.debug("[CkanApi][getUrl] Response headers: %s"% head)        
+            logging.debug("[CkanApi][getUrl] Response content: %s"% cont)        
+        return head, cont
 
     # package_show - details for the given package (=dataset)
     def getPackageShow(self, id):
