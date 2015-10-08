@@ -345,6 +345,12 @@ class LayEd:
                                 "name": r["name"],
                                 "url": r["url"]
                              }
+                    # Make sure some name is in
+                    if newRes["name"] is None or newRes["name"] == "":
+                        newRes["name"] = newRes["description"][:80] 
+                    if newRes["name"] is None or newRes["name"] == "":
+                        newRes["name"] = newRes["url"]
+
                     resources.append(newRes)
                 newDataset["resources"] = resources
                 
