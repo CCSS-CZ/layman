@@ -61,7 +61,7 @@ Ext4.define('HSRS.LayerManager.CkanPanel.CkanMenu', {
     //_onResourceClicked: function(urlToGet) {
     _onResourceClicked: function() {
 
-        obj.fireEvent('copytofiles', urlToGet);
+        this.obj.fireEvent('copytofiles', this.urlToGet);
 /*
         //TODO: get fileman url
         var filemanUrl = "http://erra.ccss.cz/cgi-bin/layman/layman/fileman/"
