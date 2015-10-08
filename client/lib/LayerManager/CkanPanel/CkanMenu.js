@@ -40,7 +40,7 @@ Ext4.define('HSRS.LayerManager.CkanPanel.CkanMenu', {
 
             config.items.push({
                 text: resources[i].name,
-                scope: {obj: this, record: rec, urlToGet: resources[i].url},
+                scope: {obj: this, urlToGet: resources[i].url},
                 handler: this._onResourceClicked,
                 urlToGet: resources[i].url
                 //handler: this._onResourceClicked(resources[i].url)
