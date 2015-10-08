@@ -116,13 +116,24 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
         Ext4.Ajax.request({
             method: 'POST',
             url: (HSRS.ProxyHost ? HSRS.ProxyHost + escape(url) : url),
-            success: function() {
-                // TODO - handle returned message
+            success: function(form, action) {
+                Ext4.Msg.alert(HS.i18n('Success'), HS.i18n('Resource copied to Files') + ' ['+ '...' + ']');
+            },
+            failure: function(form, action) {
+                var obj;
+                try {
+                    obj = Ext4.decode(form.responseText);
+                }
+                catch (E) {
+                    obj = {message: ''};
+                }
+                Ext4.Msg.alert(HS.i18n('Failed'), HS.i18n('Resource not copied into Files') +
+                    '<br />' + obj.message);
             },
             scope: this
         });
 
-        this.fireEvent('ckandownloaded');
+        this.fireEvent('ckandownloaded'); // Fire event to LayerManager to refresh the Files
     },
 
     /**
