@@ -109,8 +109,7 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
 
     _onCopyToFiles: function(urlToGet) {
 
-        //TODO: get fileman url
-        var filemanUrl = "http://erra.ccss.cz/cgi-bin/layman/layman/fileman/"
+        var filemanUrl = this.url.replace("ckan", "fileman");
         var url = filemanUrl + '?source=url&url=' + urlToGet;
         console.log(url);
         Ext4.Ajax.request({
