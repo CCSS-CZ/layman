@@ -117,7 +117,15 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
             method: 'POST',
             url: (HSRS.ProxyHost ? HSRS.ProxyHost + escape(url) : url),
             success: function(form, action) {
-                Ext4.Msg.alert(HS.i18n('Success'), HS.i18n('Resource copied to Files') + ' ['+ '...' + ']');
+                var obj;
+                try {
+                    obj = Ext4.decode(form.responseText);
+                }
+                catch (E) {
+                    obj = {message: ''};
+                }
+                Ext4.Msg.alert(HS.i18n('Success'), HS.i18n('Resource copied to Files') +
+                     '<br />' + obj.message);
             },
             failure: function(form, action) {
                 var obj;
