@@ -93,6 +93,7 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
                 record: record,
                 listeners: {
                     scope: this
+                    'copytofiles': function(record, evt) {}
                     }
                 });
 

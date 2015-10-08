@@ -23,22 +23,8 @@ Ext4.define('HSRS.LayerManager.CkanPanel.CkanMenu', {
         this.url = config.url.replace(/\/$/, config.record.get('name'));
 
         config.name = "Dataset details";
-        // config.schema = config.record.get('schema'); // replace with organization ?
 
         config.items = [];
-
-        /*
-        config.items.push({
-                text: HS.i18n('Download'),
-                // icon: HSRS.IMAGE_LOCATION + '/map_go.png',
-                scope: this,
-                handler: this._onDownloadClicked
-            });
-
-        config.items.push(
-            { xtype: 'menuseparator' }
-        );
-        */
 
         config.items.push({
             text: '<b>' + config.record.get('title') + '</b>'
@@ -54,7 +40,9 @@ Ext4.define('HSRS.LayerManager.CkanPanel.CkanMenu', {
 
             config.items.push({
                 text: resources[i].name,
-                href: resources[i].url
+                scope: this,
+                handler: this._copyToFiles(resources[i].url)
+                // href: resources[i].url
                 // hrefTarget: '_blank' 
             });
         }    
@@ -68,30 +56,24 @@ Ext4.define('HSRS.LayerManager.CkanPanel.CkanMenu', {
      * download handler
      * @private
      */
-    _onDownloadClicked: function() {
-/* TODO - download dataset
-        var publishForm = Ext4.create('HSRS.LayerManager.PublishForm', {
-            name: this.name,
-            url: this.url.replace('fileman', 'publish'),
-            groups: this.groups,
-            group: this.schema,
-            type: "data"
-        });
-        publishForm._win = Ext4.create('Ext4.window.Window', {
-            title: HS.i18n('Publish'),
-            items: [publishForm]
+    _copyToFiles: function(urlToGet) {
+
+        //TODO: get fileman url
+        var filemanUrl = "http://erra.ccss.cz/cgi-bin/layman/layman/fileman/"
+        var url = filemanUrl + '?source=url&url=' + urlToGet;
+        console.log(url);
+        Ext4.Ajax.request({
+            method: 'POST',
+            url: (HSRS.ProxyHost ? HSRS.ProxyHost + escape(url) : url),
+            success: function() {
+                // TODO - handle returned message
+            },
+            scope: this
         });
 
-        publishForm.on('canceled', publishForm._win.close, publishForm._win);
-        publishForm.on('published',
-            function(e) {
-                this.publishForm._win.close();
-                this.menu._onDataPublished.apply(this.menu, arguments);
-            },
-            {menu: this, publishForm: publishForm}
-        );
-        publishForm._win.show();
-  */ 
+        // TODO: Re-load Files Panel
+        // this.store.load();
+
      },
 
     /**
