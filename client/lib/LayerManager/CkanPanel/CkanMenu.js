@@ -44,7 +44,7 @@ Ext4.define('HSRS.LayerManager.CkanPanel.CkanMenu', {
                 handler: this._onResourceClicked
             };
 
-            if resources[i].format != "" {
+            if (resources[i].format != "") {
                 newItem.text += '[' + resources[i].format + ']';
             }
 
