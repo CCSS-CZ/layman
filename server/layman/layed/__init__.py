@@ -331,8 +331,8 @@ class LayEd:
 
             # Add dataset to our response
             try:
-                newDataset = {  "organizationName": packageShow["result"]["organization"]["name"] ? packageShow["result"]["organization"] : "",
-                                "organizationTitle": packageShow["result"]["organization"]["title"] ? packageShow["result"]["organization"] : "",
+                newDataset = {  "organizationName": packageShow["result"]["organization"]["name"] if packageShow["result"]["organization"] else "",
+                                "organizationTitle": packageShow["result"]["organization"]["title"] if packageShow["result"]["organization"] else "",
                                 "name": packageShow["result"]["name"],
                                 "title":  packageShow["result"]["title"],
                                 "notes":  packageShow["result"]["notes"]
