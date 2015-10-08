@@ -38,15 +38,17 @@ Ext4.define('HSRS.LayerManager.CkanPanel.CkanMenu', {
         resources = arguments[0].record.raw.resources;
         for (var i=0, l=resources.length; i<l; ++i) {
 
-            config.items.push({
+            var newItem = {
                 text: resources[i].name,
                 scope: {obj: this, urlToGet: resources[i].url},
-                handler: this._onResourceClicked,
-                // urlToGet: resources[i].url
-                // handler: this._onResourceClicked(resources[i].url)
-                // href: resources[i].url
-                // hrefTarget: '_blank' 
-            });
+                handler: this._onResourceClicked
+            };
+
+            if resources[i].format != "" {
+                newItem.text += '[' + resources[i].format + ']';
+            }
+
+            config.items.push(newItem);
         }    
 
         this.callParent(arguments);
@@ -62,23 +64,6 @@ Ext4.define('HSRS.LayerManager.CkanPanel.CkanMenu', {
     _onResourceClicked: function() {
 
         this.obj.fireEvent('copytofiles', this.urlToGet);
-/*
-        //TODO: get fileman url
-        var filemanUrl = "http://erra.ccss.cz/cgi-bin/layman/layman/fileman/"
-        var url = filemanUrl + '?source=url&url=' + urlToGet;
-        console.log(url);
-        Ext4.Ajax.request({
-            method: 'POST',
-            url: (HSRS.ProxyHost ? HSRS.ProxyHost + escape(url) : url),
-            success: function() {
-                // TODO - handle returned message
-            },
-            scope: this
-        });
-
-        // TODO: Re-load Files Panel
-        // this.store.load();
-*/
      },
 
     /**
