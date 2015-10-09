@@ -389,7 +389,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                     title: HS.i18n('Advanced'),
                     items: [
                         /* Read access
-                         */
+                         *//*
                         {
                             xtype: 'fieldset',
                             anchor: '100%',
@@ -447,7 +447,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                 toTitle: HS.i18n('Allow')
                               }
                             ]
-                        },
+                        },*/
                         /* CRS field
                          */
                          {

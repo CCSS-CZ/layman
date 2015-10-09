@@ -85,7 +85,7 @@ Ext4.define('HSRS.LayerManager', {
 
         this.layersPanel.store.on('load', this._onLayersLoaded, this);
 
-        config.items = [this.ckanPanel, this.filesPanel, this.dataPanel, this.layersPanel];
+        config.items = [this.ckanPanel, this.filesPanel, /*this.dataPanel,*/ this.layersPanel];
 
         this.callParent(arguments);
     },
