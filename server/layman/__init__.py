@@ -132,9 +132,10 @@ class LayMan:
                         from layed import LayEd
                         le = LayEd()
 
+                        inpt = web.input(limit="20", offset="0")
                         userName = self.auth.getUserName()
                         roles = self.auth.getRoles()
-                        (code,retval) = le.getCkanPackages(roles, userName, limit="20", offset="0") # TODO - get CKAN limit from client
+                        (code,retval) = le.getCkanPackages(roles, userName, inpt.limit, inpt.offset) 
 
                     else:
                         (code, retval) = self._callNotSupported(restMethod="GET", call=origName)
