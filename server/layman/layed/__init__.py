@@ -270,18 +270,9 @@ class LayEd:
 
     ### CKAN ###
 
-    def getCkanPackages(self, roles, userName, limit="0", offset="0"):
-        """ Get the list of CKAN packages. 
-        Calls package_list for the given limit and then,
-        for every package listed, calls package_show and 
-        extracts name, title and notes (description).
-        These are returned in a list.
-        """
-        #print "prvni dotaz"
-
-        from layman.layed.ckanapi import CkanApi
-        ckan = CkanApi(self.config)
-
+    def _getPackageList(ckan, limit="0", offset="0"):
+    """ Get package list and check the reply
+    """
         # Get package list from CKAN
         (head, resp) = ckan.getPackageList(limit, offset)
 
@@ -302,7 +293,28 @@ class LayEd:
             headStr = str(head)
             message = "[LayEd][getCkanPackages] Cannot GET CKAN packages. CKAN replied with %s and said '%s'" % (headStr,resp)
             raise LaymanError(500, message)
+
+        return packageList
+
+    def getCkanPackages(self, roles, userName, limit="0", offset="0"):
+        """ Get the list of CKAN packages. 
+        Calls package_list for the given limit and then,
+        for every package listed, calls package_show and 
+        extracts name, title and notes (description).
+        These are returned in a list.
+        """
+        #print "prvni dotaz"
+
+        from layman.layed.ckanapi import CkanApi
+        ckan = CkanApi(self.config)
         
+        # Learn the number of datasets available
+        packageList = self._getPackageList(ckan)
+        numberOfDatasets = len(packageList["result"])        
+
+        # Get the base list for our reply
+        packageList = self._getPackageList(ckan, limit, offset)        
+
         # Our reply will be formed from the list of datasets, 
         # accompanied by the details
         ckanPackages = []
@@ -364,7 +376,7 @@ class LayEd:
 
         reply = {
             "success": True,
-            "results": 456, # TODO: get number of ckan datasets len(ckanPackages),
+            "results": numberOfDatasets,
             "rows": ckanPackages
         }
 
