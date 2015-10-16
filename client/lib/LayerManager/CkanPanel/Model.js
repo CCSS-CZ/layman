@@ -1,4 +1,6 @@
 
+// Ckan Panel Model
+
 Ext4.define('HSRS.LayerManager.CkanPanel.Model', {
         extend: 'Ext4.data.Model',
         fields: [
