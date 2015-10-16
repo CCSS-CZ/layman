@@ -362,12 +362,18 @@ class LayEd:
                 logging.warning("[LayEd][getCkanPackages] Error parsing CKAN reply for 'package_show'. Skipping package %s. CKAN replied with %s and said '%s'" % (dsName, headStr, resp))
                 continue
 
+        reply = {
+            "success": true,
+            "results": 456, # TODO: get number of ckan datasets len(ckanPackages),
+            "rows": ckanPackages
+        }
+
         # Dump our json result
-        strCkanPackages = json.dumps(ckanPackages)
+        strReply = json.dumps(reply)
 
         # Return the list of CKAN packages
         code = 200
-        return (code, strCkanPackages)
+        return (code, strReply)
     
     
     ### LAYERS ###
