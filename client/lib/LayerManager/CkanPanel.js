@@ -30,7 +30,8 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
                 url: (HSRS.ProxyHost ? HSRS.ProxyHost + escape(config.url) : config.url),
                 reader: {
                     type: 'json',
-                    root: 'rows'
+                    root: 'rows',
+                    totalProperty: 'results'
                 }
             }
         });
