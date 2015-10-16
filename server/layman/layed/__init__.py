@@ -363,7 +363,7 @@ class LayEd:
                 continue
 
         reply = {
-            "success": true,
+            "success": True,
             "results": 456, # TODO: get number of ckan datasets len(ckanPackages),
             "rows": ckanPackages
         }
