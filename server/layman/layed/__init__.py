@@ -270,7 +270,7 @@ class LayEd:
 
     ### CKAN ###
 
-    def _getPackageList(ckan, limit="0", offset="0"):
+    def _getPackageList(self, ckan, limit="0", offset="0"):
         """ Get package list and check the reply
         """
         # Get package list from CKAN
