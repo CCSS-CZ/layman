@@ -18,20 +18,6 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
 
         var itemsPerPage = 30;
 
-        // Toolbar
-        myconfig.tbar = Ext4.create('Ext4.toolbar.Toolbar', {
-            items: [
-                {   // Refresh
-                    scope: {obj: this, itemsPerPage: itemsPerPage},
-                    handler: this._onRefreshClicked,
-                    cls: 'x-btn-icon',
-                    tooltip: HS.i18n('Refresh'),
-                    icon: HSRS.IMAGE_LOCATION + '/arrow_refresh.png'
-                }
-            ]
-        });
-
-
         // Store
         myconfig.store = Ext4.create('Ext4.data.Store', {
             model: 'HSRS.LayerManager.CkanPanel.Model',
@@ -46,6 +32,24 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
                     type: 'json'
                 }
             }
+        });
+
+        // Toolbar
+        myconfig.tbar = Ext4.create('Ext4.toolbar.Toolbar', {
+            items: [
+                {   // Refresh
+                    scope: {obj: this, itemsPerPage: itemsPerPage},
+                    handler: this._onRefreshClicked,
+                    cls: 'x-btn-icon',
+                    tooltip: HS.i18n('Refresh'),
+                    icon: HSRS.IMAGE_LOCATION + '/arrow_refresh.png'
+                },
+                {
+                    xtype: 'pagingtoolbar',
+                    store: myconfig.store,   // same store GridPanel is using
+                    displayInfo: true
+                }
+            ]
         });
 
         myconfig.multiSelect = true;
