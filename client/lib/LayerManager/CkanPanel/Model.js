@@ -1,4 +1,3 @@
-
 // Ckan Panel Model
 
 Ext4.define('HSRS.LayerManager.CkanPanel.Model', {
