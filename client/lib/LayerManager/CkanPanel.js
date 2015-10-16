@@ -48,7 +48,7 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
                 {
                     xtype: 'pagingtoolbar',
                     store: myconfig.store,   // same store GridPanel is using
-                    displayInfo: true
+                    displayInfo: false
                 }
             ]
         });
