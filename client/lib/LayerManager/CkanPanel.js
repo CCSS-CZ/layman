@@ -5,8 +5,8 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
 
     requires: [
         'Ext4.data.JsonStore',
-        'HSRS.LayerManager.CkanPanel.Model' /*,
-        'HSRS.LayerManager.CkanPanel.CkanMenu' */
+        'HSRS.LayerManager.CkanPanel.Model',
+        'HSRS.LayerManager.CkanPanel.CkanMenu' 
     ],
 
     /**
@@ -31,11 +31,15 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
 
 
         // Store
+
+        var itemsPerPage = 30;
+
         myconfig.store = Ext4.create('Ext4.data.Store', {
             model: 'HSRS.LayerManager.CkanPanel.Model',
             groupField: 'organizationTitle',
             //autoLoad: true,
             //autoSync: true,
+            pageSize: itemsPerPage,
             proxy: {
                 type: 'ajax',
                 url: (HSRS.ProxyHost ? HSRS.ProxyHost + escape(config.url) : config.url),
@@ -105,7 +109,12 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
         this.on('itemcontextmenu', makeMenu, this);
         this.on('itemclick', makeMenu, this);
 
-        myconfig.store.load();
+        myconfig.store.load({
+            params:{
+                start: 0,
+                limit: itemsPerPage
+            }
+        });
     },
 
     _onCopyToFiles: function(urlToGet) {
@@ -149,7 +158,12 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
      * @private
      */
      _onRefreshClicked: function() {
-        this.store.load();
+        this.store.load({
+            params:{
+                start: 0,
+                limit: itemsPerPage
+            }
+        });
      }
 
 });
