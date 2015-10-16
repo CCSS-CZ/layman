@@ -157,10 +157,10 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
      * @private
      */
      _onRefreshClicked: function() {
-        obj.store.load({
+        this.obj.store.load({
             params:{
                 start: 0,
-                limit: itemsPerPage
+                limit: this.itemsPerPage
             }
         });
      }
