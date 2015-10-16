@@ -16,11 +16,13 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
 
         myconfig = {};
 
+        var itemsPerPage = 30;
+
         // Toolbar
         myconfig.tbar = Ext4.create('Ext4.toolbar.Toolbar', {
             items: [
                 {   // Refresh
-                    scope: this,
+                    scope: {obj: this, itemsPerPage: itemsPerPage},
                     handler: this._onRefreshClicked,
                     cls: 'x-btn-icon',
                     tooltip: HS.i18n('Refresh'),
@@ -31,9 +33,6 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
 
 
         // Store
-
-        var itemsPerPage = 30;
-
         myconfig.store = Ext4.create('Ext4.data.Store', {
             model: 'HSRS.LayerManager.CkanPanel.Model',
             groupField: 'organizationTitle',
@@ -158,7 +157,7 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
      * @private
      */
      _onRefreshClicked: function() {
-        this.store.load({
+        obj.store.load({
             params:{
                 start: 0,
                 limit: itemsPerPage
