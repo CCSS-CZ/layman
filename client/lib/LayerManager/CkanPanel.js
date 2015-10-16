@@ -36,7 +36,7 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
             }
         });
 
-        // Top Toolbar
+        // Top toolbar
         myconfig.tbar = Ext4.create('Ext4.toolbar.Toolbar', {
             items: [
                 {   // Refresh
