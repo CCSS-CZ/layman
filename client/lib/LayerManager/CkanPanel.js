@@ -36,7 +36,7 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
             }
         });
 
-        // Toolbar
+        // Top Toolbar
         myconfig.tbar = Ext4.create('Ext4.toolbar.Toolbar', {
             items: [
                 {   // Refresh
@@ -45,14 +45,21 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
                     cls: 'x-btn-icon',
                     tooltip: HS.i18n('Refresh'),
                     icon: HSRS.IMAGE_LOCATION + '/arrow_refresh.png'
-                },
-                {
+                }
+            ]
+        });
+
+        // Bottom toolbar
+        myconfig.bbar = Ext4.create('Ext4.toolbar.Toolbar', {
+            items: [
+                {   // Paging
                     xtype: 'pagingtoolbar',
                     store: myconfig.store,   // same store GridPanel is using
                     displayInfo: false
                 }
             ]
         });
+
 
         myconfig.multiSelect = true;
         myconfig.autoScroll = true;
