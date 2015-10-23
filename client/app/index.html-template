@@ -1,10 +1,11 @@
 <html>
     <head>
-        <link rel="stylesheet" type="text/css" href="/wwwlibs/ext/ext4/resources/css/ext-sandbox-debug.css" />
-        <script type="text/javascript" src="/wwwlibs/ext/ext4/builds/ext-all-sandbox-debug-w-comments.js"></script>
-        <script type="text/javascript" src="/wwwlibs/hslayers/build/OpenLayers-debug.js"></script>
-        <script type="text/javascript" src="/wwwlibs/proj4js/proj4js.js"></script>
+        <link rel="stylesheet" type="text/css" href="/wwwlibs/ext4/resources/css/ext-sandbox-debug.css" />
+        <script type="text/javascript" src="/wwwlibs/ext4/builds/ext-all-sandbox-debug-w-comments.js"></script>
+        <!--script type="text/javascript" src="/wwwlibs/hslayers/build/OpenLayers-debug.js"></script-->
+        <script type="text/javascript" src="/wwwlibs/proj4js/proj4.js"></script>
         <script type="text/javascript" src="../lib/HSRS.js"></script>
+        <script type="text/javascript" src="../lib/HS.js"></script>
         <link rel="stylesheet" type="text/css" href="../lib/layman.css" />
         <title>Data man application</title>
         <script type="text/javascript">
@@ -24,9 +25,13 @@
 
             Ext4.onReady(function() {
                 lm = Ext4.create("HSRS.LayerManager",{
-                    url: "/cgi-bin/layman/layman/",
-                    height: "100%",
-                    renderTo: "data"
+                    url:            "/cgi-bin/layman/layman/",
+                    height:         "100%",
+                    renderTo:       "data",
+                    showCkan:       true,   // whether to show CKAN panel
+                    showFiles:      true,   // whether to show Files panel
+                    showData:       false,   // Whether to show Data panel
+                    secureLayers:   true    // Whether to show options to secure publsihed layers
                 });
 
             });
