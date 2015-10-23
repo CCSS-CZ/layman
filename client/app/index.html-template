@@ -30,8 +30,7 @@
                     renderTo:       "data",
                     showCkan:       true,   // whether to show CKAN panel
                     showFiles:      true,   // whether to show Files panel
-                    showData:       false,   // Whether to show Data panel
-                    secureLayers:   true    // Whether to show options to secure publsihed layers
+                    showData:       false   // Whether to show Data panel
                 });
 
             });
