@@ -8,20 +8,16 @@ Ext4.define('HSRS.LayerManager', {
         'HSRS.LayerManager.LayersPanel'
     ],
 
+
+    showCkan: true,
     ckanPanel: undefined,
 
-    /**
-     * @name HSRS.LayerManager.filesPanel
-     * @type HSRS.LayerManager.FilesPanel
-     */
+    showFiles: true,
     filesPanel: undefined,
 
+    showData: true,
     dataPanel: undefined,
 
-    /**
-     * @name HSRS.LayerManager.filesPanel
-     * @type HSRS.LayerManager.FilesPanel
-     */
     layersPanel: undefined,
 
     /**
@@ -34,16 +30,26 @@ Ext4.define('HSRS.LayerManager', {
             align: 'stretch'
         };
 
+        // Detect what panels we want
+        if ( ("showCkan" in config) && !(config.showCkan) )
+           this.showCkan = false; 
+        if ( ("showFiles" in config) && !(config.showFiles) )
+           this.showFiles = false; 
+        if ( ("showData" in config) && !(config.showData) )
+           this.showData = false; 
+
         // CKAN Panel
-        url = config.url + (config.url[config.url.length - 1] == '/' ? '' : '/') + 'ckan/';
-        this.ckanPanel = Ext4.create('HSRS.LayerManager.CkanPanel', {
-            url: url,
-            flex: 1,
-            listeners: {
-                scope: this,
-                'ckandownloaded': this._onCkanDownloaded
-            }
-        });
+        if (this.showCkan) {
+            url = config.url + (config.url[config.url.length - 1] == '/' ? '' : '/') + 'ckan/';
+            this.ckanPanel = Ext4.create('HSRS.LayerManager.CkanPanel', {
+                url: url,
+                flex: 1,
+                listeners: {
+                    scope: this,
+                    'ckandownloaded': this._onCkanDownloaded
+                }
+            });
+        }
 
         // Files Panel
         var url = config.url + (config.url[config.url.length - 1] == '/' ? '' : '/') + 'fileman/';
@@ -88,13 +94,13 @@ Ext4.define('HSRS.LayerManager', {
         // Items
         config.items = []        
 
-        if ( !("showCkan" in config) || config.showCkan )
+        if ( this.showCkan )
             config.items.push(this.ckanPanel);
 
-        if ( !("showFiles" in config) || config.showFiles )
+        if ( this.showFiles )
             config.items.push(this.filesPanel);  
 
-        if ( !("showData" in config) || config.showData )
+        if ( this.showData )
             config.items.push(this.dataPanel);
 
         config.items.push(this.layersPanel);
