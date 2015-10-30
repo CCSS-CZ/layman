@@ -30,6 +30,13 @@ class CkanApi:
 
     ### CKAN API v.3
 
+    def getResourceSearch(self, rFormat):
+        """ get resources of specified resource format
+        """
+        url = self.url + "/action/resource_search?query=format:" + rFormat
+        headers, response =  self.h.request(url,'GET')
+        return headers, response
+
     # package_list - list of packages (=datasets)
     # eg: http://ckan.ccss.cz/api/3/action/package_list
     def getPackageList(self, limit="0", offset="0"):

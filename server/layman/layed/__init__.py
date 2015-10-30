@@ -270,6 +270,73 @@ class LayEd:
 
     ### CKAN ###
 
+    def getCkanResources(self):
+        """ Get ckan resources. 
+        List of requested types (shp, json, kml...) must be specified 
+        (for now in the config file).
+        One request to ckan is done for each type, 
+        results are merged and returned.
+        """
+
+        # Get list of formats requested
+        # This can be moved from config to client       
+        requested = self.config.get("CKAN", "resource_format")
+
+        # make list, trim and lower()
+        formatList = map(lambda r: r.strip().lower(), requested.split(','))
+
+        # TODO: Paging. Client will probably need to remember, where we have ended -
+        # - we would need to page across several ckan requests
+
+        # bookmark=shp_45_json_12_kml_3&limit=20&offset=3 -> skip shapefiles and jsons, go for kmls and start from the 4th one
+
+        from layman.layed.ckanapi import CkanApi
+        ckan = CkanApi(self.config)
+
+        resources = []
+
+        # Get resources of every format requested
+        for f in formatList:
+            (head, resp) = ckan.getResourceSearch(f)
+
+            # Check status
+            if head["status"] != "200":
+                headStr = str(head)
+                logging.warning("[LayEd][getCkanResources] Cannot get resources of format '%s'. CKAN replied with %s and said '%s'" % (f, headStr, resp))
+                continue
+
+            # Load JSON
+            replyParsed = json.loads(resp)
+
+            # Check success
+            if not replyParsed["success"]:
+                headStr = str(head)
+                logging.warning("[LayEd][getCkanResources] Cannot get resources of format '%s'. CKAN replied with %s and said '%s'" % (f, headStr, resp))
+                continue
+
+            # Add resources of format f to our list to be returned
+            try:
+                resources.extend( replyParsed["result"]["results"] )
+
+            except Exception as e:
+                headStr = str(head)
+                logging.warning("[LayEd][getCkanResources] Error parsing CKAN reply for 'resource_search'. Skipping format %s. CKAN replied with %s and said '%s'" % (f, headStr, resp))
+                continue
+
+        # Reply according to Client's paging needs
+        reply = {
+            "success": True,
+            "results": numberOfResources, # ***
+            "rows": resources
+        }
+        
+        # Dump our json result
+        strReply = json.dumps(reply)
+
+        # Return the list of resources
+        code = 200
+        return (code, strReply)
+
     def _getPackageList(self, ckan, limit="0", offset="0"):
         """ Get package list and check the reply
         """
