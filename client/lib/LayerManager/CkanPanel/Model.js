@@ -1,7 +1,18 @@
 
-// Ckan Panel Model
+// Model for getCkanResources()
+Ext4.define('HSRS.LayerManager.CkanPanel.ResourceModel', {
+        extend: 'Ext4.data.Model',
+        fields: [
+            {name: 'name', mapping: '', type: Ext4.data.Types.STRING},
+            {name: 'url', mapping: '', type: Ext4.data.Types.STRING},
+            {name: 'format', mapping: '', type: Ext4.data.Types.STRING},
+            {name: 'description', mapping: '', type: Ext4.data.Types.STRING}
+        ]
 
-Ext4.define('HSRS.LayerManager.CkanPanel.Model', {
+});
+
+// Model for getCkanPackages() (datasets)
+Ext4.define('HSRS.LayerManager.CkanPanel.PackageModel', {
         extend: 'Ext4.data.Model',
         fields: [
             {name: 'organizationName', mapping: 'organizationName', type: Ext4.data.Types.STRING},

@@ -280,7 +280,7 @@ class LayEd:
 
         # Get list of formats requested
         # This can be moved from config to client       
-        requested = self.config.get("CKAN", "resource_format")
+        requested = self.config.get("CKAN", "ResourceFormat")
 
         # make list, trim and lower()
         formatList = map(lambda r: r.strip().lower(), requested.split(','))
@@ -289,6 +289,8 @@ class LayEd:
         # - we would need to page across several ckan requests
 
         # bookmark=shp_45_json_12_kml_3&limit=20&offset=3 -> skip shapefiles and jsons, go for kmls and start from the 4th one
+
+        # or cache it in the db, refresh it regularly or upon a refresh request
 
         from layman.layed.ckanapi import CkanApi
         ckan = CkanApi(self.config)
@@ -314,19 +316,52 @@ class LayEd:
                 logging.warning("[LayEd][getCkanResources] Cannot get resources of format '%s'. CKAN replied with %s and said '%s'" % (f, headStr, resp))
                 continue
 
-            # Add resources of format f to our list to be returned
-            try:
-                resources.extend( replyParsed["result"]["results"] )
+            # Check resources
+            if (not replyParsed["result"]) or (not replyParsed["result"]["results"]):
+                logging.warning("[LayEd][getCkanResources] Cannot find results for format '%s'. CKAN replied with %s and said '%s'" % (f, headStr, resp))
 
-            except Exception as e:
-                headStr = str(head)
-                logging.warning("[LayEd][getCkanResources] Error parsing CKAN reply for 'resource_search'. Skipping format %s. CKAN replied with %s and said '%s'" % (f, headStr, resp))
-                continue
+            # Extract information needed
+            for r in replyParsed["result"]["results"]:
+
+                try:
+                    rUrl = r["url"]
+                    if not rUrl or rUrl == "": 
+                        rUrl = r["download_url"]
+                        if not rUrl or rUrl == "": 
+                            rUrl = r["uri"]
+                            if not rUrl or rUrl == "": 
+                                continue
+        
+                    rName = r["name"]
+                    if not rName or rName == "": 
+                        rName = r["description"][:30] + "..."
+                        if not rName or rName == "": 
+                            rName = rUrl
+                
+                    rFormat = r["format"]
+                    if not rFormat or rFormat == "": 
+                        rFormat = f
+
+                    rDescription = r["description"]                    
+
+                    newResource = { 
+                                    "name":         rName,
+                                    "url":          rUrl,
+                                    "format":       rFormat,
+                                    "description":  rDescription
+                                  }
+            
+                    resources.append(newResource)
+
+                except Exception as e:
+                    headStr = str(head)
+                    logging.warning("[LayEd][getCkanResources] Error parsing CKAN reply for 'resource_search'. Skipping format %s. CKAN replied with %s and said '%s'" % (f, headStr, resp))
+                    continue
 
         # Reply according to Client's paging needs
         reply = {
             "success": True,
-            "results": numberOfResources, # ***
+            "results": 1000, # TODO: numberOfResources
             "rows": resources
         }
         

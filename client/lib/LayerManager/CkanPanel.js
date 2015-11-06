@@ -20,10 +20,9 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
 
         // Store
         myconfig.store = Ext4.create('Ext4.data.Store', {
-            model: 'HSRS.LayerManager.CkanPanel.Model',
-            groupField: 'organizationTitle',
-            //autoLoad: true,
-            //autoSync: true,
+            // model: 'HSRS.LayerManager.CkanPanel.PackageModel',
+            model: 'HSRS.LayerManager.CkanPanel.ResourceModel',
+            // groupField: 'organizationTitle',
             pageSize: itemsPerPage,
             proxy: {
                 type: 'ajax',
@@ -90,14 +89,14 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
         ];
 
         // grouping according to organizations
-        var groupingFeature = Ext4.create('Ext4.grid.feature.Grouping', {
+        /* var groupingFeature = Ext4.create('Ext4.grid.feature.Grouping', {
             groupHeaderTpl: '{name}',
             hideGroupedHeader: true,
             collapsible: false
-        });
+        }); */
 
         config = Ext4.Object.merge(myconfig, config);
-        config.features = [groupingFeature];
+        // config.features = [groupingFeature];
 
         this.callParent(arguments);
         this.addEvents('ckandownloaded');
