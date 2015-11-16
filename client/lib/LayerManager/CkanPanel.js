@@ -59,7 +59,6 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
             ]
         });
 
-
         myconfig.multiSelect = true;
         myconfig.autoScroll = true;
         myconfig.anchor = '100%';
@@ -86,6 +85,7 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
             }
         ];
 
+/*
         // Datasets columns
         myconfig.columns = [
             // org column
@@ -110,6 +110,7 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
                 dataIndex: 'notes'
             }
         ];
+*/
 
         // grouping according to organizations
         /* var groupingFeature = Ext4.create('Ext4.grid.feature.Grouping', {
