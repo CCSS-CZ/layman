@@ -136,7 +136,8 @@ class LayMan:
                         userName = self.auth.getUserName()
                         roles = self.auth.getRoles()
 
-                        (code,retval) = le.getCkanPackages(roles, userName, inpt.limit, inpt.start) 
+                        (code,retval) = le.getCkanResources(inpt.limit, inpt.start) 
+                        #(code,retval) = le.getCkanPackages(roles, userName, inpt.limit, inpt.start) 
 
                     else:
                         (code, retval) = self._callNotSupported(restMethod="GET", call=origName)

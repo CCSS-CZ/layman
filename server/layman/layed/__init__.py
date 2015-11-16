@@ -270,7 +270,7 @@ class LayEd:
 
     ### CKAN ###
 
-    def getCkanResources(self):
+    def getCkanResources(self, limit="0", offset="0"):
         """ Get ckan resources. 
         List of requested types (shp, json, kml...) must be specified 
         (for now in the config file).
@@ -383,7 +383,7 @@ class LayEd:
         # Check status
         if head["status"] != "200":
             headStr = str(head)
-            message = "[LayEd][getCkanPackages] Cannot GET CKAN packages. CKAN replied with %s and said '%s'" % (headStr,resp)
+            message = "[LayEd][_getPackageList] Cannot GET CKAN packages. CKAN replied with %s and said '%s'" % (headStr,resp)
             raise LaymanError(500, message)
 
         # Load JSON
@@ -393,7 +393,7 @@ class LayEd:
         if not packageList["success"]:
             # Raise an exception
             headStr = str(head)
-            message = "[LayEd][getCkanPackages] Cannot GET CKAN packages. CKAN replied with %s and said '%s'" % (headStr,resp)
+            message = "[LayEd][_getPackageList] Cannot GET CKAN packages. CKAN replied with %s and said '%s'" % (headStr,resp)
             raise LaymanError(500, message)
 
         return packageList
