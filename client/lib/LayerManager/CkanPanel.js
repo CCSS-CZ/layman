@@ -63,7 +63,30 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
         myconfig.multiSelect = true;
         myconfig.autoScroll = true;
         myconfig.anchor = '100%';
+        
+        // Packages columns
+        myconfig.columns = [
+            {
+                text: HS.i18n('Name'),
+                sortable: true,
+                flex: 1,
+                dataIndex: 'name'
+            }
+            {
+                text: HS.i18n('Format'),
+                sortable: true,
+                flex: 1,
+                dataIndex: 'format'
+            }
+            {
+                text: HS.i18n('Description'),
+                sortable: true,
+                flex: 1,
+                dataIndex: 'Description'
+            }
+        ];
 
+        // Datasets columns
         myconfig.columns = [
             // org column
             {

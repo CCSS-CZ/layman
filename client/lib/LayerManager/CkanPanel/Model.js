@@ -3,10 +3,10 @@
 Ext4.define('HSRS.LayerManager.CkanPanel.ResourceModel', {
         extend: 'Ext4.data.Model',
         fields: [
-            {name: 'name', mapping: '', type: Ext4.data.Types.STRING},
-            {name: 'url', mapping: '', type: Ext4.data.Types.STRING},
-            {name: 'format', mapping: '', type: Ext4.data.Types.STRING},
-            {name: 'description', mapping: '', type: Ext4.data.Types.STRING}
+            {name: 'name', mapping: 'name', type: Ext4.data.Types.STRING},
+            {name: 'url', mapping: 'url', type: Ext4.data.Types.STRING},
+            {name: 'format', mapping: 'format', type: Ext4.data.Types.STRING},
+            {name: 'description', mapping: 'description', type: Ext4.data.Types.STRING}
         ]
 
 });
