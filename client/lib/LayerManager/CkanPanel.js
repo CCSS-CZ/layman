@@ -70,13 +70,13 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
                 sortable: true,
                 flex: 1,
                 dataIndex: 'name'
-            }
+            },
             {
                 text: HS.i18n('Format'),
                 sortable: true,
                 flex: 1,
                 dataIndex: 'format'
-            }
+            },
             {
                 text: HS.i18n('Description'),
                 sortable: true,
