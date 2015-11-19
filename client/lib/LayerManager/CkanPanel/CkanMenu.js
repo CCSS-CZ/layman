@@ -17,40 +17,21 @@ Ext4.define('HSRS.LayerManager.CkanPanel.CkanResourceMenu', {
      * @constructor
      */
     constructor: function(config) {
-        config.title = "Dataset details";
-        //config.width = 200;
-        config.plain = true;
 
-        this.url = config.url.replace(/\/$/, config.record.get('name'));
+        // Resource info from server
+        resource = arguments[0].record.raw;
 
-        config.name = "Dataset details";
+        config.title = config.name = resource.name;
 
         config.items = [];
 
-        config.items.push({
-            text: '<b>' + config.record.get('title') + '</b>'
-        });
+        var dlButton = {
+            text: HS.i18n("Download"),
+            scope: {obj: this, urlToGet: resource.url},
+            handler: this._onResourceClicked
+        };
 
-        config.items.push({
-            text: "Resources:"
-        });
-
-        // Resources
-        resources = arguments[0].record.raw.resources;
-        for (var i=0, l=resources.length; i<l; ++i) {
-
-            var newItem = {
-                text: resources[i].name,
-                scope: {obj: this, urlToGet: resources[i].url},
-                handler: this._onResourceClicked
-            };
-
-            if (resources[i].format != "") {
-                newItem.text += '  [' + resources[i].format + ']';
-            }
-
-            config.items.push(newItem);
-        }    
+        config.items.push(dlButton);
 
         this.callParent(arguments);
 
