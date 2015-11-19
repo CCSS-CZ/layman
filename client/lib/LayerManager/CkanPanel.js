@@ -81,7 +81,7 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
                 text: HS.i18n('Description'),
                 sortable: true,
                 flex: 1,
-                dataIndex: 'Description'
+                dataIndex: 'description'
             }
         ];
 
