@@ -128,7 +128,8 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
         var makeMenu = function(view, record, elem, idx, e, opts) {
 
             // display ckan menu
-            var menu = Ext4.create('HSRS.LayerManager.CkanPanel.CkanMenu', {
+            // var menu = Ext4.create('HSRS.LayerManager.CkanPanel.CkanDatasetMenu', {
+            var menu = Ext4.create('HSRS.LayerManager.CkanPanel.CkanResourceMenu', {
                 url: this.url,
                 record: record,
                 listeners: {
