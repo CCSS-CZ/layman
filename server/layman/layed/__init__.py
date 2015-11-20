@@ -335,9 +335,17 @@ class LayEd:
         
                     rName = r["name"]
                     if not rName or rName == "": 
-                        rName = r["description"][:30] + "..."
-                        if not rName or rName == "": 
-                            rName = rUrl
+                        try:
+                            uriParsed = urlparse(r["uri"])
+                            path = uriParsed[2]                        
+                            path = [d for d in path.split(os.path.sep) if d]
+                            rName = path[-1]                 
+                        except Exception as e:
+                            logging.debug("[LayEd][getCkanResources] It is hard to guess the name of the resource - name is not given and URI path cannot be parsed...")                        
+                        if not rName or rName == "":                   
+                            rName = r["description"][:30] + "..."
+                            if not rName or rName == "": 
+                                rName = rUrl
                 
                     rFormat = r["format"]
                     if not rFormat or rFormat == "": 
