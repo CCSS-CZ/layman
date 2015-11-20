@@ -21,7 +21,7 @@ Ext4.define('HSRS.LayerManager.CkanPanel.CkanResourceMenu', {
         // Resource info from server
         resource = arguments[0].record.raw;
 
-        config.width = 300;
+        //config.width = 300;
         config.title = config.name = resource.name;
 
         config.items = [];
