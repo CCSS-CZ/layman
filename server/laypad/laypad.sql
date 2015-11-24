@@ -39,3 +39,12 @@ values ('jmeno', 'skupina', 'titulek', 'majitel', 'vector', 'skupina', 'jmeno_00
 delete from layman.layers 
 where name='jmeno' and usergroup='skupina';
 
+-- CKAN resources info:
+create table layman.ckanRes (
+    ckan varchar(255) not null, -- CKAN URL
+    format varchar(255) not null, -- json, shp, kml...
+    count integer, -- number of resources of given format
+    ts timestamp, -- when this was true
+    constraint ckan_format primary key (ckan, format) 
+);
+
