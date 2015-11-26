@@ -270,7 +270,7 @@ class LayEd:
 
     ### CKAN ###
 
-    def getCkanResources(self, limit="0", offset="0"):
+    def getCkanResources(self, limit=None, offset=None):
         """ Get ckan resources. 
         List of requested types (shp, json, kml...) must be specified 
         (for now in the config file).
@@ -285,27 +285,89 @@ class LayEd:
         # make list, trim and lower()
         formatList = map(lambda r: r.strip().lower(), requested.split(','))
 
-        # TODO: Paging. Client will probably need to remember, where we have ended -
-        # - we would need to page across several ckan requests
-
-        # bookmark=shp_45_json_12_kml_3&limit=20&offset=3 -> skip shapefiles and jsons, go for kmls and start from the 4th one
-
-        # or cache it in the db, refresh it regularly or upon a refresh request
-
+        # CkanApi
         from layman.layed.ckanapi import CkanApi
         ckan = CkanApi(self.config)
 
-        resources = []
+        # Case no paging is requested
+        if limit is None or offset is None:
+            # Return everything
+            # TODO ...
+            
+        # Paging
 
-        # Get resources of every format requested
-        for f in formatList:
-            (head, resp) = ckan.getResourceSearch(f)
+        # Find out, how many resources of particular formats there are
+        formatCount = map( lambda f: {"format": f, "count": self.getCkanResourcesCount(ckan, f)}, formatList )
+
+        resources = [] # Resources that will be sent back in our reply
+
+        skipped = 0    # How many resources we have already skipped
+        obtained = 0   # How many resources we have already obtained
+
+        for fc in formatCount:
+            
+            if skipped + fc["count"] <= offset: # not there yet
+                skipped += fc["count"]
+                continue
+
+            # We are there - get some
+            currentOffset = offset - skipped + obtained
+            skipped = offset
+            currentLimit = limit - obtained
+
+            (cnt, res) =  self.getCkanResourcesOfGivenFormat(ckan, fc["format"], currentLimit, currentOffset)
+
+            resources += res
+            obtained += len(res)
+
+            if obtained >= limit:
+                break
+
+        # Sum all the resources available
+        # (Client wants to know that)
+        sumCount = 0
+        for fc in formatCount:
+            sumCount += fc["count"]        
+
+        # Reply according to Client's paging needs
+        reply = {
+            "success": True,
+            "results": sumCount, 
+            "rows": resources
+        }
+        
+        # Dump our json result
+        strReply = json.dumps(reply)
+
+        # Return the list of resources
+        code = 200
+        return (code, strReply)
+
+    # Get count of resources by asking 0 results from CKAN.
+    # Alternative way would be to cache the reply in the database 
+    # using dbman.[get|create|update]CkanResourcesCount(), 
+    # which would be little bit faster and little bit less accurate (up to a refresh time).
+    # The way we use is hopefully fast enough and allways accurate.
+    def getCkanResourcesCount(self, ckanapi, rFormat):
+        """ Get count of ckan resources of given format
+        Ask for 0 resources and read the count.
+        """
+        try:
+            (count, resources) = self.getCkanResourcesOfGivenFormat(ckanapi, rFormat, "0", "0")
+        except Exception as e:
+            count = 0
+        return (count if count else 0)
+
+    def getCkanResourcesOfGivenFormat(self, ckanapi, rFormat, limit=None, offset=None):
+            """ Get Ckan resources of given format
+            """
+            (head, resp) = ckanapi.getResourceSearch(rFormat, limit, offset)
 
             # Check status
             if head["status"] != "200":
                 headStr = str(head)
                 logging.warning("[LayEd][getCkanResources] Cannot get resources of format '%s'. CKAN replied with %s and said '%s'" % (f, headStr, resp))
-                continue
+                return (0, None)
 
             # Load JSON
             replyParsed = json.loads(resp)
@@ -314,18 +376,20 @@ class LayEd:
             if not replyParsed["success"]:
                 headStr = str(head)
                 logging.warning("[LayEd][getCkanResources] Cannot get resources of format '%s'. CKAN replied with %s and said '%s'" % (f, headStr, resp))
-                continue
+                return (0, None)
 
             # Check resources
             if (not replyParsed["result"]) or (not replyParsed["result"]["results"]):
                 headStr = str(head)
                 logging.warning("[LayEd][getCkanResources] Cannot find results for format '%s'. CKAN replied with %s and said '%s'" % (f, headStr, resp))
-                continue
+                return (0, None)
 
             # Number of results
             count = replyParsed["result"]["count"]
             if not count:
                 count = len(replyParsed["result"]["results"])
+
+            resources = []
 
             # Extract information needed
             for r in replyParsed["result"]["results"]:
@@ -353,9 +417,9 @@ class LayEd:
                             if not rName or rName == "": 
                                 rName = rUrl
                 
-                    rFormat = r["format"]
-                    if not rFormat or rFormat == "": 
-                        rFormat = f
+                    resFormat = r["format"]
+                    if not resFormat or resFormat == "": 
+                        resFormat = rFormat
 
                     rDescription = r["description"]                    
 
@@ -369,23 +433,10 @@ class LayEd:
                     resources.append(newResource)
 
                 except Exception as e:
-                    headStr = str(head)
-                    logging.warning("[LayEd][getCkanResources] Error parsing CKAN reply for 'resource_search'. Skipping format %s. CKAN replied with %s and said '%s'" % (f, headStr, resp))
+                    logging.warning("[LayEd][getCkanResources] Error parsing CKAN resource, skipping this one: '%s'" % str(r))
                     continue
 
-        # Reply according to Client's paging needs
-        reply = {
-            "success": True,
-            "results": 1000, # TODO: numberOfResources
-            "rows": resources
-        }
-        
-        # Dump our json result
-        strReply = json.dumps(reply)
-
-        # Return the list of resources
-        code = 200
-        return (code, strReply)
+            return (count, resources)
 
     def _getPackageList(self, ckan, limit="0", offset="0"):
         """ Get package list and check the reply
