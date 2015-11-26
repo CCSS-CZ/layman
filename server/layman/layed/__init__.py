@@ -422,7 +422,8 @@ class LayEd:
                 logging.debug("[LayEd][getCkanResourcesOfGivenFormat] Success OK")
 
             # Check resources
-            if ((not replyParsed["result"]) or (not replyParsed["result"]["results"])):
+            # if ((not replyParsed["result"]) or (not replyParsed["result"]["results"])):
+            if not replyParsed["result"]:
                 headStr = str(head)
                 logging.debug("[LayEd][getCkanResourcesOfGivenFormat] Results NOT ok")
                 logging.warning("[LayEd][getCkanResourcesOfGivenFormat] Cannot find results for format '%s'. CKAN replied with %s and said '%s'" % (f, headStr, resp))
