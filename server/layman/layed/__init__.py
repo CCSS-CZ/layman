@@ -277,6 +277,9 @@ class LayEd:
         One request to ckan is done for each type, 
         results are merged and returned.
         """
+        logParam = "limit: " + str(limit) + " offset: " + str(offset)
+        loging.debug("[LayEd][getCkanResources] Param: %s", logParam)
+
 
         # Get list of formats requested
         # This can be moved from config to client       
@@ -314,6 +317,8 @@ class LayEd:
     def getCkanResourcesPaging(self, ckan, formatList, limit, offset):
         """ Get Ckan Resources of various formats specified only.
         """
+        logParam = "limit: " + str(limit) + " offset: " + str(offset) + " formatList: " + str(formatList)
+        loging.debug("[LayEd][getCkanResourcesPaging] Param: %s", logParam)
 
         # Find out, how many resources of particular formats there are
         formatCount = map( lambda f: {"format": f, "count": self.getCkanResourcesCount(ckan, f)}, formatList )
@@ -354,6 +359,9 @@ class LayEd:
     def getCkanResourcesNoPaging(self, ckan, formatList):
         """ Get Ckan resources of formats specified - no paging version, all is returned
         """
+        logParam = "formatList: " + str(formatList)
+        loging.debug("[LayEd][getCkanResourcesNoPaging] Param: %s", logParam)
+
         sumCount = 0
         resources = []
 
@@ -381,7 +389,10 @@ class LayEd:
 
     def getCkanResourcesOfGivenFormat(self, ckanapi, rFormat, limit=None, offset=None):
             """ Get Ckan resources of given format
-            """
+            """  
+            logParam = "format: " + str(rFormat) + " limit: " + str(limit) + " offset: " + str(offset)
+            loging.debug("[LayEd][getCkanResourcesOfGivenFormat] Param: %s", logParam)
+        
             (head, resp) = ckanapi.getResourceSearch(rFormat, limit, offset)
 
             # Check status
