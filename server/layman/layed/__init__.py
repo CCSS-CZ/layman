@@ -289,12 +289,31 @@ class LayEd:
         from layman.layed.ckanapi import CkanApi
         ckan = CkanApi(self.config)
 
-        # Case no paging is requested
-        if limit is None or offset is None:
+        # Check paging
+        if limit is None or offset is None: # No paging
             # Return everything
-            # TODO ...
-            
-        # Paging
+            (sumCount, resources) = self.getCkanResourcesNoPaging(ckan, formatList)           
+        else: # Paging requested
+            (sumCount, resources) = self.getCkanResourcesPaging(ckan, formatList, limit, offset)
+ 
+        # Reply according to Client's paging needs
+        reply = {
+            "success": True,
+            "results": sumCount, 
+            "rows": resources
+        }
+        
+        # Dump our json result
+        strReply = json.dumps(reply)
+
+        # Return the list of resources
+        code = 200
+        return (code, strReply)
+
+    # Paging
+    def getCkanResourcesPaging(self, ckan, formatList, limit, offset):
+        """ Get Ckan Resources of various formats specified only.
+        """
 
         # Find out, how many resources of particular formats there are
         formatCount = map( lambda f: {"format": f, "count": self.getCkanResourcesCount(ckan, f)}, formatList )
@@ -329,19 +348,21 @@ class LayEd:
         for fc in formatCount:
             sumCount += fc["count"]        
 
-        # Reply according to Client's paging needs
-        reply = {
-            "success": True,
-            "results": sumCount, 
-            "rows": resources
-        }
-        
-        # Dump our json result
-        strReply = json.dumps(reply)
+        return (sumCount, resources)
 
-        # Return the list of resources
-        code = 200
-        return (code, strReply)
+    # No Paging
+    def getCkanResourcesNoPaging(self, ckan, formatList):
+        """ Get Ckan resources of formats specified - no paging version, all is returned
+        """
+        sumCount = 0
+        resources = []
+
+        for f in formatList:
+            (cnt, res) =  self.getCkanResourcesOfGivenFormat(ckan, f, None, None)
+            sumCount += cnt
+            resources += res
+
+        return (sumCount, resources)
 
     # Get count of resources by asking 0 results from CKAN.
     # Alternative way would be to cache the reply in the database 
@@ -367,7 +388,7 @@ class LayEd:
             if head["status"] != "200":
                 headStr = str(head)
                 logging.warning("[LayEd][getCkanResources] Cannot get resources of format '%s'. CKAN replied with %s and said '%s'" % (f, headStr, resp))
-                return (0, None)
+                return (0, [])
 
             # Load JSON
             replyParsed = json.loads(resp)
@@ -376,13 +397,13 @@ class LayEd:
             if not replyParsed["success"]:
                 headStr = str(head)
                 logging.warning("[LayEd][getCkanResources] Cannot get resources of format '%s'. CKAN replied with %s and said '%s'" % (f, headStr, resp))
-                return (0, None)
+                return (0, [])
 
             # Check resources
             if (not replyParsed["result"]) or (not replyParsed["result"]["results"]):
                 headStr = str(head)
                 logging.warning("[LayEd][getCkanResources] Cannot find results for format '%s'. CKAN replied with %s and said '%s'" % (f, headStr, resp))
-                return (0, None)
+                return (0, [])
 
             # Number of results
             count = replyParsed["result"]["count"]
