@@ -332,9 +332,9 @@ class LayEd:
         for fc in formatCount:
             logging.debug("[LayEd][getCkanResourcesPaging] Checking %s..."% str(fc))    
 
-            if skipped + fc["count"] <= offset: # not there yet
-                skipped += fc["count"]
-                logging.debug("[LayEd][getCkanResourcesPaging] Skipping ")
+            if skipped + int(fc["count"]) <= offset: # not there yet
+                logging.debug("[LayEd][getCkanResourcesPaging] Skipping. skipped: %s, fc['count']: %s, offset: %s"% (str(skipped), fc["count"], str(offset)))
+                skipped += int(fc["count"])
                 continue
 
             # We are there - get some
