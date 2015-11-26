@@ -322,6 +322,7 @@ class LayEd:
 
         # Find out, how many resources of particular formats there are
         formatCount = map( lambda f: {"format": f, "count": self.getCkanResourcesCount(ckan, f)}, formatList )
+        logging.debug("[LayEd][getCkanResourcesPaging] Fromat count: %s"% str(formatCount))
 
         resources = [] # Resources that will be sent back in our reply
 
@@ -329,9 +330,11 @@ class LayEd:
         obtained = 0   # How many resources we have already obtained
 
         for fc in formatCount:
-            
+            logging.debug("[LayEd][getCkanResourcesPaging] Checking %s..."% str(fc))    
+
             if skipped + fc["count"] <= offset: # not there yet
                 skipped += fc["count"]
+                logging.debug("[LayEd][getCkanResourcesPaging] Skipping ")
                 continue
 
             # We are there - get some
@@ -343,6 +346,7 @@ class LayEd:
 
             resources += res
             obtained += len(res)
+            logging.debug("[LayEd][getCkanResourcesPaging] Added %s resources"% str(len(res)))
 
             if obtained >= limit:
                 break
