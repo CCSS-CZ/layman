@@ -406,27 +406,29 @@ class LayEd:
             # Check status
             if head["status"] != "200":
                 headStr = str(head)
-                logging.warning("[LayEd][getCkanResources] Cannot get resources of format '%s'. CKAN replied with %s and said '%s'" % (f, headStr, resp))
+                logging.warning("[LayEd][getCkanResourcesOfGivenFormat] Cannot get resources of format '%s'. CKAN replied with %s and said '%s'" % (f, headStr, resp))
                 return (0, [])
 
             # Load JSON
             replyParsed = json.loads(resp)
+            logging.debug("[LayEd][getCkanResourcesOfGivenFormat] CKAN reply succesfully parsed")
 
             # Check success
             if not replyParsed["success"]:
                 headStr = str(head)
-                logging.warning("[LayEd][getCkanResources] Cannot get resources of format '%s'. CKAN replied with %s and said '%s'" % (f, headStr, resp))
+                logging.warning("[LayEd][getCkanResourcesOfGivenFormat] Cannot get resources of format '%s'. CKAN replied with %s and said '%s'" % (f, headStr, resp))
                 return (0, [])
 
             # Check resources
             if (not replyParsed["result"]) or (not replyParsed["result"]["results"]):
                 headStr = str(head)
-                logging.warning("[LayEd][getCkanResources] Cannot find results for format '%s'. CKAN replied with %s and said '%s'" % (f, headStr, resp))
+                logging.warning("[LayEd][getCkanResourcesOfGivenFormat] Cannot find results for format '%s'. CKAN replied with %s and said '%s'" % (f, headStr, resp))
                 return (0, [])
 
             # Number of results
+            logging.debug("[LayEd][getCkanResourcesOfGivenFormat] 'result': %s"% str(replyParsed["result"]))
             count = replyParsed["result"]["count"]
-            logging.debug("[LayEd][getCkanResources] CKAN says there are %s resources of %s format"% (str(count), rFormat))
+            logging.debug("[LayEd][getCkanResourcesOfGivenFormat] CKAN says there are %s resources of %s format"% (str(count), rFormat))
             if not count:
                 count = len(replyParsed["result"]["results"])
 
@@ -452,7 +454,7 @@ class LayEd:
                             path = [d for d in path.split(os.path.sep) if d]
                             rName = path[-1]                 
                         except Exception as e:
-                            logging.debug("[LayEd][getCkanResources] It is hard to guess the name of the resource - name is not given and URI path cannot be parsed...")                        
+                            logging.debug("[LayEd][getCkanResourcesOfGivenFormat] It is hard to guess the name of the resource - name is not given and URI path cannot be parsed...")                        
                         if not rName or rName == "":                   
                             rName = r["description"][:30] + "..."
                             if not rName or rName == "": 
@@ -474,7 +476,7 @@ class LayEd:
                     resources.append(newResource)
 
                 except Exception as e:
-                    logging.warning("[LayEd][getCkanResources] Error parsing CKAN resource, skipping this one: '%s'" % str(r))
+                    logging.warning("[LayEd][getCkanResourcesOfGivenFormat] Error parsing CKAN resource, skipping this one: '%s'" % str(r))
                     continue
 
             logging.debug("[LayEd][getCkanResourcesOfGivenFormat] Returning %s resources of '%s' format"% (str(count), rFormat))
