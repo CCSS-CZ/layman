@@ -20,10 +20,9 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
 
         // Store
         myconfig.store = Ext4.create('Ext4.data.Store', {
-            model: 'HSRS.LayerManager.CkanPanel.Model',
-            groupField: 'organizationTitle',
-            //autoLoad: true,
-            //autoSync: true,
+            // model: 'HSRS.LayerManager.CkanPanel.PackageModel',
+            model: 'HSRS.LayerManager.CkanPanel.ResourceModel',
+            // groupField: 'organizationTitle',
             pageSize: itemsPerPage,
             proxy: {
                 type: 'ajax',
@@ -60,11 +59,34 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
             ]
         });
 
-
         myconfig.multiSelect = true;
         myconfig.autoScroll = true;
         myconfig.anchor = '100%';
+        
+        // Packages columns
+        myconfig.columns = [
+            {
+                text: HS.i18n('Name'),
+                sortable: true,
+                flex: 1,
+                dataIndex: 'name'
+            },
+            {
+                text: HS.i18n('Format'),
+                sortable: true,
+                flex: 1,
+                dataIndex: 'format'
+            },
+            {
+                text: HS.i18n('Description'),
+                sortable: true,
+                flex: 1,
+                dataIndex: 'description'
+            }
+        ];
 
+/*
+        // Datasets columns
         myconfig.columns = [
             // org column
             {
@@ -88,16 +110,17 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
                 dataIndex: 'notes'
             }
         ];
+*/
 
         // grouping according to organizations
-        var groupingFeature = Ext4.create('Ext4.grid.feature.Grouping', {
+        /* var groupingFeature = Ext4.create('Ext4.grid.feature.Grouping', {
             groupHeaderTpl: '{name}',
             hideGroupedHeader: true,
             collapsible: false
-        });
+        }); */
 
         config = Ext4.Object.merge(myconfig, config);
-        config.features = [groupingFeature];
+        // config.features = [groupingFeature];
 
         this.callParent(arguments);
         this.addEvents('ckandownloaded');
@@ -105,7 +128,8 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
         var makeMenu = function(view, record, elem, idx, e, opts) {
 
             // display ckan menu
-            var menu = Ext4.create('HSRS.LayerManager.CkanPanel.CkanMenu', {
+            // var menu = Ext4.create('HSRS.LayerManager.CkanPanel.CkanDatasetMenu', {
+            var menu = Ext4.create('HSRS.LayerManager.CkanPanel.CkanResourceMenu', {
                 url: this.url,
                 record: record,
                 listeners: {

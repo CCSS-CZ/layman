@@ -3,7 +3,63 @@
  * @author:  Michal
  */
 
-Ext4.define('HSRS.LayerManager.CkanPanel.CkanMenu', {
+// Menu for CKAN panel that is populated with resources
+Ext4.define('HSRS.LayerManager.CkanPanel.CkanResourceMenu', {
+
+    extend: 'Ext4.menu.Menu',
+
+    requires: [],
+
+    url: undefined,
+    record: undefined,
+
+    /**
+     * @constructor
+     */
+    constructor: function(config) {
+
+        // Resource info from server
+        resource = arguments[0].record.raw;
+
+        //config.width = 300;
+        config.title = config.name = resource.name;
+
+        config.items = [];
+
+        // Description
+        config.items.push( {
+            plain: true,
+            text: resource.description
+        });
+
+        // Download
+        var dlButton = {
+            text: HS.i18n("Download"),
+            scope: {obj: this, urlToGet: resource.url},
+            handler: this._onResourceClicked
+        };
+
+        config.items.push(dlButton);
+
+        this.callParent(arguments);
+
+        this.addEvents('copytofiles');
+    },
+
+    /**
+     * download handler
+     * @private
+     */
+    _onResourceClicked: function() {
+
+        this.obj.fireEvent('copytofiles', this.urlToGet);
+     }
+
+});
+
+
+// Menu for CKAN panel that is populated with datasets
+Ext4.define('HSRS.LayerManager.CkanPanel.CkanDatasetMenu', {
 
     extend: 'Ext4.menu.Menu',
 
@@ -60,7 +116,6 @@ Ext4.define('HSRS.LayerManager.CkanPanel.CkanMenu', {
      * download handler
      * @private
      */
-    //_onResourceClicked: function(urlToGet) {
     _onResourceClicked: function() {
 
         this.obj.fireEvent('copytofiles', this.urlToGet);

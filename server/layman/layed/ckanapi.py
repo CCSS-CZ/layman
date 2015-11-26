@@ -30,10 +30,15 @@ class CkanApi:
 
     ### CKAN API v.3
 
-    def getResourceSearch(self, rFormat):
+    def getResourceSearch(self, rFormat, limit=None, offset=None):
         """ get resources of specified resource format
         """
         url = self.url + "/action/resource_search?query=format:" + rFormat
+        if limit is not None:
+            url += "&limit=" + str(limit)
+        if offset is not None:
+            url += "&offset=" + str(offset)
+
         headers, response =  self.h.request(url,'GET')
         return headers, response
 

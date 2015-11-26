@@ -541,6 +541,42 @@ class DbMan:
 
         return data        
 
+    ### CKANPAD ###
+
+    def getCkanResourcesCount(self, ckanUrl, resFormat):
+        """ Get number of resources of given format equipped with the age of the information
+        """
+        logParam =  "ckanUrl: " + ckanUrl + " resFormat: " + resFormat  
+        logging.debug("[DbMan][getCkanResourcesCount] %s" % logParam)
+
+        sql = "select (count, now()-ts) from layman.ckanres where ckan='"+ckanUrl+"' and format='"+resFormat+"';"
+
+        result = self.get_sql(sql) # [5, 00:18:13.123456]
+
+        return result
+
+    def createCkanResourcesCount(self, ckanUrl, resFormat, count):
+        """ Insert count of resources of given type in ckan specified
+        """
+        logParam =  "ckanUrl: " + ckanUrl + " resFormat: " + resFormat + " count: " + str(count) 
+        logging.debug("[DbMan][createCkanResourcesCount] %s" % logParam)
+
+        sqlBatch = "insert into layman.ckanres (ckan, format, count, ts) values ('"+ckanUrl+"','"+resFormat+"',"+ count +", (select now()) );"
+        self.write_sql(sqlBatch)
+
+        return 
+
+    def updateCkanResourcesCount(self, ckanUrl, resFormat, count):
+        """ Update count of resources of given type in ckan specified
+        """
+        logParam =  "ckanUrl: " + ckanUrl + " resFormat: " + resFormat + " count: " + str(count) 
+        logging.debug("[DbMan][updateCkanResourcesCount] %s" % logParam)
+
+        sqlBatch = "update layman.ckanres set count="+count+", ts=(select now()) where ckan='"+ckanUrl+"' and format='"+resFormat+"';"
+        self.write_sql(sqlBatch)
+
+        return 
+
 RASTER2PSQL_CONFIG = {}
 
 def parse_raster2psql_command_line():

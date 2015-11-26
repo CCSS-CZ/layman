@@ -32,6 +32,7 @@ gdal_data=/usr/share/gdal/1.10/
 
 [CKAN]
 CkanApiUrl=http://ckan.ccss.cz/api/3
+ResourceFormat=shp,kml,json
 
 [PROJ]
 ProjEPSG=/usr/share/proj/epsg

@@ -270,63 +270,41 @@ class LayEd:
 
     ### CKAN ###
 
-    def getCkanResources(self):
+    def getCkanResources(self, limit=None, offset=None):
         """ Get ckan resources. 
         List of requested types (shp, json, kml...) must be specified 
         (for now in the config file).
         One request to ckan is done for each type, 
         results are merged and returned.
         """
+        logParam = "limit: " + str(limit) + " offset: " + str(offset)
+        logging.debug("[LayEd][getCkanResources] Param: %s", logParam)
+
+        limit = int(limit)
+        offset= int(offset)
 
         # Get list of formats requested
         # This can be moved from config to client       
-        requested = self.config.get("CKAN", "resource_format")
+        requested = self.config.get("CKAN", "ResourceFormat")
 
         # make list, trim and lower()
         formatList = map(lambda r: r.strip().lower(), requested.split(','))
 
-        # TODO: Paging. Client will probably need to remember, where we have ended -
-        # - we would need to page across several ckan requests
-
-        # bookmark=shp_45_json_12_kml_3&limit=20&offset=3 -> skip shapefiles and jsons, go for kmls and start from the 4th one
-
+        # CkanApi
         from layman.layed.ckanapi import CkanApi
         ckan = CkanApi(self.config)
 
-        resources = []
-
-        # Get resources of every format requested
-        for f in formatList:
-            (head, resp) = ckan.getResourceSearch(f)
-
-            # Check status
-            if head["status"] != "200":
-                headStr = str(head)
-                logging.warning("[LayEd][getCkanResources] Cannot get resources of format '%s'. CKAN replied with %s and said '%s'" % (f, headStr, resp))
-                continue
-
-            # Load JSON
-            replyParsed = json.loads(resp)
-
-            # Check success
-            if not replyParsed["success"]:
-                headStr = str(head)
-                logging.warning("[LayEd][getCkanResources] Cannot get resources of format '%s'. CKAN replied with %s and said '%s'" % (f, headStr, resp))
-                continue
-
-            # Add resources of format f to our list to be returned
-            try:
-                resources.extend( replyParsed["result"]["results"] )
-
-            except Exception as e:
-                headStr = str(head)
-                logging.warning("[LayEd][getCkanResources] Error parsing CKAN reply for 'resource_search'. Skipping format %s. CKAN replied with %s and said '%s'" % (f, headStr, resp))
-                continue
-
+        # Check paging
+        if limit is None or offset is None: # No paging
+            # Return everything
+            (sumCount, resources) = self.getCkanResourcesNoPaging(ckan, formatList)           
+        else: # Paging requested
+            (sumCount, resources) = self.getCkanResourcesPaging(ckan, formatList, limit, offset)
+ 
         # Reply according to Client's paging needs
         reply = {
             "success": True,
-            "results": numberOfResources, # ***
+            "results": sumCount, 
             "rows": resources
         }
         
@@ -336,6 +314,186 @@ class LayEd:
         # Return the list of resources
         code = 200
         return (code, strReply)
+
+    # Paging
+    def getCkanResourcesPaging(self, ckan, formatList, limit, offset):
+        """ Get Ckan Resources of various formats specified only.
+        """
+        logParam = "limit: " + str(limit) + " offset: " + str(offset) + " formatList: " + str(formatList)
+        logging.debug("[LayEd][getCkanResourcesPaging] Param: %s", logParam)
+
+        # Find out, how many resources of particular formats there are
+        formatCount = map( lambda f: {"format": f, "count": int(self.getCkanResourcesCount(ckan, f))}, formatList )
+        logging.debug("[LayEd][getCkanResourcesPaging] Fromat count: %s"% str(formatCount))
+
+        resources = [] # Resources that will be sent back in our reply
+
+        skipped = 0    # How many resources we have already skipped
+        obtained = 0   # How many resources we have already obtained
+
+        for fc in formatCount:
+            logging.debug("[LayEd][getCkanResourcesPaging] Checking %s..."% str(fc))    
+
+            if skipped + fc["count"] <= offset: # not there yet
+                logging.debug("[LayEd][getCkanResourcesPaging] Skipping. skipped: %s, fc['count']: %s, offset: %s"% (skipped, fc["count"], offset))
+                skipped += fc["count"]
+                continue
+
+            # We are there - get some
+            currentOffset = offset - skipped 
+            skipped = offset
+            currentLimit = limit - obtained
+
+            (cnt, res) =  self.getCkanResourcesOfGivenFormat(ckan, fc["format"], currentLimit, currentOffset)
+
+            resources += res
+            obtained += len(res)
+            logging.debug("[LayEd][getCkanResourcesPaging] Added %s resources"% str(len(res)))
+
+            if obtained >= limit:
+                break
+
+        # Sum all the resources available
+        # (Client wants to know that)
+        sumCount = 0
+        for fc in formatCount:
+            sumCount += fc["count"]        
+
+        return (sumCount, resources)
+
+    # No Paging
+    def getCkanResourcesNoPaging(self, ckan, formatList):
+        """ Get Ckan resources of formats specified - no paging version, all is returned
+        """
+        logParam = "formatList: " + str(formatList)
+        logging.debug("[LayEd][getCkanResourcesNoPaging] Param: %s", logParam)
+
+        sumCount = 0
+        resources = []
+
+        for f in formatList:
+            (cnt, res) =  self.getCkanResourcesOfGivenFormat(ckan, f, None, None)
+            sumCount += cnt
+            resources += res
+
+        return (sumCount, resources)
+
+    # Get count of resources by asking 0 results from CKAN.
+    # Alternative way would be to cache the reply in the database 
+    # using dbman.[get|create|update]CkanResourcesCount(), 
+    # which would be little bit faster and little bit less accurate (up to a refresh time).
+    # The way we use is hopefully fast enough and allways accurate.
+    def getCkanResourcesCount(self, ckanapi, rFormat):
+        """ Get count of ckan resources of given format
+        Ask for 0 resources and read the count.
+        """
+        logParam = "format: " + rFormat
+        logging.debug("[LayEd][getCkanResourcesCount] Param: %s"% logParam)
+
+        try:
+            (count, resources) = self.getCkanResourcesOfGivenFormat(ckanapi, rFormat, "0", "0")
+        except Exception as e:
+            count = 0
+
+        logging.debug("[LayEd][getCkanResourcesCount] There are %s resources of '%s' format"% (str(count), rFormat))
+        
+        return (int(count) if count else 0)
+
+    def getCkanResourcesOfGivenFormat(self, ckanapi, rFormat, limit=None, offset=None):
+            """ Get Ckan resources of given format
+            """  
+            logParam = "format: " + str(rFormat) + " limit: " + str(limit) + " offset: " + str(offset)
+            logging.debug("[LayEd][getCkanResourcesOfGivenFormat] Param: %s", logParam)
+        
+            (head, resp) = ckanapi.getResourceSearch(rFormat, limit, offset)
+
+            logging.debug("[LayEd][getCkanResourcesOfGivenFormat] CKAN replied with '%s' and said '%s'"% (str(head), str(resp)))
+
+            # Check status
+            if head["status"] != "200":
+                headStr = str(head)
+                logging.warning("[LayEd][getCkanResourcesOfGivenFormat] Cannot get resources of format '%s'. CKAN replied with %s and said '%s'" % (f, headStr, resp))
+                return (0, [])
+
+            # Load JSON
+            replyParsed = json.loads(resp)
+            logging.debug("[LayEd][getCkanResourcesOfGivenFormat] CKAN reply succesfully parsed")
+
+            # Check success
+            if not replyParsed["success"]:
+                headStr = str(head)
+                logging.warning("[LayEd][getCkanResourcesOfGivenFormat] Cannot get resources of format '%s'. CKAN replied with %s and said '%s'" % (f, headStr, resp))
+                return (0, [])
+            else:
+                logging.debug("[LayEd][getCkanResourcesOfGivenFormat] Success OK")
+
+            # Check resources
+            # if ((not replyParsed["result"]) or (not replyParsed["result"]["results"])):
+            if not replyParsed["result"]:
+                headStr = str(head)
+                logging.debug("[LayEd][getCkanResourcesOfGivenFormat] Results NOT ok")
+                logging.warning("[LayEd][getCkanResourcesOfGivenFormat] Cannot find results for format '%s'. CKAN replied with %s and said '%s'" % (f, headStr, resp))
+                return (0, [])
+            else:
+                logging.debug("[LayEd][getCkanResourcesOfGivenFormat] Results OK")
+
+            # Number of results
+            logging.debug("[LayEd][getCkanResourcesOfGivenFormat] 'result': %s"% str(replyParsed["result"]))
+            count = int(replyParsed["result"]["count"])
+            logging.debug("[LayEd][getCkanResourcesOfGivenFormat] CKAN says there are %s resources of %s format"% (str(count), rFormat))
+            if not count:
+                count = len(replyParsed["result"]["results"])
+
+            resources = []
+
+            # Extract information needed
+            for r in replyParsed["result"]["results"]:
+
+                try:
+                    rUrl = r["url"]
+                    if not rUrl or rUrl == "": 
+                        rUrl = r["download_url"]
+                        if not rUrl or rUrl == "": 
+                            rUrl = r["uri"]
+                            if not rUrl or rUrl == "": 
+                                continue
+        
+                    rName = r["name"]
+                    if not rName or rName == "": 
+                        try:
+                            uriParsed = urlparse(r["uri"])
+                            path = uriParsed[2]                        
+                            path = [d for d in path.split(os.path.sep) if d]
+                            rName = path[-1]                 
+                        except Exception as e:
+                            logging.debug("[LayEd][getCkanResourcesOfGivenFormat] It is hard to guess the name of the resource - name is not given and URI path cannot be parsed...")                        
+                        if not rName or rName == "":                   
+                            rName = r["description"][:30] + "..."
+                            if not rName or rName == "": 
+                                rName = rUrl
+                
+                    resFormat = r["format"]
+                    if not resFormat or resFormat == "": 
+                        resFormat = rFormat
+
+                    rDescription = r["description"]                    
+
+                    newResource = { 
+                                    "name":         rName,
+                                    "url":          rUrl,
+                                    "format":       rFormat,
+                                    "description":  rDescription
+                                  }
+            
+                    resources.append(newResource)
+
+                except Exception as e:
+                    logging.warning("[LayEd][getCkanResourcesOfGivenFormat] Error parsing CKAN resource, skipping this one: '%s'" % str(r))
+                    continue
+
+            logging.debug("[LayEd][getCkanResourcesOfGivenFormat] Returning %s resources of '%s' format"% (str(count), rFormat))
+
+            return (count, resources)
 
     def _getPackageList(self, ckan, limit="0", offset="0"):
         """ Get package list and check the reply
@@ -348,7 +506,7 @@ class LayEd:
         # Check status
         if head["status"] != "200":
             headStr = str(head)
-            message = "[LayEd][getCkanPackages] Cannot GET CKAN packages. CKAN replied with %s and said '%s'" % (headStr,resp)
+            message = "[LayEd][_getPackageList] Cannot GET CKAN packages. CKAN replied with %s and said '%s'" % (headStr,resp)
             raise LaymanError(500, message)
 
         # Load JSON
@@ -358,7 +516,7 @@ class LayEd:
         if not packageList["success"]:
             # Raise an exception
             headStr = str(head)
-            message = "[LayEd][getCkanPackages] Cannot GET CKAN packages. CKAN replied with %s and said '%s'" % (headStr,resp)
+            message = "[LayEd][_getPackageList] Cannot GET CKAN packages. CKAN replied with %s and said '%s'" % (headStr,resp)
             raise LaymanError(500, message)
 
         return packageList
