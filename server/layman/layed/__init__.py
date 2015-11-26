@@ -333,7 +333,7 @@ class LayEd:
             logging.debug("[LayEd][getCkanResourcesPaging] Checking %s..."% str(fc))    
 
             if skipped + int(fc["count"]) <= offset: # not there yet
-                logging.debug("[LayEd][getCkanResourcesPaging] Skipping. skipped: %s, fc['count']: %s, offset: %s"% (str(skipped), fc["count"], str(offset)))
+                logging.debug("[LayEd][getCkanResourcesPaging] Skipping. skipped: %s, fc['count']: %s, offset: %s"% (skipped, fc["count"], offset))
                 skipped += int(fc["count"])
                 continue
 
