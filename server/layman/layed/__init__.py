@@ -280,6 +280,8 @@ class LayEd:
         logParam = "limit: " + str(limit) + " offset: " + str(offset)
         logging.debug("[LayEd][getCkanResources] Param: %s", logParam)
 
+        limit = int(limit)
+        offset= int(offset)
 
         # Get list of formats requested
         # This can be moved from config to client       
@@ -321,7 +323,7 @@ class LayEd:
         logging.debug("[LayEd][getCkanResourcesPaging] Param: %s", logParam)
 
         # Find out, how many resources of particular formats there are
-        formatCount = map( lambda f: {"format": f, "count": self.getCkanResourcesCount(ckan, f)}, formatList )
+        formatCount = map( lambda f: {"format": f, "count": int(self.getCkanResourcesCount(ckan, f))}, formatList )
         logging.debug("[LayEd][getCkanResourcesPaging] Fromat count: %s"% str(formatCount))
 
         resources = [] # Resources that will be sent back in our reply
@@ -332,9 +334,9 @@ class LayEd:
         for fc in formatCount:
             logging.debug("[LayEd][getCkanResourcesPaging] Checking %s..."% str(fc))    
 
-            if skipped + int(fc["count"]) <= offset: # not there yet
+            if skipped + fc["count"] <= offset: # not there yet
                 logging.debug("[LayEd][getCkanResourcesPaging] Skipping. skipped: %s, fc['count']: %s, offset: %s"% (skipped, fc["count"], offset))
-                skipped += int(fc["count"])
+                skipped += fc["count"]
                 continue
 
             # We are there - get some
@@ -395,7 +397,7 @@ class LayEd:
 
         logging.debug("[LayEd][getCkanResourcesCount] There are %s resources of '%s' format"% (str(count), rFormat))
         
-        return (count if count else 0)
+        return (int(count) if count else 0)
 
     def getCkanResourcesOfGivenFormat(self, ckanapi, rFormat, limit=None, offset=None):
             """ Get Ckan resources of given format
@@ -437,7 +439,7 @@ class LayEd:
 
             # Number of results
             logging.debug("[LayEd][getCkanResourcesOfGivenFormat] 'result': %s"% str(replyParsed["result"]))
-            count = replyParsed["result"]["count"]
+            count = int(replyParsed["result"]["count"])
             logging.debug("[LayEd][getCkanResourcesOfGivenFormat] CKAN says there are %s resources of %s format"% (str(count), rFormat))
             if not count:
                 count = len(replyParsed["result"]["results"])
