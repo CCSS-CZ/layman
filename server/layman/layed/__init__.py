@@ -340,7 +340,7 @@ class LayEd:
                 continue
 
             # We are there - get some
-            currentOffset = offset - skipped + obtained
+            currentOffset = offset - skipped 
             skipped = offset
             currentLimit = limit - obtained
 
