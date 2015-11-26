@@ -35,9 +35,9 @@ class CkanApi:
         """
         url = self.url + "/action/resource_search?query=format:" + rFormat
         if limit is not None:
-            url += "&limit=" + limit
+            url += "&limit=" + str(limit)
         if offset is not None:
-            offset += "&offset=" + offset
+            offset += "&offset=" + str(offset)
 
         headers, response =  self.h.request(url,'GET')
         return headers, response
