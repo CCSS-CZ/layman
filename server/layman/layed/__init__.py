@@ -381,10 +381,16 @@ class LayEd:
         """ Get count of ckan resources of given format
         Ask for 0 resources and read the count.
         """
+        logParam = "format: " + rFormat
+        logging.debug("[LayEd][getCkanResourcesCount] Param: %s"% logParam)
+
         try:
             (count, resources) = self.getCkanResourcesOfGivenFormat(ckanapi, rFormat, "0", "0")
         except Exception as e:
             count = 0
+
+        logging.debug("[LayEd][getCkanResourcesCount] There are %s resources of '%s' format"% (str(count), rFormat))
+        
         return (count if count else 0)
 
     def getCkanResourcesOfGivenFormat(self, ckanapi, rFormat, limit=None, offset=None):
@@ -467,6 +473,8 @@ class LayEd:
                 except Exception as e:
                     logging.warning("[LayEd][getCkanResources] Error parsing CKAN resource, skipping this one: '%s'" % str(r))
                     continue
+
+            logging.debug("[LayEd][getCkanResourcesOfGivenFormat] Returning %s resources of '%s' format"% (str(count), rFormat))
 
             return (count, resources)
 
