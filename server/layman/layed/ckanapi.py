@@ -37,7 +37,7 @@ class CkanApi:
         if limit is not None:
             url += "&limit=" + str(limit)
         if offset is not None:
-            offset += "&offset=" + str(offset)
+            url += "&offset=" + str(offset)
 
         headers, response =  self.h.request(url,'GET')
         return headers, response
