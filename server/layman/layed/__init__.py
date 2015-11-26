@@ -401,6 +401,8 @@ class LayEd:
         
             (head, resp) = ckanapi.getResourceSearch(rFormat, limit, offset)
 
+            logging.debug("[LayEd][getCkanResourcesOfGivenFormat] CKAN replied with '%s' and said '%s'"% (str(head), str(resp)))
+
             # Check status
             if head["status"] != "200":
                 headStr = str(head)
@@ -424,6 +426,7 @@ class LayEd:
 
             # Number of results
             count = replyParsed["result"]["count"]
+            logging.debug("[LayEd][getCkanResources] CKAN says there are %s resources of %s format"% (str(count), rFormat))
             if not count:
                 count = len(replyParsed["result"]["results"])
 
