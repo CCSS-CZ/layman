@@ -120,7 +120,7 @@ Ext4.define('HSRS.LayerManager.LayersPanel', {
                         // layer deleted listener will popup confirmation window
                         'layerdeleted': function(record, evt) {
                             Ext4.MessageBox.confirm(HS.i18n('Really remove selected layer?'),
-                                    HS.i18n('Are you sure, you want to remove selected layer and the underlying data?')+ ' [' + this.record.get('layer').name +'] <br />', 
+                                    HS.i18n('Are you sure, you want to remove selected layer and the underlying data?')+ ' [' + record.get('layername') +'] <br />', 
                                     function(btn, x, msg) {
                                         if (btn == 'yes') {
                                             this.lm.deleteLayer(this.record.get('layername'),
