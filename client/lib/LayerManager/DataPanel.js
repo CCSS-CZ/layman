@@ -104,6 +104,7 @@ Ext4.define('HSRS.LayerManager.DataPanel', {
                     record: record,
                     listeners: {
                         scope: this,
+                        'datapublished': this._onDataPublished,
 
                         // file deleted listener will popup confirmation window
                         'datadeleted': function(record, evt) {

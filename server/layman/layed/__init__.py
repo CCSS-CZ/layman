@@ -1596,7 +1596,11 @@ class LayEd:
                 headers, response = gsr.getLayer(workspace,layer)
                 logging.debug("[LayEd][deleteLayer] GET Layer response headers: %s"% headers)
                 logging.debug("[LayEd][deleteLayer] GET Layer response content: %s"% response)
-                # TODO: check the result
+
+                if headers["status"] != "200":
+                    message = "Delete layer: Cannot get the layer. GeoServer says: '" + response + "'"
+                    return(headers["status"], message)
+
                 layerJson = json.loads(response)
 
                 # VECTOR or RASTER
