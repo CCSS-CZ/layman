@@ -25,6 +25,7 @@ Ext4.define('HSRS.LayerManager.LayersPanel.LayerMenu', {
 
         config.items = [];
 
+        /* Don't Add to Map in OTN
         if (HSRS && HSRS.VIEWURL) {
             config.items.push(
                 {
@@ -35,7 +36,7 @@ Ext4.define('HSRS.LayerManager.LayersPanel.LayerMenu', {
                 }
             );
 
-        }
+        }*/
 
         if (HSRS && HSRS.STYLERURL) {
             config.items.push({
