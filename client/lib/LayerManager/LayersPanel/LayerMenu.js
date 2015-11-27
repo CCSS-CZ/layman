@@ -46,12 +46,13 @@ Ext4.define('HSRS.LayerManager.LayersPanel.LayerMenu', {
             });
         }
 
+        /* Settings not ready in 2.0 yet
         config.items.push({
                 text: HS.i18n('Settings'),
                 icon: HSRS.IMAGE_LOCATION + '/cog.png',
                 scope: this,
                 handler: this._onSettingsClicked
-            });
+            }); */
 
         config.items.push(
             { xtype: 'menuseparator' }
