@@ -171,6 +171,7 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
                 }
                 Ext4.Msg.alert(HS.i18n('Success'), HS.i18n('Resource copied to Files') +
                      '<br />' + obj.message);
+                this.fireEvent('ckandownloaded'); // Fire event to LayerManager to refresh the Files
             },
             failure: function(form, action) {
                 var obj;
@@ -185,8 +186,6 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
             },
             scope: this
         });
-
-        this.fireEvent('ckandownloaded'); // Fire event to LayerManager to refresh the Files
     },
 
     /**
