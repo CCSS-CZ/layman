@@ -47,7 +47,7 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
                 },
                 {   // CKAN Switching
                     fieldLabel: HS.i18n("Switch CKAN"),
-                    anchor: '800%',
+                    anchor: '80%',
                     xtype: 'combobox',
                     name: 'switchckan',
                     displayField: 'ckan',
