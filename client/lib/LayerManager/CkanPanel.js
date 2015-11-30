@@ -50,21 +50,21 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
                     anchor: '100%',
                     xtype: 'combobox',
                     name: 'switchckan',
-                    displayfield: 'ckanurl',
-                    valuefield: 'ckanurl',
+                    displayfield: 'ckan',
+                    valuefield: 'url',
                     store: Ext4.create('Ext4.data.Store', {
                         fields: ['ckanurl'],
                         data: [
-                            {"ckanurl":"http://ckan-otn-dev.intrasoft-intl.com/"},
-                            {"ckanurl":"http://www.civicdata.io/"},
-                            {"ckanurl":"http://publicdata.eu/"},
-                            {"ckanurl":"http://data.gov.uk"},
-                            {"ckanurl":"http://data.gov.ro/"},
-                            {"ckanurl":"http://data.gov.sk/"},
-                            {"ckanurl":"http://data.gov.au/"},
-                            {"ckanurl":"http://data.kk.dk/"},
-                            {"ckanurl":"http://www.hri.fi/"},
-                            {"ckanurl":"http://datamx.io/"}
+                            {"ckan":"http://ckan-otn-dev.intrasoft-intl.com/", "url":"http://ckan-otn-dev.intrasoft-intl.com/"},
+                            {"ckan":"http://www.civicdata.io/", "url":"http://www.civicdata.io/"},
+                            {"ckan":"http://publicdata.eu/", "url":"http://publicdata.eu/"} 
+                            /* {"ckan":"http://data.gov.uk"},
+                            {"ckan":"http://data.gov.ro/"},
+                            {"ckan":"http://data.gov.sk/"},
+                            {"ckan":"http://data.gov.au/"},
+                            {"ckan":"http://data.kk.dk/"},
+                            {"ckan":"http://www.hri.fi/"},
+                            {"ckan":"http://datamx.io/"} */
                         ]
                     })
                 }
