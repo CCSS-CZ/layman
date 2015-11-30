@@ -51,20 +51,21 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
                     xtype: 'combobox',
                     name: 'switchckan',
                     displayField: 'ckan',
-                    valueField: 'url',
+                    valueField: 'ckan',
+                    value: 'http://ckan-otn-dev.intrasoft-intl.com/',
                     store: Ext4.create('Ext4.data.Store', {
-                        fields: ['ckan','url'],
+                        fields: ['ckan'],
                         data: [
-                            {"ckan":"http://ckan-otn-dev.intrasoft-intl.com/", "url":"http://ckan-otn-dev.intrasoft-intl.com/"},
+                         /*   {"ckan":"http://ckan-otn-dev.intrasoft-intl.com/", "url":"http://ckan-otn-dev.intrasoft-intl.com/"},
                             {"ckan":"http://www.civicdata.io/", "url":"http://www.civicdata.io/"},
-                            {"ckan":"http://publicdata.eu/", "url":"http://publicdata.eu/"} 
-                            /* {"ckan":"http://data.gov.uk"},
+                            {"ckan":"http://publicdata.eu/", "url":"http://publicdata.eu/"} */
+                            {"ckan":"http://data.gov.uk"},
                             {"ckan":"http://data.gov.ro/"},
                             {"ckan":"http://data.gov.sk/"},
                             {"ckan":"http://data.gov.au/"},
                             {"ckan":"http://data.kk.dk/"},
                             {"ckan":"http://www.hri.fi/"},
-                            {"ckan":"http://datamx.io/"} */
+                            {"ckan":"http://datamx.io/"} 
                         ]
                     })
                 }
