@@ -50,8 +50,8 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
                     anchor: '100%',
                     xtype: 'combobox',
                     name: 'switchckan',
-                    displayfield: 'ckan',
-                    valuefield: 'url',
+                    displayField: 'ckan',
+                    valueField: 'url',
                     store: Ext4.create('Ext4.data.Store', {
                         fields: ['ckan','url'],
                         data: [
