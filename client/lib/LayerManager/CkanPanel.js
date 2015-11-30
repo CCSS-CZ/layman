@@ -37,8 +37,6 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
 
         // Top Toolbar
         myconfig.tbar = Ext4.create('Ext4.toolbar.Toolbar', {
-            // shrinkWrap: 3,
-            width: 200,
             items: [
                 {   // Refresh
                     scope: {obj: this, itemsPerPage: itemsPerPage},
@@ -51,7 +49,7 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
                 {   // CKAN Switching
                     fieldLabel: HS.i18n("CKAN"),
                     xtype: 'combobox',
-                    width: 90,
+                    labelWidth: 40,
                     name: 'switchckan',
                     displayField: 'ckan',
                     valueField: 'ckan',
