@@ -43,7 +43,7 @@ Ext4.define('HSRS.LayerManager', {
             url = config.url + (config.url[config.url.length - 1] == '/' ? '' : '/') + 'ckan/';
             this.ckanPanel = Ext4.create('HSRS.LayerManager.CkanPanel', {
                 url: url,
-                flex: 0,
+                flex: 1,
                 listeners: {
                     scope: this,
                     'ckandownloaded': this._onCkanDownloaded
