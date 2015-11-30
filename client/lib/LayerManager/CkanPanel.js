@@ -47,7 +47,7 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
                 },
                 {   // CKAN Switching
                     fieldLabel: HS.i18n("Switch CKAN"),
-                    anchor: '100%',
+                    anchor: '800%',
                     xtype: 'combobox',
                     name: 'switchckan',
                     displayField: 'ckan',
@@ -56,9 +56,9 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
                     store: Ext4.create('Ext4.data.Store', {
                         fields: ['ckan'],
                         data: [
-                         /*   {"ckan":"http://ckan-otn-dev.intrasoft-intl.com/", "url":"http://ckan-otn-dev.intrasoft-intl.com/"},
-                            {"ckan":"http://www.civicdata.io/", "url":"http://www.civicdata.io/"},
-                            {"ckan":"http://publicdata.eu/", "url":"http://publicdata.eu/"} */
+                            {"ckan":"http://ckan-otn-dev.intrasoft-intl.com/"},
+                            {"ckan":"http://www.civicdata.io/"},
+                            {"ckan":"http://publicdata.eu/"a,} 
                             {"ckan":"http://data.gov.uk"},
                             {"ckan":"http://data.gov.ro/"},
                             {"ckan":"http://data.gov.sk/"},
