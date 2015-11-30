@@ -44,6 +44,28 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
                     cls: 'x-btn-icon',
                     tooltip: HS.i18n('Refresh'),
                     icon: HSRS.IMAGE_LOCATION + '/arrow_refresh.png'
+                },
+                {   // CKAN Switching
+                    fieldLabel: HS.i18n("Switch CKAN"),
+                    xtype: 'combobox',
+                    name: 'switchckan',
+                    displayfield: 'ckanurl',
+                    valuefield: 'ckanurl',
+                    store: Ext4.create('Ext4.data.Store', {
+                        fields: ['ckanurl'],
+                        data: [
+                            {"ckanurl":"http://ckan-otn-dev.intrasoft-intl.com/"},
+                            {"ckanurl":"http://www.civicdata.io/"},
+                            {"ckanurl":"http://publicdata.eu/"},
+                            {"ckanurl":"http://data.gov.uk"},
+                            {"ckanurl":"http://data.gov.ro/"},
+                            {"ckanurl":"http://data.gov.sk/"},
+                            {"ckanurl":"http://data.gov.au/"},
+                            {"ckanurl":"http://data.kk.dk/"},
+                            {"ckanurl":"http://www.hri.fi/"},
+                            {"ckanurl":"http://datamx.io/"}
+                        ]
+                    })
                 }
             ]
         });
