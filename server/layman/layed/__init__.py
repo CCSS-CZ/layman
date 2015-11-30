@@ -270,7 +270,7 @@ class LayEd:
 
     ### CKAN ###
 
-    def getCkanResources(self, limit=None, offset=None, ckanUrl):
+    def getCkanResources(self, limit=None, offset=None, ckanUrl=None):
         """ Get ckan resources. 
         List of requested types (shp, json, kml...) must be specified 
         (for now in the config file).
