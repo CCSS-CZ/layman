@@ -53,7 +53,7 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
                     displayfield: 'ckan',
                     valuefield: 'url',
                     store: Ext4.create('Ext4.data.Store', {
-                        fields: ['ckanurl'],
+                        fields: ['ckan','url'],
                         data: [
                             {"ckan":"http://ckan-otn-dev.intrasoft-intl.com/", "url":"http://ckan-otn-dev.intrasoft-intl.com/"},
                             {"ckan":"http://www.civicdata.io/", "url":"http://www.civicdata.io/"},
