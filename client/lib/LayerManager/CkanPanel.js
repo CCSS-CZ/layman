@@ -37,7 +37,8 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
 
         // Top Toolbar
         myconfig.tbar = Ext4.create('Ext4.toolbar.Toolbar', {
-            shrinkWrap: 3,
+            // shrinkWrap: 3,
+            width: 200,
             items: [
                 {   // Refresh
                     scope: {obj: this, itemsPerPage: itemsPerPage},
