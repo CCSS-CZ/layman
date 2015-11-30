@@ -47,7 +47,7 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
                     icon: HSRS.IMAGE_LOCATION + '/arrow_refresh.png'
                 },
                 {   // CKAN Switching
-                    fieldLabel: HS.i18n("Switch CKAN"),
+                    fieldLabel: HS.i18n("CKAN"),
                     xtype: 'combobox',
                     name: 'switchckan',
                     displayField: 'ckan',
