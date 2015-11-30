@@ -270,7 +270,7 @@ class LayEd:
 
     ### CKAN ###
 
-    def getCkanResources(self, limit=None, offset=None):
+    def getCkanResources(self, limit=None, offset=None, ckanUrl):
         """ Get ckan resources. 
         List of requested types (shp, json, kml...) must be specified 
         (for now in the config file).
@@ -292,7 +292,7 @@ class LayEd:
 
         # CkanApi
         from layman.layed.ckanapi import CkanApi
-        ckan = CkanApi(self.config)
+        ckan = CkanApi(self.config, ckanUrl)
 
         # Check paging
         if limit is None or offset is None: # No paging
@@ -521,7 +521,7 @@ class LayEd:
 
         return packageList
 
-    def getCkanPackages(self, roles, userName, limit="0", offset="0"):
+    def getCkanPackages(self, roles, userName, limit="0", offset="0", ckanUrl=None):
         """ Get the list of CKAN packages. 
         Calls package_list for the given limit and then,
         for every package listed, calls package_show and 
@@ -531,7 +531,7 @@ class LayEd:
         #print "prvni dotaz"
 
         from layman.layed.ckanapi import CkanApi
-        ckan = CkanApi(self.config)
+        ckan = CkanApi(self.config, ckanUrl)
         
         # Learn the number of datasets available
         packageList = self._getPackageList(ckan)

@@ -22,9 +22,14 @@ class CkanApi:
         #"Accept": "application/json"
     }
 
-    def __init__(self,config = None):
+    def __init__(self,config = None, url=None):
         """constructor
         """
+        if url is not None:
+            if url[-1] != "/":
+                url += "/"
+            self.url = url + "api/3"
+
         self._setConfig(config)
         self._setHttp()
 
@@ -103,7 +108,8 @@ class CkanApi:
 
     def _setHttp(self):
         self.h = httplib2.Http()
-        self.url = self.config.get("CKAN","CkanApiUrl")
+        if self.url is None:
+            self.url = self.config.get("CKAN","CkanApiUrl")
         # username = self.config.get("GeoServer","user")
         # password = self.config.get("GeoServer","password")
         # self.h.add_credentials(username, password)
