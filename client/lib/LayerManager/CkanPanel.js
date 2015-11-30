@@ -38,16 +38,8 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
         // Top Toolbar
         myconfig.tbar = Ext4.create('Ext4.toolbar.Toolbar', {
             items: [
-                {   // Refresh
-                    scope: {obj: this, itemsPerPage: itemsPerPage},
-                    handler: this._onRefreshClicked,
-                    cls: 'x-btn-icon',
-                    tooltip: HS.i18n('Refresh'),
-                    icon: HSRS.IMAGE_LOCATION + '/arrow_refresh.png'
-                },
                 {   // CKAN Switching
                     fieldLabel: HS.i18n("Switch CKAN"),
-                    anchor: '80%',
                     xtype: 'combobox',
                     name: 'switchckan',
                     displayField: 'ckan',
@@ -68,6 +60,14 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
                             {"ckan":"http://datamx.io/"} 
                         ]
                     })
+                },
+                {   // Refresh
+                    scope: {obj: this, itemsPerPage: itemsPerPage},
+                    handler: this._onRefreshClicked,
+                    name: 'ckanreload',
+                    cls: 'x-btn-icon',
+                    tooltip: HS.i18n('Refresh'),
+                    icon: HSRS.IMAGE_LOCATION + '/arrow_refresh.png'
                 }
             ]
         });
