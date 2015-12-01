@@ -17,6 +17,8 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
         myconfig = {};
 
         var itemsPerPage = 30;
+        var defaultCkanUrl = "http://ckan-otn-dev.intrasoft-intl.com/";
+        var ckanUrl = defaultCkanUrl;
 
         // Store
         myconfig.store = Ext4.create('Ext4.data.Store', {
@@ -53,7 +55,7 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
                     name: 'switchckan',
                     displayField: 'ckan',
                     valueField: 'ckan',
-                    value: 'http://ckan-otn-dev.intrasoft-intl.com/',
+                    value: this.defaultCkanUrl,
                     store: Ext4.create('Ext4.data.Store', {
                         fields: ['ckan'],
                         data: [
@@ -68,7 +70,11 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
                             {"ckan":"http://www.hri.fi/"},
                             {"ckan":"http://datamx.io/"} 
                         ]
-                    })
+                    }),
+                    listeners: {
+                        change: this._onCkanChanged,
+                        scope: this
+                    }                    
                 }
             ]
         });
@@ -213,6 +219,11 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
         });
     },
 
+    _onCkanChanged: function(combo, newValue, oldValue, eOpts) {
+        this.ckanUrl = newValue
+        this._onRefreshClicked()
+    }
+
     /**
      * button refresh handler
      * @private
@@ -221,7 +232,8 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
         this.obj.store.load({
             params:{
                 start: 0,
-                limit: this.itemsPerPage
+                limit: this.itemsPerPage,
+                ckanUrl: this.ckanUrl
             }
         });
      }
