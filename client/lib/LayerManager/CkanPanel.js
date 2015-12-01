@@ -221,7 +221,14 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
 
     _onCkanChanged: function(combo, newValue, oldValue, eOpts) {
         this.ckanUrl = newValue;
-        this._onRefreshClicked();
+        // this._onRefreshClicked();
+        this.store.load({
+            params:{
+                start: 0,
+                limit: this.itemsPerPage,
+                ckanUrl: this.ckanUrl
+            }
+        });
     },
 
     /**
