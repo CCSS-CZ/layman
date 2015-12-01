@@ -220,8 +220,8 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
     },
 
     _onCkanChanged: function(combo, newValue, oldValue, eOpts) {
-        this.ckanUrl = newValue
-        this._onRefreshClicked()
+        this.ckanUrl = newValue;
+        this._onRefreshClicked();
     }
 
     /**
