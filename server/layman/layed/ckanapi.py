@@ -25,8 +25,10 @@ class CkanApi:
     def __init__(self, config=None, url=None):
         """constructor
         """
+        self._setConfig(config)
+
         # Check if we were given CKAN URL from the client
-        # If not, use the one from our config file
+        # If yes, use it, otherwise use the one from our config file
         if url is None or url.strip() == "":
             self.url = self.config.get("CKAN","CkanApiUrl")
         else:
@@ -34,7 +36,6 @@ class CkanApi:
                 url += "/"
             self.url = url + "api/3"
 
-        self._setConfig(config)
         self._setHttp()
 
     ### CKAN API v.3
