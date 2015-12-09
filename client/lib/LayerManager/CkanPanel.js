@@ -57,7 +57,7 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
                     name: 'switchckan',
                     displayField: 'ckan',
                     valueField: 'ckan',
-                    value: this.defaultCkanUrl,
+                    value: defaultCkanUrl,
                     store: Ext4.create('Ext4.data.Store', {
                         fields: ['ckan'],
                         data: [
