@@ -33,6 +33,9 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
                     type: 'json',
                     root: 'rows',
                     totalProperty: 'results'
+                },
+                extraParams: {
+                    ckanUrl: this.ckanUrl
                 }
             }
         });
@@ -179,7 +182,8 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
         myconfig.store.load({
             params:{
                 start: 0,
-                limit: itemsPerPage
+                limit: itemsPerPage,
+                ckanUrl: this.ckanUrl
             }
         });
     },
