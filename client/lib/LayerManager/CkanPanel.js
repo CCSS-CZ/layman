@@ -18,7 +18,6 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
 
         var itemsPerPage = 30;
         var defaultCkanUrl = "http://ckan-otn-dev.intrasoft-intl.com/";
-        var ckanUrl = defaultCkanUrl;
 
         // Store
         myconfig.store = Ext4.create('Ext4.data.Store', {
@@ -35,7 +34,7 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
                     totalProperty: 'results'
                 },
                 extraParams: {
-                    ckanUrl: this.ckanUrl
+                    ckanUrl: defaultCkanUrl
                 }
             }
         });
@@ -182,8 +181,7 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
         myconfig.store.load({
             params:{
                 start: 0,
-                limit: itemsPerPage,
-                ckanUrl: this.ckanUrl
+                limit: itemsPerPage
             }
         });
     },
@@ -224,13 +222,12 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
     },
 
     _onCkanChanged: function(combo, newValue, oldValue, eOpts) {
-        this.ckanUrl = newValue;
+        this.store.proxy.extraParams.ckanUrl = newValue;
         // this._onRefreshClicked();
         this.store.load({
             params:{
                 start: 0,
-                limit: this.itemsPerPage,
-                ckanUrl: this.ckanUrl
+                limit: this.itemsPerPage
             }
         });
     },
@@ -243,8 +240,7 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
         this.obj.store.load({
             params:{
                 start: 0,
-                limit: this.itemsPerPage,
-                ckanUrl: this.ckanUrl
+                limit: this.itemsPerPage
             }
         });
      }
