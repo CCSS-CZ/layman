@@ -223,6 +223,7 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
 
     _onCkanChanged: function(combo, newValue, oldValue, eOpts) {
         this.store.proxy.extraParams.ckanUrl = newValue;
+        this.store.currentPage = 1;
         // this._onRefreshClicked();
         this.store.load({
             params:{
@@ -237,6 +238,7 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
      * @private
      */
      _onRefreshClicked: function() {
+        this.obj.store.currentPage = 1;
         this.obj.store.load({
             params:{
                 start: 0,
