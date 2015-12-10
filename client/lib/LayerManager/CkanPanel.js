@@ -63,6 +63,7 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
                         data: [
                             {"ckan":"http://ckan-otn-dev.intrasoft-intl.com/"},
 //                            {"ckan":"http://publicdata.eu/"}, 
+                            {"ckan":"http://www.europeandataportal.eu/data/"},
                             {"ckan":"http://data.gov.uk"},
                             {"ckan":"http://data.gov.sk/"},
                             {"ckan":"http://data.kk.dk/"},
