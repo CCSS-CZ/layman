@@ -110,13 +110,21 @@ class LayMan:
 
                     elif len(path) == 2:
 
-                        # /layed/groups
+                        # /data/groups
                         if path[1] == "groups":
                             (code, retval) = self.auth.getRolesStr()
 
-                        # /layed/allgroups
+                        # /data/allgroups
                         elif path[1] == "allgroups":
                             (code, retval) = self.auth.getAllRolesStr()
+
+                        # /data/sync
+                        elif path[1] == "sync":
+                            from layed import LayEd
+                            le = LayEd()
+    
+                            roles = self.auth.getRoles()
+                            (code, retval) = le.syncDataPad(roles)
 
                         else:
                             (code, retval) = self._callNotSupported(restMethod="GET", call=origName)
