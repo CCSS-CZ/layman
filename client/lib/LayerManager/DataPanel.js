@@ -168,7 +168,7 @@ Ext4.define('HSRS.LayerManager.DataPanel', {
                     '<br />' + obj.message);
             }
         });
-    }
+    },
 
     /**
      * send delete request
