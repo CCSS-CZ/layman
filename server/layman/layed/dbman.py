@@ -518,7 +518,8 @@ class DbMan:
                 ...
             ]
         """
-        logging.debug("[DbMan][getDataPad] owner='%s'"% owner)
+        logParam =  "restrictBy: " + str(restrictBy) + " groups: " + str(groups) + "owner: " + owner
+        logging.debug("[DbMan][getDataPad] %s" % logParam)
 
         if restrictBy is None:
             sql = "SELECT dataname, datagroup, owner, type, datatype FROM layman.data;"
