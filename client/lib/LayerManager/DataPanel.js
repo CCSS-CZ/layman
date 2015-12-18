@@ -25,19 +25,20 @@ Ext4.define('HSRS.LayerManager.DataPanel', {
                     cls: 'x-btn-icon',
                     tooltip: HS.i18n('Refresh'),
                     icon: HSRS.IMAGE_LOCATION + '/arrow_refresh.png'
-                }
-/*    ,            {   // Delete
+                },
+                /* {   // Delete
                     scope: this,
                     handler: this._onDeleteClicked,
                     cls: 'x-btn-icon',
                     tooltip: 'Delete',
                     icon: HSRS.IMAGE_LOCATION + '/delete.png'
-                }* /
-                {   // CKAN
+                },*/
+                {   // Sync
                     scope: this,
-                    handler: this._onCkanClicked,
-                    text: HS.i18n('CKAN')
-                } */
+                    handler: this._onSyncClicked,
+                    text: HS.i18n('Sync'),
+                    tooltip: HS.i18n('Synchronise with database')
+                } 
             ]
         });
 
@@ -135,6 +136,39 @@ Ext4.define('HSRS.LayerManager.DataPanel', {
 
         this.addEvents("datapublished");
     },
+
+    _onSyncClicked: function() {
+        var url = this.url + "sync";
+
+        Ext4.Ajax.request({
+            scope: this,
+            method: 'GET',
+            url: (HSRS.ProxyHost ? HSRS.ProxyHost + escape(url) : url),
+            success: function(form, action) {
+                var obj;
+                try {
+                    obj = Ext4.decode(form.responseText);
+                }
+                catch (E) {
+                    obj = {message: ''};
+                }
+                Ext4.Msg.alert(HS.i18n('Success'), HS.i18n('Data of all your groups has been synchronised') +
+                     '<br />' + obj.message);
+                this.store.load();
+            },
+            failure: function(form, action) {
+                var obj;
+                try {
+                    obj = Ext4.decode(form.responseText);
+                }
+                catch (E) {
+                    obj = {message: ''};
+                }
+                Ext4.Msg.alert(HS.i18n('Failed'), HS.i18n('Synchronisation of data failed') +
+                    '<br />' + obj.message);
+            }
+        });
+    }
 
     /**
      * send delete request
