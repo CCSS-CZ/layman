@@ -518,7 +518,7 @@ class DbMan:
                 ...
             ]
         """
-        logParam =  "restrictBy: " + str(restrictBy) + " groups: " + str(groups) + "owner: " + owner
+        logParam =  "restrictBy: " + str(restrictBy) + " groups: " + str(groups) + "owner: " + str(owner)
         logging.debug("[DbMan][getDataPad] %s" % logParam)
 
         if restrictBy is None:
