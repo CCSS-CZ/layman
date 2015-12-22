@@ -677,6 +677,8 @@ class LayMan:
             web.conflict()
         elif code in (500, "500", "internalerror"):
             web.internalerror()
+        elif code in (501, "501", "notimplemented"):
+            web.notimplemented()
 
         if success:
             logging.debug("[LayMan][_setReturnCode] Code: '%s'" % code)
