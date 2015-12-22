@@ -25,14 +25,20 @@ Ext4.define('HSRS.LayerManager.LayersPanel', {
                     cls: 'x-btn-icon',
                     tooltip: HS.i18n('Refresh'),
                     icon: HSRS.IMAGE_LOCATION + '/arrow_refresh.png'
-                }/*,
-                {
+                },
+                /*{
                     scope: this,
                     handler: this._onDeleteClicked,
                     cls: 'x-btn-icon',
                     tooltip: 'Delete layer',
                     icon: HSRS.IMAGE_LOCATION + '/delete.png'
                 }*/
+                {   // Sync
+                    scope: this,
+                    handler: this._onSyncClicked,
+                    text: HS.i18n('Sync'),
+                    tooltip: HS.i18n('Synchronise with GeoServer')
+                }
             ]
         });
 
@@ -228,9 +234,42 @@ Ext4.define('HSRS.LayerManager.LayersPanel', {
      * button refresh handler
      * @private
      */
-     _onRefreshClicked: function() {
+    _onRefreshClicked: function() {
         this.store.load();
-     }
+    },
+
+    _onSyncClicked: function() {
+        var url = this.url + "sync";
+
+        Ext4.Ajax.request({
+            scope: this,
+            method: 'GET',
+            url: (HSRS.ProxyHost ? HSRS.ProxyHost + escape(url) : url),
+            success: function(form, action) {
+                var obj;
+                try {
+                    obj = Ext4.decode(form.responseText);
+                }
+                catch (E) {
+                    obj = {message: ''};
+                }
+                Ext4.Msg.alert(HS.i18n('Success'), HS.i18n('Layers of all your groups has been synchronised') +
+                     '<br />' + obj.message);
+                this.store.load();
+            },
+            failure: function(form, action) {
+                var obj;
+                try {
+                    obj = Ext4.decode(form.responseText);
+                }
+                catch (E) {
+                    obj = {message: ''};
+                }
+                Ext4.Msg.alert(HS.i18n('Failed'), HS.i18n('Synchronisation of layers failed') +
+                    '<br />' + obj.message);
+            }
+        });
+    }
 
     /**
      * get file details
