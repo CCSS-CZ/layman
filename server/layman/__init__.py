@@ -678,7 +678,8 @@ class LayMan:
         elif code in (500, "500", "internalerror"):
             web.internalerror()
         elif code in (501, "501", "notimplemented"):
-            web.notimplemented()
+            # web.notimplemented() # not implemented
+            web.internalerror()
 
         if success:
             logging.debug("[LayMan][_setReturnCode] Code: '%s'" % code)
