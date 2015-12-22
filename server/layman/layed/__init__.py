@@ -1355,6 +1355,10 @@ class LayEd:
         layers = json.dumps(layers) 
         return (code, layers)
 
+    def syncLayerPad(self, roles):
+        # TODO
+        return (501, "Sorry, the layer synchronisation is just being implemented and is not ready yet.")
+
     # Old getLayers() - get every layer from GS
     def getLayersCompleteJson(self, roles):
         """ Get layers of the given workspaces.

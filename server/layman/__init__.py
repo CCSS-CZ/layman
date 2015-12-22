@@ -179,6 +179,14 @@ class LayMan:
                         if path[1] == "workspaces":
                             (code, retval) = le.getWorkspaces()
 
+                        # /layed/sync
+                        elif path[1] == "sync":
+                            from layed import LayEd
+                            le = LayEd()
+    
+                            roles = self.auth.getRoles()
+                            (code, retval) = le.syncLayerPad(roles)
+
                         # /layed/groups
                         elif path[1] == "groups":
                             (code, retval) = self.auth.getRolesStr()
