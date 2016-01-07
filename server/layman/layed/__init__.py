@@ -1,5 +1,22 @@
-# Lincense: ...
-# authors: Michal, Jachym
+#
+#    LayMan - the Layer Manager
+#
+#    Copyright (C) 2016 Czech Centre for Science and Society
+#    Authors: Jachym Cepicky, Karel Charvat, Stepan Kafka, Michal Sredl, Premysl Vohnout
+#    Mailto: sredl@ccss.cz, charvat@ccss.cz
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
 import json
@@ -101,10 +118,9 @@ class LayEd:
             1. Get the current state of the DataPad 
             2. Get the current state of the database
             3. From DataPad, delete anything that is no more in the database
-            4. Into DataPad, add all the layers that are not recorded there, 
+            4. Into DataPad, add all the data that are not recorded there, 
                 but are present in the database in the appropriate schemas. 
                 Unclear columns (owner, updated, ...) leave as NULL
-
         """
         from layman.layed.dbman import DbMan
         dbm = DbMan(self.config)
@@ -1359,6 +1375,27 @@ class LayEd:
         # TODO
         return (501, "Sorry, the layer synchronisation is just being implemented and is not ready yet.")
 
+        """ Synchronise LayerPad with current state of GeoServer.
+            Synchronises all the groups the current user is member of. 
+
+            1. Get the current state of the LayerPad 
+            2. Get the current state of GeoServer
+            3. From LayerPad, delete anything that is no more in the GeoServer
+            4. Into LayerPad, add all the layers that are not recorded there, 
+                but are present in the GS in the appropriate workspaces. 
+                Unclear columns (owner, updated, ...) leave as NULL
+        """
+        from layman.layed.gsrest import GsRest
+        gsr = GsRest(self.config)
+        
+        # Map roles to group list             
+        groups = map( lambda r: r["roleName"], roles )
+
+        #    1. Get the current state of GeoServer
+        #print "jedna..."
+        
+        # *** TODO ...
+    
     # Old getLayers() - get every layer from GS
     def getLayersCompleteJson(self, roles):
         """ Get layers of the given workspaces.
