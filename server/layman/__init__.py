@@ -361,11 +361,15 @@ class LayMan:
                         if not "view" in inpt:
                             raise LaymanError(
                                 400, "'view' parameter missing")
+                        if not "datatype" in inpt:
+                            raise LaymanError(
+                                400, "'datatype' parameter missing")
                         if not "crs" in inpt:
                             raise LaymanError(
                                 400, "'crs' parameter missing")
 
                         viewName = inpt.view
+                        dataType = inpt.datatype
                         userName = self.auth.getUserName()
                         dbSchema = self.auth.getDBSchema(inpt.schema)
                         gsWorkspace = self.auth.getGSWorkspace(inpt.schema)
@@ -385,7 +389,7 @@ class LayMan:
                             styleWs = inpt.style_ws
 
                         (code, layerName, message) = le.publishFromDbToGs(dbSchema, 
-                                                            viewName, gsWorkspace, userName,
+                                                            viewName, dataType, gsWorkspace, userName,
                                                             crs, inpt, styleName, styleWs, secureLayer)
 
                         # Set Location header

@@ -255,6 +255,18 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                value: (config.type == "data" ?
                                        config.name : undefined)
                            },
+                           /* set datatype if this is data
+                            */
+                           {
+                               name: 'datatype',
+                               id: 'datatype',
+                               xtype: 'hidden',
+                               disabled: (config.type == "data" ?
+                                          false : true),
+                               anchor: '100%',
+                               value: (config.type == "data" ?
+                                       config.datatype : undefined)
+                           },
                            /* set schema name if this is data
                             */
                            {

@@ -82,7 +82,9 @@ Ext4.define('HSRS.LayerManager.LayersPanel.Model', {
             {name: 'wstitle', mapping: 'roleTitle', type: Ext4.data.Types.STRING},
             {name: 'layertitle', mapping: 'layertitle', type: Ext4.data.Types.STRING},
             {name: 'layername',  mapping: 'layername', type: Ext4.data.Types.STRING},
-            {name: 'type',  mapping: 'type', type: Ext4.data.Types.STRING},
+            {name: 'layertype',  mapping: 'layertype', type: Ext4.data.Types.STRING},
+            {name: 'datatype',  mapping: 'datatype', type: Ext4.data.Types.STRING},
+            {name: 'vectortype',  mapping: 'vectortype', type: Ext4.data.Types.STRING},
             {name: 'owner',  mapping: 'owner', type: Ext4.data.Types.STRING},
             {name: 'datagroup',  mapping: 'datagroup', type: Ext4.data.Types.STRING},
             {name: 'dataname',  mapping: 'dataname', type: Ext4.data.Types.STRING}

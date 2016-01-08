@@ -432,13 +432,13 @@ class DbMan:
 
     ### LAYPAD ###
 
-    def createLayerPad(self, name, title, group, owner, layertype, datagroup, dataname):
+    def createLayerPad(self, name, title, group, owner, layertype, datagroup, dataname, datatype, vectortype):
         """ Create Layer in LayPad 
         """
-        logParam =  "name: " + name + "title: " +title+ " group: " + group + " owner: " + owner + "type: " + layertype + " datagroup: " + datagroup + " dataname: " + dataname
+        logParam =  "name: " + name + "title: " +title+ " group: " + group + " owner: " + owner + "layertype: " + layertype + " datagroup: " + datagroup + " dataname: " + dataname + "datatype: " + datatype + "vectortype: " + vectortype 
         logging.debug("[DbMan][createLayerPad] %s" % logParam)
 
-        sqlBatch = "insert into layman.layers (layername, layergroup, layertitle, owner, type, datagroup, dataname) values ('"+name+"','"+group+"','"+title+"','"+owner+"','"+layertype+"','"+datagroup+"','"+dataname+"');"
+        sqlBatch = "insert into layman.layers (layername, layergroup, layertitle, owner, layertype, datagroup, dataname, datatype, vectortype) values ('"+name+"','"+group+"','"+title+"','"+owner+"','"+layertype+"','"+datagroup+"','"+dataname+"','"+datatype+"','"+vectortype+"');"
         self.write_sql(sqlBatch)
 
     def updateLayerPad():        
@@ -453,10 +453,14 @@ class DbMan:
         sqlBatch = "delete from layman.layers where layername='"+name+"' and layergroup='"+group+"';"
         self.write_sql(sqlBatch)
 
-    def getLayerPad(self, owner=None):
+    def getLayerPad(self, restrictBy=None, groups=None, owner=None):
         """ Get Layers from layman.layers
-            owner given - just for this user
-            owner not given - all the layers
+
+            restrictBy = ['owner'|'roles'|None]
+                'owner' - just this owner (user) // owner must be given
+                'groups' - just this roles (schemas) // list of roles must be given
+                None    - all
+
             Returns JSON:
             [
                {
@@ -464,37 +468,51 @@ class DbMan:
                     layergroup:
                     layertitle:
                     owner:
-                    type:
+                    layertype:
                     datagroup:
                     dataname:
+                    datatype:
+                    vectortype:
                },
                 ...
 
             ]
         """
-        logging.debug("[DbMan][getLayerPad] owner='%s'"% owner)
+        logParam =  "restrictBy: " + str(restrictBy) + " groups: " + str(groups) + "owner: " + str(owner)
+        logging.debug("[DbMan][getLayerPad] %s"% logParam)
 
-        if owner is None:
-            sql = "SELECT layername, layergroup, layertitle, owner, type, datagroup, dataname FROM layman.layers;"
-        else:
-            sql = "SELECT layername, layergroup, layertitle, owner, type, datagroup, dataname FROM layman.layers where owner='"+owner+"';"
+        if restrictBy is None:
+            sql = "SELECT layername, layergroup, layertitle, owner, layertype, datagroup, dataname, datatype, vectortype FROM layman.layers;"
+
+        elif restrictBy.lower() in ["owner", "user"]:
+            if owner is None:
+                logging.error("[DbMan][getLayerPad] getLayerPad() called with restrictBy owner, but no owner given")
+                raise LaymanError(500, "Cannot get Layers, no owner was specified for getLayerPad()")
+            sql = "SELECT layername, layergroup, layertitle, owner, layertype, datagroup, dataname, datatype, vectortype FROM layman.layers where owner='"+owner+"';"
+
+        elif restrictBy.lower() in ["roles", "groups", "workspaces"]:
+            if groups is None:
+                logging.error("[DbMan][getLayerPad] getLayerPad() called with restrictBy roles, but no roles given")
+                raise LaymanError(500, "Cannot get Layers, no roles were specified for getLayerPad()")        
+            groups = ",".join(map( lambda g: "'"+g+"'", groups )) # "'aaa','bbb','ccc'"
+            sql = "SELECT layername, layergroup, layertitle, owner, layertype, datagroup, dataname, datatype, vectortype FROM layman.layers where layergroup IN (" + groups +")"
 
         result = self.get_sql(sql) # [['rivers','hasici','Reky','hsrs','vector','hasici','rivers_01'], ... ]
-        layers = map( lambda rec: {"layername": rec[0], "layergroup": rec[1], "layertitle": rec[2], "owner": rec[3], "type": rec[4], "datagroup": rec[5], "dataname": rec[6]}, result )
+        layers = map( lambda rec: {"layername": rec[0], "layergroup": rec[1], "layertitle": rec[2], "owner": rec[3], "layertype": rec[4], "datagroup": rec[5], "dataname": rec[6], "datatype": rec[7], "vectortype": rec[8]}, result )
 
         return layers        
 
     ### DATAPAD ###
 
-    def createDataPad(self, name, group, owner, dtype, datatype):
+    def createDataPad(self, name, group, owner, datatype, layertype):
         """ Create Data in DataPad 
-            dtype - table, view, file
-            datatype - vector, raster
+            datatype - table, view, file
+            layertype - vector, raster
         """
-        logParam =  "name: " + name + " group: " + group + " owner: " + str(owner) + "dtype: " + dtype + "datatype: " + datatype 
+        logParam =  "name: " + name + " group: " + group + " owner: " + str(owner) + "datatype: " + datatype + "layertype: " + layertype 
         logging.debug("[DbMan][createDataPad] %s" % logParam)
 
-        sqlBatch = "insert into layman.data (dataname, datagroup, owner, type, datatype) values ('"+name+"','"+group+"',"+ self._stringOrNull(owner) +",'"+dtype+"','"+datatype+"');"
+        sqlBatch = "insert into layman.data (dataname, datagroup, owner, datatype, layertype) values ('"+name+"','"+group+"',"+ self._stringOrNull(owner) +",'"+datatype+"','"+layertype+"');"
         self.write_sql(sqlBatch)
 
     def _stringOrNull(self, value=None):
@@ -503,13 +521,13 @@ class DbMan:
         else:
             return "'"+ value +"'"
 
-    def deleteDataPad(self, group, dtype, name):
+    def deleteDataPad(self, group, datatype, name):
         """ Delete data in DataPad
         """
-        logParam =  "name: " + name + " group: " + group + "type:" + dtype
+        logParam =  "name: " + name + " group: " + group + "type:" + datatype
         logging.debug("[DbMan][deleteDataPad] %s" % logParam)
 
-        sqlBatch = "delete from layman.data where dataname='"+name+"' and datagroup='"+group+"' and type='"+dtype+"';"
+        sqlBatch = "delete from layman.data where dataname='"+name+"' and datagroup='"+group+"' and type='"+datatype+"';"
         self.write_sql(sqlBatch)
 
     def updateDataPad():
@@ -529,8 +547,8 @@ class DbMan:
                     name:
                     schema:
                     owner:
-                    type:
                     datatype:
+                    layertype:
                },
                 ...
             ]
@@ -539,23 +557,23 @@ class DbMan:
         logging.debug("[DbMan][getDataPad] %s" % logParam)
 
         if restrictBy is None:
-            sql = "SELECT dataname, datagroup, owner, type, datatype FROM layman.data;"
+            sql = "SELECT dataname, datagroup, owner, datatype, layertype FROM layman.data;"
 
         elif restrictBy.lower() in ["owner","user"]:
             if owner is None:
                 logging.error("[DbMan][getDataPad] getDataPad() called with restrictBy owner, but no owner given")
                 raise LaymanError(500, "Cannot get Data, no owner was specified for getDataPad()")
-            sql = "SELECT dataname, datagroup, owner, type, datatype FROM layman.data where owner='"+owner+"';"
+            sql = "SELECT dataname, datagroup, owner, datatype, layertype FROM layman.data where owner='"+owner+"';"
 
         elif restrictBy.lower() in ["roles", "groups", "schemas"]:
             if groups is None:
                 logging.error("[DbMan][getDataPad] getDataPad() called with restrictBy roles, but no roles given")
                 raise LaymanError(500, "Cannot get Data, no roles were specified for getDataPad()")        
             groups = ",".join(map( lambda g: "'"+g+"'", groups )) # "'aaa','bbb','ccc'"
-            sql = "SELECT dataname, datagroup, owner, type, datatype FROM layman.data where datagroup IN (" + groups +")"
+            sql = "SELECT dataname, datagroup, owner, datatype, layertype FROM layman.data where datagroup IN (" + groups +")"
 
         result = self.get_sql(sql) # [['rivers_00','hasici','hsrs','table','vector'], ... ]
-        data = map( lambda rec: {"name": rec[0], "schema": rec[1], "owner": rec[2], "type": rec[3], "datatype": rec[4]}, result )
+        data = map( lambda rec: {"name": rec[0], "schema": rec[1], "owner": rec[2], "datatype": rec[3], "layertype": rec[4]}, result )
 
         return data        
 

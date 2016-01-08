@@ -136,8 +136,8 @@ class LayEd:
                     name:
                     schema:
                     owner:
-                    type:
                     datatype:
+                    layertype:
                },
                 ...
             ] """  
@@ -145,7 +145,7 @@ class LayEd:
 
         # Take schema type and name.
         # Tuples are hashable, we need that for sets.
-        dataPadTuples = map( lambda d: (d["schema"], d["type"], d["name"]), dataPadData )
+        dataPadTuples = map( lambda d: (d["schema"], d["datatype"], d["name"]), dataPadData )
 
         # Set of dataPad Data
         dataPadSet = set(dataPadTuples) 
@@ -155,7 +155,7 @@ class LayEd:
 
         """ [
              {
-                "type": "table", 
+                "datatype": "table", 
                 "name": "pest_04", 
                 "schema": "aagroup"
              }, 
@@ -165,7 +165,7 @@ class LayEd:
         dbData = self.getDataForSync(groups) 
 
         # Tuples are hashable, we need that for sets
-        dbTuples = map( lambda d: (d["schema"], d["type"], d["name"]), dbData )
+        dbTuples = map( lambda d: (d["schema"], d["datatype"], d["name"]), dbData )
 
         # Set of database Data
         dbSet = set(dbTuples)
@@ -196,7 +196,7 @@ class LayEd:
         for t in insertSet: # FIXME: Each createDataPad() opens and closes new db connection. This can be optimised.
             #print "inserting " + str(t)
             logging.info("[LayEd][syncDataPad] Insert into DataPad: %s "% str(t))
-            dbm.createDataPad(name=t[2], group=t[0], owner=None, dtype=t[1], datatype="vector")
+            dbm.createDataPad(name=t[2], group=t[0], owner=None, datatype=t[1], layertype="vector")
 
         return (200, "DataPad synchronised")
 
@@ -264,7 +264,7 @@ class LayEd:
     def getDataForSync(self, groups):
         """ 
             groups - list of groups 
-            returns: [{"type": "table", "name": "pest_04", "schema": "aagroup"}, ...]
+            returns: [{"datatype": "table", "name": "pest_04", "schema": "aagroup"}, ...]
         """
         from layman.layed.dbman import DbMan
         dbm = DbMan(self.config)
@@ -272,12 +272,12 @@ class LayEd:
         # Get tables
         tables = dbm.getTables(groups)
         for t in tables:
-            t["type"] = "table"
+            t["datatype"] = "table"
 
         # Get views
         views = dbm.getViews(groups)
         for v in views:
-            v["type"] = "view"
+            v["datatype"] = "view"
 
         # Concat
         data = tables + views
@@ -697,7 +697,7 @@ class LayEd:
             tableName = self.importFromFileToDb(filePath, dbSchema, userName, srs, tsrs, cpg)
             
             # Publish from PostGIS to GeoServer
-            (code, layerName, message) = self.publishFromDbToGs(dbSchema, tableName, gsWorkspace, userName, tsrs, data, None, None, secureLayer)
+            (code, layerName, message) = self.publishFromDbToGs(dbSchema, tableName, "table", gsWorkspace, userName, tsrs, data, None, None, secureLayer)
 
         else:
             from osgeo import gdal
@@ -730,16 +730,16 @@ class LayEd:
         tableName = dbm.importVectorFile(filePath, dbSchema, srs, tsrs, cpg)
 
         # Note in DataPad
-        dbm.createDataPad(name=tableName, group=dbSchema, owner=userName, dtype='table', datatype='vector')
+        dbm.createDataPad(name=tableName, group=dbSchema, owner=userName, datatype='table', layertype='vector')
 
         logging.info("[LayEd][importFromFileToDb] Imported file '%s'" % filePath)
         logging.info("[LayEd][importFromFileToDb] in schema '%s'" % dbSchema)
 
         return tableName
 
-    def publishFromDbToGs(self, dbSchema, tableName, gsWorkspace, userName, srs=None, data=None, styleName=None, styleWs=None, secureLayer=True):
+    def publishFromDbToGs(self, dbSchema, tableName, datatype, gsWorkspace, userName, srs=None, data=None, styleName=None, styleWs=None, secureLayer=True):
         """ Publish vector data from PostGIS to GeoServer.
-            A name of a view can be used as a tableName as well.
+            A name of a view can be used as a tableName as well. !!! Can not - they can overlap.
         """
         logParam = "dbSchema=%s tableName=%s gsWorkspace=%s srs=%s" %\
                    (dbSchema, tableName, gsWorkspace, srs)
@@ -752,7 +752,7 @@ class LayEd:
         dataStore = self.createVectorDataStoreIfNotExists(dbSchema, gsWorkspace)
 
         # Publish from DB to GS       
-        (code, layerName, message) = self.createFtFromDb(gsWorkspace, dataStore, tableName, srs, data, secureLayer)
+        (code, layerName, message) = self.createFtFromDb(gsWorkspace, dataStore, tableName, datatype, srs, data, secureLayer)
         if code == 409: # already published
             return (code, tableName, message)
 
@@ -762,6 +762,8 @@ class LayEd:
         # Create and assgin new style
         self.createStyleForLayer(gsWorkspace, layerName, styleName, styleWs)
 
+        # TODO - check the style assigned - detect the vectortype (point/line/polygon)
+
         logging.info("[LayEd][publish] Published layer '%s'" % layerName)
         logging.info("[LayEd][publish] in workspace '%s'" % gsWorkspace)
 
@@ -770,7 +772,7 @@ class LayEd:
         layerTitle = layerName
         if data is not None and "title" in data:
             layerTitle = data["title"]
-        dbm.createLayerPad(name=layerName, title=layerTitle, group=gsWorkspace, owner=userName, layertype="vector", datagroup=dbSchema, dataname=tableName)
+        dbm.createLayerPad(name=layerName, title=layerTitle, group=gsWorkspace, owner=userName, layertype="vector", datagroup=dbSchema, dataname=tableName, datatype=datatype, vectortype="")
 
         code = 201
         message = "Layer published: " + layerName
@@ -810,7 +812,7 @@ class LayEd:
         layerTitle = layerName
         if data is not None and "title" in data:
             layerTitle = data["title"]
-        dbm.createLayerPad(name=layerName, title=layerTitle, group=gsWorkspace, owner=userName, layertype="raster", datagroup=gsWorkspace, dataname=name)
+        dbm.createLayerPad(name=layerName, title=layerTitle, group=gsWorkspace, owner=userName, layertype="raster", datagroup=gsWorkspace, dataname=name, datatype="file", vectortype="")
 
         return (201, layerName, "Layer published")
 
@@ -1128,7 +1130,7 @@ class LayEd:
         # Tell GS to reload the configuration
         gsr.putReload()
 
-    def createFtFromDb(self, workspace, dataStore, tableName, srs, data=None, secureLayer=True):
+    def createFtFromDb(self, workspace, dataStore, tableName, datatype, srs, data=None, secureLayer=True):
         """ Create Feature Type from PostGIS database
             Given dataStore must exist in GS, connected to PG schema.
             layerName corresponds to table name in the schema.
@@ -1136,6 +1138,8 @@ class LayEd:
         logParam = "workspace=%s dataStore=%s tableName=%s srs=%s" %\
                    (workspace, dataStore, tableName, srs)
         logging.debug("[LayEd][createFtFromDb] Params: %s" % logParam)
+
+        # TODO - distinguish between tables and views (param datatype)
 
         # Create ft json
         ftJson = {}
@@ -1333,12 +1337,14 @@ class LayEd:
             {
                 datagroup: "aagroup",   // underlying data group
                 dataname: "dem",        // underlying data name
+                datatype: "table",      // underlying [table|view|file]
                 layergroup: "aagroup",
                 layername: "dem",
                 layertitle: "demo tiff",
+                layertype: "raster",
                 owner: "hsrs",
                 roleTitle: "AA Group",
-                type: "raster"
+                vectortype: ""          // for vectors, [point|line|polygon]
             },
             ...
         ]
@@ -1385,15 +1391,45 @@ class LayEd:
                 but are present in the GS in the appropriate workspaces. 
                 Unclear columns (owner, updated, ...) leave as NULL
         """
+        from layman.layed.dbman import DbMan
+        dbm = DbMan(self.config)
         from layman.layed.gsrest import GsRest
         gsr = GsRest(self.config)
         
         # Map roles to group list             
         groups = map( lambda r: r["roleName"], roles )
 
-        #    1. Get the current state of GeoServer
+        #    1. Get the current state of LayerPad
         #print "jedna..."
+       
+        """ [
+               {
+                    layername: 
+                    layergroup:
+                    layertitle:
+                    owner:
+                    layertype:
+                    datagroup:
+                    dataname:
+                    datatype:
+                    vectortype:
+               },
+                ...
+            ] """
+        layerPadLayers = dbm.getLayerPad(restrictBy='groups', groups=groups)
         
+        # Take layergroup (workspace) and layername.
+        # Tuples are hashable, we need that for sets.
+        layerPadTuples = map( lambda l: (l["layergroup"], l["layername"]), layerPadLayers )
+
+        # Set of layerPad Layers
+        layerPadSet = set(layerPadTuples) 
+ 
+        #    2. Get the current state of the GeoServer
+        #print "dva..."
+
+        gsLayers = self.getLayersCompleteJson(roles)
+
         # *** TODO ...
     
     # Old getLayers() - get every layer from GS
@@ -1619,7 +1655,7 @@ class LayEd:
                         bundle["layerData"]["datatype"] = "coverage"
                     layers.append(bundle)
 
-        layers = json.dumps(layers) # json -> string
+        # layers = json.dumps(layers) # json -> string
         return (code, layers)
 
     def deleteLayer(self, workspace, layer, schema, deleteTable):
@@ -1672,19 +1708,19 @@ class LayEd:
                     if deleteTable:
                         # Drop Table/View in PostreSQL
                         dbm = DbMan(self.config)
-                        dtype = "table"
+                        datatype = "table"
                         try: # TODO: distnct tables and views once we know it
                             dbm.deleteTable(dbSchema=schema, tableName=layer)                        
-                            dtype = "table"
+                            datatype = "table"
                         except Exception as e:
                             if "DROP VIEW" in str(e):
                                 logging.error("[LayEd][deleteLayer] DROP TABLE failed, trying DROP VIEW. Exception was: %s"% str(e))
                                 dbm.deleteView(dbSchema=schema, viewName=layer)
-                                dtype = "view"
+                                datatype = "view"
                             else:
                                 raise e
                         # Delete DataPad
-                        dbm.deleteDataPad(group=schema, dtype=dtype, name=layer)
+                        dbm.deleteDataPad(group=schema, datatype=datatype, name=layer)
 
                 elif layer_type == "RASTER":
                     # Delete Coverage Store
