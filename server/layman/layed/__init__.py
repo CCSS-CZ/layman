@@ -1434,7 +1434,19 @@ class LayEd:
         gsLayers = self.getLayersCompleteJson(roles)
 
         # layergroup, layername, layertype, layertitle, datagroup, dataname
-        gsTuples = map( lambda l: (l["ws"], l["layer"]["name"],  l["layer"]["type"].lower(), l["layerData"]["title"], l["layerData"]["store"]["name"], l["layerData"]["nativeName"]), gsLayers )
+        # gsTuples = map( lambda l: (l["ws"], l["layer"]["name"],  l["layer"]["type"].lower(), l["layerData"]["title"], l["layerData"]["store"]["name"], l["layerData"]["nativeName"]), gsLayers )
+
+        for l in gsLayers:
+            try:
+                ws = l["ws"]
+                layerName =  l["layer"]["name"]
+                layerType = l["layer"]["type"].lower()
+                layerDataTitle = l["layerData"]["title"]
+                layerDataStoreName = l["layerData"]["store"]["name"]
+                layerDataNativeName = l["layerData"]["nativeName"] 
+                gsTuples.append((ws, layerName, layerType, layerDataTitle, layerDataStoreName, layerDataNativeName))
+            except Exception as e:
+                logging.warning("[LayEd][syncLayerPad] Error parsing complete layer json, skipping the layer. Layer json: %s Exception: %s"% (str(l), str(e)) )
 
         # Set of GeoServer Layers
         gsSet = set(gsTuples)
