@@ -367,6 +367,23 @@ class DbMan:
         views = map( lambda rec: {"schema": rec[0], "name": rec[1]}, result )
 
         return views               
+
+    # Check if the given name represents a table or view in given schema
+    def tableOrView(self, schema, name):
+
+        retval = ""
+        sqlTable = "SELECT schemaname, relname FROM pg_stat_user_tables WHERE schemaname = '"+schema+"' AND relname = '"+name+"';"
+        sqlView  = "SELECT schemaname, viewname FROM pg_views where schemaname = '"+schema+"' and viewname = '"+name+"';"
+
+        result = self.get_sql(sqlTable)
+        if len(result) > 0:
+            retval = "table"
+        else:
+            result = self.getSql(sqlView)
+            if len(result) > 0:
+                retval = "view"
+
+        return retval
  
     def get_sql(self, sqlBatch):
         try:

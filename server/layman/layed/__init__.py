@@ -1382,9 +1382,6 @@ class LayEd:
         return (code, layers)
 
     def syncLayerPad(self, roles):
-        # TODO
-        return (501, "Sorry, the layer synchronisation is just being implemented and is not ready yet.")
-
         """ Synchronise LayerPad with current state of GeoServer.
             Synchronises all the groups the current user is member of. 
 
@@ -1424,9 +1421,9 @@ class LayEd:
         
         # Tuples are hashable, we need that for sets.
         #
-        # We consider 4 things to represent a layer. Although just layergroup and layername form the primary key in LayerPad, 
+        # We consider many things to represent a layer. Although just layergroup and layername form the primary key in LayerPad, 
         # should the same layer exist in GS with different underlaying data, that would mean a serious mismatch and need to be replaced.
-        layerPadTuples = map( lambda l: (l["layergroup"], l["layername"]), l["datagroup"], l["dataname"], layerPadLayers )
+        layerPadTuples = map( lambda l: (l["layergroup"], l["layername"], l["layertype"], l["layertitle"], l["datagroup"], l["dataname"]), layerPadLayers )
 
         # Set of layerPad Layers
         layerPadSet = set(layerPadTuples) 
@@ -1436,8 +1433,8 @@ class LayEd:
 
         gsLayers = self.getLayersCompleteJson(roles)
 
-        # layergroup, layername, datagroup, dataname
-        gsTuples = map( lambda l: (l["ws"], l["layer"]["name"]), l["layerData"]["store"]["name"], l["layerData"]["nativeName"], gsLayers )
+        # layergroup, layername, layertype, layertitle, datagroup, dataname
+        gsTuples = map( lambda l: (l["ws"], l["layer"]["name"],  l["layer"]["type"].lower(), l["layerData"]["title"], l["layerData"]["store"]["name"], l["layerData"]["nativeName"]), gsLayers )
 
         # Set of GeoServer Layers
         gsSet = set(gsTuples)
@@ -1468,8 +1465,16 @@ class LayEd:
         for t in insertSet: # FIXME: Each createLayerPad() opens and closes new db connection. This can be optimised.
             #print "inserting " + str(t) 
             logging.info("[LayEd][syncLayerPad] Insert into LayerPad: %s "% str(t))
-            # *** TODO ***
-            #dbm.createLayerPad(name=t[1], title=, group=t[0], owner=None, layertype=, datagroup=t[2], dataname=t[3], datatype=, vectortype=""):
+
+            # Datatype 
+            datatype = ""
+            if t[2] == "raster":
+                datatype = "file" # TODO: In case we store rasters in db
+            else:
+                datatype = dbm.tableOrView(schema=t[4], name=t[5])
+
+            # Insert
+            dbm.createLayerPad(name=t[1], title=t[3], group=t[0], owner=None, layertype=t[2], datagroup=t[4], dataname=t[5], datatype=datatype, vectortype=""):
 
         return (200, "LayerPad synchronised")
     
