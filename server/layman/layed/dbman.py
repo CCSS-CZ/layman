@@ -527,7 +527,7 @@ class DbMan:
         logParam =  "name: " + name + " group: " + group + "type:" + datatype
         logging.debug("[DbMan][deleteDataPad] %s" % logParam)
 
-        sqlBatch = "delete from layman.data where dataname='"+name+"' and datagroup='"+group+"' and type='"+datatype+"';"
+        sqlBatch = "delete from layman.data where dataname='"+name+"' and datagroup='"+group+"' and datatype='"+datatype+"';"
         self.write_sql(sqlBatch)
 
     def updateDataPad():
