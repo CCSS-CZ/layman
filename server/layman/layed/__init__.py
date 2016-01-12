@@ -1431,7 +1431,7 @@ class LayEd:
         #    2. Get the current state of the GeoServer
         #print "dva..."
 
-        gsLayers = self.getLayersCompleteJson(roles)
+        (code1, gsLayers) = self.getLayersCompleteJson(roles)
 
         # layergroup, layername, layertype, layertitle, datagroup, dataname
         # gsTuples = map( lambda l: (l["ws"], l["layer"]["name"],  l["layer"]["type"].lower(), l["layerData"]["title"], l["layerData"]["store"]["name"], l["layerData"]["nativeName"]), gsLayers )
