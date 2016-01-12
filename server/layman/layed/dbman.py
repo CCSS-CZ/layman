@@ -452,7 +452,7 @@ class DbMan:
     def createLayerPad(self, name, title, group, owner, layertype, datagroup, dataname, datatype, vectortype):
         """ Create Layer in LayPad 
         """
-        logParam =  "name: " + name + "title: " +title+ " group: " + group + " owner: " + owner + "layertype: " + layertype + " datagroup: " + datagroup + " dataname: " + dataname + "datatype: " + datatype + "vectortype: " + vectortype 
+        logParam =  "name: " + name + "title: " +title+ " group: " + group + " owner: " + str(owner) + "layertype: " + layertype + " datagroup: " + datagroup + " dataname: " + dataname + "datatype: " + datatype + "vectortype: " + vectortype 
         logging.debug("[DbMan][createLayerPad] %s" % logParam)
 
         sqlBatch = "insert into layman.layers (layername, layergroup, layertitle, owner, layertype, datagroup, dataname, datatype, vectortype) values ('"+name+"','"+group+"','"+title+"',"+self._stringOrNull(owner)+",'"+layertype+"','"+datagroup+"','"+dataname+"','"+datatype+"','"+vectortype+"');"
