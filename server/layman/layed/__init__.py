@@ -85,7 +85,7 @@ class LayEd:
 
             returns:
 
-            [ {"name": "pest_00", "datatype": "vector", "owner": "hsrs", "roleTitle": "AA Group", "type": "table", "schema": "aagroup"}, ...]        
+            [ {"name": "pest_00", "layertype": "vector", "owner": "hsrs", "roleTitle": "AA Group", "datatype": "table", "schema": "aagroup"}, ...]        
 
         """
         from layman.layed.dbman import DbMan
@@ -186,7 +186,7 @@ class LayEd:
             logging.info("[LayEd][syncDataPad] Deleting from DataPad: %s "% str(t))
             dbm.deleteDataPad(t[0], t[1], t[2])
 
-        #    4. Into DataPad, add all the layers that are not recorded there, 
+        #    4. Into DataPad, add all the data that are not recorded there, 
         #        but are present in the database in the appropriate schemas. 
         #        Unclear columns (owner, updated, ...) leave as NULL
         #print "ctyri..."
@@ -1424,9 +1424,11 @@ class LayEd:
             ] """
         layerPadLayers = dbm.getLayerPad(restrictBy='groups', groups=groups)
         
-        # Take layergroup (workspace) and layername.
         # Tuples are hashable, we need that for sets.
-        layerPadTuples = map( lambda l: (l["layergroup"], l["layername"]), layerPadLayers )
+        #
+        # We consider 5 things to represent a layer. Although just layergroup and layername form the primary key in LayerPad, 
+        # should the same layer exist in GS with different underlaying data, that would mean a serious mismatch and need to be replaced.
+        layerPadTuples = map( lambda l: (l["layergroup"], l["layername"]), l["datagroup"], l["datatype"], l["dataname"], layerPadLayers )
 
         # Set of layerPad Layers
         layerPadSet = set(layerPadTuples) 
@@ -1436,7 +1438,42 @@ class LayEd:
 
         gsLayers = self.getLayersCompleteJson(roles)
 
-        # *** TODO ...
+        # layergroup, layername, datagroup, ***TODO: datatype, dataname 
+        gsTuples = map( lambda l: (l["ws"], l["layer"]["name"]), l["layerData"]["store"]["name"], l[""], l["layerData"]["nativeName"], gsLayers )
+
+        # Set of GeoServer Layers
+        gsSet = set(gsTuples)
+
+        #    3. From LayerPad, delete anything that is no more in the GeoServer
+        #print "tri..."
+
+        # Now we have two comparable sets of records and can subtract them        
+        deleteSet = layerPadSet - gsSet
+        #print "delete set: "+str(deleteSet)
+
+        # Delete from LayerPad
+        for t in deleteSet: # FIXME: Each deleteLayerPad() opens and closes new db connection. This can be optimised.
+            #print "deleting " + str (t)
+            logging.info("[LayEd][syncLayerPad] Deleting from LayerPad: %s "% str(t))
+            dbm.deleteLayerPad(t[0], t[1])
+
+        #    4. Into LayerPad, add all the layers that are not recorded there, 
+        #        but are present in the GeoServer in the appropriate workspaces. 
+        #        Unclear columns (owner, updated, ...) leave as NULL
+        #print "ctyri..."
+
+        # Insert set
+        insertSet = gsSet - layerPadSet
+        #print "insert set: " + insertSet
+
+        # Insert into LayerPad   
+        for t in insertSet: # FIXME: Each createLayerPad() opens and closes new db connection. This can be optimised.
+            #print "inserting " + str(t) 
+            logging.info("[LayEd][syncLayerPad] Insert into LayerPad: %s "% str(t))
+            # *** TODO ***
+            dbm.createLayerPad(name=t[1], title=, group=t[0], owner=None, layertype=, datagroup=t[2], dataname=t[4], datatype=t[3], vectortype=""):
+
+        return (200, "LayerPad synchronised")
     
     # Old getLayers() - get every layer from GS
     def getLayersCompleteJson(self, roles):
@@ -1737,7 +1774,7 @@ class LayEd:
  
                 # Delete in LayPad
                 dbm = DbMan(self.config) 
-                dbm.deleteLayerPad(name=layer, group=workspace)
+                dbm.deleteLayerPad(group=workspace, name=layer)
 
                 # TODO: check the results
                 message = "Layer "+workspace+":"+layer+" deleted."
