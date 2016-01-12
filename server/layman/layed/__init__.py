@@ -91,8 +91,11 @@ class LayEd:
         from layman.layed.dbman import DbMan
         dbm = DbMan(self.config)
         
+        # Map roles to group list             
+        groups = map( lambda r: r["roleName"], roles )
+
         # Get Data
-        data = dbm.getDataPad(restrictBy='owner', groups=None, owner=userName)
+        data = dbm.getDataPad(restrictBy='groups', groups=groups, owner=userName)
 
         # Add the role titles
         # Db doesn't know about role titles. 
@@ -1355,8 +1358,11 @@ class LayEd:
         dbm = DbMan(self.config)
         code = 200
         
+        # Map roles to group list             
+        groups = map( lambda r: r["roleName"], roles )
+
         # GET Layers from LayPad
-        layers = dbm.getLayerPad(owner=user)
+        layers = dbm.getLayerPad(restrictBy='groups', groups=groups, owner=user)
 
         # Assign role titles to workspaces       
 
