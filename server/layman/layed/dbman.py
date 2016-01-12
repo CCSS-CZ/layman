@@ -379,7 +379,7 @@ class DbMan:
         if len(result) > 0:
             retval = "table"
         else:
-            result = self.getSql(sqlView)
+            result = self.get_sql(sqlView)
             if len(result) > 0:
                 retval = "view"
 
