@@ -1696,9 +1696,11 @@ class LayEd:
                     if "featureType" in ft.keys():
                         bundle["layerData"] = ft["featureType"]
                         bundle["layerData"]["datatype"] = "featureType"
-                    if "coverage" in bundle:
+                        bundle["layer"]["type"] = "vector"
+                    if "coverage" in ft.keys():
                         bundle["layerData"] = ft["coverage"]
                         bundle["layerData"]["datatype"] = "coverage"
+                        bundle["layer"]["type"] = "raster"
                     layers.append(bundle)
 
         # layers = json.dumps(layers) # json -> string
