@@ -1474,7 +1474,7 @@ class LayEd:
                 datatype = dbm.tableOrView(schema=t[4], name=t[5])
 
             # Insert
-            dbm.createLayerPad(name=t[1], title=t[3], group=t[0], owner=None, layertype=t[2], datagroup=t[4], dataname=t[5], datatype=datatype, vectortype=""):
+            dbm.createLayerPad(name=t[1], title=t[3], group=t[0], owner=None, layertype=t[2], datagroup=t[4], dataname=t[5], datatype=datatype, vectortype="")
 
         return (200, "LayerPad synchronised")
     
