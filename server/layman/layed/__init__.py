@@ -755,7 +755,7 @@ class LayEd:
         dataStore = self.createVectorDataStoreIfNotExists(dbSchema, gsWorkspace)
 
         # Publish from DB to GS       
-        (code, layerName, message) = self.createFtFromDb(gsWorkspace, dataStore, tableName, datatype, srs, data, secureLayer)
+        (code, layerName, message) = self.createFtFromDb(gsWorkspace, dataStore, tableName, srs, data, secureLayer)
         if code == 409: # already published
             return (code, tableName, message)
 
@@ -1133,7 +1133,7 @@ class LayEd:
         # Tell GS to reload the configuration
         gsr.putReload()
 
-    def createFtFromDb(self, workspace, dataStore, tableName, datatype, srs, data=None, secureLayer=True):
+    def createFtFromDb(self, workspace, dataStore, tableName, srs, data=None, secureLayer=True):
         """ Create Feature Type from PostGIS database
             Given dataStore must exist in GS, connected to PG schema.
             layerName corresponds to table name in the schema.
@@ -1141,8 +1141,6 @@ class LayEd:
         logParam = "workspace=%s dataStore=%s tableName=%s srs=%s" %\
                    (workspace, dataStore, tableName, srs)
         logging.debug("[LayEd][createFtFromDb] Params: %s" % logParam)
-
-        # TODO - distinguish between tables and views (param datatype)
 
         # Create ft json
         ftJson = {}
@@ -1426,9 +1424,9 @@ class LayEd:
         
         # Tuples are hashable, we need that for sets.
         #
-        # We consider 5 things to represent a layer. Although just layergroup and layername form the primary key in LayerPad, 
+        # We consider 4 things to represent a layer. Although just layergroup and layername form the primary key in LayerPad, 
         # should the same layer exist in GS with different underlaying data, that would mean a serious mismatch and need to be replaced.
-        layerPadTuples = map( lambda l: (l["layergroup"], l["layername"]), l["datagroup"], l["datatype"], l["dataname"], layerPadLayers )
+        layerPadTuples = map( lambda l: (l["layergroup"], l["layername"]), l["datagroup"], l["dataname"], layerPadLayers )
 
         # Set of layerPad Layers
         layerPadSet = set(layerPadTuples) 
@@ -1438,8 +1436,8 @@ class LayEd:
 
         gsLayers = self.getLayersCompleteJson(roles)
 
-        # layergroup, layername, datagroup, ***TODO: datatype, dataname 
-        gsTuples = map( lambda l: (l["ws"], l["layer"]["name"]), l["layerData"]["store"]["name"], l[""], l["layerData"]["nativeName"], gsLayers )
+        # layergroup, layername, datagroup, dataname
+        gsTuples = map( lambda l: (l["ws"], l["layer"]["name"]), l["layerData"]["store"]["name"], l["layerData"]["nativeName"], gsLayers )
 
         # Set of GeoServer Layers
         gsSet = set(gsTuples)
@@ -1471,7 +1469,7 @@ class LayEd:
             #print "inserting " + str(t) 
             logging.info("[LayEd][syncLayerPad] Insert into LayerPad: %s "% str(t))
             # *** TODO ***
-            #dbm.createLayerPad(name=t[1], title=, group=t[0], owner=None, layertype=, datagroup=t[2], dataname=t[4], datatype=t[3], vectortype=""):
+            dbm.createLayerPad(name=t[1], title=, group=t[0], owner=None, layertype=, datagroup=t[2], dataname=t[3], datatype=, vectortype=""):
 
         return (200, "LayerPad synchronised")
     
