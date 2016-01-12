@@ -1471,7 +1471,7 @@ class LayEd:
             #print "inserting " + str(t) 
             logging.info("[LayEd][syncLayerPad] Insert into LayerPad: %s "% str(t))
             # *** TODO ***
-            dbm.createLayerPad(name=t[1], title=, group=t[0], owner=None, layertype=, datagroup=t[2], dataname=t[4], datatype=t[3], vectortype=""):
+            #dbm.createLayerPad(name=t[1], title=, group=t[0], owner=None, layertype=, datagroup=t[2], dataname=t[4], datatype=t[3], vectortype=""):
 
         return (200, "LayerPad synchronised")
     
