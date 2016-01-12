@@ -1436,6 +1436,7 @@ class LayEd:
         # layergroup, layername, layertype, layertitle, datagroup, dataname
         # gsTuples = map( lambda l: (l["ws"], l["layer"]["name"],  l["layer"]["type"].lower(), l["layerData"]["title"], l["layerData"]["store"]["name"], l["layerData"]["nativeName"]), gsLayers )
 
+        gsTuples = []
         for l in gsLayers:
             try:
                 ws = l["ws"]
