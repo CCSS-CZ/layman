@@ -39,7 +39,7 @@ insert into layman.layers (layername, layergroup, layertitle, owner, type, datag
 values ('jmeno', 'skupina', 'titulek', 'majitel', 'vector', 'skupina', 'jmeno_00');
 
 delete from layman.layers 
-where name='jmeno' and usergroup='skupina';
+where layername='jmeno' and layergroup='skupina';
 
 -- CKAN resources info:
 create table layman.ckanRes (
