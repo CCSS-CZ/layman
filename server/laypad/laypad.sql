@@ -30,7 +30,7 @@ create table layman.data (
 	datatype varchar(255), -- table, view, file
     layertype varchar(255), -- vector, raster
 	updated timestamp, -- time of last update
-	constraint data_group_type_name primary key (datagroup, datatype, dataname)
+	constraint datagroup_dataname primary key (datagroup, dataname)
 );
 
 -- some examples:
