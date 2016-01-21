@@ -350,9 +350,10 @@ class DbMan:
     def getTables(self, schemalist):
 
         schemata = ",".join(map( lambda s: "'"+s+"'", schemalist )) # "'aaa','bbb','ccc'"
-        sql = "SELECT schemaname, relname FROM pg_stat_user_tables WHERE schemaname IN (" + schemata + ")" 
+        sql = "SELECT schemaname, relname FROM pg_stat_user_tables WHERE schemaname IN (%s)" 
 
-        result = self.get_sql(sql) # [['hasici','pest'], ['policajti','azov'] ...]
+        result = self.get_sql(sql, (schemata)) # [['hasici','pest'], ['policajti','azov'] ...]
+
         tables = map( lambda rec: {"schema": rec[0], "name": rec[1]}, result )
 
         return tables        
@@ -361,9 +362,10 @@ class DbMan:
     def getViews(self, schemalist):
 
         schemata = ",".join(map( lambda s: "'"+s+"'", schemalist )) # "'aaa','bbb','ccc'"
-        sql = "SELECT schemaname, viewname FROM pg_views WHERE schemaname IN (" + schemata + ")" 
+        sql = "SELECT schemaname, viewname FROM pg_views WHERE schemaname IN (%s)" 
 
-        result = self.get_sql(sql) # [['hasici','pest'], ['policajti','azov'] ...]
+        result = self.get_sql(sql, (schemata)) # [['hasici','pest'], ['policajti','azov'] ...]
+
         views = map( lambda rec: {"schema": rec[0], "name": rec[1]}, result )
 
         return views               
@@ -372,25 +374,25 @@ class DbMan:
     def tableOrView(self, schema, name):
 
         retval = ""
-        sqlTable = "SELECT schemaname, relname FROM pg_stat_user_tables WHERE schemaname = '"+schema+"' AND relname = '"+name+"';"
-        sqlView  = "SELECT schemaname, viewname FROM pg_views where schemaname = '"+schema+"' and viewname = '"+name+"';"
+        sqlTable = "SELECT schemaname, relname FROM pg_stat_user_tables WHERE schemaname = %s AND relname = %s;"
+        sqlView  = "SELECT schemaname, viewname FROM pg_views where schemaname = %s and viewname = %s;"
 
-        result = self.get_sql(sqlTable)
+        result = self.get_sql(sqlTable, (schema, name))
         if len(result) > 0:
             retval = "table"
         else:
-            result = self.get_sql(sqlView)
+            result = self.get_sql(sqlView, (schema, name))
             if len(result) > 0:
                 retval = "view"
 
         return retval
  
-    def get_sql(self, sqlBatch):
+    def get_sql(self, sqlBatch, sqlParams):
         try:
             conn = psycopg2.connect(self.getConnectionString())
             cur = conn.cursor()
 
-            cur.execute(sqlBatch)
+            cur.execute(sqlBatch, sqlParams)
             retval = cur.fetchall()
 
             conn.commit()
@@ -500,21 +502,25 @@ class DbMan:
 
         if restrictBy is None:
             sql = "SELECT layername, layergroup, layertitle, owner, layertype, datagroup, dataname, datatype, vectortype FROM layman.layers;"
+            sqlParams = ()
 
         elif restrictBy.lower() in ["owner", "user"]:
             if owner is None:
                 logging.error("[DbMan][getLayerPad] getLayerPad() called with restrictBy owner, but no owner given")
                 raise LaymanError(500, "Cannot get Layers, no owner was specified for getLayerPad()")
-            sql = "SELECT layername, layergroup, layertitle, owner, layertype, datagroup, dataname, datatype, vectortype FROM layman.layers where owner='"+owner+"';"
+            sql = "SELECT layername, layergroup, layertitle, owner, layertype, datagroup, dataname, datatype, vectortype FROM layman.layers where owner=%s;"
+            sqlParams = (owner)
 
         elif restrictBy.lower() in ["roles", "groups", "workspaces"]:
             if groups is None:
                 logging.error("[DbMan][getLayerPad] getLayerPad() called with restrictBy roles, but no roles given")
                 raise LaymanError(500, "Cannot get Layers, no roles were specified for getLayerPad()")        
             groups = ",".join(map( lambda g: "'"+g+"'", groups )) # "'aaa','bbb','ccc'"
-            sql = "SELECT layername, layergroup, layertitle, owner, layertype, datagroup, dataname, datatype, vectortype FROM layman.layers where layergroup IN (" + groups +")"
+            sql = "SELECT layername, layergroup, layertitle, owner, layertype, datagroup, dataname, datatype, vectortype FROM layman.layers where layergroup IN (%s)"
+            sqlParams = (groups)
 
-        result = self.get_sql(sql) # [['rivers','hasici','Reky','hsrs','vector','hasici','rivers_01'], ... ]
+        result = self.get_sql(sql, sqlParams) # [['rivers','hasici','Reky','hsrs','vector','hasici','rivers_01'], ... ]
+
         layers = map( lambda rec: {"layername": rec[0], "layergroup": rec[1], "layertitle": rec[2], "owner": rec[3], "layertype": rec[4], "datagroup": rec[5], "dataname": rec[6], "datatype": rec[7], "vectortype": rec[8]}, result )
 
         return layers        
@@ -575,21 +581,24 @@ class DbMan:
 
         if restrictBy is None:
             sql = "SELECT dataname, datagroup, owner, datatype, layertype FROM layman.data;"
+            sqlParams = ()
 
         elif restrictBy.lower() in ["owner","user"]:
             if owner is None:
                 logging.error("[DbMan][getDataPad] getDataPad() called with restrictBy owner, but no owner given")
                 raise LaymanError(500, "Cannot get Data, no owner was specified for getDataPad()")
-            sql = "SELECT dataname, datagroup, owner, datatype, layertype FROM layman.data where owner='"+owner+"';"
+            sql = "SELECT dataname, datagroup, owner, datatype, layertype FROM layman.data where owner=%s;"
+            sqlParams = (owner)
 
         elif restrictBy.lower() in ["roles", "groups", "schemas"]:
             if groups is None:
                 logging.error("[DbMan][getDataPad] getDataPad() called with restrictBy roles, but no roles given")
                 raise LaymanError(500, "Cannot get Data, no roles were specified for getDataPad()")        
             groups = ",".join(map( lambda g: "'"+g+"'", groups )) # "'aaa','bbb','ccc'"
-            sql = "SELECT dataname, datagroup, owner, datatype, layertype FROM layman.data where datagroup IN (" + groups +")"
+            sql = "SELECT dataname, datagroup, owner, datatype, layertype FROM layman.data where datagroup IN (%s)"
+            sqlParams = (groups)
 
-        result = self.get_sql(sql) # [['rivers_00','hasici','hsrs','table','vector'], ... ]
+        result = self.get_sql(sql, sqlParams) # [['rivers_00','hasici','hsrs','table','vector'], ... ]
         data = map( lambda rec: {"name": rec[0], "schema": rec[1], "owner": rec[2], "datatype": rec[3], "layertype": rec[4]}, result )
 
         return data        
@@ -602,9 +611,10 @@ class DbMan:
         logParam =  "ckanUrl: " + ckanUrl + " resFormat: " + resFormat  
         logging.debug("[DbMan][getCkanResourcesCount] %s" % logParam)
 
-        sql = "select (count, now()-ts) from layman.ckanres where ckan='"+ckanUrl+"' and format='"+resFormat+"';"
+        sql = "select (count, now()-ts) from layman.ckanres where ckan=%s and format=%s;"
+        sqlParams = (ckanUrl, resFormat)
 
-        result = self.get_sql(sql) # [5, 00:18:13.123456]
+        result = self.get_sql(sql, sqlParams) # [5, 00:18:13.123456]
 
         return result
 
