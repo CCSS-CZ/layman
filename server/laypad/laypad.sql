@@ -35,8 +35,8 @@ create table layman.data (
 
 -- some examples:
 
-insert into layman.layers (layername, layergroup, layertitle, owner, type, datagroup, dataname)
-values ('jmeno', 'skupina', 'titulek', 'majitel', 'vector', 'skupina', 'jmeno_00');
+insert into layman.layers (layername, layergroup, layertitle, owner, layertype, datagroup, dataname, datatype, vectortype)
+values ('jmeno', 'skupina', 'titulek', 'majitel', 'vector', 'skupina', 'jmeno_00', 'table', 'polygon');
 
 delete from layman.layers 
 where layername='jmeno' and layergroup='skupina';
