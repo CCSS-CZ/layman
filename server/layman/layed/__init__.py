@@ -95,7 +95,8 @@ class LayEd:
         groups = map( lambda r: r["roleName"], roles )
 
         # Get Data
-        data = dbm.getDataPad(restrictBy='groups', groups=groups, owner=userName)
+        restrictBy = self.config.get("LayEd", "restrictBy")
+        data = dbm.getDataPad(restrictBy=restrictBy, groups=groups, owner=userName)
 
         # Add the role titles
         # Db doesn't know about role titles. 
@@ -144,7 +145,8 @@ class LayEd:
                },
                 ...
             ] """  
-        dataPadData = dbm.getDataPad(restrictBy='groups', groups=groups)
+        restrictBy = self.config.get("LayEd", "restrictBy")
+        dataPadData = dbm.getDataPad(restrictBy=restrictBy, groups=groups)
 
         # Take schema type and name.
         # Tuples are hashable, we need that for sets.
@@ -1360,7 +1362,8 @@ class LayEd:
         groups = map( lambda r: r["roleName"], roles )
 
         # GET Layers from LayPad
-        layers = dbm.getLayerPad(restrictBy='groups', groups=groups, owner=user)
+        restrictBy = self.config.get("LayEd", "restrictBy")
+        layers = dbm.getLayerPad(restrictBy=restrictBy, groups=groups, owner=user)
 
         # Assign role titles to workspaces       
 
@@ -1417,7 +1420,8 @@ class LayEd:
                },
                 ...
             ] """
-        layerPadLayers = dbm.getLayerPad(restrictBy='groups', groups=groups)
+        restrictBy = self.config.get("LayEd", "restrictBy")
+        layerPadLayers = dbm.getLayerPad(restrictBy=restrictBy, groups=groups)
         
         # Tuples are hashable, we need that for sets.
         #
