@@ -145,8 +145,7 @@ class LayEd:
                },
                 ...
             ] """  
-        restrictBy = self.config.get("LayEd", "restrictBy")
-        dataPadData = dbm.getDataPad(restrictBy=restrictBy, groups=groups)
+        dataPadData = dbm.getDataPad(restrictBy='groups', groups=groups)
 
         # Take schema type and name.
         # Tuples are hashable, we need that for sets.
@@ -1420,8 +1419,7 @@ class LayEd:
                },
                 ...
             ] """
-        restrictBy = self.config.get("LayEd", "restrictBy")
-        layerPadLayers = dbm.getLayerPad(restrictBy=restrictBy, groups=groups)
+        layerPadLayers = dbm.getLayerPad(restrictBy='groups', groups=groups)
         
         # Tuples are hashable, we need that for sets.
         #
