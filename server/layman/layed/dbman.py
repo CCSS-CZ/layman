@@ -593,7 +593,7 @@ class DbMan:
                 logging.error("[DbMan][getDataPad] getDataPad() called with restrictBy owner, but no owner given")
                 raise LaymanError(500, "Cannot get Data, no owner was specified for getDataPad()")
             sql = "SELECT dataname, datagroup, owner, datatype, layertype FROM layman.data where owner=%s;"
-            sqlParams = (owner)
+            sqlParams = (owner,)
 
         elif restrictBy.lower() in ["roles", "groups", "schemas"]:
             if groups is None:
@@ -601,7 +601,7 @@ class DbMan:
                 raise LaymanError(500, "Cannot get Data, no roles were specified for getDataPad()")        
             groups = ",".join(map( lambda g: "'"+g+"'", groups )) # "'aaa','bbb','ccc'"
             sql = "SELECT dataname, datagroup, owner, datatype, layertype FROM layman.data where datagroup IN (%s)"
-            sqlParams = (groups)
+            sqlParams = (groups,)
 
         result = self.get_sql(sql, sqlParams) # [['rivers_00','hasici','hsrs','table','vector'], ... ]
         data = map( lambda rec: {"name": rec[0], "schema": rec[1], "owner": rec[2], "datatype": rec[3], "layertype": rec[4]}, result )
