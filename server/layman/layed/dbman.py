@@ -265,6 +265,8 @@ class DbMan:
             self.write_sql(sqlBatch, sqlParams)
 
     def write_sql(self, sqlBatch, sqlParams):
+        logging.debug("[DbMan][write_sgl] sqlBatch: '%s', sqlParams: '%s'"% (sqlBatch, str(sqlParams)))
+
         try:
             conn = psycopg2.connect(self.getConnectionString())
             cur = conn.cursor()
@@ -388,6 +390,8 @@ class DbMan:
         return retval
  
     def get_sql(self, sqlBatch, sqlParams):
+        logging.debug("[DbMan][get_sgl] sqlBatch: '%s', sqlParams: '%s'"% (sqlBatch, str(sqlParams)))
+
         try:
             conn = psycopg2.connect(self.getConnectionString())
             cur = conn.cursor()
