@@ -459,9 +459,12 @@ class DbMan:
         logParam =  "name: " + name + "title: " +title+ " group: " + group + " owner: " + str(owner) + "layertype: " + layertype + " datagroup: " + datagroup + " dataname: " + dataname + "datatype: " + datatype + "vectortype: " + vectortype 
         logging.debug("[DbMan][createLayerPad] %s" % logParam)
 
-        sqlBatch = "insert into layman.layers (layername, layergroup, layertitle, owner, layertype, datagroup, dataname, datatype, vectortype) values (%s,%s,%s,%s,%s,%s,%s,%s,%s);"
-
-        sqlParams = (name, group, title, self._stringOrNull(owner), layertype, datagroup, dataname, datatype, vectortype)
+        if owner is None:
+            sqlBatch = "insert into layman.layers (layername, layergroup, layertitle, owner, layertype, datagroup, dataname, datatype, vectortype) values (%s,%s,%s,NULL,%s,%s,%s,%s,%s);"
+            sqlParams = (name, group, title, layertype, datagroup, dataname, datatype, vectortype)
+        else:
+            sqlBatch = "insert into layman.layers (layername, layergroup, layertitle, owner, layertype, datagroup, dataname, datatype, vectortype) values (%s,%s,%s,%s,%s,%s,%s,%s,%s);"
+            sqlParams = (name, group, title, owner, layertype, datagroup, dataname, datatype, vectortype)
 
         self.write_sql(sqlBatch, sqlParams)
 
@@ -540,8 +543,12 @@ class DbMan:
         logParam =  "name: " + name + " group: " + group + " owner: " + str(owner) + "datatype: " + datatype + "layertype: " + layertype 
         logging.debug("[DbMan][createDataPad] %s" % logParam)
 
-        sqlBatch = "insert into layman.data (dataname, datagroup, owner, datatype, layertype) values (%s, %s, %s, %s, %s);"
-        sqlParams = (name, group, self._stringOrNull(owner), datatype, layertype)
+        if owner is None:
+            sqlBatch = "insert into layman.data (dataname, datagroup, owner, datatype, layertype) values (%s, %s, NULL, %s, %s);"
+            sqlParams = (name, group, datatype, layertype)
+        else:
+            sqlBatch = "insert into layman.data (dataname, datagroup, owner, datatype, layertype) values (%s, %s, %s, %s, %s);"
+            sqlParams = (name, group, owner, datatype, layertype)
 
         self.write_sql(sqlBatch, sqlParams)
 
@@ -549,7 +556,7 @@ class DbMan:
         if value is None:
             return "NULL"
         else:
-            return "'"+ value +"'"
+            return "'"+value+"'"
 
     def deleteDataPad(self, group, datatype, name):
         """ Delete data in DataPad
