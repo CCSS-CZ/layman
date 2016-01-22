@@ -321,7 +321,7 @@ class DbMan:
 
             SQL = "SELECT schema_name FROM information_schema.schemata WHERE schema_name = %s;"
             # SQL = "SELECT schema_name FROM information_schema.schemata;"
-            params = (dbSchema)
+            params = (dbSchema,)
             logging.debug("[DbMan][createSchemaIfNotExists] Checking schema '%s'..."% dbSchema)
             logging.debug("[DbMan][createSchemaIfNotExists] SQL: '%s', Params: '%s'..."% (SQL, params))
             cur.execute(SQL, params)
@@ -332,7 +332,7 @@ class DbMan:
             if not result:
                 logging.debug("[DbMan][createSchemaIfNotExists] Schema not found, create schema")
                 SQL = "CREATE SCHEMA %s;"
-                cur.execute(SQL, (dbSchema))
+                cur.execute(SQL, (dbSchema,))
                 created = True
             else:
                 logging.debug("[DbMan][createSchemaIfNotExists] Schema found, go on")
@@ -429,7 +429,7 @@ class DbMan:
 
             # execute
             cur = conn.cursor()
-            cur.execute(setSchemaSql, (dbSchema)) 
+            cur.execute(setSchemaSql, (dbSchema,)) 
             cur.execute(deleteTableSql, (tableView, tableName)) 
             conn.commit()
 
@@ -514,7 +514,7 @@ class DbMan:
                 logging.error("[DbMan][getLayerPad] getLayerPad() called with restrictBy owner, but no owner given")
                 raise LaymanError(500, "Cannot get Layers, no owner was specified for getLayerPad()")
             sql = "SELECT layername, layergroup, layertitle, owner, layertype, datagroup, dataname, datatype, vectortype FROM layman.layers where owner=%s;"
-            sqlParams = (owner)
+            sqlParams = (owner,)
 
         elif restrictBy.lower() in ["roles", "groups", "workspaces"]:
             if groups is None:
@@ -522,7 +522,7 @@ class DbMan:
                 raise LaymanError(500, "Cannot get Layers, no roles were specified for getLayerPad()")        
             groups = ",".join(map( lambda g: "'"+g+"'", groups )) # "'aaa','bbb','ccc'"
             sql = "SELECT layername, layergroup, layertitle, owner, layertype, datagroup, dataname, datatype, vectortype FROM layman.layers where layergroup IN (%s)"
-            sqlParams = (groups)
+            sqlParams = (groups,)
 
         result = self.get_sql(sql, sqlParams) # [['rivers','hasici','Reky','hsrs','vector','hasici','rivers_01'], ... ]
 
