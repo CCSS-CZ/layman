@@ -425,12 +425,12 @@ class DbMan:
             setSchemaSql = "SET search_path TO %s,public;"
 
             # delete table
-            deleteTableSql = "DROP  %s   \"%s\";"
+            deleteTableSql = "DROP "+tableView+" %s;"
 
             # execute
             cur = conn.cursor()
             cur.execute(setSchemaSql, (dbSchema,)) 
-            cur.execute(deleteTableSql, (tableView, tableName)) 
+            cur.execute(deleteTableSql, (tableName,)) 
             conn.commit()
 
             #close
