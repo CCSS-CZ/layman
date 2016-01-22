@@ -236,7 +236,7 @@ class DbMan:
         conn = psycopg2.connect(self.getConnectionString())
         cur = conn.cursor()
 
-        cur.execute("SELECT relname  FROM pg_stat_user_tables WHERE schemaname = %s AND relname like %s_%%", (schema,name))
+        cur.execute("SELECT relname  FROM pg_stat_user_tables WHERE schemaname = %s AND relname like %s", (schema, name+'_%%'))
         tables = map(lambda t: t[0], cur.fetchall())
         if len(tables) > 0:
             tables.sort()
