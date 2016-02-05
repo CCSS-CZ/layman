@@ -352,9 +352,9 @@ class DbMan:
     def getTables(self, schemalist):
 
         schemata = ",".join(map( lambda s: "'"+s+"'", schemalist )) # "'aaa','bbb','ccc'"
-        sql = "SELECT schemaname, relname FROM pg_stat_user_tables WHERE schemaname IN (%s)" 
+        sql = "SELECT schemaname, relname FROM pg_stat_user_tables WHERE schemaname IN ("+schemata+")" 
 
-        result = self.get_sql(sql, (schemata)) # [['hasici','pest'], ['policajti','azov'] ...]
+        result = self.get_sql(sql, ()) # [['hasici','pest'], ['policajti','azov'] ...]
 
         tables = map( lambda rec: {"schema": rec[0], "name": rec[1]}, result )
 
@@ -364,9 +364,9 @@ class DbMan:
     def getViews(self, schemalist):
 
         schemata = ",".join(map( lambda s: "'"+s+"'", schemalist )) # "'aaa','bbb','ccc'"
-        sql = "SELECT schemaname, viewname FROM pg_views WHERE schemaname IN (%s)" 
+        sql = "SELECT schemaname, viewname FROM pg_views WHERE schemaname IN ("+schemata+")" 
 
-        result = self.get_sql(sql, (schemata)) # [['hasici','pest'], ['policajti','azov'] ...]
+        result = self.get_sql(sql, ()) # [['hasici','pest'], ['policajti','azov'] ...]
 
         views = map( lambda rec: {"schema": rec[0], "name": rec[1]}, result )
 
