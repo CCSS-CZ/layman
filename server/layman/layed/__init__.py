@@ -88,7 +88,7 @@ class LayEd:
             [ {"name": "pest_00", "layertype": "vector", "owner": "hsrs", "roleTitle": "AA Group", "datatype": "table", "schema": "aagroup"}, ...]        
 
         """
-        logging.info("[LayEd][getData] Params: roles: '%s', userName: '%s'"% (str(roles),str(userName))
+        logging.info("[LayEd][getData] Params: roles: '%s', userName: '%s'"% (str(roles),str(userName)))
 
         from layman.layed.dbman import DbMan
         dbm = DbMan(self.config)
