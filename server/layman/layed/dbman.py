@@ -611,8 +611,8 @@ class DbMan:
                 logging.error("[DbMan][getDataPad] getDataPad() called with restrictBy roles, but no roles given")
                 raise LaymanError(500, "Cannot get Data, no roles were specified for getDataPad()")        
             groups = ",".join(map( lambda g: "'"+g+"'", groups )) # "'aaa','bbb','ccc'"
-            sql = "SELECT dataname, datagroup, owner, datatype, layertype FROM layman.data where datagroup IN (%s)"
-            sqlParams = (groups,)
+            sql = "SELECT dataname, datagroup, owner, datatype, layertype FROM layman.data where datagroup IN (%s)"% groups
+            sqlParams = ()
 
         result = self.get_sql(sql, sqlParams) # [['rivers_00','hasici','hsrs','table','vector'], ... ]
         data = map( lambda rec: {"name": rec[0], "schema": rec[1], "owner": rec[2], "datatype": rec[3], "layertype": rec[4]}, result )
