@@ -10,6 +10,13 @@ ignoreroles=administrator,guest,lmadmin,organization administrator,organization 
 [FileMan]
 homedir=/var/www/wwwlibs/layman/
 
+[LayEd]
+# restrictBy:
+# owner - only my own data and layers are available for reading and writing (plan4business)
+# groups - all the data and layers of all the groups I am member of are available for reading and writing (pprd)
+# this is provisional configuration before this depends on the user's membership in LR groups (lmWriteOwn, lmReadGroup etc.) 
+restrictBy=owner
+
 [DbMan]
 dbname=erra
 dbuser=erra

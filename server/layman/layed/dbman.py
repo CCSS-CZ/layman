@@ -236,7 +236,7 @@ class DbMan:
         conn = psycopg2.connect(self.getConnectionString())
         cur = conn.cursor()
 
-        cur.execute("SELECT relname  FROM pg_stat_user_tables WHERE schemaname = '%s' AND relname like '%s_%%' " % (schema,name))
+        cur.execute("SELECT relname  FROM pg_stat_user_tables WHERE schemaname = %s AND relname like %s", (schema, name+'_%%'))
         tables = map(lambda t: t[0], cur.fetchall())
         if len(tables) > 0:
             tables.sort()
@@ -256,20 +256,22 @@ class DbMan:
         """Import raster file into POSTGIS database
         """
         name_out = os.path.splitext(os.path.split(filePath)[1])[0]
-        sqlBatch = self._get_raster_file_import_sql(filePath,dbSchema,name_out)
+        (sqlBatch, sqlParams) = self._get_raster_file_import_sql(filePath,dbSchema,name_out)
 
         if sqlBatch:
             logParam = "filePath='"+filePath+"', dbSchema='"+dbSchema+"'"
             logging.debug("[DbMan][importRasterFile] %s"% logParam)
 
-            self.write_sql(sqlBatch)
+            self.write_sql(sqlBatch, sqlParams)
 
-    def write_sql(self, sqlBatch):
+    def write_sql(self, sqlBatch, sqlParams):
+        logging.debug("[DbMan][write_sgl] sqlBatch: '%s', sqlParams: '%s'"% (sqlBatch, str(sqlParams)))
+
         try:
             conn = psycopg2.connect(self.getConnectionString())
             cur = conn.cursor()
 
-            cur.execute(sqlBatch)
+            cur.execute(sqlBatch, sqlParams)
             conn.commit()
 
             #close
@@ -300,11 +302,12 @@ class DbMan:
 
         sqlBatch = """BEGIN;
         CREATE TABLE %s.%s ("rid" serial PRIMARY KEY,"rast" raster);
-        """ % (dbSchema, table)
+        """
         sqlBatch += RASTER2PSQL_CONFIG["output"].getvalue()
         sqlBatch += "END;"
+        sqlParams = (dbSchema, table)
 
-        return sqlBatch
+        return (sqlBatch, sqlParams)
 
     def createSchemaIfNotExists(self, dbSchema):
         logParam = "dbSchema='"+dbSchema+"'"
@@ -318,19 +321,18 @@ class DbMan:
 
             SQL = "SELECT schema_name FROM information_schema.schemata WHERE schema_name = %s;"
             # SQL = "SELECT schema_name FROM information_schema.schemata;"
-            params = (dbSchema, )
+            params = (dbSchema,)
             logging.debug("[DbMan][createSchemaIfNotExists] Checking schema '%s'..."% dbSchema)
             logging.debug("[DbMan][createSchemaIfNotExists] SQL: '%s', Params: '%s'..."% (SQL, params))
             cur.execute(SQL, params)
-            #cur.execute(SQL)
             result = cur.fetchall()
             logging.debug("[DbMan][createSchemaIfNotExists] Select result: '%s'"% str(result))
 
             created = False
             if not result:
                 logging.debug("[DbMan][createSchemaIfNotExists] Schema not found, create schema")
-                SQL = "CREATE SCHEMA "+dbSchema+";"
-                cur.execute(SQL)
+                SQL = "CREATE SCHEMA %s;"
+                cur.execute(SQL, (dbSchema,))
                 created = True
             else:
                 logging.debug("[DbMan][createSchemaIfNotExists] Schema found, go on")
@@ -350,9 +352,10 @@ class DbMan:
     def getTables(self, schemalist):
 
         schemata = ",".join(map( lambda s: "'"+s+"'", schemalist )) # "'aaa','bbb','ccc'"
-        sql = "SELECT schemaname, relname FROM pg_stat_user_tables WHERE schemaname IN (" + schemata + ")" 
+        sql = "SELECT schemaname, relname FROM pg_stat_user_tables WHERE schemaname IN ("+schemata+")" 
 
-        result = self.get_sql(sql) # [['hasici','pest'], ['policajti','azov'] ...]
+        result = self.get_sql(sql, ()) # [['hasici','pest'], ['policajti','azov'] ...]
+
         tables = map( lambda rec: {"schema": rec[0], "name": rec[1]}, result )
 
         return tables        
@@ -361,9 +364,10 @@ class DbMan:
     def getViews(self, schemalist):
 
         schemata = ",".join(map( lambda s: "'"+s+"'", schemalist )) # "'aaa','bbb','ccc'"
-        sql = "SELECT schemaname, viewname FROM pg_views WHERE schemaname IN (" + schemata + ")" 
+        sql = "SELECT schemaname, viewname FROM pg_views WHERE schemaname IN ("+schemata+")" 
 
-        result = self.get_sql(sql) # [['hasici','pest'], ['policajti','azov'] ...]
+        result = self.get_sql(sql, ()) # [['hasici','pest'], ['policajti','azov'] ...]
+
         views = map( lambda rec: {"schema": rec[0], "name": rec[1]}, result )
 
         return views               
@@ -372,25 +376,27 @@ class DbMan:
     def tableOrView(self, schema, name):
 
         retval = ""
-        sqlTable = "SELECT schemaname, relname FROM pg_stat_user_tables WHERE schemaname = '"+schema+"' AND relname = '"+name+"';"
-        sqlView  = "SELECT schemaname, viewname FROM pg_views where schemaname = '"+schema+"' and viewname = '"+name+"';"
+        sqlTable = "SELECT schemaname, relname FROM pg_stat_user_tables WHERE schemaname = %s AND relname = %s;"
+        sqlView  = "SELECT schemaname, viewname FROM pg_views where schemaname = %s and viewname = %s;"
 
-        result = self.get_sql(sqlTable)
+        result = self.get_sql(sqlTable, (schema, name))
         if len(result) > 0:
             retval = "table"
         else:
-            result = self.get_sql(sqlView)
+            result = self.get_sql(sqlView, (schema, name))
             if len(result) > 0:
                 retval = "view"
 
         return retval
  
-    def get_sql(self, sqlBatch):
+    def get_sql(self, sqlBatch, sqlParams):
+        logging.debug("[DbMan][get_sgl] sqlBatch: '%s', sqlParams: '%s'"% (sqlBatch, str(sqlParams)))
+
         try:
             conn = psycopg2.connect(self.getConnectionString())
             cur = conn.cursor()
 
-            cur.execute(sqlBatch)
+            cur.execute(sqlBatch, sqlParams)
             retval = cur.fetchall()
 
             conn.commit()
@@ -416,16 +422,14 @@ class DbMan:
             conn = psycopg2.connect(self.getConnectionString())
 
             # set schema
-            setSchemaSql = "SET search_path TO "+dbSchema+",public;"
+            setSchemaSql = "SET search_path TO %s,public;"
 
             # delete table
-            deleteTableSql = "DROP " + tableView + " \""+tableName+"\";"
+            deleteTableSql = "DROP "+tableView+" "+tableName+";"
 
             # execute
             cur = conn.cursor()
-            logging.debug("[DbMan][deleteTable] set schema: '%s'"% setSchemaSql)
-            cur.execute(setSchemaSql) 
-            logging.debug("[DbMan][deleteTable] deleteTableSql: %s"% deleteTableSql)
+            cur.execute(setSchemaSql, (dbSchema,)) 
             cur.execute(deleteTableSql) 
             conn.commit()
 
@@ -455,8 +459,14 @@ class DbMan:
         logParam =  "name: " + name + "title: " +title+ " group: " + group + " owner: " + str(owner) + "layertype: " + layertype + " datagroup: " + datagroup + " dataname: " + dataname + "datatype: " + datatype + "vectortype: " + vectortype 
         logging.debug("[DbMan][createLayerPad] %s" % logParam)
 
-        sqlBatch = "insert into layman.layers (layername, layergroup, layertitle, owner, layertype, datagroup, dataname, datatype, vectortype) values ('"+name+"','"+group+"','"+title+"',"+self._stringOrNull(owner)+",'"+layertype+"','"+datagroup+"','"+dataname+"','"+datatype+"','"+vectortype+"');"
-        self.write_sql(sqlBatch)
+        if owner is None:
+            sqlBatch = "insert into layman.layers (layername, layergroup, layertitle, owner, layertype, datagroup, dataname, datatype, vectortype) values (%s,%s,%s,NULL,%s,%s,%s,%s,%s);"
+            sqlParams = (name, group, title, layertype, datagroup, dataname, datatype, vectortype)
+        else:
+            sqlBatch = "insert into layman.layers (layername, layergroup, layertitle, owner, layertype, datagroup, dataname, datatype, vectortype) values (%s,%s,%s,%s,%s,%s,%s,%s,%s);"
+            sqlParams = (name, group, title, owner, layertype, datagroup, dataname, datatype, vectortype)
+
+        self.write_sql(sqlBatch, sqlParams)
 
     def updateLayerPad():        
         pass
@@ -467,8 +477,8 @@ class DbMan:
         logParam =  "name: " + name + " group: " + group
         logging.debug("[DbMan][deleteLayerPad] %s" % logParam)
 
-        sqlBatch = "delete from layman.layers where layername='"+name+"' and layergroup='"+group+"';"
-        self.write_sql(sqlBatch)
+        sqlBatch = "delete from layman.layers where layername=%s and layergroup=%s;"
+        self.write_sql(sqlBatch, (name, group))
 
     def getLayerPad(self, restrictBy=None, groups=None, owner=None):
         """ Get Layers from layman.layers
@@ -500,21 +510,25 @@ class DbMan:
 
         if restrictBy is None:
             sql = "SELECT layername, layergroup, layertitle, owner, layertype, datagroup, dataname, datatype, vectortype FROM layman.layers;"
+            sqlParams = ()
 
         elif restrictBy.lower() in ["owner", "user"]:
             if owner is None:
                 logging.error("[DbMan][getLayerPad] getLayerPad() called with restrictBy owner, but no owner given")
                 raise LaymanError(500, "Cannot get Layers, no owner was specified for getLayerPad()")
-            sql = "SELECT layername, layergroup, layertitle, owner, layertype, datagroup, dataname, datatype, vectortype FROM layman.layers where owner='"+owner+"';"
+            sql = "SELECT layername, layergroup, layertitle, owner, layertype, datagroup, dataname, datatype, vectortype FROM layman.layers where owner=%s;"
+            sqlParams = (owner,)
 
         elif restrictBy.lower() in ["roles", "groups", "workspaces"]:
             if groups is None:
                 logging.error("[DbMan][getLayerPad] getLayerPad() called with restrictBy roles, but no roles given")
                 raise LaymanError(500, "Cannot get Layers, no roles were specified for getLayerPad()")        
             groups = ",".join(map( lambda g: "'"+g+"'", groups )) # "'aaa','bbb','ccc'"
-            sql = "SELECT layername, layergroup, layertitle, owner, layertype, datagroup, dataname, datatype, vectortype FROM layman.layers where layergroup IN (" + groups +")"
+            sql = "SELECT layername, layergroup, layertitle, owner, layertype, datagroup, dataname, datatype, vectortype FROM layman.layers where layergroup IN ("+groups+")"
+            sqlParams = ()
 
-        result = self.get_sql(sql) # [['rivers','hasici','Reky','hsrs','vector','hasici','rivers_01'], ... ]
+        result = self.get_sql(sql, sqlParams) # [['rivers','hasici','Reky','hsrs','vector','hasici','rivers_01'], ... ]
+
         layers = map( lambda rec: {"layername": rec[0], "layergroup": rec[1], "layertitle": rec[2], "owner": rec[3], "layertype": rec[4], "datagroup": rec[5], "dataname": rec[6], "datatype": rec[7], "vectortype": rec[8]}, result )
 
         return layers        
@@ -529,14 +543,20 @@ class DbMan:
         logParam =  "name: " + name + " group: " + group + " owner: " + str(owner) + "datatype: " + datatype + "layertype: " + layertype 
         logging.debug("[DbMan][createDataPad] %s" % logParam)
 
-        sqlBatch = "insert into layman.data (dataname, datagroup, owner, datatype, layertype) values ('"+name+"','"+group+"',"+ self._stringOrNull(owner) +",'"+datatype+"','"+layertype+"');"
-        self.write_sql(sqlBatch)
+        if owner is None:
+            sqlBatch = "insert into layman.data (dataname, datagroup, owner, datatype, layertype) values (%s, %s, NULL, %s, %s);"
+            sqlParams = (name, group, datatype, layertype)
+        else:
+            sqlBatch = "insert into layman.data (dataname, datagroup, owner, datatype, layertype) values (%s, %s, %s, %s, %s);"
+            sqlParams = (name, group, owner, datatype, layertype)
+
+        self.write_sql(sqlBatch, sqlParams)
 
     def _stringOrNull(self, value=None):
         if value is None:
             return "NULL"
         else:
-            return "'"+ value +"'"
+            return "'"+value+"'"
 
     def deleteDataPad(self, group, datatype, name):
         """ Delete data in DataPad
@@ -544,8 +564,10 @@ class DbMan:
         logParam =  "name: " + name + " group: " + group + "type:" + datatype
         logging.debug("[DbMan][deleteDataPad] %s" % logParam)
 
-        sqlBatch = "delete from layman.data where dataname='"+name+"' and datagroup='"+group+"' and datatype='"+datatype+"';"
-        self.write_sql(sqlBatch)
+        sqlBatch = "delete from layman.data where dataname=%s and datagroup=%s and datatype=%s;"
+        sqlParams = (name, group, datatype)
+
+        self.write_sql(sqlBatch, sqlParams)
 
     def updateDataPad():
         pass
@@ -575,21 +597,24 @@ class DbMan:
 
         if restrictBy is None:
             sql = "SELECT dataname, datagroup, owner, datatype, layertype FROM layman.data;"
+            sqlParams = ()
 
         elif restrictBy.lower() in ["owner","user"]:
             if owner is None:
                 logging.error("[DbMan][getDataPad] getDataPad() called with restrictBy owner, but no owner given")
                 raise LaymanError(500, "Cannot get Data, no owner was specified for getDataPad()")
-            sql = "SELECT dataname, datagroup, owner, datatype, layertype FROM layman.data where owner='"+owner+"';"
+            sql = "SELECT dataname, datagroup, owner, datatype, layertype FROM layman.data where owner=%s;"
+            sqlParams = (owner,)
 
         elif restrictBy.lower() in ["roles", "groups", "schemas"]:
             if groups is None:
                 logging.error("[DbMan][getDataPad] getDataPad() called with restrictBy roles, but no roles given")
                 raise LaymanError(500, "Cannot get Data, no roles were specified for getDataPad()")        
             groups = ",".join(map( lambda g: "'"+g+"'", groups )) # "'aaa','bbb','ccc'"
-            sql = "SELECT dataname, datagroup, owner, datatype, layertype FROM layman.data where datagroup IN (" + groups +")"
+            sql = "SELECT dataname, datagroup, owner, datatype, layertype FROM layman.data where datagroup IN ("+groups+")"
+            sqlParams = ()
 
-        result = self.get_sql(sql) # [['rivers_00','hasici','hsrs','table','vector'], ... ]
+        result = self.get_sql(sql, sqlParams) # [['rivers_00','hasici','hsrs','table','vector'], ... ]
         data = map( lambda rec: {"name": rec[0], "schema": rec[1], "owner": rec[2], "datatype": rec[3], "layertype": rec[4]}, result )
 
         return data        
@@ -602,9 +627,10 @@ class DbMan:
         logParam =  "ckanUrl: " + ckanUrl + " resFormat: " + resFormat  
         logging.debug("[DbMan][getCkanResourcesCount] %s" % logParam)
 
-        sql = "select (count, now()-ts) from layman.ckanres where ckan='"+ckanUrl+"' and format='"+resFormat+"';"
+        sql = "select (count, now()-ts) from layman.ckanres where ckan=%s and format=%s;"
+        sqlParams = (ckanUrl, resFormat)
 
-        result = self.get_sql(sql) # [5, 00:18:13.123456]
+        result = self.get_sql(sql, sqlParams) # [5, 00:18:13.123456]
 
         return result
 
@@ -614,8 +640,9 @@ class DbMan:
         logParam =  "ckanUrl: " + ckanUrl + " resFormat: " + resFormat + " count: " + str(count) 
         logging.debug("[DbMan][createCkanResourcesCount] %s" % logParam)
 
-        sqlBatch = "insert into layman.ckanres (ckan, format, count, ts) values ('"+ckanUrl+"','"+resFormat+"',"+ count +", (select now()) );"
-        self.write_sql(sqlBatch)
+        sqlBatch = "insert into layman.ckanres (ckan, format, count, ts) values (%s, %s, %d, (select now()) );"
+        sqlParams = (ckanUrl, resFormat, count)
+        self.write_sql(sqlBatch, sqlParams)
 
         return 
 
@@ -625,8 +652,9 @@ class DbMan:
         logParam =  "ckanUrl: " + ckanUrl + " resFormat: " + resFormat + " count: " + str(count) 
         logging.debug("[DbMan][updateCkanResourcesCount] %s" % logParam)
 
-        sqlBatch = "update layman.ckanres set count="+count+", ts=(select now()) where ckan='"+ckanUrl+"' and format='"+resFormat+"';"
-        self.write_sql(sqlBatch)
+        sqlBatch = "update layman.ckanres set count=%d, ts=(select now()) where ckan=%s and format=%s;"
+        sqlParams = (count, ckanUrl, resFormat)
+        self.write_sql(sqlBatch, sqlParams)
 
         return 
 

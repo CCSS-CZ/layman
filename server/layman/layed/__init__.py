@@ -88,6 +88,8 @@ class LayEd:
             [ {"name": "pest_00", "layertype": "vector", "owner": "hsrs", "roleTitle": "AA Group", "datatype": "table", "schema": "aagroup"}, ...]        
 
         """
+        logging.info("[LayEd][getData] Params: roles: '%s', userName: '%s'"% (str(roles),str(userName)))
+
         from layman.layed.dbman import DbMan
         dbm = DbMan(self.config)
         
@@ -95,7 +97,9 @@ class LayEd:
         groups = map( lambda r: r["roleName"], roles )
 
         # Get Data
-        data = dbm.getDataPad(restrictBy='groups', groups=groups, owner=userName)
+        restrictBy = self.config.get("LayEd", "restrictBy")
+        logging.info("[LayEd][getData] restrictBy: '%s'"% (str(restrictBy)))
+        data = dbm.getDataPad(restrictBy=restrictBy, groups=groups, owner=userName)
 
         # Add the role titles
         # Db doesn't know about role titles. 
@@ -1360,7 +1364,8 @@ class LayEd:
         groups = map( lambda r: r["roleName"], roles )
 
         # GET Layers from LayPad
-        layers = dbm.getLayerPad(restrictBy='groups', groups=groups, owner=user)
+        restrictBy = self.config.get("LayEd", "restrictBy")
+        layers = dbm.getLayerPad(restrictBy=restrictBy, groups=groups, owner=user)
 
         # Assign role titles to workspaces       
 
