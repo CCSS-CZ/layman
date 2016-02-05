@@ -88,6 +88,8 @@ class LayEd:
             [ {"name": "pest_00", "layertype": "vector", "owner": "hsrs", "roleTitle": "AA Group", "datatype": "table", "schema": "aagroup"}, ...]        
 
         """
+        logging.info("[LayEd][getData] Params: roles: '%s', userName: '%s'"% (str(roles),str(userName))
+
         from layman.layed.dbman import DbMan
         dbm = DbMan(self.config)
         
@@ -96,6 +98,7 @@ class LayEd:
 
         # Get Data
         restrictBy = self.config.get("LayEd", "restrictBy")
+        logging.info("[LayEd][getData] restrictBy: '%s'"% (str(restrictBy))
         data = dbm.getDataPad(restrictBy=restrictBy, groups=groups, owner=userName)
 
         # Add the role titles
