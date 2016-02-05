@@ -524,8 +524,8 @@ class DbMan:
                 logging.error("[DbMan][getLayerPad] getLayerPad() called with restrictBy roles, but no roles given")
                 raise LaymanError(500, "Cannot get Layers, no roles were specified for getLayerPad()")        
             groups = ",".join(map( lambda g: "'"+g+"'", groups )) # "'aaa','bbb','ccc'"
-            sql = "SELECT layername, layergroup, layertitle, owner, layertype, datagroup, dataname, datatype, vectortype FROM layman.layers where layergroup IN (%s)"
-            sqlParams = (groups,)
+            sql = "SELECT layername, layergroup, layertitle, owner, layertype, datagroup, dataname, datatype, vectortype FROM layman.layers where layergroup IN (%s)"% groups
+            sqlParams = ()
 
         result = self.get_sql(sql, sqlParams) # [['rivers','hasici','Reky','hsrs','vector','hasici','rivers_01'], ... ]
 
