@@ -98,7 +98,7 @@ class LayEd:
 
         # Get Data
         restrictBy = self.config.get("LayEd", "restrictBy")
-        logging.info("[LayEd][getData] restrictBy: '%s'"% (str(restrictBy))
+        logging.info("[LayEd][getData] restrictBy: '%s'"% (str(restrictBy)))
         data = dbm.getDataPad(restrictBy=restrictBy, groups=groups, owner=userName)
 
         # Add the role titles
