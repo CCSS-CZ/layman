@@ -1818,12 +1818,12 @@ class LayEd:
 
     ### LAYER CONFIG ###
 
-    def getLayerConfig(self, workspace, layerName):
+    def getLayerDetails(self, workspace, layerName):
         """ This function combines two things together:
         {{Layer}{FeatureType}}, both in json.
         Type of the return value is string."""
 
-        logging.debug("[LayEd][getLayerConfig] GET Layer Config for %s:%s"% (workspace, layerName))
+        logging.debug("[LayEd][getLayerDetails] GET Layer Config for %s:%s"% (workspace, layerName))
 
         gsr = GsRest(self.config)
 
@@ -1849,7 +1849,7 @@ class LayEd:
         retval["layer"] = layerJson["layer"]
         retval["featureType"] = featureTypeJson["featureType"]
         retval = json.dumps(retval)
-        logging.debug("[LayEd][getLayerConfig] Reply with: %s"% (retval))
+        logging.debug("[LayEd][getLayerDetails] Reply with: %s"% (retval))
         return (200, retval)
 
     def putLayerConfig(self, workspace, layerName, data, fsUserDir,
@@ -2169,21 +2169,4 @@ class LayEd:
         if rtype == "GTiff":
             return "GeoTIFF"
 
-    ### WORKSPACES ###
-
-    def getWorkspaces(self): # TODO
-        """json of workspaces, eventually with layers"""
-        return (501, "I am sorry, not implemented yet")
-
-    def addWorkspace(self,name,attributes=None):
-        """create workspace""" #TODO
-        return (501, "I am sorry, not implemented yet")
-
-    def removeWorkspace(self,name):
-        """remove workspace""" #TODO
-        return (501, "I am sorry, not implemented yet")
-
-    def updateWorkspace(self, name,attributes=None):
-        """updates existing worspace""" #TODO
-        return (501, "I am sorry, not implemented yet")
 

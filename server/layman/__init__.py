@@ -132,27 +132,44 @@ class LayMan:
 
                     elif len(path) == 2:
 
-                        # /data/groups
-                        if path[1] == "groups":
-                            (code, retval) = self.auth.getRolesStr()
-
-                        # /data/allgroups
-                        elif path[1] == "allgroups":
-                            (code, retval) = self.auth.getAllRolesStr()
-
-                        # /data/sync
-                        elif path[1] == "sync":
-                            from layed import LayEd
-                            le = LayEd()
-    
-                            roles = self.auth.getRoles()
-                            (code, retval) = le.syncDataPad(roles)
-
                         else:
                             (code, retval) = self._callNotSupported(restMethod="GET", call=origName)
 
                     else:
                         (code, retval) = self._callNotSupported(restMethod="GET", call=origName)
+
+                # /sync
+                elif path[0] == "sync" and len(path) == 2:
+
+                    # /sync/data
+                    if path[1] == "data":
+                        from layed import LayEd
+                        le = LayEd()    
+                        roles = self.auth.getRoles()
+                        (code, retval) = le.syncDataPad(roles)
+
+                    # /sync/layers
+                    elif path[1] == "layers"
+                        from layed import LayEd
+                        le = LayEd()
+                        roles = self.auth.getRoles()
+                        (code, retval) = le.syncLayerPad(roles)
+
+                    else:
+                        (code, retval) = self._callNotSupported(restMethod="GET", call=origName)
+
+                # /groups
+                elif path[0] == "groups" and len(path) == 2:
+                        # /groups/mine
+                        if path[1] == "mine":
+                            (code, retval) = self.auth.getRolesStr()
+
+                        # /groups/all
+                        elif path[1] == "all":
+                            (code, retval) = self.auth.getAllRolesStr()
+
+                        else:
+                            (code, retval) = self._callNotSupported(restMethod="GET", call=origName)
 
                 # Get the list of ckan packages
                 elif path[0] == 'ckan':
@@ -172,69 +189,42 @@ class LayMan:
                     else:
                         (code, retval) = self._callNotSupported(restMethod="GET", call=origName)
 
-                elif path[0] == 'layed':
+                elif path[0] == 'layers':
 
                     from layed import LayEd
                     le = LayEd()
 
-                    # /layed[?usergroup=FireBrigade]
+                    #     /layers
+                    # was /layed[?usergroup=FireBrigade]
                     if len(path) == 1:
                         """ Get the json of the layers.
-                        If usergroup parameter is specified, only the layers
-                        of the corresponding workspace are returned.
-                        Otherwise, the layers of all groups allowed are returned
-                        in proprietary json, ordered by group (i.e. workspace)
+                        The layers of all groups allowed are returned
+                        in json, ordered by group (i.e. workspace)
                         """
-                        logging.info("[LayMan][GET /layed]")
-                        inpt = web.input(usergroup=None)
-                        if inpt.usergroup == None: # workspace not given, go for all
-                            roles = self.auth.getRoles()
-                        else: # workspace given, go for one
-                            role = self.auth.getRole(inpt.usergroup)
-                            roles = [role]
+                        roles = self.auth.getRoles()
                         userName = self.auth.getUserName()
                         (code,retval) = le.getLayers(roles, userName)
 
+                    #     /layers/<group>
+                    # was /layed[?usergroup=FireBrigade]
                     elif len(path) == 2:
+                        role = self.auth.getRole(path[1])
+                        if role != path[1]:
+                            logging.error("[LayMan][GET] Not authorized to get layers of %s group"% path[1])
+                            raise AuthError(401, "Sorry, you are not authorized to get the layers of %s group"% path[1])
+                        roles = [role]
+                        userName = self.auth.getUserName()
+                        (code,retval) = le.getLayers(roles, userName)
 
-                        # /layed/workspaces
-                        if path[1] == "workspaces":
-                            (code, retval) = le.getWorkspaces()
-
-                        # /layed/sync
-                        elif path[1] == "sync":
-                            from layed import LayEd
-                            le = LayEd()
-    
-                            roles = self.auth.getRoles()
-                            (code, retval) = le.syncLayerPad(roles)
-
-                        # /layed/groups
-                        elif path[1] == "groups":
-                            (code, retval) = self.auth.getRolesStr()
-
-                        # /layed/allgroups
-                        elif path[1] == "allgroups":
-                            (code, retval) = self.auth.getAllRolesStr()
-
-                        else:
-                            (code, retval) = self._callNotSupported(restMethod="GET", call=origName)
-
+                    #     /layers/<group>/<layer>
+                    # was /layed/config/<layer>?usergroup=FireBrigade
                     elif len(path) == 3:
-
-                        # /layed/config/<layer>?usergroup=FireBrigade
-                        if path[1] == "config":
-                            layerName = path[2]
-                            inpt = web.input(usergroup=None)
-                            gsWorkspace = self.auth.getGSWorkspace(inpt.usergroup)
-                            (code, retval) = le.getLayerConfig(gsWorkspace, layerName)
-
-                        # /layed/workspaces/<ws>
-                        elif path[1] == "workspaces":
-                            (code, retval) = le.getWorkspace(path[2])
-
-                        else:
-                            (code, retval) = self._callNotSupported(restMethod="GET", call=origName)
+                        gsWorkspace = self.auth.getGSWorkspace(path[1])
+                        if gsWorkspace != path[1]:
+                            logging.error("[LayMan][GET] Not authorized to get layer of %s group"% path[1])
+                            raise AuthError(401, "Sorry, you are not authorized to get the details of a layer from the %s group"% path[1])
+                        layerName = path[2]
+                        (code, retval) = le.getLayerDetails(gsWorkspace, layerName)
 
                     else:
                         (code, retval) = self._callNotSupported(restMethod="GET", call=origName)
@@ -283,12 +273,12 @@ class LayMan:
                 code = None
                 message = None
                 origName = name
-                name = [d for d in os.path.split(origName) if d]
+                path = [d for d in os.path.split(origName) if d]
 
-                if len(name) > 0:
+                if len(path) > 0:
 
                     # POST "http://localhost:8080/layman/files/<user>"
-                    if name[0] == "files" and len(name) == 2:
+                    if path[0] == "files" and len(path) == 2:
                         from fileman import FileMan
                         fm = FileMan()
 
@@ -325,27 +315,34 @@ class LayMan:
 
                     # POST /layman/user
                     # data: {screenName: "user", roles: [{roleTitle, roleName}, {roleTitle, roleName}]}
-                    elif name[0] == "user":
+                    elif path[0] == "user":
                         from userprefs import UserPrefs
                         up = UserPrefs(config)
                         data = web.data()
                         logging.debug(data)
                         (code, message) = up.createUser(userJsonStr=data)
 
-                    # POST "http://localhost:8080/layman/layed?fileName=Rivers.shp&usergroup=RescueRangers"
-                    elif name[0] == "layed":
+                    #     /datalayers/<group>?fileName=Rivers.shp
+                    # was /layed?fileName=Rivers.shp&usergroup=RescueRangers"
+                    elif path[0] == "datalayers":
                         from layed import LayEd
                         le = LayEd(config)
-                        inpt = web.input(usergroup=None)
+
                         if not inpt.fileName:
                             raise LaymanError(
                                 400, "'fileName' parameter missing")
+
+                        checkRole = self.auth.getRole(path[1])
+                        if checkRole != path[1]:
+                            logging.error("[LayMan][POST] Not authorized to post files into %s group"% path[1])
+                            raise AuthError(401, "Sorry, you are not authorized to post files into %s group"% path[1])
+
                         fileName = inpt.fileName
                         userName = self.auth.getUserName()
                         fsUserDir = self.auth.getFSUserDir()
-                        fsGroupDir = self.auth.getFSGroupDir(inpt.usergroup)
-                        dbSchema = self.auth.getDBSchema(inpt.usergroup)
-                        gsWorkspace = self.auth.getGSWorkspace(inpt.usergroup)
+                        fsGroupDir = self.auth.getFSGroupDir(path[1])
+                        dbSchema = self.auth.getDBSchema(path[1])
+                        gsWorkspace = self.auth.getGSWorkspace(path[1])
                         crs = inpt.crs # native crs
                         tsrs = inpt.tsrs # target srs
                         cpg = inpt.cpg # code page
@@ -363,18 +360,23 @@ class LayMan:
                             location = layerName # TODO: provide full URI here             
                             web.header("Location", location)
 
-                    elif name[0] == "publish" or name[0] == "data":
+                    #      /layers/<group>
+                    # was: /publish or /data
+                    elif path[0] == "layers" and len(path) == 2:
                         from layed import LayEd
                         le = LayEd(config)
                         inpt = web.input()
 
+                        # Check authorization
+                        checkRole = self.auth.getRole(path[1])
+                        if checkRole != path[1]:
+                            logging.error("[LayMan][POST] Not authorized to post files into %s group"% path[1])
+                            raise AuthError(401, "Sorry, you are not authorized to post files into %s group"% path[1])
+
                         # Obligatory parameters
-                        if not "schema" in inpt:
+                        if not "dataname" in inpt:
                             raise LaymanError(
-                                400, "'schema' parameter missing")
-                        if not "view" in inpt:
-                            raise LaymanError(
-                                400, "'view' parameter missing")
+                                400, "'dataname' parameter missing")
                         if not "datatype" in inpt:
                             raise LaymanError(
                                 400, "'datatype' parameter missing")
@@ -382,11 +384,11 @@ class LayMan:
                             raise LaymanError(
                                 400, "'crs' parameter missing")
 
-                        viewName = inpt.view
+                        dataName = inpt.dataname
                         dataType = inpt.datatype
                         userName = self.auth.getUserName()
-                        dbSchema = self.auth.getDBSchema(inpt.schema)
-                        gsWorkspace = self.auth.getGSWorkspace(inpt.schema)
+                        dbSchema = self.auth.getDBSchema(path[1])
+                        gsWorkspace = self.auth.getGSWorkspace(path[1])
                         crs = inpt.crs
 
                         secureLayer = False
@@ -403,7 +405,7 @@ class LayMan:
                             styleWs = inpt.style_ws
 
                         (code, layerName, message) = le.publishFromDbToGs(dbSchema, 
-                                                            viewName, dataType, gsWorkspace, userName,
+                                                            dataName, dataType, gsWorkspace, userName,
                                                             crs, inpt, styleName, styleWs, secureLayer)
 
                         # Set Location header
@@ -488,7 +490,8 @@ class LayMan:
                             code = 500
                             message = "PUT Style failed: " + str(e)
 
-                # /layed/config/<layer>?usergroup=FireBrigade
+                #     /layers/<group>/<layer> TODO
+                # was /layed/config/<layer>?usergroup=FireBrigade
                 elif path[0] == "layed" and len(path) == 2:
                     from layed import LayEd
                     le = LayEd()
