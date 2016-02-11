@@ -78,25 +78,33 @@ class LayMan:
                 origName = name
                 path = [d for d in name.split(os.path.sep) if d]
 
-                # GET "http://localhost:8080/layman/fileman/"
-                if path[0] == "fileman":
+                # GET "http://localhost:8080/layman/files/<user>"
+                if path[0] == "files" and len(path) >= 2:
 
                     from fileman import FileMan
                     fm = FileMan()
 
-                    # /fileman
-                    if len(path) == 1:
-                        logging.info("[LayMan][GET /fileman]")
+                    # Everyone can get only his/her own files 
+                    userName = self.auth.getUserName()
+                    if userName != path[1]
+                        logging.error("[LayMan][GET] %s is not authorized to get files of %s"% (userName, path[1]))
+                        raise AuthError(401, "Sorry, you are not authorized to get files of %s"% path[1])
+
+                    #     /files/<user>
+                    # was /fileman
+                    if len(path) == 2:
                         (code, retval) = fm.getFiles(self.auth.getFSUserDir())
 
-                    # /fileman/<file>
-                    elif len(path) == 2:
-                        (code, retval) = fm.getFile(self._getTargetFile(path[1]))
+                    #     /files/<user>/<file>
+                    # was /fileman/<file> 
+                    elif len(path) == 3:
+                        (code, retval) = fm.getFile(self._getTargetFile(path[2]))
 
-                    # /fileman/detail/<file>
-                    elif len(path) == 3 and\
-                        path[1] == "detail":
-                        (code, retval) = fm.getFileDetails(self._getTargetFile(path[2]))
+                    #     /files/<user>/<file>/details
+                    # was /fileman/detail/<file>
+                    elif len(path) == 4 and\
+                        path[3] == "details":
+                        (code, retval) = fm.getFileDetails(self._getTargetFile(path[3]))
 
                     else:
                         (code, retval) = self._callNotSupported(restMethod="GET", call=origName)
@@ -279,10 +287,16 @@ class LayMan:
 
                 if len(name) > 0:
 
-                    # POST "http://localhost:8080/layman/fileman/file.shp"
-                    if name[0] == "fileman":
+                    # POST "http://localhost:8080/layman/files/<user>"
+                    if name[0] == "files" and len(name) == 2:
                         from fileman import FileMan
                         fm = FileMan()
+
+                        # Everyone can post only in his/her own directory
+                        userName = self.auth.getUserName()
+                        if userName != path[1]
+                            logging.error("[LayMan][POST] %s is not authorized to post files into %s's directory"% (userName, path[1]))
+                            raise AuthError(401, "Sorry, you are not authorized to post files into %s's directory"% path[1])
 
                         # Request params
                         inpt = web.input(filename={}, newfilename="")
@@ -432,10 +446,17 @@ class LayMan:
 
                 path = [d for d in name.split(os.path.sep) if d]
 
-                # PUT "http://localhost:8080/layman/fileman/file.shp"
-                if path[0]  == "fileman":
+                # PUT "http://localhost:8080/layman/files/<user>/file.shp"
+                if path[0]  == "files" and len(path) == 3:
                     from fileman import FileMan
                     fm = FileMan()
+
+                    # Everyone can PUT only his/her own files 
+                    userName = self.auth.getUserName()
+                    if userName != path[1]
+                        logging.error("[LayMan][PUT] %s is not authorized to put files of %s"% (userName, path[1]))
+                        raise AuthError(401, "Sorry, you are not authorized to update files of %s"% path[1])
+
                     fileName = path[-1]
                     data = web.data()
                     (code, message) = fm.putFile(self._getTargetFile(
@@ -520,20 +541,18 @@ class LayMan:
                 path = [d for d in name.split(os.path.sep) if d]
                 if len(name) > 0:
 
-                    # Uncomment to check delete rights
-                    # TODO: Check delete rights based on the ownership further on, 
-                    # where the owner of the resource is known
-                    # 
-                    #if path[0] != "fileman" and not self.auth.canDelete():
-                    #        logging.error("[LayMan][DELETE] Only admin can DELETE")
-                    #        raise AuthError(401, "Authorisation failed. Only Administrator can delete")
+                    # /files/<user>/file.shp"
+                    if path[0] == "files" and len(path) == 3:
+                        from fileman import FileMan
+                        fm = FileMan()
 
-                    # /fileman/file.shp"
-                    if path[0] == "fileman":
-                            from fileman import FileMan
-                            fm = FileMan()
-                            fileName = name[8:]
-                            (code, message) = fm.deleteFile(self._getTargetFile(path[-1]))
+                        # Everyone can DELETE only his/her own files 
+                        userName = self.auth.getUserName()
+                        if userName != path[1]
+                            logging.error("[LayMan][PUT] %s is not authorized to delete files of %s"% (userName, path[1]))
+                            raise AuthError(401, "Sorry, you are not authorized to delete files of %s"% path[1])
+
+                        (code, message) = fm.deleteFile(self._getTargetFile(path[-1]))
 
                     # /user/<username>
                     elif path[0] == "user" and len(path) == 2:
