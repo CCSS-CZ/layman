@@ -1863,11 +1863,6 @@ class LayEd:
 
         gsr = GsRest(self.config)
 
-        # Update Data (database or filesystem)
-
-        if "fileName" in data.keys():
-            self.updateData(layerName, workspace, fsUserDir, fsGroupDir, dbSchema, data["fileName"])
-
         # Update Data Settings (geoserver - featureType.xml || coverage.xml)
 
         layerType = data["layer"]["type"]
@@ -1880,9 +1875,6 @@ class LayEd:
             # PUT Coverage
             self.updateCoverage(data)
         
-        # TODO: PUT WMS Layer
-        #elif layerType == "WMS":
-
         else:
             logging.error("[LayEd][putLayerConfig] Layer %s:%s: Update request for unsupported layer type '%s'"% (workspace, layerName, layerType))
             errMsg = "Cannot update layer settings. Layer type '" + layerType+ "' is not supported."             
@@ -2059,7 +2051,7 @@ class LayEd:
             logging.error("[LayEd][updateLayer] PUT Layer failed. Geoserver replied with '%s' and said: '%s'"% (head, cont))
             raise LaymanError(500, errorMsg)
 
-    def updateData(self, layerName, workspace, fsUserDir, fsGroupDir,
+    def updateData(self, dataName, workspace, fsUserDir, fsGroupDir,
                    dbSchema, fileName):
         """Update data - database or file system -
            from new shape or raster file
@@ -2077,7 +2069,7 @@ class LayEd:
             # Import to DB
             from layman.layed.dbman import DbMan
             dbm = DbMan(self.config)
-            dbm.updateVectorFile(filePath, dbSchema, layerName)
+            dbm.updateVectorFile(filePath, dbSchema, dataName)
             data_type = "vector"
 
         # RASTER

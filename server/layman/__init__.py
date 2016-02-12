@@ -448,7 +448,7 @@ class LayMan:
 
                 path = [d for d in name.split(os.path.sep) if d]
 
-                # PUT "http://localhost:8080/layman/files/<user>/file.shp"
+                # PUT /files/<user>/file.shp"
                 if path[0]  == "files" and len(path) == 3:
                     from fileman import FileMan
                     fm = FileMan()
@@ -463,6 +463,33 @@ class LayMan:
                     data = web.data()
                     (code, message) = fm.putFile(self._getTargetFile(
                                                  fileName), data)
+
+                # PUT /data/<group>/{table|view|file}/<data>?fileName=Rivers.shp
+                elif path[0] == "data" and len(path) == 4:
+                    from layed import LayEd
+                    le = LayEd()
+
+                    # Check authorization for the given group
+                    checkRole = self.auth.getRole(path[1])
+                    if checkRole != path[1]:
+                        logging.error("[LayMan][PUT] Not authorized to PUT data for %s group"% path[1])
+                        raise AuthError(401, "Sorry, you are not authorized to put data in %s group"% path[1])
+
+                    # fileName must be given
+                    inpt = web.input()
+                    if not inpt.fileName:
+                        raise LaymanError(400, "'fileName' parameter must be given")
+
+                    # Note: currently all vectors are stored in database and all rasters are stored in filesystem.
+                    # If some vector is to be stored in the fs or some raster in the db, 
+                    # LayEd.updateData() must be adjusted and receive path[2] as a parameter
+                    
+                    fsUserDir = self.auth.getFSUserDir()
+                    fsGroupDir = self.auth.getFSGroupDir(path[1])
+                    dbSchema = self.auth.getDBSchema(path[1])
+                    gsWorkspace = self.auth.getGSWorkspace(path[1])
+
+                    (code, message) = le.updateData(path[3], gsWorkspace, fsUserDir, fsGroupDir, dbSchema, inpt.fileName):
 
                 # PUT /layman/user/
                 # data: {screenName: "user", roles: [{roleTitle, roleName}, {roleTitle, roleName}]}
@@ -490,29 +517,28 @@ class LayMan:
                             code = 500
                             message = "PUT Style failed: " + str(e)
 
-                #     /layers/<group>/<layer> TODO
+                # PUT /layers/<group>/<layer> 
                 # was /layed/config/<layer>?usergroup=FireBrigade
-                elif path[0] == "layed" and len(path) == 2:
+                elif path[0] == "layers" and len(path) == 3:
                     from layed import LayEd
                     le = LayEd()
-                    layerName = path[1]
-                    inpt = web.input(usergroup=None)
-                    gsWorkspace = self.auth.getGSWorkspace(inpt.usergroup)
+
+                    # Check authorization for the given group
+                    checkRole = self.auth.getRole(path[1])
+                    if checkRole != path[1]:
+                        logging.error("[LayMan][PUT] Not authorized to PUT layer for %s group"% path[1])
+                        raise AuthError(401, "Sorry, you are not authorized to put layer in %s group"% path[1])
+
                     data = web.data()
                     data = json.loads(data)  # string -> json
 
-                    usergroup = inpt.usergroup
-                    if (not usergroup) and ("usergroup" in data.keys()):
-                        logging.debug("[LayMan][PUT] Usergroup not provided in params, but given in data: %s"% data["usergroup"])
-                        usergroup = data["usergroup"]
-
                     fsUserDir = self.auth.getFSUserDir()
-                    fsGroupDir = self.auth.getFSGroupDir(usergroup)
-                    dbSchema = self.auth.getDBSchema(usergroup)
-                    gsWorkspace = self.auth.getGSWorkspace(usergroup)
+                    fsGroupDir = self.auth.getFSGroupDir(path[1])
+                    dbSchema = self.auth.getDBSchema(path[1])
+                    gsWorkspace = self.auth.getGSWorkspace(path[1])
 
                     (code, message) = le.putLayerConfig(gsWorkspace,
-                                                        layerName, data,
+                                                        path[2], data,
                                                         fsUserDir, fsGroupDir,
                                                         dbSchema)
 
