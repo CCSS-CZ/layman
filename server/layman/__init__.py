@@ -578,7 +578,7 @@ class LayMan:
                         # Everyone can DELETE only his/her own files 
                         userName = self.auth.getUserName()
                         if userName != path[1]
-                            logging.error("[LayMan][PUT] %s is not authorized to delete files of %s"% (userName, path[1]))
+                            logging.error("[LayMan][DELETE] %s is not authorized to delete files of %s"% (userName, path[1]))
                             raise AuthError(401, "Sorry, you are not authorized to delete files of %s"% path[1])
 
                         (code, message) = fm.deleteFile(self._getTargetFile(path[-1]))
@@ -590,23 +590,42 @@ class LayMan:
                         up = UserPrefs(config)
                         (code, message) = up.deleteUser(userName)
 
-                    # /layed/<layer>
-                    elif path[0] == "layed" and len(path) == 2:
+                    #     /layers/<group>/<layer>
+                    # was /layed/<layer>
+                    elif path[0] == "layers" and len(path) == 3:
                         from layed import LayEd
                         le = LayEd()
-                        layerName = path[1]
-                        inpt = web.input(usergroup=None)
-                        
-                        deleteTable = True
-                        if "deleteTable" in inpt:
-                            if inpt["deleteTable"].lower() == "false":
-                                deleteTable = False
-                        
-                        gsWorkspace = self.auth.getGSWorkspace(inpt.usergroup)
-                        dbSchema    = self.auth.getDBSchema(inpt.usergroup)
-                        logging.info("[LayMan][DELETE] Delete layer '%s'"% layerName )
+
+                        # Check authorization for the given group
+                        checkRole = self.auth.getRole(path[1])
+                        if checkRole != path[1]:
+                            logging.error("[LayMan][DELETE] Not authorized to DELETE layer from %s group"% path[1])
+                            raise AuthError(401, "Sorry, you are not authorized to delete layer from %s group"% path[1])
+
+                        gsWorkspace = self.auth.getGSWorkspace(path[1])
+                        dbSchema    = self.auth.getDBSchema(path[1])
+                        logging.info("[LayMan][DELETE] Delete layer '%s'"% path[2] )
                         logging.info("[LayMan][DELETE] Delete from workspace '%s'"% gsWorkspace)
-                        (code, message) = le.deleteLayer(gsWorkspace, layerName, dbSchema, deleteTable)
+                        # Delete layer only
+                        (code, message) = le.deleteLayer(gsWorkspace, path[2], dbSchema, deleteTable=False)
+
+                    #     /datalayers/<group>/<layer>
+                    elif path[0] == "datalayers" and len(path) == 3:
+                        from layed import LayEd
+                        le = LayEd()
+
+                        # Check authorization for the given group
+                        checkRole = self.auth.getRole(path[1])
+                        if checkRole != path[1]:
+                            logging.error("[LayMan][DELETE] Not authorized to DELETE layer from %s group"% path[1])
+                            raise AuthError(401, "Sorry, you are not authorized to delete layer from %s group"% path[1])
+
+                        gsWorkspace = self.auth.getGSWorkspace(path[1])
+                        dbSchema    = self.auth.getDBSchema(path[1])
+                        logging.info("[LayMan][DELETE] Delete layer and data '%s'"% path[2] )
+                        logging.info("[LayMan][DELETE] Delete from workspace '%s'"% gsWorkspace)
+                        # Delete layer and data
+                        (code, message) = le.deleteLayer(gsWorkspace, path[2], dbSchema, deleteTable=True)
 
                     # /publish/<layer>
                     elif path[0] == "publish" and len(path) == 2:
