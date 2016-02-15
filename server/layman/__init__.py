@@ -86,7 +86,7 @@ class LayMan:
 
                     # Everyone can get only his/her own files 
                     userName = self.auth.getUserName()
-                    if userName != path[1]
+                    if userName != path[1]:
                         logging.error("[LayMan][GET] %s is not authorized to get files of %s"% (userName, path[1]))
                         raise AuthError(401, "Sorry, you are not authorized to get files of %s"% path[1])
 
@@ -284,7 +284,7 @@ class LayMan:
 
                         # Everyone can post only in his/her own directory
                         userName = self.auth.getUserName()
-                        if userName != path[1]
+                        if userName != path[1]:
                             logging.error("[LayMan][POST] %s is not authorized to post files into %s's directory"% (userName, path[1]))
                             raise AuthError(401, "Sorry, you are not authorized to post files into %s's directory"% path[1])
 
@@ -455,7 +455,7 @@ class LayMan:
 
                     # Everyone can PUT only his/her own files 
                     userName = self.auth.getUserName()
-                    if userName != path[1]
+                    if userName != path[1]:
                         logging.error("[LayMan][PUT] %s is not authorized to put files of %s"% (userName, path[1]))
                         raise AuthError(401, "Sorry, you are not authorized to update files of %s"% path[1])
 
@@ -577,7 +577,7 @@ class LayMan:
 
                         # Everyone can DELETE only his/her own files 
                         userName = self.auth.getUserName()
-                        if userName != path[1]
+                        if userName != path[1]:
                             logging.error("[LayMan][DELETE] %s is not authorized to delete files of %s"% (userName, path[1]))
                             raise AuthError(401, "Sorry, you are not authorized to delete files of %s"% path[1])
 
