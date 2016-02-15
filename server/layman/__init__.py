@@ -144,7 +144,7 @@ class LayMan:
                         (code, retval) = le.syncDataPad(roles)
 
                     # /sync/layers
-                    elif path[1] == "layers"
+                    elif path[1] == "layers":
                         from layed import LayEd
                         le = LayEd()
                         roles = self.auth.getRoles()
