@@ -66,13 +66,15 @@ Ext4.define('HSRS.LayerManager.FilesPanel', {
             ]
         });
 
+        var userName = getLRUser();
+
         myconfig.store = Ext4.create('Ext4.data.JsonStore', {
             model: 'HSRS.LayerManager.FilesPanel.Model',
             //autoLoad: true,
             //autoSync: true,
             proxy: {
                 type: 'ajax',
-                url: (HSRS.ProxyHost ? HSRS.ProxyHost + escape(config.url) : config.url),
+                url: (HSRS.ProxyHost ? HSRS.ProxyHost + escape(config.url) : config.url) + userName + '/',
                 reader: {
                     type: 'json',
                     idProperty: 'name'
@@ -227,7 +229,8 @@ Ext4.define('HSRS.LayerManager.FilesPanel', {
      * @param scope {Object}
      */
     getFileDetail: function(name, caller, scope) {
-        var url = this.url.replace(/\/$/, '') + '/detail/'+ name;
+        // /files/<user>/<filename>/details
+        var url = this.url + getLRUser() +"/"+ name + '/details/';
         Ext4.Ajax.request({
             url: (HSRS.ProxyHost ? HSRS.ProxyHost + escape(url) : url),
             success: caller,
@@ -311,7 +314,7 @@ Ext4.define('HSRS.LayerManager.FilesPanel', {
      * @param file {String}  file name.
      */
     deleteFile: function(file) {
-        var url = this.url + file;
+        var url = this.url + getLRUser() + "/" + file;
         console.log(this.url);
         Ext4.Ajax.request({
             method: 'DELETE',

@@ -138,7 +138,7 @@ Ext4.define('HSRS.LayerManager.LayersPanel.LayerMenu', {
 
         var publishForm = Ext4.create('HSRS.LayerManager.PublishForm', {
             name: this.layer.name,
-            url: this.url.replace('fileman', 'layed'),
+            url: this.url,
             //type: this.layer.type,
             groups: this.groups,
             abstract: this.layerData.description,

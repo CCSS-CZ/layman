@@ -66,7 +66,7 @@ Ext4.define('HSRS.LayerManager.DataPanel.DataMenu', {
 
         var publishForm = Ext4.create('HSRS.LayerManager.PublishForm', {
             name: this.name,
-            url: this.url.replace('fileman', 'publish'),
+            url: this.url.replace('data', 'layers'),
             groups: this.groups,
             group: this.schema,
             datatype: this.record.data.type,

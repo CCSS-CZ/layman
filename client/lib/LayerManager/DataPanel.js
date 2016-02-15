@@ -159,7 +159,7 @@ Ext4.define('HSRS.LayerManager.DataPanel', {
     },
 
     _onSyncClicked: function() {
-        var url = this.url + "sync";
+        var url = this.url.replace("data","sync/data";
 
         Ext4.Ajax.request({
             scope: this,

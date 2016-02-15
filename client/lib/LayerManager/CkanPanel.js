@@ -209,7 +209,7 @@ Ext4.define('HSRS.LayerManager.CkanPanel', {
 
     _onCopyToFiles: function(urlToGet) {
 
-        var filemanUrl = this.url.replace("ckan", "fileman");
+        var filemanUrl = this.url.replace("ckan", "files");
         var url = filemanUrl + '?source=url&url=' + urlToGet;
         console.log(url);
         Ext4.Ajax.request({

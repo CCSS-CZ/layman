@@ -73,7 +73,7 @@ Ext4.define('HSRS.LayerManager', {
         }
 
         // Files Panel
-        var url = config.url + (config.url[config.url.length - 1] == '/' ? '' : '/') + 'fileman/';
+        var url = config.url + (config.url[config.url.length - 1] == '/' ? '' : '/') + 'files/';
         var srid = config.srid;
         this.filesPanel = Ext4.create('HSRS.LayerManager.FilesPanel', {
             //url: config.url,
@@ -99,7 +99,7 @@ Ext4.define('HSRS.LayerManager', {
         });
 
         // Layers Panel
-        url = config.url + (config.url[config.url.length - 1] == '/' ? '' : '/') + 'layed/';
+        url = config.url + (config.url[config.url.length - 1] == '/' ? '' : '/') + 'layers/';
         this.layersPanel = Ext4.create('HSRS.LayerManager.LayersPanel', {
             url: url,
             flex: 1,
