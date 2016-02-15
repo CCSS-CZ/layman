@@ -130,11 +130,6 @@ class LayMan:
                         roles = self.auth.getRoles()
                         (code,retval) = le.getData(roles, userName)
 
-                    elif len(path) == 2:
-
-                        else:
-                            (code, retval) = self._callNotSupported(restMethod="GET", call=origName)
-
                     else:
                         (code, retval) = self._callNotSupported(restMethod="GET", call=origName)
 
