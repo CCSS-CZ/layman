@@ -484,7 +484,7 @@ class LayMan:
                     dbSchema = self.auth.getDBSchema(path[1])
                     gsWorkspace = self.auth.getGSWorkspace(path[1])
 
-                    (code, message) = le.updateData(path[3], gsWorkspace, fsUserDir, fsGroupDir, dbSchema, inpt.fileName):
+                    (code, message) = le.updateData(path[3], gsWorkspace, fsUserDir, fsGroupDir, dbSchema, inpt.fileName)
 
                 # PUT /layman/user/
                 # data: {screenName: "user", roles: [{roleTitle, roleName}, {roleTitle, roleName}]}
