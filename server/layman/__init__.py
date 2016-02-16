@@ -323,6 +323,8 @@ class LayMan:
                         from layed import LayEd
                         le = LayEd(config)
 
+                        inpt = web.input()
+
                         if not inpt.fileName:
                             raise LaymanError(
                                 400, "'fileName' parameter missing")
