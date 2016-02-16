@@ -119,7 +119,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                     autoLoad: true,
                     proxy: {
                         type: 'ajax',
-                        url: config.url + 'groups/mine', // Here we get the groups of the user
+                        url: config.url.replace('datalayers','groups/mine'), // Here we get the groups of the user
                         model: 'HSRS.LayerManager.PublishForm.GroupModel',
                         reader: {
                             type: 'json',
@@ -458,7 +458,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                                     // model: 'HSRS.LayerManager.PublishForm.GroupModel'
                                     proxy: {
                                         type: 'ajax',
-                                        url: config.url + 'groups/all', // Here we get all the groups
+                                        url: config.url.replace('datalayers','groups/all'), // Here we get all the groups
                                         model: 'HSRS.LayerManager.PublishForm.AllGroupModel',
                                         reader: {
                                             type: 'json',
