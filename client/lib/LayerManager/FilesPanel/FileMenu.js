@@ -86,7 +86,7 @@ Ext4.define('HSRS.LayerManager.FilesPanel.FileMenu', {
             {
                 text: HS.i18n('Download'),
                 icon: HSRS.IMAGE_LOCATION + '/download.png',
-                href: this.url + '/' + config.data.name,
+                href: this.url + '/' + getLRUser() +'/'+ config.data.name,
                 hrefTarget: '_blank'
             },
             {
