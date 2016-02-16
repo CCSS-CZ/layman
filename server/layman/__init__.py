@@ -319,7 +319,7 @@ class LayMan:
 
                     #     /datalayers/<group>?fileName=Rivers.shp
                     # was /layed?fileName=Rivers.shp&usergroup=RescueRangers"
-                    elif path[0] == "datalayers":
+                    elif path[0] == "datalayers" and len(path) == 2:
                         from layed import LayEd
                         le = LayEd(config)
 

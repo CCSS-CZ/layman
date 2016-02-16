@@ -880,6 +880,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
             var vals = this.getForm().getValues();
             this.layer = undefined;
             this.layerData = undefined;
+            this.url = this._url + vals.usergroup;
             this._reseting = true;
             this.getForm().reset();
             this.getForm().setValues({
