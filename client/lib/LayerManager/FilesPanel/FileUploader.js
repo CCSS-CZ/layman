@@ -82,7 +82,7 @@ Ext4.define('HSRS.LayerManager.FilesPanel.FileUploader', {
                 if (form.isValid()) {
                     form.submit({
                         scope: this,
-                        url: config.url,
+                        url: config.url + getLRUser(),
                         waitMsg: HS.i18n('Uploading files to server ...'),
                         success: function(form, action) {
                             this.fireEvent('filesaved', action);
