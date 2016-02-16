@@ -880,7 +880,6 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
             var vals = this.getForm().getValues();
             this.layer = undefined;
             this.layerData = undefined;
-            this.url = this._url + vals.usergroup;
             this._reseting = true;
             this.getForm().reset();
             this.getForm().setValues({
@@ -891,9 +890,8 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
             });
             this._reseting = false;
 
-            // this.isFeatureType = false;
             this.down('#publish_button').setText(HS.i18n('Publish'));
-            this.url = this._url;
+            this.url = this._url + vals.usergroup;
             this.down('#layerName').setValue(newValue);
         }
     }
