@@ -104,7 +104,7 @@ class LayMan:
                     # was /fileman/detail/<file>
                     elif len(path) == 4 and\
                         path[3] == "details":
-                        (code, retval) = fm.getFileDetails(self._getTargetFile(path[3]))
+                        (code, retval) = fm.getFileDetails(self._getTargetFile(path[2]))
 
                     else:
                         (code, retval) = self._callNotSupported(restMethod="GET", call=origName)
