@@ -778,7 +778,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
             }
 
             else if (this.type == "data") { // Data Panel
-                form.url = this._url + data.usergroup; // POST /layers/<group>
+                form.url = this._url + this.group; // POST /layers/<group>
                 form.submit({
                     success: function(form, action) {
                             Ext4.MessageBox.hide();
