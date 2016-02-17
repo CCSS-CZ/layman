@@ -69,7 +69,9 @@ Ext4.define('HSRS.LayerManager.DataPanel.DataMenu', {
             url: this.url.replace('data', 'layers'),
             groups: this.groups,
             group: this.schema,
-            datatype: this.record.data.type,
+            datatype: this.record.data.datatype,
+            layertype: this.record.data.layertype,
+            owner: this.record.data.owner,
             type: "data"
         });
         publishForm._win = Ext4.create('Ext4.window.Window', {

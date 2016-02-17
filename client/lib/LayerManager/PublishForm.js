@@ -246,7 +246,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
                            /* set table/view name if this is data
                             */
                            {
-                               name: 'view',
+                               name: 'dataname',
                                id: 'viewName',
                                xtype: 'hidden',
                                disabled: (config.type == "data" ?
