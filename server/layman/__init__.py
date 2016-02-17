@@ -331,7 +331,7 @@ class LayMan:
 
                         checkRole = self.auth.getRole(path[1])
                         logging.debug("[LayMan][POST] checkRole: '%s', path[1]: '%s'"% (checkRole, path[1]))
-                        if checkRole.roleName != path[1]:
+                        if checkRole["roleName"] != path[1]:
                             logging.error("[LayMan][POST] Not authorized to post files into %s group"% path[1])
                             raise AuthError(401, "Sorry, you are not authorized to post files into %s group"% path[1])
 
@@ -367,7 +367,7 @@ class LayMan:
 
                         # Check authorization
                         checkRole = self.auth.getRole(path[1])
-                        if checkRole.roleName != path[1]:
+                        if checkRole["roleName"] != path[1]:
                             logging.error("[LayMan][POST] Not authorized to post files into %s group"% path[1])
                             raise AuthError(401, "Sorry, you are not authorized to post files into %s group"% path[1])
 
@@ -469,7 +469,7 @@ class LayMan:
 
                     # Check authorization for the given group
                     checkRole = self.auth.getRole(path[1])
-                    if checkRole.roleName != path[1]:
+                    if checkRole["roleName"] != path[1]:
                         logging.error("[LayMan][PUT] Not authorized to PUT data for %s group"% path[1])
                         raise AuthError(401, "Sorry, you are not authorized to put data in %s group"% path[1])
 
@@ -523,7 +523,7 @@ class LayMan:
 
                     # Check authorization for the given group
                     checkRole = self.auth.getRole(path[1])
-                    if checkRole.roleName != path[1]:
+                    if checkRole["roleName"] != path[1]:
                         logging.error("[LayMan][PUT] Not authorized to PUT layer for %s group"% path[1])
                         raise AuthError(401, "Sorry, you are not authorized to put layer in %s group"% path[1])
 
@@ -596,7 +596,7 @@ class LayMan:
 
                         # Check authorization for the given group
                         checkRole = self.auth.getRole(path[1])
-                        if checkRole.roleName != path[1]:
+                        if checkRole["roleName"] != path[1]:
                             logging.error("[LayMan][DELETE] Not authorized to DELETE layer from %s group"% path[1])
                             raise AuthError(401, "Sorry, you are not authorized to delete layer from %s group"% path[1])
 
@@ -614,7 +614,7 @@ class LayMan:
 
                         # Check authorization for the given group
                         checkRole = self.auth.getRole(path[1])
-                        if checkRole.roleName != path[1]:
+                        if checkRole["roleName"] != path[1]:
                             logging.error("[LayMan][DELETE] Not authorized to DELETE layer from %s group"% path[1])
                             raise AuthError(401, "Sorry, you are not authorized to delete layer from %s group"% path[1])
 
