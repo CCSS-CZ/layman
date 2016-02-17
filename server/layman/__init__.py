@@ -330,6 +330,7 @@ class LayMan:
                                 400, "'fileName' parameter missing")
 
                         checkRole = self.auth.getRole(path[1])
+                        logging.debug("[LayMan][POST] checkRole: '%s', path[1]: '%s'"% (checkRole, path[1]))
                         if checkRole != path[1]:
                             logging.error("[LayMan][POST] Not authorized to post files into %s group"% path[1])
                             raise AuthError(401, "Sorry, you are not authorized to post files into %s group"% path[1])
