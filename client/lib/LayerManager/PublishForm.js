@@ -753,7 +753,7 @@ Ext4.define('HSRS.LayerManager.PublishForm', {
 
             // submit new files using http POST
             else if (this.type == "file") { // File Panel
-                form.url = form.url + data.usergroup; // POST /datalayers/<groups>
+                form.url = this._url + data.usergroup; // POST /datalayers/<groups>
                 form.submit({
                     success: function(form, action) {
                             Ext4.MessageBox.hide();
