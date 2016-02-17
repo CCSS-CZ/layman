@@ -200,11 +200,15 @@ Ext4.define('HSRS.LayerManager.LayersPanel', {
      * @param layer {workspace} ws name.
      */
     deleteLayer: function(layer, ws, title, deleteTable) {
-        var url = this.url + layer + '?usergroup='+ ws;
+        var url = this.url;
 
-        if (deleteTable == false) {
-            url = url + "&deleteTable=false"
+        if (deleteTable == true) { // delete data as well
+            url = url.replace('layers','datalayers');
         }
+
+        // DELETE /layers/<group>/<layer> - delete layer only
+        // DELETE /datalayers/<group>/<layer> - delete layer and data
+        url = url + ws + '/' + layer; 
 
         title = title || layer;
 
