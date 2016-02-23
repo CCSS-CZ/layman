@@ -109,15 +109,6 @@ class LayMan:
                     else:
                         (code, retval) = self._callNotSupported(restMethod="GET", call=origName)
 
-                elif path[0] == 'publish':
-                    
-                    from layed import LayEd
-                    le = LayEd()
-
-                    roles = self.auth.getRoles()
-                    userName = self.auth.getUserName()
-                    (code,retval) = le.getLayers(roles, userName)
-
                 # Get the list of tables in db (or other data)
                 elif path[0] == 'data':
                 
@@ -624,22 +615,6 @@ class LayMan:
                         logging.info("[LayMan][DELETE] Delete from workspace '%s'"% gsWorkspace)
                         # Delete layer and data
                         (code, message) = le.deleteLayer(gsWorkspace, path[2], dbSchema, deleteTable=True)
-
-                    # /publish/<layer>
-                    elif path[0] == "publish" and len(path) == 2:
-                        from layed import LayEd
-                        le = LayEd()
-                        layerName = path[1]
-                        inpt = web.input()
-                        if not "schema" in inpt:
-                            raise LaymanError(
-                                400, "'schema' parameter missing")
-
-                        gsWorkspace = self.auth.getGSWorkspace(inpt.schema)
-                        dbSchema    = self.auth.getDBSchema(inpt.schema)
-                        logging.info("[LayMan][DELETE] Delete layer '%s'"% layerName )
-                        logging.info("[LayMan][DELETE] Delete from workspace '%s'"% gsWorkspace)
-                        (code, message) = le.deleteLayer(gsWorkspace, layerName, dbSchema, deleteTable=False)
 
                 success = self._setReturnCode(code)
                 retval  = self._jsonReply(code, message, success)
