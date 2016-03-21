@@ -143,7 +143,7 @@ class LaymanAuthLiferay(LaymanAuth):
     # JSESSIONID from Liferay, provided by the Client
     JSESSIONID = None
 
-    # Has been succesfully authorised
+    # Has been successfully authorised
     authorised = False
 
     # Json reply from Slavek's service to http://erra.ccss.cz/g4i-portlet/service/sso/validate/JSESSIONID request
@@ -224,14 +224,14 @@ class LaymanAuthLiferay(LaymanAuth):
                 rolesStr = json.dumps(roles)
                 logging.debug("[LaymanAuthLiferay][_parseUserInfo] Roles: '%s'"% rolesStr)
 
-            logging.debug("[LaymanAuthLiferay][_parseUserInfo] Liferay reply succesfully parsed")
+            logging.debug("[LaymanAuthLiferay][_parseUserInfo] Liferay reply successfully parsed")
         except ValueError,e:
             logging.error("[LaymanAuthLiferay][_parseUserInfo] Cannot parse Liferay reply: '%s'"% content)
             raise AuthError(500, "Cannot parse Liferay response [%s] as JSON:%s"% (content,e)) 
 
         if self.authJson["resultCode"] == "0":
             self.authorised = True
-            logging.info("[LaymanAuthLiferay][_parseUserInfo] Authentication succesfull")
+            logging.info("[LaymanAuthLiferay][_parseUserInfo] Authentication successful")
         else:
             logging.error("[LaymanAuthLiferay][_parseUserInfo] Authentication failed: Liferay does not recognise given JSESSIONID")
             raise AuthError(401, "Authentication failed: Liferay does not recognise given JSESSIONID")

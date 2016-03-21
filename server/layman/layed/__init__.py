@@ -440,7 +440,7 @@ class LayEd:
 
             # Load JSON
             replyParsed = json.loads(resp)
-            logging.debug("[LayEd][getCkanResourcesOfGivenFormat] CKAN reply succesfully parsed")
+            logging.debug("[LayEd][getCkanResourcesOfGivenFormat] CKAN reply successfully parsed")
 
             # Check success
             if not replyParsed["success"]:
@@ -2047,7 +2047,7 @@ class LayEd:
         (head, cont) = gsr.putLayer(workspace, layerName, layerString)
 
         if head["status"] != "200":
-            errorMsg = "Data settings have been updated succesfully, but the update of publishing settings failed. "
+            errorMsg = "Data settings have been updated successfully, but the update of publishing settings failed. "
             logging.error("[LayEd][updateLayer] PUT Layer failed. Geoserver replied with '%s' and said: '%s'"% (head, cont))
             raise LaymanError(500, errorMsg)
 
