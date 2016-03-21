@@ -310,7 +310,7 @@ class DbMan:
         return (sqlBatch, sqlParams)
 
     def createSchemaIfNotExists(self, dbSchema):
-        logParam = "dbSchema='"+dbSchema+"'"
+        logParam = "dbSchema="+dbSchema
         logging.debug("[DbMan][createSchemaIfNotExists] %s"% logParam)
 
         try:
@@ -319,29 +319,12 @@ class DbMan:
             conn = psycopg2.connect(self.getConnectionString())
             cur = conn.cursor()
 
-            SQL = "SELECT schema_name FROM information_schema.schemata WHERE schema_name = %s;"
-            # SQL = "SELECT schema_name FROM information_schema.schemata;"
-            params = (dbSchema,)
-            logging.debug("[DbMan][createSchemaIfNotExists] Checking schema '%s'..."% dbSchema)
-            logging.debug("[DbMan][createSchemaIfNotExists] SQL: '%s', Params: '%s'..."% (SQL, params))
-            cur.execute(SQL, params)
-            result = cur.fetchall()
-            logging.debug("[DbMan][createSchemaIfNotExists] Select result: '%s'"% str(result))
-
-            created = False
-            if not result:
-                logging.debug("[DbMan][createSchemaIfNotExists] Schema not found, create schema")
-                SQL = "CREATE SCHEMA %s;"
-                cur.execute(SQL, (dbSchema,))
-                created = True
-            else:
-                logging.debug("[DbMan][createSchemaIfNotExists] Schema found, go on")
+            SQL = "CREATE SCHEMA IF NOT EXISTS %s"
+            cur.execute(SQL, (AsIs(dbSchema)))
 
             conn.commit()
             cur.close()
             conn.close()
-            if created:
-                logging.info("[DbMan][createSchemaIfNotExists] Created schema %s"% dbSchema)
 
         except Exception as e:
             errStr = "Database (psycopg2) error: '"+str(e)+"'"
