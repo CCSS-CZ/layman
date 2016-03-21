@@ -319,8 +319,8 @@ class DbMan:
             conn = psycopg2.connect(self.getConnectionString())
             cur = conn.cursor()
 
-            SQL = "CREATE SCHEMA IF NOT EXISTS %s"
-            cur.execute(SQL, (AsIs(dbSchema)))
+            SQL = "CREATE SCHEMA IF NOT EXISTS " + dbSchema
+            cur.execute(SQL)
 
             conn.commit()
             cur.close()
