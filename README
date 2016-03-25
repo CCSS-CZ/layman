@@ -6,3 +6,13 @@ web services on top of them.
 
 Client: JavaScript (ExtJS, OpenLayers)
 Server: Python
+
+Dependencies
+python-gdal
+python-flup
+python-webpy
+python-owslib
+python-httplib2
+python-lxml
+python-numpy
+python-psycopg2

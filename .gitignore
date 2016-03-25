@@ -1,2 +1,7 @@
 *.pyc
 *.sw*
+server/layman.cfg
+server/layman.cgi
+server/layman.py
+server/logs
+data/
